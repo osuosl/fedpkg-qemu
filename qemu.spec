@@ -8,7 +8,7 @@ URL: http://fabrice.bellard.free.fr/qemu
 Source0: http://fabrice.bellard.free.fr/qemu/%{name}-%{version}.tar.gz
 Source1: qemu.init
 Patch0: qemu-0.6.1-build.patch
-BuildRoot: %{_tmppath}/%{name}-%{version}-root
+BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: SDL-devel
 PreReq: /sbin/chkconfig
 PreReq: /sbin/service
@@ -73,6 +73,9 @@ fi
 %config %{_sysconfdir}/rc.d/init.d/qemu
 
 %changelog
+* Sat Oct 21 2006 Peter Gordon <peter@thecodergeek.com>
+- Fix BuildRoot to be in compliance with the Packaging Guidelines.
+
 * Sun Feb 13 2005 David Woodhouse <dwmw2@infradead.org> 0.6.1-2
 - Package cleanup
 
