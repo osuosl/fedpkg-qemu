@@ -8,8 +8,8 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 0.9.0
-Release: 2%{?dist}
-License: GPL/LGPL
+Release: 3%{?dist}
+License: GPLv2+, LGPLv2+
 Group: Development/Tools
 URL: http://www.qemu.org/
 Source0: http://www.qemu.org/%{name}-%{version}.tar.gz
@@ -17,6 +17,12 @@ Source1: qemu.init
 Patch0: qemu-0.7.0-build.patch
 Patch1: qemu-0.8.0-sdata.patch
 Patch2: qemu-0.9.0-load-initrd.patch
+# Fix RTL8139 MMIO regions. Remove at next upgrade
+Patch5: qemu-0.9.0-rtl8139-mmio-regions.patch
+# Fix Atapi errors with latest kernel
+Patch6: qemu-0.9.0-atapi-hsm.patch
+# Fix RTL8139 checksum calculations for Vista
+Patch7: qemu-0.9.0-rtl8139-checksum.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: SDL-devel compat-gcc-%{gccver} zlib-devel which texi2html
 Requires(post): /sbin/chkconfig
@@ -42,6 +48,9 @@ As QEMU requires no host kernel patches to run, it is safe and easy to use.
 %patch0 -p1
 %patch1 -p1
 %patch2 -p0
+%patch5 -p1
+%patch6 -p1
+%patch7 -p0
 
 %build
 ./configure \
@@ -92,6 +101,12 @@ fi
 %{_mandir}/man1/*
 
 %changelog
+* Wed Sep 26 2007 Daniel P. Berrange <berrange@redhat.com> - 0.9.0-3.fc7
+- Update licence
+- Fix CDROM emulation (rhbz #253542)
+- Fix rtl8139 mmio region mappings with multiple NICs
+- Fix rtl8139 checksum calculation for Vista (rhbz #308201)
+
 * Sun Apr  1 2007 Hans de Goede <j.w.r.degoede@hhs.nl> 0.9.0-2
 - Fix direct loading of a linux kernel with -kernel & -initrd (bz 234681)
 - Remove spurious execute bits from manpages (bz 222573)
