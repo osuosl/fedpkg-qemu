@@ -8,7 +8,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 0.9.0
-Release: 5%{?dist}
+Release: 6%{?dist}
 License: GPLv2+, LGPLv2+
 Group: Development/Tools
 URL: http://www.qemu.org/
@@ -27,6 +27,7 @@ Patch5: qemu-0.9.0-rtl8139-mmio-regions.patch
 Patch6: qemu-0.9.0-atapi-hsm.patch
 # Fix RTL8139 checksum calculations for Vista
 Patch7: qemu-0.9.0-rtl8139-checksum.patch
+Patch8: qemu-%{version}-block-rw-range-check.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: SDL-devel compat-gcc-%{gccver} zlib-devel which texi2html gnutls-devel
 Requires(post): /sbin/chkconfig
@@ -57,6 +58,7 @@ As QEMU requires no host kernel patches to run, it is safe and easy to use.
 %patch5 -p1
 %patch6 -p1
 %patch7 -p0
+%patch8 -p1
 
 %build
 ./configure \
@@ -108,6 +110,9 @@ fi
 %{_mandir}/man1/*
 
 %changelog
+* Sat Feb 23 2008 Daniel P. Berrange <berrange@redhat.com> - 0.9.0-6.fc8
+- Fix block device extents check (rhbz #433560)
+
 * Wed Sep 26 2007 Daniel P. Berrange <berrange@redhat.com> - 0.9.0-5.fc8
 - Fix rtl8139 checksum calculation for Vista (rhbz #308201)
 
