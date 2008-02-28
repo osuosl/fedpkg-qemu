@@ -1,32 +1,79 @@
 diff -rup qemu-0.9.0.orig/block.c qemu-0.9.0.new/block.c
---- qemu-0.9.0.orig/block.c	2007-02-05 18:01:54.000000000 -0500
-+++ qemu-0.9.0.new/block.c	2008-02-23 10:35:58.000000000 -0500
-@@ -120,6 +120,24 @@ void path_combine(char *dest, int dest_s
+--- qemu-0.9.0.orig/block.c	2008-02-27 19:16:26.000000000 -0500
++++ qemu-0.9.0.new/block.c	2008-02-27 19:19:00.000000000 -0500
+@@ -120,6 +120,60 @@ void path_combine(char *dest, int dest_s
      }
  }
  
-+static int bdrv_rw_badreq_sectors(BlockDriverState *bs,
-+				int64_t sector_num, int nb_sectors)
++static int bdrv_rd_badreq_sectors(BlockDriverState *bs,
++                                  int64_t sector_num, int nb_sectors)
 +{
 +    return
-+	nb_sectors < 0 ||
-+	nb_sectors > bs->total_sectors ||
-+	sector_num > bs->total_sectors - nb_sectors;
++        nb_sectors < 0 ||
++        sector_num < 0 ||
++        nb_sectors > bs->total_sectors ||
++        sector_num > bs->total_sectors - nb_sectors;
 +}
 +
-+static int bdrv_rw_badreq_bytes(BlockDriverState *bs,
-+				  int64_t offset, int count)
++static int bdrv_rd_badreq_bytes(BlockDriverState *bs,
++                                int64_t offset, int count)
 +{
 +    int64_t size = bs->total_sectors << SECTOR_BITS;
 +    return
-+	count < 0 ||
-+	count > size ||
-+	offset > size - count;
++        count < 0 ||
++        size < 0 ||
++        count > size ||
++        offset > size - count;
 +}
++
++static int bdrv_wr_badreq_sectors(BlockDriverState *bs,
++                                  int64_t sector_num, int nb_sectors)
++{
++    if (sector_num < 0 ||
++        nb_sectors < 0)
++        return 1;
++
++    if (sector_num > bs->total_sectors - nb_sectors) {
++        if (bs->autogrow)
++            bs->total_sectors = sector_num + nb_sectors;
++        else
++            return 1;
++    }
++    return 0;
++}
++
++static int bdrv_wr_badreq_bytes(BlockDriverState *bs,
++                                int64_t offset, int count)
++{
++    int64_t size = bs->total_sectors << SECTOR_BITS;
++    if (count < 0 ||
++        offset < 0)
++        return 1;
++
++    if (offset > size - count) {
++        if (bs->autogrow)
++            bs->total_sectors = (offset + count + SECTOR_SIZE - 1) >> SECTOR_BITS;
++        else
++            return 1;
++    }
++    return 0;
++}
++
  
  void bdrv_register(BlockDriver *bdrv)
  {
-@@ -372,6 +390,7 @@ int bdrv_open2(BlockDriverState *bs, con
+@@ -328,6 +382,10 @@ int bdrv_open2(BlockDriverState *bs, con
+     bs->read_only = 0;
+     bs->is_temporary = 0;
+     bs->encrypted = 0;
++    bs->autogrow = 0;
++
++    if (flags & BDRV_O_AUTOGROW)
++        bs->autogrow = 1;
+ 
+     if (flags & BDRV_O_SNAPSHOT) {
+         BlockDriverState *bs1;
+@@ -372,6 +430,7 @@ int bdrv_open2(BlockDriverState *bs, con
      }
      bs->drv = drv;
      bs->opaque = qemu_mallocz(drv->instance_size);
@@ -34,74 +81,132 @@ diff -rup qemu-0.9.0.orig/block.c qemu-0.9.0.new/block.c
      if (bs->opaque == NULL && drv->instance_size > 0)
          return -1;
      /* Note: for compatibility, we open disk image files as RDWR, and
-@@ -437,6 +456,7 @@ void bdrv_close(BlockDriverState *bs)
+@@ -437,6 +496,7 @@ void bdrv_close(BlockDriverState *bs)
          bs->drv = NULL;
  
          /* call the change callback */
-+	bs->total_sectors = 0;
++        bs->total_sectors = 0;
          bs->media_changed = 1;
          if (bs->change_cb)
              bs->change_cb(bs->change_opaque);
-@@ -502,6 +522,8 @@ int bdrv_read(BlockDriverState *bs, int6
+@@ -502,6 +562,8 @@ int bdrv_read(BlockDriverState *bs, int6
      if (!drv)
          return -ENOMEDIUM;
  
-+    if (bdrv_rw_badreq_sectors(bs, sector_num, nb_sectors))
-+	return -EDOM;
++    if (bdrv_rd_badreq_sectors(bs, sector_num, nb_sectors))
++        return -EDOM;
      if (sector_num == 0 && bs->boot_sector_enabled && nb_sectors > 0) {
              memcpy(buf, bs->boot_sector_data, 512);
          sector_num++;
-@@ -539,6 +561,8 @@ int bdrv_write(BlockDriverState *bs, int
+@@ -539,6 +601,8 @@ int bdrv_write(BlockDriverState *bs, int
          return -ENOMEDIUM;
      if (bs->read_only)
          return -EACCES;
-+    if (bdrv_rw_badreq_sectors(bs, sector_num, nb_sectors))
-+	return -EDOM;
++    if (bdrv_wr_badreq_sectors(bs, sector_num, nb_sectors))
++        return -EDOM;
      if (sector_num == 0 && bs->boot_sector_enabled && nb_sectors > 0) {
          memcpy(bs->boot_sector_data, buf, 512);   
      }
-@@ -661,6 +685,8 @@ int bdrv_pread(BlockDriverState *bs, int
+@@ -661,6 +725,8 @@ int bdrv_pread(BlockDriverState *bs, int
          return -ENOMEDIUM;
      if (!drv->bdrv_pread)
          return bdrv_pread_em(bs, offset, buf1, count1);
-+    if (bdrv_rw_badreq_bytes(bs, offset, count1))
-+	return -EDOM;
++    if (bdrv_rd_badreq_bytes(bs, offset, count1))
++        return -EDOM;
      return drv->bdrv_pread(bs, offset, buf1, count1);
  }
  
-@@ -676,6 +702,8 @@ int bdrv_pwrite(BlockDriverState *bs, in
+@@ -676,6 +742,8 @@ int bdrv_pwrite(BlockDriverState *bs, in
          return -ENOMEDIUM;
      if (!drv->bdrv_pwrite)
          return bdrv_pwrite_em(bs, offset, buf1, count1);
-+    if (bdrv_rw_badreq_bytes(bs, offset, count1))
-+	return -EDOM;
++    if (bdrv_wr_badreq_bytes(bs, offset, count1))
++        return -EDOM;
      return drv->bdrv_pwrite(bs, offset, buf1, count1);
  }
  
-@@ -917,6 +945,8 @@ int bdrv_write_compressed(BlockDriverSta
+@@ -917,6 +985,8 @@ int bdrv_write_compressed(BlockDriverSta
          return -ENOMEDIUM;
      if (!drv->bdrv_write_compressed)
          return -ENOTSUP;
-+    if (bdrv_rw_badreq_sectors(bs, sector_num, nb_sectors))
-+	return -EDOM;
++    if (bdrv_wr_badreq_sectors(bs, sector_num, nb_sectors))
++        return -EDOM;
      return drv->bdrv_write_compressed(bs, sector_num, buf, nb_sectors);
  }
      
-@@ -1062,6 +1092,8 @@ BlockDriverAIOCB *bdrv_aio_read(BlockDri
+@@ -1062,6 +1132,8 @@ BlockDriverAIOCB *bdrv_aio_read(BlockDri
  
      if (!drv)
          return NULL;
-+    if (bdrv_rw_badreq_sectors(bs, sector_num, nb_sectors))
++    if (bdrv_rd_badreq_sectors(bs, sector_num, nb_sectors))
 +        return NULL;
      
      /* XXX: we assume that nb_sectors == 0 is suppored by the async read */
      if (sector_num == 0 && bs->boot_sector_enabled && nb_sectors > 0) {
-@@ -1084,6 +1116,8 @@ BlockDriverAIOCB *bdrv_aio_write(BlockDr
+@@ -1084,6 +1156,8 @@ BlockDriverAIOCB *bdrv_aio_write(BlockDr
          return NULL;
      if (bs->read_only)
          return NULL;
-+    if (bdrv_rw_badreq_sectors(bs, sector_num, nb_sectors))
-+	return NULL;
++    if (bdrv_wr_badreq_sectors(bs, sector_num, nb_sectors))
++        return NULL;
      if (sector_num == 0 && bs->boot_sector_enabled && nb_sectors > 0) {
          memcpy(bs->boot_sector_data, buf, 512);   
      }
+diff -rup qemu-0.9.0.orig/block_int.h qemu-0.9.0.new/block_int.h
+--- qemu-0.9.0.orig/block_int.h	2007-02-05 18:01:54.000000000 -0500
++++ qemu-0.9.0.new/block_int.h	2008-02-27 19:17:46.000000000 -0500
+@@ -87,6 +87,7 @@ struct BlockDriverState {
+     int removable; /* if true, the media can be removed */
+     int locked;    /* if true, the media cannot temporarily be ejected */
+     int encrypted; /* if true, the media is encrypted */
++    int autogrow;  /* if true, the backing store can auto-extend to allocate new extents */
+     /* event callback when inserting/removing */
+     void (*change_cb)(void *opaque);
+     void *change_opaque;
+diff -rup qemu-0.9.0.orig/block-qcow2.c qemu-0.9.0.new/block-qcow2.c
+--- qemu-0.9.0.orig/block-qcow2.c	2007-02-05 18:01:54.000000000 -0500
++++ qemu-0.9.0.new/block-qcow2.c	2008-02-27 19:17:16.000000000 -0500
+@@ -191,7 +191,7 @@ static int qcow_open(BlockDriverState *b
+     int len, i, shift, ret;
+     QCowHeader header;
+ 
+-    ret = bdrv_file_open(&s->hd, filename, flags);
++    ret = bdrv_file_open(&s->hd, filename, flags | BDRV_O_AUTOGROW);
+     if (ret < 0)
+         return ret;
+     if (bdrv_pread(s->hd, 0, &header, sizeof(header)) != sizeof(header))
+diff -rup qemu-0.9.0.orig/block-qcow.c qemu-0.9.0.new/block-qcow.c
+--- qemu-0.9.0.orig/block-qcow.c	2007-02-05 18:01:54.000000000 -0500
++++ qemu-0.9.0.new/block-qcow.c	2008-02-27 19:17:16.000000000 -0500
+@@ -95,7 +95,7 @@ static int qcow_open(BlockDriverState *b
+     int len, i, shift, ret;
+     QCowHeader header;
+ 
+-    ret = bdrv_file_open(&s->hd, filename, flags);
++    ret = bdrv_file_open(&s->hd, filename, flags | BDRV_O_AUTOGROW);
+     if (ret < 0)
+         return ret;
+     if (bdrv_pread(s->hd, 0, &header, sizeof(header)) != sizeof(header))
+diff -rup qemu-0.9.0.orig/block-vmdk.c qemu-0.9.0.new/block-vmdk.c
+--- qemu-0.9.0.orig/block-vmdk.c	2007-02-05 18:01:54.000000000 -0500
++++ qemu-0.9.0.new/block-vmdk.c	2008-02-27 19:17:16.000000000 -0500
+@@ -352,7 +352,7 @@ static int vmdk_open(BlockDriverState *b
+     uint32_t magic;
+     int l1_size, i, ret;
+ 
+-    ret = bdrv_file_open(&s->hd, filename, flags);
++    ret = bdrv_file_open(&s->hd, filename, flags | BDRV_O_AUTOGROW);
+     if (ret < 0)
+         return ret;
+     if (bdrv_pread(s->hd, 0, &magic, sizeof(magic)) != sizeof(magic))
+diff -rup qemu-0.9.0.orig/vl.h qemu-0.9.0.new/vl.h
+--- qemu-0.9.0.orig/vl.h	2008-02-27 19:16:02.000000000 -0500
++++ qemu-0.9.0.new/vl.h	2008-02-27 19:18:19.000000000 -0500
+@@ -576,6 +576,7 @@ typedef struct QEMUSnapshotInfo {
+                                      use a disk image format on top of
+                                      it (default for
+                                      bdrv_file_open()) */
++#define BDRV_O_AUTOGROW    0x0040 /* Allow backing file to extend when writing past end of file */
+ 
+ void bdrv_init(void);
+ BlockDriver *bdrv_find_format(const char *format_name);
