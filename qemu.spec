@@ -8,7 +8,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 0.9.0
-Release: 6%{?dist}
+Release: 7%{?dist}
 License: GPLv2+, LGPLv2+
 Group: Development/Tools
 URL: http://www.qemu.org/
@@ -110,6 +110,9 @@ fi
 %{_mandir}/man1/*
 
 %changelog
+* Wed Feb 27 2008 Daniel P. Berrange <berrange@redhat.com> - 0.9.0-7.fc8
+- Fix block device checks for extendable disk formats (rhbz #435139)
+
 * Sat Feb 23 2008 Daniel P. Berrange <berrange@redhat.com> - 0.9.0-6.fc8
 - Fix block device extents check (rhbz #433560)
 
