@@ -18,6 +18,8 @@ Patch0: qemu-0.7.0-build.patch
 # Change default NIC to rtl8139 to get link-state detection
 Patch3: qemu-0.9.1-nic-defaults.patch
 Patch4: qemu-%{version}-block-rw-range-check.patch
+# Upstream SVN changeset #4338
+Patch5: qemu-%{version}-pty-rawmode.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: SDL-devel compat-gcc-%{gccver} zlib-devel which texi2html gnutls-devel
 Requires(post): /sbin/chkconfig
@@ -54,6 +56,7 @@ This package provides the command line tool for manipulating disk images
 %patch0 -p1
 %patch3 -p1
 %patch4 -p1
+%patch5 -p1
 
 %build
 ./configure \
@@ -143,6 +146,7 @@ fi
 %changelog
 * Wed Jun 11 2008 Daniel P. Berrange <berrange@redhat.com> - 0.9.1-6.fc9
 - Remove bogus wildcard from files list (rhbz #450701)
+- Fix text console PTYs to be in rawmode
 
 * Wed Mar 19 2008 Daniel P. Berrange <berrange@redhat.com> - 0.9.1-5.fc9
 - Split qemu-img tool into sub-package for smaller footprint installs
