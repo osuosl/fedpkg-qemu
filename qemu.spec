@@ -7,23 +7,27 @@
 
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
-Version: 0.8.2
-Release: 4%{?dist}
-License: GPL/LGPL
+Version: 0.9.1
+Release: 11%{?dist}
+License: GPLv2+ and LGPLv2+
 Group: Development/Tools
 URL: http://www.qemu.org/
 Source0: http://www.qemu.org/%{name}-%{version}.tar.gz
 Source1: qemu.init
 Patch0: qemu-0.7.0-build.patch
-Patch1: qemu-0.8.0-sdata.patch
-Patch2: qemu-0.8.2-kernheaders.patch
-Patch3: qemu-0.8.2-target-sparc.patch
-Patch4: qemu-0.8.2-mb-nops.diff
+# Change default NIC to rtl8139 to get link-state detection
+Patch3: qemu-0.9.1-nic-defaults.patch
+Patch4: qemu-%{version}-block-rw-range-check.patch
+# Upstream SVN changeset #4338
+Patch5: qemu-%{version}-pty-rawmode.patch
+# Similar to upstream changeset #5026
+Patch6: qemu-0.9.1-isapcvga.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-BuildRequires: SDL-devel compat-gcc-%{gccver} zlib-devel which texi2html
+BuildRequires: SDL-devel compat-gcc-%{gccver} zlib-devel which texi2html gnutls-devel
 Requires(post): /sbin/chkconfig
 Requires(preun): /sbin/service /sbin/chkconfig
 Requires(postun): /sbin/service
+Requires: %{name}-img = %{version}-%{release}
 ExclusiveArch: %{ix86} x86_64 ppc alpha sparc armv4l
 
 %description
@@ -39,13 +43,23 @@ emulation speed by using dynamic translation. QEMU has two operating modes:
 
 As QEMU requires no host kernel patches to run, it is safe and easy to use.
 
+%package img
+Summary: QEMU is a FAST! processor emulator
+Group: Development/Tools
+
+%description img
+QEMU is a generic and open source processor emulator which achieves a good
+emulation speed by using dynamic translation.
+
+This package provides the command line tool for manipulating disk images
+
 %prep
 %setup -q
 %patch0 -p1
-%patch1 -p1
-%patch2 -p1
 %patch3 -p1
 %patch4 -p1
+%patch5 -p1
+%patch6 -p1
 
 %build
 ./configure \
@@ -53,7 +67,8 @@ As QEMU requires no host kernel patches to run, it is safe and easy to use.
     --interp-prefix=%{_prefix}/qemu-%%M \
     --cc=gcc%{gccver} \
     --enable-alsa
-make %{?_smp_mflags}
+#    --extra-ldflags="-Wl,--build-id"
+make %{?_smp_mflags} #VL_LDFLAGS="-Wl,--build-id"
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -64,6 +79,7 @@ make prefix="${RPM_BUILD_ROOT}%{_prefix}" \
      mandir="${RPM_BUILD_ROOT}%{_mandir}" \
      docdir="${RPM_BUILD_ROOT}%{_docdir}/%{name}-%{version}" \
      datadir="${RPM_BUILD_ROOT}%{_prefix}/share/qemu" install
+chmod -x ${RPM_BUILD_ROOT}%{_mandir}/man1/*
 
 install -D -p -m 0755 %{SOURCE1} $RPM_BUILD_ROOT%{_sysconfdir}/rc.d/init.d/qemu
 
@@ -86,14 +102,111 @@ fi
 
 %files
 %defattr(-,root,root)
-%doc Changelog README README.distrib TODO
+%doc Changelog README TODO
 %doc qemu-doc.html qemu-tech.html
-%config %{_sysconfdir}/rc.d/init.d/qemu
-%{_bindir}/qemu*
+%doc COPYING COPYING.LIB LICENSE
+%{_sysconfdir}/rc.d/init.d/qemu
+%{_bindir}/qemu
+%{_bindir}/qemu-alpha
+%{_bindir}/qemu-arm
+%{_bindir}/qemu-armeb
+%{_bindir}/qemu-cris
+%{_bindir}/qemu-i386
+%{_bindir}/qemu-m68k
+%{_bindir}/qemu-mips
+%{_bindir}/qemu-mipsel
+%{_bindir}/qemu-ppc
+%{_bindir}/qemu-ppc64
+%{_bindir}/qemu-ppc64abi32
+%{_bindir}/qemu-sh4
+%{_bindir}/qemu-sh4eb
+%{_bindir}/qemu-sparc
+%{_bindir}/qemu-sparc32plus
+%{_bindir}/qemu-sparc64
+%{_bindir}/qemu-system-arm
+%{_bindir}/qemu-system-mips
+%{_bindir}/qemu-system-mipsel
+%{_bindir}/qemu-system-ppc
+%{_bindir}/qemu-system-sparc
+%{_bindir}/qemu-system-x86_64
+%{_bindir}/qemu-system-cris
+%{_bindir}/qemu-system-m68k
+%{_bindir}/qemu-system-mips64
+%{_bindir}/qemu-system-mips64el
+%{_bindir}/qemu-system-ppc64
+%{_bindir}/qemu-system-ppcemb
+%{_bindir}/qemu-system-sh4
+%{_bindir}/qemu-system-sh4eb
+%{_bindir}/qemu-x86_64
 %{_prefix}/share/qemu/
-%{_mandir}/man1/*
+%{_mandir}/man1/qemu.1*
+
+%files img
+%defattr(-,root,root)
+%{_bindir}/qemu-img
+%{_mandir}/man1/qemu-img.1*
 
 %changelog
+* Wed Dec 3 2008 Lubomir Rintel <lkundrak@v3.sk> - 0.9.1-11
+- Fix VGA init on isapc machines
+
+* Wed Jun 25 2008 Daniel P. Berrange <berrange@redhat.com> - 0.9.1-10.fc10
+- Rebuild for GNU TLS ABI change
+
+* Wed Jun 11 2008 Daniel P. Berrange <berrange@redhat.com> - 0.9.1-9.fc10
+- Remove bogus wildcard from files list (rhbz #450701)
+
+* Sat May 17 2008 Lubomir Rintel <lkundrak@v3.sk> - 0.9.1-8
+- Register binary handlers also for shared libraries
+
+* Mon May  5 2008 Daniel P. Berrange <berrange@redhat.com> - 0.9.1-7.fc10
+- Fix text console PTYs to be in rawmode
+
+* Sun Apr 27 2008 Lubomir Kundrak <lkundrak@redhat.com> - 0.9.1-6
+- Register binary handler for SuperH-4 CPU
+
+* Wed Mar 19 2008 Daniel P. Berrange <berrange@redhat.com> - 0.9.1-5.fc9
+- Split qemu-img tool into sub-package for smaller footprint installs
+
+* Wed Feb 27 2008 Daniel P. Berrange <berrange@redhat.com> - 0.9.1-4.fc9
+- Fix block device checks for extendable disk formats (rhbz #435139)
+
+* Sat Feb 23 2008 Daniel P. Berrange <berrange@redhat.com> - 0.9.1-3.fc9
+- Fix block device extents check (rhbz #433560)
+
+* Mon Feb 18 2008 Fedora Release Engineering <rel-eng@fedoraproject.org> - 0.9.1-2
+- Autorebuild for GCC 4.3
+
+* Tue Jan  8 2008 Daniel P. Berrange <berrange@redhat.com> - 0.9.1-1.fc9
+- Updated to 0.9.1 release
+- Fix license tag syntax
+- Don't mark init script as a config file
+
+* Wed Sep 26 2007 Daniel P. Berrange <berrange@redhat.com> - 0.9.0-5.fc8
+- Fix rtl8139 checksum calculation for Vista (rhbz #308201)
+
+* Tue Aug 28 2007 Daniel P. Berrange <berrange@redhat.com> - 0.9.0-4.fc8
+- Fix debuginfo by passing -Wl,--build-id to linker
+
+* Tue Aug 28 2007 David Woodhouse <dwmw2@infradead.org> 0.9.0-4
+- Update licence
+- Fix CDROM emulation (#253542)
+
+* Tue Aug 28 2007 Daniel P. Berrange <berrange@redhat.com> - 0.9.0-3.fc8
+- Added backport of VNC password auth, and TLS+x509 cert auth
+- Switch to rtl8139 NIC by default for linkstate reporting
+- Fix rtl8139 mmio region mappings with multiple NICs
+
+* Sun Apr  1 2007 Hans de Goede <j.w.r.degoede@hhs.nl> 0.9.0-2
+- Fix direct loading of a linux kernel with -kernel & -initrd (bz 234681)
+- Remove spurious execute bits from manpages (bz 222573)
+
+* Tue Feb  6 2007 David Woodhouse <dwmw2@infradead.org> 0.9.0-1
+- Update to 0.9.0
+
+* Wed Jan 31 2007 David Woodhouse <dwmw2@infradead.org> 0.8.2-5
+- Include licences
+
 * Mon Nov 13 2006 Hans de Goede <j.w.r.degoede@hhs.nl> 0.8.2-4
 - Backport patch to make FC6 guests work by Kevin Kofler
   <Kevin@tigcc.ticalc.org> (bz 207843).
