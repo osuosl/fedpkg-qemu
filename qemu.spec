@@ -8,7 +8,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 0.9.1
-Release: 6%{?dist}
+Release: 7%{?dist}
 License: GPLv2+ and LGPLv2+
 Group: Development/Tools
 URL: http://www.qemu.org/
@@ -20,13 +20,16 @@ Patch3: qemu-0.9.1-nic-defaults.patch
 Patch4: qemu-%{version}-block-rw-range-check.patch
 # Upstream SVN changeset #4338
 Patch5: qemu-%{version}-pty-rawmode.patch
+Patch6: qemu-0.9.1-alpha-int.patch
+Patch7: qemu-0.9.1-dirent.patch
+Patch8: qemu-0.9.1-sparc-configure.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: SDL-devel compat-gcc-%{gccver} zlib-devel which texi2html gnutls-devel
 Requires(post): /sbin/chkconfig
 Requires(preun): /sbin/service /sbin/chkconfig
 Requires(postun): /sbin/service
 Requires: %{name}-img = %{version}-%{release}
-ExclusiveArch: %{ix86} x86_64 ppc alpha sparc armv4l
+ExclusiveArch: %{ix86} x86_64 ppc alpha sparcv9 sparc64 armv4l
 
 %description
 QEMU is a generic and open source processor emulator which achieves a good
@@ -57,13 +60,24 @@ This package provides the command line tool for manipulating disk images
 %patch3 -p1
 %patch4 -p1
 %patch5 -p1
+%patch6 -p1
+%patch7 -p1
+%patch8 -p1
 
 %build
 ./configure \
     --prefix=%{_prefix} \
     --interp-prefix=%{_prefix}/qemu-%%M \
     --cc=gcc%{gccver} \
+%ifnarch sparcv9
     --enable-alsa \
+%endif
+%ifarch sparcv9
+    --sparc_cpu=v932 \
+%endif
+%ifarch sparc64
+    --sparc_cpu=v9 \
+%endif
     --extra-ldflags="-Wl,--build-id"
 make %{?_smp_mflags} VL_LDFLAGS="-Wl,--build-id"
 
@@ -144,6 +158,9 @@ fi
 %{_mandir}/man1/qemu-img.1*
 
 %changelog
+* Wed Dec 31 2008 Dennis Gilmore <dennis@ausil.us> - 0.9.1-7
+- add sparcv9 and sparc64 support
+
 * Wed Jun 11 2008 Daniel P. Berrange <berrange@redhat.com> - 0.9.1-6.fc9
 - Remove bogus wildcard from files list (rhbz #450701)
 - Fix text console PTYs to be in rawmode
