@@ -1,25 +1,23 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 0.10
-Release: 12%{?dist}
+Release: 13%{?dist}
 # I have mistakenly thought the revision name would be 1.0.
 # So 0.10 series get Epoch = 1
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
 URL: http://www.qemu.org/
-#Source0: http://www.qemu.org/%{name}-%{version}.tar.gz
-# git clone git://git.kernel.org/pub/scm/linux/kernel/git/avi/kvm.git
-# git clone git://git.kernel.org/pub/scm/linux/kernel/git/avi/kvm-userspace.git
-# echo "kdir=$(pwd)/kvm" > ~/.kvm-release-config
-# cd kvm-userspace
-# mkdir $(HOME)/sf-releases
-# ./scripts/make-release kvm-85rc-1.git-snapshot-date +%Y%m%d HEAD HEAD
 
+# To re-create the tarball below:
+#   $> git clone git://git.kernel.org/pub/scm/linux/kernel/git/avi/kvm.git
+#   $> git clone git://git.kernel.org/pub/scm/linux/kernel/git/avi/kvm-userspace.git
+#   $> make-release qemu-kvm-%{version}.tar.gz $(pwd)/kvm v2.6.29-6998-g1d0cdf1 \
+#                                              $(pwd)/kvm-userspace kvm-84-196-ga01bd3f
 Source0: qemu-kvm-%{version}.tar.gz
+
 Source1: qemu.init
 Source2: kvm.modules
-
 
 Patch1: 01-tls-handshake-fix.patch
 Patch2: 02-vnc-monitor-info.patch
@@ -467,6 +465,9 @@ fi
 %{_mandir}/man1/qemu-img.1*
 
 %changelog
+* Thu Apr 23 2009 Mark McLoughlin <markmc@redhat.com> - 2:0.10-13
+- Improve instructions for generating the tarball
+
 * Tue Apr 21 2009 Mark McLoughlin <markmc@redhat.com> - 2:0.10-12
 - Another qcow2 image corruption fix (#496642)
 
