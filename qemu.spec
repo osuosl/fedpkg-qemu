@@ -1,7 +1,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 0.10
-Release: 14%{?dist}
+Release: 15%{?dist}
 # I have mistakenly thought the revision name would be 1.0.
 # So 0.10 series get Epoch = 1
 Epoch: 2
@@ -68,6 +68,22 @@ emulation speed by using dynamic translation. QEMU has two operating modes:
 
 As QEMU requires no host kernel patches to run, it is safe and easy to use.
 
+%package kvm
+Summary: QEMU metapackage for KVM support
+Group: Development/Tools
+%ifarch %{ix86} x86_64
+Requires: qemu-system-x86 = %{epoch}:%{version}-%{release}
+%endif
+%ifarch ppc ppc64
+Requires: qemu-system-ppc = %{epoch}:%{version}-%{release}
+%endif
+
+%description kvm
+This is a meta-package that provides a qemu-system-<arch> package for native
+architectures where kvm can be enabled. For example, in an x86 system, this
+will install qemu-system-x86
+
+
 %package  img
 Summary: QEMU command line tool for manipulating disk images
 Group: Development/Tools
@@ -108,9 +124,6 @@ Requires: vgabios
 Requires: bochs-bios >= 2.3.8-0.5
 Provides: kvm = 85
 Obsoletes: kvm < 85
-%ifarch %{ix86} x86_64
-Provides: qemu-kvm = %{epoch}:%{version}-%{release}
-%endif
 
 %description system-x86
 QEMU is a generic and open source processor emulator which achieves a good
@@ -125,9 +138,6 @@ Summary: QEMU system emulator for ppc
 Group: Development/Tools
 Requires: %{name}-common = %{epoch}:%{version}-%{release}
 Requires: openbios-ppc
-%ifarch ppc ppc64
-Provides: qemu-kvm = %{epoch}:%{version}-%{release}
-%endif
 %description system-ppc
 QEMU is a generic and open source processor emulator which achieves a good
 emulation speed by using dynamic translation.
@@ -465,6 +475,9 @@ fi
 %{_mandir}/man1/qemu-img.1*
 
 %changelog
+* Fri Apr 27 2009 Glauber Costa <glommer@redhat.com> - 2:0.10-15
+- provide qemu-kvm as a metapackage
+
 * Fri Apr 24 2009 Mark McLoughlin <markmc@redhat.com> - 2:0.10-14
 - Fix source numbering typos caused by make-release addition
 
