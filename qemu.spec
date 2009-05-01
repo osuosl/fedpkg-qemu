@@ -1,7 +1,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 0.10
-Release: 15%{?dist}
+Release: 16%{?dist}
 # I have mistakenly thought the revision name would be 1.0.
 # So 0.10 series get Epoch = 1
 Epoch: 2
@@ -377,6 +377,9 @@ fi
 %files 
 %defattr(-,root,root)
 
+%files kvm
+%defattr(-,root,root)
+
 %files common
 %defattr(-,root,root)
 %doc %{qemudocdir}/Changelog
@@ -475,6 +478,9 @@ fi
 %{_mandir}/man1/qemu-img.1*
 
 %changelog
+* Fri May  1 2009 Mark McLoughlin <markmc@redhat.com> - 2:0.10-16
+- Really provide qemu-kvm as a metapackage
+
 * Fri Apr 27 2009 Glauber Costa <glommer@redhat.com> - 2:0.10-15
 - provide qemu-kvm as a metapackage
 
