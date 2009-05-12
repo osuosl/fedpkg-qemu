@@ -1,0 +1,64 @@
+--- a/qemu/hw/pc.c	2009-05-12 10:53:18.000000000 -0300
++++ b/qemu/hw/pc.c	2009-05-12 10:53:48.000000000 -0300
+@@ -58,6 +58,30 @@
+ 
+ #define MAX_IDE_BUS 2
+ 
++typedef struct rom_reset_data {
++    uint8_t *data;
++    target_phys_addr_t addr;
++    unsigned size;
++} RomResetData;
++
++static void option_rom_reset(void *_rrd)
++{
++    RomResetData *rrd = _rrd;
++
++    cpu_physical_memory_write_rom(rrd->addr, rrd->data, rrd->size);
++}
++
++static void option_rom_setup_reset(target_phys_addr_t addr, unsigned size)
++{
++    RomResetData *rrd = qemu_malloc(sizeof *rrd);
++
++    rrd->data = qemu_malloc(size);
++    cpu_physical_memory_read(addr, rrd->data, size);
++    rrd->addr = addr;
++    rrd->size = size;
++    qemu_register_reset(option_rom_reset, rrd);
++}
++
+ extern uint8_t *acpi_tables;
+ extern size_t acpi_tables_len;
+ 
+@@ -767,30 +791,6 @@ static void pc_init_ne2k_isa(NICInfo *nd
+     nb_ne2k++;
+ }
+ 
+-typedef struct rom_reset_data {
+-    uint8_t *data;
+-    target_phys_addr_t addr;
+-    unsigned size;
+-} RomResetData;
+-
+-static void option_rom_reset(void *_rrd)
+-{
+-    RomResetData *rrd = _rrd;
+-
+-    cpu_physical_memory_write_rom(rrd->addr, rrd->data, rrd->size);
+-}
+-
+-static void option_rom_setup_reset(target_phys_addr_t addr, unsigned size)
+-{
+-    RomResetData *rrd = qemu_malloc(sizeof *rrd);
+-
+-    rrd->data = qemu_malloc(size);
+-    cpu_physical_memory_read(addr, rrd->data, size);
+-    rrd->addr = addr;
+-    rrd->size = size;
+-    qemu_register_reset(option_rom_reset, rrd);
+-}
+-
+ CPUState *pc_new_cpu(int cpu, const char *cpu_model, int pci_enabled)
+ {
+         CPUState *env = cpu_init(cpu_model);

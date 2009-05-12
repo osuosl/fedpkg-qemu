@@ -1,7 +1,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 0.10
-Release: 17%{?dist}
+Release: 18%{?dist}
 # I have mistakenly thought the revision name would be 1.0.
 # So 0.10 series get Epoch = 1
 Epoch: 2
@@ -37,7 +37,8 @@ Patch14: qemu-bios-bigger-roms.patch
 Patch15: qemu-fix-display-breakage.patch
 Patch16: qemu-fix-qcow2-2TB.patch
 Patch17: qemu-fix-qcow2-corruption.patch
-Patch18: qemu-fix-load-linux.patch
+Patch18: qemu-move-option-rom-reset-definition.patch
+Patch19: qemu-fix-load-linux.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: SDL-devel zlib-devel which texi2html gnutls-devel cyrus-sasl-devel
@@ -236,6 +237,7 @@ such as kvmtrace and kvm_stat.
 %patch16 -p1
 %patch17 -p1
 %patch18 -p1
+%patch19 -p1
 
 %build
 # systems like rhel build system does not have a recent enough linker so
@@ -480,6 +482,10 @@ fi
 %{_mandir}/man1/qemu-img.1*
 
 %changelog
+* Tue May 12 2009 Glauber Costa <glommer@redhat.com> - 2:0.10-18
+- move option rom setup function to the beginning of the file. This
+  avoids static vs non-static issues, and is the way upstream does
+
 * Tue May 12 2009 Glauber Costa <glommer@redhat.com> - 2:0.10-17
 - fix reboot with -kernel parameter
 
