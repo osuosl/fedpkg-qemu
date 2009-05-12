@@ -487,7 +487,7 @@ fi
   avoids static vs non-static issues, and is the way upstream does
 
 * Tue May 12 2009 Glauber Costa <glommer@redhat.com> - 2:0.10-17
-- fix reboot with -kernel parameter
+- fix reboot with -kernel parameter (#499666)
 
 * Fri May  1 2009 Mark McLoughlin <markmc@redhat.com> - 2:0.10-16
 - Really provide qemu-kvm as a metapackage
