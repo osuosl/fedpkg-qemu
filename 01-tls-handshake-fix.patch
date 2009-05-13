@@ -1,7 +1,7 @@
-Index: qemu-kvm-0.10/qemu/vnc.c
+Index: qemu-kvm-0.10.4/vnc.c
 ===================================================================
---- qemu-kvm-0.10.orig/qemu/vnc.c
-+++ qemu-kvm-0.10/qemu/vnc.c
+--- qemu-kvm-0.10.4.orig/vnc.c
++++ qemu-kvm-0.10.4/vnc.c
 @@ -2096,14 +2096,6 @@ static int protocol_client_vencrypt_auth
  	    VNC_DEBUG("Failed to complete TLS\n");
  	    return 0;

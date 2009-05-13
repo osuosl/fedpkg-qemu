@@ -1,7 +1,7 @@
-Index: qemu-kvm-0.10/qemu/Makefile
+Index: qemu-kvm-0.10.4/Makefile
 ===================================================================
 --- qemu-kvm-0.10.orig/qemu/Makefile
-+++ qemu-kvm-0.10/qemu/Makefile
++++ qemu-kvm-0.10.4/Makefile
 @@ -148,7 +148,7 @@ endif
  ifdef CONFIG_CURSES
  OBJS+=curses.o
@@ -24,10 +24,10 @@ Index: qemu-kvm-0.10/qemu/Makefile
  
  vnc.o: CFLAGS += $(CONFIG_VNC_TLS_CFLAGS)
  
-Index: qemu-kvm-0.10/qemu/acl.c
+Index: qemu-kvm-0.10.4/acl.c
 ===================================================================
 --- /dev/null
-+++ qemu-kvm-0.10/qemu/acl.c
++++ qemu-kvm-0.10.4/acl.c
 @@ -0,0 +1,185 @@
 +/*
 + * QEMU access control list management
@@ -214,10 +214,10 @@ Index: qemu-kvm-0.10/qemu/acl.c
 + *  tab-width: 8
 + * End:
 + */
-Index: qemu-kvm-0.10/qemu/acl.h
+Index: qemu-kvm-0.10.4/acl.h
 ===================================================================
 --- /dev/null
-+++ qemu-kvm-0.10/qemu/acl.h
++++ qemu-kvm-0.10.4/acl.h
 @@ -0,0 +1,74 @@
 +/*
 + * QEMU access control list management
@@ -293,10 +293,10 @@ Index: qemu-kvm-0.10/qemu/acl.h
 + *  tab-width: 8
 + * End:
 + */
-Index: qemu-kvm-0.10/qemu/configure
+Index: qemu-kvm-0.10.4/configure
 ===================================================================
 --- qemu-kvm-0.10.orig/qemu/configure
-+++ qemu-kvm-0.10/qemu/configure
++++ qemu-kvm-0.10.4/configure
 @@ -913,6 +913,21 @@ EOF
  fi
  
@@ -329,10 +329,10 @@ Index: qemu-kvm-0.10/qemu/configure
  qemu_version=`head $source_path/VERSION`
  echo "VERSION=$qemu_version" >>$config_mak
  echo "#define QEMU_VERSION \"$qemu_version\"" >> $config_h
-Index: qemu-kvm-0.10/qemu/monitor.c
+Index: qemu-kvm-0.10.4/monitor.c
 ===================================================================
 --- qemu-kvm-0.10.orig/qemu/monitor.c
-+++ qemu-kvm-0.10/qemu/monitor.c
++++ qemu-kvm-0.10.4/monitor.c
 @@ -39,6 +39,7 @@
  #include "qemu-timer.h"
  #include "migration.h"
@@ -461,10 +461,10 @@ Index: qemu-kvm-0.10/qemu/monitor.c
 + *  tab-width: 8
 + * End:
 + */
-Index: qemu-kvm-0.10/qemu/qemu-doc.texi
+Index: qemu-kvm-0.10.4/qemu-doc.texi
 ===================================================================
 --- qemu-kvm-0.10.orig/qemu/qemu-doc.texi
-+++ qemu-kvm-0.10/qemu/qemu-doc.texi
++++ qemu-kvm-0.10.4/qemu-doc.texi
 @@ -639,6 +639,19 @@ ensures a data encryption preventing com
  credentials. See the @ref{vnc_security} section for details on using
  SASL authentication.
@@ -528,10 +528,10 @@ Index: qemu-kvm-0.10/qemu/qemu-doc.texi
  @item screendump @var{filename}
  Save screen into PPM image @var{filename}.
  
-Index: qemu-kvm-0.10/qemu/vnc-auth-sasl.c
+Index: qemu-kvm-0.10.4/vnc-auth-sasl.c
 ===================================================================
 --- qemu-kvm-0.10.orig/qemu/vnc-auth-sasl.c
-+++ qemu-kvm-0.10/qemu/vnc-auth-sasl.c
++++ qemu-kvm-0.10.4/vnc-auth-sasl.c
 @@ -120,22 +120,32 @@ static int vnc_auth_sasl_check_access(Vn
  {
      const void *val;
@@ -568,10 +568,10 @@ Index: qemu-kvm-0.10/qemu/vnc-auth-sasl.c
  }
  
  static int vnc_auth_sasl_check_ssf(VncState *vs)
-Index: qemu-kvm-0.10/qemu/vnc-auth-sasl.h
+Index: qemu-kvm-0.10.4/vnc-auth-sasl.h
 ===================================================================
 --- qemu-kvm-0.10.orig/qemu/vnc-auth-sasl.h
-+++ qemu-kvm-0.10/qemu/vnc-auth-sasl.h
++++ qemu-kvm-0.10.4/vnc-auth-sasl.h
 @@ -30,6 +30,9 @@
  #include <sasl/sasl.h>
  
@@ -593,10 +593,10 @@ Index: qemu-kvm-0.10/qemu/vnc-auth-sasl.h
  void vnc_sasl_client_cleanup(VncState *vs);
  
  long vnc_client_read_sasl(VncState *vs);
-Index: qemu-kvm-0.10/qemu/vnc-tls.c
+Index: qemu-kvm-0.10.4/vnc-tls.c
 ===================================================================
 --- qemu-kvm-0.10.orig/qemu/vnc-tls.c
-+++ qemu-kvm-0.10/qemu/vnc-tls.c
++++ qemu-kvm-0.10.4/vnc-tls.c
 @@ -255,6 +255,25 @@ int vnc_tls_validate_certificate(struct 
  			  gnutls_strerror (ret));
  		return -1;
@@ -623,10 +623,10 @@ Index: qemu-kvm-0.10/qemu/vnc-tls.c
  	}
  
  	gnutls_x509_crt_deinit (cert);
-Index: qemu-kvm-0.10/qemu/vnc-tls.h
+Index: qemu-kvm-0.10.4/vnc-tls.h
 ===================================================================
 --- qemu-kvm-0.10.orig/qemu/vnc-tls.h
-+++ qemu-kvm-0.10/qemu/vnc-tls.h
++++ qemu-kvm-0.10.4/vnc-tls.h
 @@ -31,6 +31,8 @@
  #include <gnutls/gnutls.h>
  #include <gnutls/x509.h>
@@ -644,10 +644,10 @@ Index: qemu-kvm-0.10/qemu/vnc-tls.h
  
      /* Paths to x509 certs/keys */
      char *x509cacert;
-Index: qemu-kvm-0.10/qemu/vnc.c
+Index: qemu-kvm-0.10.4/vnc.c
 ===================================================================
 --- qemu-kvm-0.10.orig/qemu/vnc.c
-+++ qemu-kvm-0.10/qemu/vnc.c
++++ qemu-kvm-0.10.4/vnc.c
 @@ -28,6 +28,7 @@
  #include "sysemu.h"
  #include "qemu_socket.h"
@@ -693,10 +693,10 @@ Index: qemu-kvm-0.10/qemu/vnc.c
      /*
       * Combinations we support here:
       *
-Index: qemu-kvm-0.10/qemu/vnc.h
+Index: qemu-kvm-0.10.4/vnc.h
 ===================================================================
 --- qemu-kvm-0.10.orig/qemu/vnc.h
-+++ qemu-kvm-0.10/qemu/vnc.h
++++ qemu-kvm-0.10.4/vnc.h
 @@ -98,6 +98,9 @@ struct VncDisplay
      int subauth; /* Used by VeNCrypt */
      VncDisplayTLS tls;

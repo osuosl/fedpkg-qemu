@@ -1,23 +1,16 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
-Version: 0.10
-Release: 18%{?dist}
-# I have mistakenly thought the revision name would be 1.0.
-# So 0.10 series get Epoch = 1
+Version: 0.10.4
+Release: 1%{?dist}
+# Epoch because we pushed a qemu-1.0 package
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
 URL: http://www.qemu.org/
 
-# To re-create the tarball below:
-#   $> git clone git://git.kernel.org/pub/scm/linux/kernel/git/avi/kvm.git
-#   $> git clone git://git.kernel.org/pub/scm/linux/kernel/git/avi/kvm-userspace.git
-#   $> make-release qemu-kvm-%{version}.tar.gz $(pwd)/kvm v2.6.29-6998-g1d0cdf1 \
-#                                              $(pwd)/kvm-userspace kvm-84-196-ga01bd3f
-Source0: qemu-kvm-%{version}.tar.gz
-Source1: make-release
-Source2: qemu.init
-Source3: kvm.modules
+Source0: http://download.sourceforge.net/sourceforge/kvm/qemu-kvm-%{version}.tar.gz
+Source1: qemu.init
+Source2: kvm.modules
 
 Patch1: 01-tls-handshake-fix.patch
 Patch2: 02-vnc-monitor-info.patch
@@ -34,16 +27,13 @@ Patch11: qemu-fix-gcc.patch
 Patch12: qemu-roms-more-room.patch
 Patch13: qemu-roms-more-room-fix-vga-align.patch
 Patch14: qemu-bios-bigger-roms.patch
-Patch15: qemu-fix-display-breakage.patch
-Patch16: qemu-fix-qcow2-2TB.patch
-Patch17: qemu-fix-qcow2-corruption.patch
-Patch18: qemu-move-option-rom-reset-definition.patch
-Patch19: qemu-fix-load-linux.patch
+Patch15: qemu-kvm-fix-kerneldir-includes.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: SDL-devel zlib-devel which texi2html gnutls-devel cyrus-sasl-devel
 BuildRequires: rsync dev86 iasl
 BuildRequires: pciutils-devel
+BuildRequires: pulseaudio-libs-devel
 Requires: %{name}-user = %{epoch}:%{version}-%{release}
 Requires: %{name}-system-x86 = %{epoch}:%{version}-%{release}
 Requires: %{name}-system-sparc = %{epoch}:%{version}-%{release}
@@ -84,7 +74,6 @@ Requires: qemu-system-ppc = %{epoch}:%{version}-%{release}
 This is a meta-package that provides a qemu-system-<arch> package for native
 architectures where kvm can be enabled. For example, in an x86 system, this
 will install qemu-system-x86
-
 
 %package  img
 Summary: QEMU command line tool for manipulating disk images
@@ -234,10 +223,6 @@ such as kvmtrace and kvm_stat.
 %patch13 -p1
 %patch14 -p1
 %patch15 -p1
-%patch16 -p1
-%patch17 -p1
-%patch18 -p1
-%patch19 -p1
 
 %build
 # systems like rhel build system does not have a recent enough linker so
@@ -257,26 +242,28 @@ else
 fi
 
 %ifarch %{ix86} x86_64
-# sdl outputs to alsa or pulseaudio directly depending on what the system has configured
+# sdl outputs to alsa or pulseaudio depending on system config, but it's broken (#495964)
 # alsa works, but causes huge CPU load due to bugs
 # oss works, but is very problematic because it grabs exclusive control of the device causing other apps to go haywire
 ./configure --target-list=x86_64-softmmu \
-            --kerneldir=$(pwd)/kernel --prefix=%{_prefix} \
-            --audio-drv-list=sdl,alsa,oss \
-            --with-patched-kernel \
+            --prefix=%{_prefix} \
+            --audio-drv-list=pa,sdl,alsa,oss \
             --disable-strip \
-            --qemu-ldflags=$extraldflags \
-            --qemu-cflags="$RPM_OPT_FLAGS"
+            --extra-ldflags=$extraldflags \
+            --extra-cflags="$RPM_OPT_FLAGS"
 
 make V=1 %{?_smp_mflags} $buildldflags
-cp qemu/x86_64-softmmu/qemu-system-x86_64 qemu-kvm
-cp user/kvmtrace  .
-cp user/kvmtrace_format  .
+cp -a x86_64-softmmu/qemu-system-x86_64 qemu-kvm
 make clean
+
+make -C kvm/extboot extboot.bin
+
+cd kvm/user
+./configure --prefix=%{_prefix} --kerneldir=$(pwd)/../kernel/
+make kvmtrace
+cd ../../
 %endif
 
-echo "%{name}-%{version}" > $(pwd)/kernel/.kernelrelease
-cd qemu
 ./configure \
     --target-list="i386-softmmu x86_64-softmmu arm-softmmu cris-softmmu m68k-softmmu \
                 mips-softmmu mipsel-softmmu mips64-softmmu mips64el-softmmu ppc-softmmu \
@@ -288,15 +275,13 @@ cd qemu
                 sparc32plus-linux-user" \
     --prefix=%{_prefix} \
     --interp-prefix=%{_prefix}/qemu-%%M \
-    --kerneldir=$(pwd)/../kernel --prefix=%{_prefix} \
-    --disable-strip \
+    --audio-drv-list=pa,sdl,alsa,oss \
     --disable-kvm \
+    --disable-strip \
     --extra-ldflags=$extraldflags \
-    --audio-drv-list=sdl,alsa,oss \
     --extra-cflags="$RPM_OPT_FLAGS"
 
-
-make %{?_smp_mflags} $buildldflags
+make V=1 %{?_smp_mflags} $buildldflags
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -304,34 +289,34 @@ rm -rf $RPM_BUILD_ROOT
 %ifarch %{ix86} x86_64
 mkdir -p $RPM_BUILD_ROOT/%{_sysconfdir}/sysconfig/modules
 mkdir -p $RPM_BUILD_ROOT%{_bindir}/
+mkdir -p $RPM_BUILD_ROOT%{_datadir}/%{name}
 
-install -m 0755 %{SOURCE3} $RPM_BUILD_ROOT/%{_sysconfdir}/sysconfig/modules/kvm.modules
-install -m 0755 kvmtrace $RPM_BUILD_ROOT%{_bindir}/
-install -m 0755 kvmtrace_format $RPM_BUILD_ROOT%{_bindir}/
-install -m 0755 kvm_stat $RPM_BUILD_ROOT%{_bindir}/
-
+install -m 0755 %{SOURCE1} $RPM_BUILD_ROOT/%{_sysconfdir}/sysconfig/modules/kvm.modules
+install -m 0755 kvm/extboot/extboot.bin $RPM_BUILD_ROOT%{_datadir}/%{name}
+install -m 0755 kvm/user/kvmtrace $RPM_BUILD_ROOT%{_bindir}/
+install -m 0755 kvm/user/kvmtrace_format $RPM_BUILD_ROOT%{_bindir}/
+install -m 0755 kvm/kvm_stat $RPM_BUILD_ROOT%{_bindir}/
 install -m 0755 qemu-kvm $RPM_BUILD_ROOT%{_bindir}/
 %endif
 
-cd qemu
 make prefix="${RPM_BUILD_ROOT}%{_prefix}" \
      bindir="${RPM_BUILD_ROOT}%{_bindir}" \
-     sharedir="${RPM_BUILD_ROOT}%{_prefix}/share/qemu" \
+     sharedir="${RPM_BUILD_ROOT}%{_datadir}/%{name}" \
      mandir="${RPM_BUILD_ROOT}%{_mandir}" \
      docdir="${RPM_BUILD_ROOT}%{_docdir}/%{name}-%{version}" \
-     datadir="${RPM_BUILD_ROOT}%{_prefix}/share/qemu" install
+     datadir="${RPM_BUILD_ROOT}%{_datadir}/%{name}" install
 chmod -x ${RPM_BUILD_ROOT}%{_mandir}/man1/*
 install -D -p -m 0755 %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/rc.d/init.d/qemu
 install -D -p -m 0644 -t ${RPM_BUILD_ROOT}/%{qemudocdir} Changelog README TODO COPYING COPYING.LIB LICENSE
 
 install -D -p -m 0644 qemu.sasl $RPM_BUILD_ROOT%{_sysconfdir}/sasl2/qemu.conf
 
-rm -rf ${RPM_BUILD_ROOT}/usr/share//qemu/pxe*bin
-rm -rf ${RPM_BUILD_ROOT}/usr/share//qemu/vgabios*bin
-rm -rf ${RPM_BUILD_ROOT}/usr/share//qemu/bios.bin
-rm -rf ${RPM_BUILD_ROOT}/usr/share//qemu/openbios-ppc
-rm -rf ${RPM_BUILD_ROOT}/usr/share//qemu/openbios-sparc32
-rm -rf ${RPM_BUILD_ROOT}/usr/share//qemu/openbios-sparc64
+rm -rf ${RPM_BUILD_ROOT}%{_datadir}/%{name}/pxe*bin
+rm -rf ${RPM_BUILD_ROOT}%{_datadir}/%{name}/vgabios*bin
+rm -rf ${RPM_BUILD_ROOT}%{_datadir}/%{name}/bios.bin
+rm -rf ${RPM_BUILD_ROOT}%{_datadir}/%{name}/openbios-ppc
+rm -rf ${RPM_BUILD_ROOT}%{_datadir}/%{name}/openbios-sparc32
+rm -rf ${RPM_BUILD_ROOT}%{_datadir}/%{name}/openbios-sparc64
 
 # the pxe etherboot images will be symlinks to the images on
 # /usr/share/etherboot, as QEMU doesn't know how to look
@@ -345,14 +330,12 @@ pxe_link ne2k_pci ne
 pxe_link pcnet pcnet32
 pxe_link rtl8139 rtl8139
 pxe_link virtio virtio-net
-ln -s ../vgabios/VGABIOS-lgpl-latest.bin  %{buildroot}/%{_prefix}/share/qemu/vgabios.bin
-ln -s ../vgabios/VGABIOS-lgpl-latest.cirrus.bin %{buildroot}/%{_prefix}/share/qemu/vgabios-cirrus.bin
-ln -s ../bochs/BIOS-bochs-kvm %{buildroot}/%{_prefix}/share/qemu/bios.bin
-ln -s ../openbios/openbios-ppc %{buildroot}/%{_prefix}/share/qemu/openbios-ppc
-ln -s ../openbios/openbios-sparc32 %{buildroot}/%{_prefix}/share/qemu/openbios-sparc32
-ln -s ../openbios/openbios-sparc64 %{buildroot}/%{_prefix}/share/qemu/openbios-sparc64
-
-
+ln -s ../vgabios/VGABIOS-lgpl-latest.bin  %{buildroot}/%{_datadir}/%{name}/vgabios.bin
+ln -s ../vgabios/VGABIOS-lgpl-latest.cirrus.bin %{buildroot}/%{_datadir}/%{name}/vgabios-cirrus.bin
+ln -s ../bochs/BIOS-bochs-kvm %{buildroot}/%{_datadir}/%{name}/bios.bin
+ln -s ../openbios/openbios-ppc %{buildroot}/%{_datadir}/%{name}/openbios-ppc
+ln -s ../openbios/openbios-sparc32 %{buildroot}/%{_datadir}/%{name}/openbios-sparc32
+ln -s ../openbios/openbios-sparc64 %{buildroot}/%{_datadir}/%{name}/openbios-sparc64
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -394,8 +377,8 @@ fi
 %doc %{qemudocdir}/COPYING 
 %doc %{qemudocdir}/COPYING.LIB 
 %doc %{qemudocdir}/LICENSE
-%dir %{_prefix}/share/qemu/
-%{_prefix}/share/qemu/keymaps/
+%dir %{_datadir}/%{name}/
+%{_datadir}/%{name}/keymaps/
 %{_mandir}/man1/qemu.1*
 %{_mandir}/man8/qemu-nbd.8*
 %{_bindir}/qemu-nbd
@@ -424,16 +407,16 @@ fi
 %defattr(-,root,root)
 %{_bindir}/qemu
 %{_bindir}/qemu-system-x86_64
-%{_prefix}/share/qemu/bios.bin
-%{_prefix}/share/qemu/vgabios.bin
-%{_prefix}/share/qemu/vgabios-cirrus.bin
-%{_prefix}/share/qemu/pxe-e1000.bin
-%{_prefix}/share/qemu/pxe-virtio.bin
-%{_prefix}/share/qemu/pxe-pcnet.bin
-%{_prefix}/share/qemu/pxe-rtl8139.bin
-%{_prefix}/share/qemu/pxe-ne2k_pci.bin
+%{_datadir}/%{name}/bios.bin
+%{_datadir}/%{name}/vgabios.bin
+%{_datadir}/%{name}/vgabios-cirrus.bin
+%{_datadir}/%{name}/pxe-e1000.bin
+%{_datadir}/%{name}/pxe-virtio.bin
+%{_datadir}/%{name}/pxe-pcnet.bin
+%{_datadir}/%{name}/pxe-rtl8139.bin
+%{_datadir}/%{name}/pxe-ne2k_pci.bin
 %ifarch %{ix86} x86_64
-%{_prefix}/share/qemu/extboot.bin
+%{_datadir}/%{name}/extboot.bin
 %{_bindir}/qemu-kvm
 %{_sysconfdir}/sysconfig/modules/kvm.modules
 %files kvm-tools
@@ -445,8 +428,8 @@ fi
 %files system-sparc
 %defattr(-,root,root)
 %{_bindir}/qemu-system-sparc
-%{_prefix}/share/qemu/openbios-sparc32
-%{_prefix}/share/qemu/openbios-sparc64
+%{_datadir}/%{name}/openbios-sparc32
+%{_datadir}/%{name}/openbios-sparc64
 %files system-arm
 %defattr(-,root,root)
 %{_bindir}/qemu-system-arm
@@ -461,10 +444,10 @@ fi
 %{_bindir}/qemu-system-ppc
 %{_bindir}/qemu-system-ppc64
 %{_bindir}/qemu-system-ppcemb
-%{_prefix}/share/qemu/openbios-ppc
-%{_prefix}/share/qemu/video.x
-%{_prefix}/share/qemu/bamboo.dtb
-%{_prefix}/share/qemu/ppc_rom.bin
+%{_datadir}/%{name}/openbios-ppc
+%{_datadir}/%{name}/video.x
+%{_datadir}/%{name}/bamboo.dtb
+%{_datadir}/%{name}/ppc_rom.bin
 %files system-cris
 %defattr(-,root,root)
 %{_bindir}/qemu-system-cris
@@ -482,6 +465,30 @@ fi
 %{_mandir}/man1/qemu-img.1*
 
 %changelog
+* Tue May 12 2009 Mark McLoughlin <markmc@redhat.com> - 2:0.10.4-1
+- Update to 0.10.4
+- Fix yet more qcow2 corruption (#498405)
+- AIO cancellation fixes (#497170)
+- Fix VPC image size overflow (#491981)
+- Fix oops with 2.6.25 virtio guest (#470386)
+- Enable pulseaudio driver (#495964, #496627)
+- Fix cpuid initialization
+- Fix HPET emulation
+- Fix storage hotplug error handling
+- Migration fixes
+- Block range checking fixes
+- Make PCI config status register read-only
+- Handle newer Xorg keymap names
+- Don't leak memory on NIC hot-unplug
+- Hook up keypad keys for qemu console emulation
+- Correctly run on kernels lacking mmu notifiers
+- Support DDIM option ROMs
+- Fix PCI NIC error handling
+- Fix in-kernel LAPIC initialization
+- Fix broken e1000 PCI config space
+- Drop some patches which have been upstreamed
+- Drop the make-release script; we have an official tarball now
+
 * Tue May 12 2009 Glauber Costa <glommer@redhat.com> - 2:0.10-18
 - move option rom setup function to the beginning of the file. This
   avoids static vs non-static issues, and is the way upstream does

@@ -1,7 +1,7 @@
-Index: qemu-kvm-0.10/qemu/Makefile
+Index: qemu-kvm-0.10.4/Makefile
 ===================================================================
 --- qemu-kvm-0.10.orig/qemu/Makefile
-+++ qemu-kvm-0.10/qemu/Makefile
++++ qemu-kvm-0.10.4/Makefile
 @@ -149,6 +149,9 @@ ifdef CONFIG_CURSES
  OBJS+=curses.o
  endif
@@ -30,10 +30,10 @@ Index: qemu-kvm-0.10/qemu/Makefile
  curses.o: curses.c keymaps.h curses_keys.h
  
  bt-host.o: CFLAGS += $(CONFIG_BLUEZ_CFLAGS)
-Index: qemu-kvm-0.10/qemu/vnc-auth-vencrypt.c
+Index: qemu-kvm-0.10.4/vnc-auth-vencrypt.c
 ===================================================================
 --- /dev/null
-+++ qemu-kvm-0.10/qemu/vnc-auth-vencrypt.c
++++ qemu-kvm-0.10.4/vnc-auth-vencrypt.c
 @@ -0,0 +1,167 @@
 +/*
 + * QEMU VNC display driver: VeNCrypt authentication setup
@@ -202,10 +202,10 @@ Index: qemu-kvm-0.10/qemu/vnc-auth-vencrypt.c
 +    vnc_read_when(vs, protocol_client_vencrypt_init, 2);
 +}
 +
-Index: qemu-kvm-0.10/qemu/vnc-auth-vencrypt.h
+Index: qemu-kvm-0.10.4/vnc-auth-vencrypt.h
 ===================================================================
 --- /dev/null
-+++ qemu-kvm-0.10/qemu/vnc-auth-vencrypt.h
++++ qemu-kvm-0.10.4/vnc-auth-vencrypt.h
 @@ -0,0 +1,33 @@
 +/*
 + * QEMU VNC display driver
@@ -240,10 +240,10 @@ Index: qemu-kvm-0.10/qemu/vnc-auth-vencrypt.h
 +void start_auth_vencrypt(VncState *vs);
 +
 +#endif /* __QEMU_VNC_AUTH_VENCRYPT_H__ */
-Index: qemu-kvm-0.10/qemu/vnc-tls.c
+Index: qemu-kvm-0.10.4/vnc-tls.c
 ===================================================================
 --- /dev/null
-+++ qemu-kvm-0.10/qemu/vnc-tls.c
++++ qemu-kvm-0.10.4/vnc-tls.c
 @@ -0,0 +1,414 @@
 +/*
 + * QEMU VNC display driver: TLS helpers
@@ -659,10 +659,10 @@ Index: qemu-kvm-0.10/qemu/vnc-tls.c
 +    return -1;
 +}
 +
-Index: qemu-kvm-0.10/qemu/vnc-tls.h
+Index: qemu-kvm-0.10.4/vnc-tls.h
 ===================================================================
 --- /dev/null
-+++ qemu-kvm-0.10/qemu/vnc-tls.h
++++ qemu-kvm-0.10.4/vnc-tls.h
 @@ -0,0 +1,70 @@
 +/*
 + * QEMU VNC display driver. TLS helpers
@@ -734,10 +734,10 @@ Index: qemu-kvm-0.10/qemu/vnc-tls.h
 +
 +#endif /* __QEMU_VNC_TLS_H__ */
 +
-Index: qemu-kvm-0.10/qemu/vnc.c
+Index: qemu-kvm-0.10.4/vnc.c
 ===================================================================
 --- qemu-kvm-0.10.orig/qemu/vnc.c
-+++ qemu-kvm-0.10/qemu/vnc.c
++++ qemu-kvm-0.10.4/vnc.c
 @@ -34,21 +34,6 @@
  #include "vnc_keysym.h"
  #include "d3des.h"
@@ -1513,10 +1513,10 @@ Index: qemu-kvm-0.10/qemu/vnc.c
  		    fprintf(stderr, "Failed to find x509 certificates/keys in %s\n", path);
  		    qemu_free(path);
  		    qemu_free(vs->display);
-Index: qemu-kvm-0.10/qemu/vnc.h
+Index: qemu-kvm-0.10.4/vnc.h
 ===================================================================
 --- qemu-kvm-0.10.orig/qemu/vnc.h
-+++ qemu-kvm-0.10/qemu/vnc.h
++++ qemu-kvm-0.10.4/vnc.h
 @@ -32,13 +32,16 @@
  #include "audio/audio.h"
  #include <zlib.h>

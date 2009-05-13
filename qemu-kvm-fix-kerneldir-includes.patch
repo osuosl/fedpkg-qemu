@@ -1,0 +1,80 @@
+From cff8aa984290fc74c39f39e17fbca0f0feab6bc4 Mon Sep 17 00:00:00 2001
+From: Mark McLoughlin <markmc@redhat.com>
+Date: Wed, 13 May 2009 09:29:56 +0100
+Subject: [PATCH] kvm: user: include arch specific headers from $(KERNELDIR)
+
+Currently we only include $(KERNELDIR)/include in CFLAGS,
+but we also have $(KERNELDIR)/arch/$(arch)/include or else
+we'll get mis-matched headers.
+
+Signed-off-by: Mark McLoughlin <markmc@redhat.com>
+---
+ kvm/user/config-i386.mak       |    1 -
+ kvm/user/config-ia64.mak       |    1 +
+ kvm/user/config-powerpc.mak    |    1 +
+ kvm/user/config-x86-common.mak |    2 ++
+ kvm/user/config-x86_64.mak     |    1 -
+ 5 files changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/kvm/user/config-i386.mak b/kvm/user/config-i386.mak
+index 09175d5..eebb9de 100644
+--- a/kvm/user/config-i386.mak
++++ b/kvm/user/config-i386.mak
+@@ -3,7 +3,6 @@ cstart.o = $(TEST_DIR)/cstart.o
+ bits = 32
+ ldarch = elf32-i386
+ CFLAGS += -D__i386__
+-CFLAGS += -I $(KERNELDIR)/include
+ 
+ tests=
+ 
+diff --git a/kvm/user/config-ia64.mak b/kvm/user/config-ia64.mak
+index c4c639e..e8803a0 100644
+--- a/kvm/user/config-ia64.mak
++++ b/kvm/user/config-ia64.mak
+@@ -2,6 +2,7 @@ bits = 64
+ CFLAGS += -m64
+ CFLAGS += -D__ia64__
+ CFLAGS += -I $(KERNELDIR)/include
++CFLAGS += -I $(KERNELDIR)/arch/ia64/include
+ 
+ all:
+ 
+diff --git a/kvm/user/config-powerpc.mak b/kvm/user/config-powerpc.mak
+index dd7ef54..589aa61 100644
+--- a/kvm/user/config-powerpc.mak
++++ b/kvm/user/config-powerpc.mak
+@@ -1,4 +1,5 @@
+ CFLAGS += -I $(KERNELDIR)/include
++CFLAGS += -I $(KERNELDIR)/arch/powerpc/include
+ CFLAGS += -Wa,-mregnames -I test/lib
+ CFLAGS += -ffreestanding
+ 
+diff --git a/kvm/user/config-x86-common.mak b/kvm/user/config-x86-common.mak
+index e789fd4..8d8fadf 100644
+--- a/kvm/user/config-x86-common.mak
++++ b/kvm/user/config-x86-common.mak
+@@ -12,6 +12,8 @@ cflatobjs += \
+ $(libcflat): LDFLAGS += -nostdlib
+ $(libcflat): CFLAGS += -ffreestanding -I test/lib
+ 
++CFLAGS += -I $(KERNELDIR)/include
++CFLAGS += -I $(KERNELDIR)/arch/x86/include
+ CFLAGS += -m$(bits)
+ 
+ FLATLIBS = test/lib/libcflat.a $(libgcc)
+diff --git a/kvm/user/config-x86_64.mak b/kvm/user/config-x86_64.mak
+index b50b540..d88f54c 100644
+--- a/kvm/user/config-x86_64.mak
++++ b/kvm/user/config-x86_64.mak
+@@ -3,7 +3,6 @@ cstart.o = $(TEST_DIR)/cstart64.o
+ bits = 64
+ ldarch = elf64-x86-64
+ CFLAGS += -D__x86_64__
+-CFLAGS += -I $(KERNELDIR)/include
+ 
+ tests = $(TEST_DIR)/access.flat $(TEST_DIR)/irq.flat $(TEST_DIR)/sieve.flat \
+       $(TEST_DIR)/simple.flat $(TEST_DIR)/stringio.flat \
+-- 
+1.6.0.6
+

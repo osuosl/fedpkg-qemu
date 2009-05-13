@@ -1,7 +1,7 @@
-Index: qemu-kvm-0.10/qemu/vnc-tls.c
+Index: qemu-kvm-0.10.4/vnc-tls.c
 ===================================================================
 --- qemu-kvm-0.10.orig/qemu/vnc-tls.c
-+++ qemu-kvm-0.10/qemu/vnc-tls.c
++++ qemu-kvm-0.10.4/vnc-tls.c
 @@ -241,6 +241,22 @@ int vnc_tls_validate_certificate(struct 
  	    return -1;
  	}
@@ -33,10 +33,10 @@ Index: qemu-kvm-0.10/qemu/vnc-tls.c
  }
  
  
-Index: qemu-kvm-0.10/qemu/vnc-tls.h
+Index: qemu-kvm-0.10.4/vnc-tls.h
 ===================================================================
 --- qemu-kvm-0.10.orig/qemu/vnc-tls.h
-+++ qemu-kvm-0.10/qemu/vnc-tls.h
++++ qemu-kvm-0.10.4/vnc-tls.h
 @@ -55,6 +55,9 @@ struct VncStateTLS {
      /* Whether data is being TLS encrypted yet */
      int wiremode;
@@ -47,10 +47,10 @@ Index: qemu-kvm-0.10/qemu/vnc-tls.h
  };
  
  int vnc_tls_client_setup(VncState *vs, int x509Creds);
-Index: qemu-kvm-0.10/qemu/vnc.c
+Index: qemu-kvm-0.10.4/vnc.c
 ===================================================================
 --- qemu-kvm-0.10.orig/qemu/vnc.c
-+++ qemu-kvm-0.10/qemu/vnc.c
++++ qemu-kvm-0.10.4/vnc.c
 @@ -156,6 +156,21 @@ static void do_info_vnc_client(VncState 
      term_puts("Client:\n");
      term_puts(clientAddr);

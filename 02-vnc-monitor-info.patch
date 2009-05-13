@@ -1,7 +1,7 @@
-Index: qemu-kvm-0.10/qemu/vnc.c
+Index: qemu-kvm-0.10.4/vnc.c
 ===================================================================
 --- qemu-kvm-0.10.orig/qemu/vnc.c
-+++ qemu-kvm-0.10/qemu/vnc.c
++++ qemu-kvm-0.10.4/vnc.c
 @@ -166,19 +166,136 @@ struct VncState
  static VncDisplay *vnc_display; /* needed for info vnc */
  static DisplayChangeListener *dcl;
