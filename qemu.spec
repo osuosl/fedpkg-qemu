@@ -1,7 +1,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 0.10.4
-Release: 1%{?dist}
+Release: 2%{?dist}
 # Epoch because we pushed a qemu-1.0 package
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -28,6 +28,7 @@ Patch12: qemu-roms-more-room.patch
 Patch13: qemu-roms-more-room-fix-vga-align.patch
 Patch14: qemu-bios-bigger-roms.patch
 Patch15: qemu-kvm-fix-kerneldir-includes.patch
+Patch16: qemu-fix-load-linux.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: SDL-devel zlib-devel which texi2html gnutls-devel cyrus-sasl-devel
@@ -223,6 +224,7 @@ such as kvmtrace and kvm_stat.
 %patch13 -p1
 %patch14 -p1
 %patch15 -p1
+%patch16 -p1
 
 %build
 # systems like rhel build system does not have a recent enough linker so
@@ -465,6 +467,9 @@ fi
 %{_mandir}/man1/qemu-img.1*
 
 %changelog
+* Wed May 13 2009 Mark McLoughlin <markmc@redhat.com> - 2:0.10.4-2
+- Fix -kernel bustage in upstream 0.10.4
+
 * Tue May 12 2009 Mark McLoughlin <markmc@redhat.com> - 2:0.10.4-1
 - Update to 0.10.4
 - Fix yet more qcow2 corruption (#498405)

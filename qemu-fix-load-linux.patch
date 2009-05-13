@@ -1,0 +1,45 @@
+From 7a53bcbef278b4191d5cb497ef2b81509a00f670 Mon Sep 17 00:00:00 2001
+From: Mark McLoughlin <markmc@redhat.com>
+Date: Wed, 13 May 2009 12:59:47 +0100
+Subject: [PATCH 1/1] Fix load_linux reset handling fix
+
+This fix on the stable branch:
+
+  commit 2da1e398641d9fccf683645c808dee0d088f84cf
+  Author: Glauber Costa <glommer@redhat.com>
+  Date:   Fri May 8 02:22:13 2009 -0300
+
+    reset state for load_linux
+
+Caused -kernel to break.
+
+The problem is that we're passing the ROM's ram_addr_t to
+load_linux() rather than its target_phys_addr_t. We also
+need to register the memory before trying to write to
+it.
+
+Signed-off-by: Mark McLoughlin <markmc@redhat.com>
+---
+ hw/pc.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/hw/pc.c b/hw/pc.c
+index 062c306..e69a1f7 100644
+--- a/hw/pc.c
++++ b/hw/pc.c
+@@ -954,10 +954,10 @@ vga_bios_error:
+         offset = option_rom_start;
+         if (linux_boot) {
+             option_rom_offset = qemu_ram_alloc(TARGET_PAGE_SIZE);
+-            load_linux(option_rom_offset,
+-                       kernel_filename, initrd_filename, kernel_cmdline);
+             cpu_register_physical_memory(option_rom_start, TARGET_PAGE_SIZE,
+                                          option_rom_offset);
++            load_linux(option_rom_start,
++                       kernel_filename, initrd_filename, kernel_cmdline);
+             offset += TARGET_PAGE_SIZE;
+         }
+ 
+-- 
+1.6.2.2
+

@@ -97,7 +97,7 @@ diff -urp qemu-kvm-0.10.4.orig/hw/pc.c qemu-kvm-0.10.4/hw/pc.c
 +            cpu_register_physical_memory(option_rom_start, TARGET_PAGE_SIZE,
                                           option_rom_offset);
 -            offset = TARGET_PAGE_SIZE;
-+            offset = +TARGET_PAGE_SIZE;
++            offset += TARGET_PAGE_SIZE;
          }
  
          for (i = 0; i < nb_option_roms; i++) {
