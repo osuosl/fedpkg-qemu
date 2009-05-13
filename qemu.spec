@@ -1,7 +1,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 0.10.4
-Release: 2%{?dist}
+Release: 3%{?dist}
 # Epoch because we pushed a qemu-1.0 package
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -293,7 +293,7 @@ mkdir -p $RPM_BUILD_ROOT/%{_sysconfdir}/sysconfig/modules
 mkdir -p $RPM_BUILD_ROOT%{_bindir}/
 mkdir -p $RPM_BUILD_ROOT%{_datadir}/%{name}
 
-install -m 0755 %{SOURCE1} $RPM_BUILD_ROOT/%{_sysconfdir}/sysconfig/modules/kvm.modules
+install -m 0755 %{SOURCE2} $RPM_BUILD_ROOT/%{_sysconfdir}/sysconfig/modules/kvm.modules
 install -m 0755 kvm/extboot/extboot.bin $RPM_BUILD_ROOT%{_datadir}/%{name}
 install -m 0755 kvm/user/kvmtrace $RPM_BUILD_ROOT%{_bindir}/
 install -m 0755 kvm/user/kvmtrace_format $RPM_BUILD_ROOT%{_bindir}/
@@ -308,7 +308,7 @@ make prefix="${RPM_BUILD_ROOT}%{_prefix}" \
      docdir="${RPM_BUILD_ROOT}%{_docdir}/%{name}-%{version}" \
      datadir="${RPM_BUILD_ROOT}%{_datadir}/%{name}" install
 chmod -x ${RPM_BUILD_ROOT}%{_mandir}/man1/*
-install -D -p -m 0755 %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/rc.d/init.d/qemu
+install -D -p -m 0755 %{SOURCE1} $RPM_BUILD_ROOT%{_sysconfdir}/rc.d/init.d/qemu
 install -D -p -m 0644 -t ${RPM_BUILD_ROOT}/%{qemudocdir} Changelog README TODO COPYING COPYING.LIB LICENSE
 
 install -D -p -m 0644 qemu.sasl $RPM_BUILD_ROOT%{_sysconfdir}/sasl2/qemu.conf
@@ -467,6 +467,9 @@ fi
 %{_mandir}/man1/qemu-img.1*
 
 %changelog
+* Wed May 13 2009 Mark McLoughlin <markmc@redhat.com> - 2:0.10.4-3
+- Fix mixup between kvm.modules and the init script (reported by Rich Jones)
+
 * Wed May 13 2009 Mark McLoughlin <markmc@redhat.com> - 2:0.10.4-2
 - Fix -kernel bustage in upstream 0.10.4
 
