@@ -1,7 +1,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 0.10.4
-Release: 3%{?dist}
+Release: 4%{?dist}
 # Epoch because we pushed a qemu-1.0 package
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -29,6 +29,10 @@ Patch13: qemu-roms-more-room-fix-vga-align.patch
 Patch14: qemu-bios-bigger-roms.patch
 Patch15: qemu-kvm-fix-kerneldir-includes.patch
 Patch16: qemu-fix-load-linux.patch
+Patch17: qemu-dma-aio-cancellation1.patch
+Patch18: qemu-dma-aio-cancellation2.patch
+Patch19: qemu-dma-aio-cancellation3.patch
+Patch20: qemu-dma-aio-cancellation4.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: SDL-devel zlib-devel which texi2html gnutls-devel cyrus-sasl-devel
@@ -225,6 +229,10 @@ such as kvmtrace and kvm_stat.
 %patch14 -p1
 %patch15 -p1
 %patch16 -p1
+%patch17 -p1
+%patch18 -p1
+%patch19 -p1
+%patch20 -p1
 
 %build
 # systems like rhel build system does not have a recent enough linker so
@@ -467,6 +475,9 @@ fi
 %{_mandir}/man1/qemu-img.1*
 
 %changelog
+* Thu May 14 2009 Mark McLoughlin <markmc@redhat.com> - 2:0.10.4-4
+- Cherry pick more DMA AIO cancellation fixes from upstream (#497170)
+
 * Wed May 13 2009 Mark McLoughlin <markmc@redhat.com> - 2:0.10.4-3
 - Fix mixup between kvm.modules and the init script (reported by Rich Jones)
 

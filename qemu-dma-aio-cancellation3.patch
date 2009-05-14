@@ -1,0 +1,37 @@
+From 2df6efa1790a7a2894707257d2fe67b8d1cfb13a Mon Sep 17 00:00:00 2001
+From: Avi Kivity <avi@redhat.com>
+Date: Sat, 28 Mar 2009 16:11:20 +0000
+Subject: [STABLE][PATCH 3/4] Fix vectored aio bounce handling immediate errors
+
+If a bounced vectored aio fails immediately (the inner aio submission
+returning NULL) then the bounce handler erronously returns an aio
+request which will never be completed (and which crashes when cancelled).
+
+Fix by detecting that the inner request has failed and propagating the
+error.
+
+Signed-off-by: Avi Kivity <avi@redhat.com>
+
+---
+ block.c |    5 +++++
+ 1 files changed, 5 insertions(+), 0 deletions(-)
+
+diff --git a/block.c b/block.c
+index 689ea37..b68a8da 100644
+--- a/block.c
++++ b/block.c
+@@ -1383,6 +1383,11 @@ static BlockDriverAIOCB *bdrv_aio_rw_vector(BlockDriverState *bs,
+         s->aiocb = bdrv_aio_read(bs, sector_num, s->bounce, nb_sectors,
+                                  bdrv_aio_rw_vector_cb, s);
+     }
++    if (!s->aiocb) {
++        qemu_vfree(s->bounce);
++        qemu_aio_release(s);
++        return NULL;
++    }
+     return &s->common;
+ }
+ 
+-- 
+1.6.0.6
+
