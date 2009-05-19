@@ -1,7 +1,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 0.10.4
-Release: 4%{?dist}
+Release: 5%{?dist}
 # Epoch because we pushed a qemu-1.0 package
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -33,6 +33,10 @@ Patch17: qemu-dma-aio-cancellation1.patch
 Patch18: qemu-dma-aio-cancellation2.patch
 Patch19: qemu-dma-aio-cancellation3.patch
 Patch20: qemu-dma-aio-cancellation4.patch
+Patch21: qemu-make-x86-cpuid-feature-names-available-in-file-scope.patch
+Patch22: qemu-fix-x86-feature-modifications-for-features-that-set.patch
+Patch23: qemu-trim-cpu-features-not-supported-by-kvm.patch
+
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: SDL-devel zlib-devel which texi2html gnutls-devel cyrus-sasl-devel
@@ -233,6 +237,9 @@ such as kvmtrace and kvm_stat.
 %patch18 -p1
 %patch19 -p1
 %patch20 -p1
+%patch21 -p1
+#%patch22 -p1
+#%patch23 -p1
 
 %build
 # systems like rhel build system does not have a recent enough linker so
@@ -475,6 +482,9 @@ fi
 %{_mandir}/man1/qemu-img.1*
 
 %changelog
+* Mon May 18 2009 Glauber Costa <glommer@redhat.com> - 2:0.10.4-5
+- Backport cpuid trimming from upstream (#499596)
+
 * Thu May 14 2009 Mark McLoughlin <markmc@redhat.com> - 2:0.10.4-4
 - Cherry pick more DMA AIO cancellation fixes from upstream (#497170)
 
