@@ -1,34 +1,34 @@
-# For FC >= 6 we have gcc 3.4, for FC <= 5 we have gcc 3.2
-%if %{!?fedora:6}%{?fedora} >= 6
-%define gccver 34
-%else
-%define gccver 32
-%endif
-
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
-Version: 0.9.1
-Release: 11%{?dist}
-License: GPLv2+ and LGPLv2+
+Version: 0.10.5
+Release: 1
+# Epoch because we pushed a qemu-1.0 package
+Epoch: 2
+License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
 URL: http://www.qemu.org/
-Source0: http://www.qemu.org/%{name}-%{version}.tar.gz
+
+Source0: http://download.savannah.gnu.org/releases/qemu/%{name}-%{version}.tar.gz
 Source1: qemu.init
-Patch0: qemu-0.7.0-build.patch
-# Change default NIC to rtl8139 to get link-state detection
-Patch3: qemu-0.9.1-nic-defaults.patch
-Patch4: qemu-%{version}-block-rw-range-check.patch
-# Upstream SVN changeset #4338
-Patch5: qemu-%{version}-pty-rawmode.patch
-# Similar to upstream changeset #5026
-Patch6: qemu-0.9.1-isapcvga.patch
+
+Patch0: qemu-0.1.5-disable-strip.patch
+
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-BuildRequires: SDL-devel compat-gcc-%{gccver} zlib-devel which texi2html gnutls-devel
-Requires(post): /sbin/chkconfig
-Requires(preun): /sbin/service /sbin/chkconfig
-Requires(postun): /sbin/service
-Requires: %{name}-img = %{version}-%{release}
-ExclusiveArch: %{ix86} x86_64 ppc alpha sparc armv4l
+BuildRequires: SDL-devel zlib-devel which texi2html gnutls-devel
+BuildRequires: dev86
+BuildRequires: pulseaudio-libs-devel
+Requires: %{name}-user = %{epoch}:%{version}-%{release}
+Requires: %{name}-system-x86 = %{epoch}:%{version}-%{release}
+Requires: %{name}-system-sparc = %{epoch}:%{version}-%{release}
+Requires: %{name}-system-arm = %{epoch}:%{version}-%{release}
+Requires: %{name}-system-cris = %{epoch}:%{version}-%{release}
+Requires: %{name}-system-sh4 = %{epoch}:%{version}-%{release}
+Requires: %{name}-system-m68k = %{epoch}:%{version}-%{release}
+Requires: %{name}-system-mips = %{epoch}:%{version}-%{release}
+Requires: %{name}-system-ppc = %{epoch}:%{version}-%{release}
+Requires: %{name}-img = %{epoch}:%{version}-%{release}
+
+%define qemudocdir %{_docdir}/%{name}-%{version}
 
 %description
 QEMU is a generic and open source processor emulator which achieves a good
@@ -43,75 +43,217 @@ emulation speed by using dynamic translation. QEMU has two operating modes:
 
 As QEMU requires no host kernel patches to run, it is safe and easy to use.
 
-%package img
-Summary: QEMU is a FAST! processor emulator
+%package  img
+Summary: QEMU command line tool for manipulating disk images
 Group: Development/Tools
-
 %description img
-QEMU is a generic and open source processor emulator which achieves a good
+QEMU is a generic and open source processor emulator which achieves a good 
 emulation speed by using dynamic translation.
 
 This package provides the command line tool for manipulating disk images
 
+%package  common
+Summary: QEMU common files needed by all QEMU targets
+Group: Development/Tools
+%description common
+QEMU is a generic and open source processor emulator which achieves a good
+emulation speed by using dynamic translation.
+
+This package provides the common files needed by all QEMU targets
+
+%package user
+Summary: QEMU user mode emulation of qemu targets
+Group: Development/Tools
+Requires: %{name}-common = %{epoch}:%{version}-%{release}
+Requires(post): /sbin/chkconfig
+Requires(preun): /sbin/service /sbin/chkconfig
+Requires(postun): /sbin/service
+%description user
+QEMU is a generic and open source processor emulator which achieves a good
+emulation speed by using dynamic translation.
+
+This package provides the user mode emulation of qemu targets
+
+%package system-x86
+Summary: QEMU system emulator for x86
+Group: Development/Tools
+Requires: %{name}-common = %{epoch}:%{version}-%{release}
+
+%description system-x86
+QEMU is a generic and open source processor emulator which achieves a good
+emulation speed by using dynamic translation.
+
+This package provides the system emulator for x86. When being run in a x86
+machine that supports it, this package also provides the KVM virtualization
+platform.
+
+%package system-ppc
+Summary: QEMU system emulator for ppc
+Group: Development/Tools
+Requires: %{name}-common = %{epoch}:%{version}-%{release}
+Requires: openbios-ppc
+%description system-ppc
+QEMU is a generic and open source processor emulator which achieves a good
+emulation speed by using dynamic translation.
+
+This package provides the system emulator for ppc
+
+%package system-sparc
+Summary: QEMU system emulator for sparc
+Group: Development/Tools
+Requires: %{name}-common = %{epoch}:%{version}-%{release}
+%description system-sparc
+QEMU is a generic and open source processor emulator which achieves a good
+emulation speed by using dynamic translation.
+
+This package provides the system emulator for sparc
+
+%package system-arm
+Summary: QEMU system emulator for arm
+Group: Development/Tools
+Requires: %{name}-common = %{epoch}:%{version}-%{release}
+%description system-arm
+QEMU is a generic and open source processor emulator which achieves a good
+emulation speed by using dynamic translation.
+
+This package provides the system emulator for arm
+
+%package system-mips
+Summary: QEMU system emulator for mips
+Group: Development/Tools
+Requires: %{name}-common = %{epoch}:%{version}-%{release}
+%description system-mips
+QEMU is a generic and open source processor emulator which achieves a good
+emulation speed by using dynamic translation.
+
+This package provides the system emulator for mips
+
+%package system-cris
+Summary: QEMU system emulator for cris
+Group: Development/Tools
+Requires: %{name}-common = %{epoch}:%{version}-%{release}
+%description system-cris
+QEMU is a generic and open source processor emulator which achieves a good
+emulation speed by using dynamic translation.
+
+This package provides the system emulator for cris
+
+%package system-m68k
+Summary: QEMU system emulator for m68k
+Group: Development/Tools
+Requires: %{name}-common = %{epoch}:%{version}-%{release}
+%description system-m68k
+QEMU is a generic and open source processor emulator which achieves a good
+emulation speed by using dynamic translation.
+
+This package provides the system emulator for m68k
+
+%package system-sh4
+Summary: QEMU system emulator for sh4
+Group: Development/Tools
+Requires: %{name}-common = %{epoch}:%{version}-%{release}
+%description system-sh4
+QEMU is a generic and open source processor emulator which achieves a good
+emulation speed by using dynamic translation.
+
+This package provides the system emulator for sh4
+
 %prep
 %setup -q
-%patch0 -p1
-%patch3 -p1
-%patch4 -p1
-%patch5 -p1
-%patch6 -p1
+%patch0 -p1 -b .disable-strip
 
 %build
+# systems like rhel build system does not have a recent enough linker so
+# --build-id works. this option is used fedora 8 onwards for giving info
+# to the debug packages.
+
+build_id_available() {
+ echo "int main () { return 0; }" | gcc -x c -Wl,--build-id - 2>/dev/null
+}
+
+if build_id_available; then
+ extraldflags="-Wl,--build-id";
+ buildldflags="VL_LDFLAGS=-Wl,--build-id"
+else
+ extraldflags=""
+ buildldflags=""
+fi
+
 ./configure \
+    --target-list="i386-softmmu x86_64-softmmu arm-softmmu cris-softmmu m68k-softmmu \
+                mips-softmmu mipsel-softmmu mips64-softmmu mips64el-softmmu ppc-softmmu \
+                ppcemb-softmmu ppc64-softmmu sh4-softmmu sh4eb-softmmu sparc-softmmu \
+                i386-linux-user x86_64-linux-user alpha-linux-user arm-linux-user \
+                armeb-linux-user cris-linux-user m68k-linux-user mips-linux-user \
+                mipsel-linux-user ppc-linux-user ppc64-linux-user ppc64abi32-linux-user \
+                sh4-linux-user sh4eb-linux-user sparc-linux-user sparc64-linux-user \
+                sparc32plus-linux-user" \
     --prefix=%{_prefix} \
     --interp-prefix=%{_prefix}/qemu-%%M \
-    --cc=gcc%{gccver} \
-    --enable-alsa
-#    --extra-ldflags="-Wl,--build-id"
-make %{?_smp_mflags} #VL_LDFLAGS="-Wl,--build-id"
+    --audio-drv-list=pa,sdl,alsa,oss \
+    --disable-strip \
+    --disable-kvm \
+    --extra-ldflags=$extraldflags \
+    --extra-cflags="$RPM_OPT_FLAGS"
+
+make V=1 %{?_smp_mflags} $buildldflags
 
 %install
 rm -rf $RPM_BUILD_ROOT
 
 make prefix="${RPM_BUILD_ROOT}%{_prefix}" \
      bindir="${RPM_BUILD_ROOT}%{_bindir}" \
-     sharedir="${RPM_BUILD_ROOT}%{_prefix}/share/qemu" \
+     sharedir="${RPM_BUILD_ROOT}%{_datadir}/%{name}" \
      mandir="${RPM_BUILD_ROOT}%{_mandir}" \
      docdir="${RPM_BUILD_ROOT}%{_docdir}/%{name}-%{version}" \
-     datadir="${RPM_BUILD_ROOT}%{_prefix}/share/qemu" install
-chmod -x ${RPM_BUILD_ROOT}%{_mandir}/man1/*
-
+     datadir="${RPM_BUILD_ROOT}%{_datadir}/%{name}" install
 install -D -p -m 0755 %{SOURCE1} $RPM_BUILD_ROOT%{_sysconfdir}/rc.d/init.d/qemu
+install -D -p -m 0644 -t ${RPM_BUILD_ROOT}/%{qemudocdir} Changelog README TODO COPYING COPYING.LIB LICENSE
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%post
+%post user
 /sbin/chkconfig --add qemu
 
-%preun
+%preun user
 if [ $1 -eq 0 ]; then
     /sbin/service qemu stop &>/dev/null || :
     /sbin/chkconfig --del qemu
 fi
 
-%postun
+%postun user
 if [ $1 -ge 1 ]; then
     /sbin/service qemu condrestart &>/dev/null || :
 fi
 
-%files
+%files 
 %defattr(-,root,root)
-%doc Changelog README TODO
-%doc qemu-doc.html qemu-tech.html
-%doc COPYING COPYING.LIB LICENSE
+
+%files common
+%defattr(-,root,root)
+%doc %{qemudocdir}/Changelog
+%doc %{qemudocdir}/README
+%doc %{qemudocdir}/TODO
+%doc %{qemudocdir}/qemu-doc.html 
+%doc %{qemudocdir}/qemu-tech.html
+%doc %{qemudocdir}/COPYING 
+%doc %{qemudocdir}/COPYING.LIB 
+%doc %{qemudocdir}/LICENSE
+%dir %{_datadir}/%{name}/
+%{_datadir}/%{name}/keymaps/
+%{_mandir}/man1/qemu.1*
+%{_mandir}/man8/qemu-nbd.8*
+%{_bindir}/qemu-nbd
+%files user
+%defattr(-,root,root)
 %{_sysconfdir}/rc.d/init.d/qemu
-%{_bindir}/qemu
 %{_bindir}/qemu-alpha
 %{_bindir}/qemu-arm
 %{_bindir}/qemu-armeb
 %{_bindir}/qemu-cris
 %{_bindir}/qemu-i386
+%{_bindir}/qemu-x86_64
 %{_bindir}/qemu-m68k
 %{_bindir}/qemu-mips
 %{_bindir}/qemu-mipsel
@@ -121,25 +263,52 @@ fi
 %{_bindir}/qemu-sh4
 %{_bindir}/qemu-sh4eb
 %{_bindir}/qemu-sparc
-%{_bindir}/qemu-sparc32plus
 %{_bindir}/qemu-sparc64
+%{_bindir}/qemu-sparc32plus
+%files system-x86
+%defattr(-,root,root)
+%{_bindir}/qemu
+%{_bindir}/qemu-system-x86_64
+%{_datadir}/%{name}/bios.bin
+%{_datadir}/%{name}/vgabios.bin
+%{_datadir}/%{name}/vgabios-cirrus.bin
+%{_datadir}/%{name}/pxe-e1000.bin
+%{_datadir}/%{name}/pxe-pcnet.bin
+%{_datadir}/%{name}/pxe-rtl8139.bin
+%{_datadir}/%{name}/pxe-ne2k_pci.bin
+%files system-sparc
+%defattr(-,root,root)
+%{_bindir}/qemu-system-sparc
+%{_datadir}/%{name}/openbios-sparc32
+%{_datadir}/%{name}/openbios-sparc64
+%files system-arm
+%defattr(-,root,root)
 %{_bindir}/qemu-system-arm
+%files system-mips
+%defattr(-,root,root)
 %{_bindir}/qemu-system-mips
 %{_bindir}/qemu-system-mipsel
-%{_bindir}/qemu-system-ppc
-%{_bindir}/qemu-system-sparc
-%{_bindir}/qemu-system-x86_64
-%{_bindir}/qemu-system-cris
-%{_bindir}/qemu-system-m68k
 %{_bindir}/qemu-system-mips64
 %{_bindir}/qemu-system-mips64el
+%files system-ppc
+%defattr(-,root,root)
+%{_bindir}/qemu-system-ppc
 %{_bindir}/qemu-system-ppc64
 %{_bindir}/qemu-system-ppcemb
+%{_datadir}/%{name}/openbios-ppc
+%{_datadir}/%{name}/video.x
+%{_datadir}/%{name}/bamboo.dtb
+%{_datadir}/%{name}/ppc_rom.bin
+%files system-cris
+%defattr(-,root,root)
+%{_bindir}/qemu-system-cris
+%files system-m68k
+%defattr(-,root,root)
+%{_bindir}/qemu-system-m68k
+%files system-sh4
+%defattr(-,root,root)
 %{_bindir}/qemu-system-sh4
 %{_bindir}/qemu-system-sh4eb
-%{_bindir}/qemu-x86_64
-%{_prefix}/share/qemu/
-%{_mandir}/man1/qemu.1*
 
 %files img
 %defattr(-,root,root)
@@ -147,8 +316,183 @@ fi
 %{_mandir}/man1/qemu-img.1*
 
 %changelog
-* Wed Dec 3 2008 Lubomir Rintel <lkundrak@v3.sk> - 0.9.1-11
-- Fix VGA init on isapc machines
+* Sun May 24 2009 Lubomir Rintel <lkundrak@v3.sk> - 2:0.10.5-1
+- Use the devel KVM spec file as base for EL-5 qemu
+- Rebase to stable qemu 0.10.5
+
+* Thu May 21 2009 Mark McLoughlin <markmc@redhat.com> - 2:0.10.50-4.kvm86
+- Update to kvm-86 release
+- ChangeLog here: http://marc.info/?l=kvm&m=124282885729710
+
+* Fri May  1 2009 Mark McLoughlin <markmc@redhat.com> - 2:0.10.50-3.kvm85
+- Really provide qemu-kvm as a metapackage for comps
+
+* Tue Apr 28 2009 Mark McLoughlin <markmc@redhat.com> - 2:0.10.50-2.kvm85
+- Provide qemu-kvm as a metapackage for comps
+
+* Mon Apr 27 2009 Mark McLoughlin <markmc@redhat.com> - 2:0.10.50-1.kvm85
+- Update to qemu-kvm-devel-85
+- kvm-85 is based on qemu development branch, currently version 0.10.50
+- Include new qemu-io utility in qemu-img package
+- Re-instate -help string for boot=on to fix virtio booting with libvirt
+- Drop upstreamed patches
+- Fix missing kernel/include/asm symlink in upstream tarball
+- Fix target-arm build
+- Fix build on ppc
+- Disable preadv()/pwritev() until bug #497429 is fixed
+- Kill more .kernelrelease uselessness
+- Make non-kvm qemu build verbose
+
+* Fri Apr 24 2009 Mark McLoughlin <markmc@redhat.com> - 2:0.10-15
+- Fix source numbering typos caused by make-release addition
+
+* Thu Apr 23 2009 Mark McLoughlin <markmc@redhat.com> - 2:0.10-14
+- Improve instructions for generating the tarball
+
+* Tue Apr 21 2009 Mark McLoughlin <markmc@redhat.com> - 2:0.10-13
+- Enable pulseaudio driver to fix qemu lockup at shutdown (#495964)
+
+* Tue Apr 21 2009 Mark McLoughlin <markmc@redhat.com> - 2:0.10-12
+- Another qcow2 image corruption fix (#496642)
+
+* Mon Apr 20 2009 Mark McLoughlin <markmc@redhat.com> - 2:0.10-11
+- Fix qcow2 image corruption (#496642)
+
+* Sun Apr 19 2009 Mark McLoughlin <markmc@redhat.com> - 2:0.10-10
+- Run sysconfig.modules from %post on x86_64 too (#494739)
+
+* Sun Apr 19 2009 Mark McLoughlin <markmc@redhat.com> - 2:0.10-9
+- Align VGA ROM to 4k boundary - fixes 'qemu-kvm -std vga' (#494376)
+
+* Tue Apr  14 2009 Glauber Costa <glommer@redhat.com> - 2:0.10-8
+- Provide qemu-kvm conditional on the architecture.
+
+* Thu Apr  9 2009 Mark McLoughlin <markmc@redhat.com> - 2:0.10-7
+- Add a much cleaner fix for vga segfault (#494002)
+
+* Sun Apr  5 2009 Glauber Costa <glommer@redhat.com> - 2:0.10-6
+- Fixed qcow2 segfault creating disks over 2TB. #491943
+
+* Fri Apr  3 2009 Mark McLoughlin <markmc@redhat.com> - 2:0.10-5
+- Fix vga segfault under kvm-autotest (#494002)
+- Kill kernelrelease hack; it's not needed
+- Build with "make V=1" for more verbose logs
+
+* Thu Apr 02 2009 Glauber Costa <glommer@redhat.com> - 2:0.10-4
+- Support botting gpxe roms.
+
+* Wed Apr 01 2009 Glauber Costa <glommer@redhat.com> - 2:0.10-2
+- added missing patch. love for CVS.
+
+* Wed Apr 01 2009 Glauber Costa <glommer@redhat.com> - 2:0.10-1
+- Include debuginfo for qemu-img
+- Do not require qemu-common for qemu-img
+- Explicitly own each of the firmware files
+- remove firmwares for ppc and sparc. They should be provided by an external package.
+  Not that the packages exists for sparc in the secondary arch repo as noarch, but they
+  don't automatically get into main repos. Unfortunately it's the best we can do right
+  now.
+- rollback a bit in time. Snapshot from avi's maint/2.6.30
+  - this requires the sasl patches to come back.
+  - with-patched-kernel comes back.
+
+* Wed Mar 25 2009 Mark McLoughlin <markmc@redhat.com> - 2:0.10-0.12.kvm20090323git
+- BuildRequires pciutils-devel for device assignment (#492076)
+
+* Mon Mar 23 2009 Glauber Costa <glommer@redhat.com> - 2:0.10-0.11.kvm20090323git
+- Update to snapshot kvm20090323.
+- Removed patch2 (upstream).
+- use upstream's new split package.
+- --with-patched-kernel flag not needed anymore
+- Tell how to get the sources.
+
+* Wed Mar 18 2009 Glauber Costa <glommer@redhat.com> - 2:0.10-0.10.kvm20090310git
+- Added extboot to files list.
+
+* Wed Mar 11 2009 Glauber Costa <glommer@redhat.com> - 2:0.10-0.9.kvm20090310git
+- Fix wrong reference to bochs bios.
+
+* Wed Mar 11 2009 Glauber Costa <glommer@redhat.com> - 2:0.10-0.8.kvm20090310git
+- fix Obsolete/Provides pair
+- Use kvm bios from bochs-bios package.
+- Using RPM_OPT_FLAGS in configure
+- Picked back audio-drv-list from kvm package
+
+* Tue Mar 10 2009 Glauber Costa <glommer@redhat.com> - 2:0.10-0.7.kvm20090310git
+- modify ppc patch
+
+* Tue Mar 10 2009 Glauber Costa <glommer@redhat.com> - 2:0.10-0.6.kvm20090310git
+- updated to kvm20090310git
+- removed sasl patches (already in this release)
+
+* Tue Mar 10 2009 Glauber Costa <glommer@redhat.com> - 2:0.10-0.5.kvm20090303git
+- kvm.modules were being wrongly mentioned at %%install.
+- update description for the x86 system package to include kvm support
+- build kvm's own bios. It is still necessary while kvm uses a slightly different
+  irq routing mechanism
+
+* Thu Mar 05 2009 Glauber Costa <glommer@redhat.com> - 2:0.10-0.4.kvm20090303git
+- seems Epoch does not go into the tags. So start back here.
+
+* Thu Mar 05 2009 Glauber Costa <glommer@redhat.com> - 2:0.10-0.1.kvm20090303git
+- Use bochs-bios instead of bochs-bios-data
+- It's official: upstream set on 0.10
+
+* Thu Mar  5 2009 Daniel P. Berrange <berrange@redhat.com> - 2:0.9.2-0.2.kvm20090303git
+- Added BSD to license list, since many files are covered by BSD
+
+* Wed Mar 04 2009 Glauber Costa <glommer@redhat.com> - 0.9.2-0.1.kvm20090303git
+- missing a dot. shame on me
+
+* Wed Mar 04 2009 Glauber Costa <glommer@redhat.com> - 0.92-0.1.kvm20090303git
+- Set Epoch to 2
+- Set version to 0.92. It seems upstream keep changing minds here, so pick the lowest
+- Provides KVM, Obsoletes KVM
+- Only install qemu-kvm in ix86 and x86_64
+- Remove pkgdesc macros, as they were generating bogus output for rpm -qi.
+- fix ppc and ppc64 builds
+
+* Tue Mar 03 2009 Glauber Costa <glommer@redhat.com> - 0.10-0.3.kvm20090303git
+- only execute post scripts for user package.
+- added kvm tools.
+
+* Tue Mar 03 2009 Glauber Costa <glommer@redhat.com> - 0.10-0.2.kvm20090303git
+- put kvm.modules into cvs
+
+* Tue Mar 03 2009 Glauber Costa <glommer@redhat.com> - 0.10-0.1.kvm20090303git
+- Set Epoch to 1
+- Build KVM (basic build, no tools yet)
+- Set ppc in ExcludeArch. This is temporary, just to fix one issue at a time.
+  ppc users (IBM ? ;-)) please wait a little bit.
+
+* Tue Mar  3 2009 Daniel P. Berrange <berrange@redhat.com> - 1.0-0.5.svn6666
+- Support VNC SASL authentication protocol
+- Fix dep on bochs-bios-data
+
+* Tue Mar 03 2009 Glauber Costa <glommer@redhat.com> - 1.0-0.4.svn6666
+- use bios from bochs-bios package.
+
+* Tue Mar 03 2009 Glauber Costa <glommer@redhat.com> - 1.0-0.3.svn6666
+- use vgabios from vgabios package.
+
+* Mon Mar 02 2009 Glauber Costa <glommer@redhat.com> - 1.0-0.2.svn6666
+- use pxe roms from etherboot package.
+
+* Mon Mar 02 2009 Glauber Costa <glommer@redhat.com> - 1.0-0.1.svn6666
+- Updated to tip svn (release 6666). Featuring split packages for qemu.
+  Unfortunately, still using binary blobs for the bioses.
+
+* Wed Feb 25 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.9.1-13
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_11_Mass_Rebuild
+
+* Sun Jan 11 2009 Debarshi Ray <rishi@fedoraproject.org> - 0.9.1-12
+- Updated build patch. Closes Red Hat Bugzilla bug #465041.
+
+* Wed Dec 31 2008 Dennis Gilmore <dennis@ausil.us> - 0.9.1-11
+- add sparcv9 and sparc64 support
+
+* Fri Jul 25 2008 Bill Nottingham <notting@redhat.com>
+- Fix qemu-img summary (#456344)
 
 * Wed Jun 25 2008 Daniel P. Berrange <berrange@redhat.com> - 0.9.1-10.fc10
 - Rebuild for GNU TLS ABI change

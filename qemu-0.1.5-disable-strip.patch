@@ -1,0 +1,100 @@
+commit 1625af873aa8c9e4d22ad50a08e877110bf40623
+Author: aliguori <aliguori@c046a42c-6fe2-441c-8c8c-71466251a162>
+Date:   Sun Apr 5 17:41:02 2009 +0000
+
+    Make binary stripping conditional (Riku Voipio)
+    
+    Currently qemu unconditionally strips binaries on install. This
+    is a problem for packagers who may want to store/ship debug symbols
+    of compiled packages for debugging purposes.
+    
+    Keep stripping as default for the oldtimers and add a
+     --disable-strip flag to override.
+    
+    Signed-off-by: Riku Voipio <riku.voipio@iki.fi>
+    Signed-off-by: Anthony Liguori <aliguori@us.ibm.com>
+    
+    
+    git-svn-id: svn://svn.savannah.nongnu.org/qemu/trunk@6983 c046a42c-6fe2-441c-8c8c-71466251a162
+
+diff --git a/Makefile b/Makefile
+index 50914c4..a9e851f 100644
+--- a/Makefile
++++ b/Makefile
+@@ -251,7 +251,7 @@ endif
+ install: all $(if $(BUILD_DOCS),install-doc)
+ 	mkdir -p "$(DESTDIR)$(bindir)"
+ ifneq ($(TOOLS),)
+-	$(INSTALL) -m 755 -s $(TOOLS) "$(DESTDIR)$(bindir)"
++	$(INSTALL) -m 755 $(STRIP_OPT) $(TOOLS) "$(DESTDIR)$(bindir)"
+ endif
+ ifneq ($(BLOBS),)
+ 	mkdir -p "$(DESTDIR)$(datadir)"
+diff --git a/Makefile.target b/Makefile.target
+index 353ba6c..b32d1af 100644
+--- a/Makefile.target
++++ b/Makefile.target
+@@ -749,7 +749,7 @@ clean:
+ 
+ install: all
+ ifneq ($(PROGS),)
+-	$(INSTALL) -m 755 -s $(PROGS) "$(DESTDIR)$(bindir)"
++	$(INSTALL) -m 755 $(STRIP_OPT) $(PROGS) "$(DESTDIR)$(bindir)"
+ endif
+ 
+ # Include automatically generated dependency files
+diff --git a/configure b/configure
+index fa77937..e974834 100755
+--- a/configure
++++ b/configure
+@@ -154,6 +154,7 @@ case "$cpu" in
+ esac
+ gprof="no"
+ sparse="no"
++strip_opt="yes"
+ bigendian="no"
+ mingw32="no"
+ EXESUF=""
+@@ -396,6 +397,8 @@ for opt do
+   ;;
+   --disable-sparse) sparse="no"
+   ;;
++  --disable-strip) strip_opt="no"
++  ;;
+   --disable-vnc-tls) vnc_tls="no"
+   ;;
+   --disable-vnc-sasl) vnc_sasl="no"
+@@ -556,6 +559,7 @@ echo "  --install=INSTALL        use specified install [$install]"
+ echo "  --static                 enable static build [$static]"
+ echo "  --enable-sparse          enable sparse checker"
+ echo "  --disable-sparse         disable sparse checker (default)"
++echo "  --disable-strip          disable stripping binaries"
+ echo "  --disable-werror         disable compilation abort on warning"
+ echo "  --disable-sdl            disable SDL"
+ echo "  --enable-cocoa           enable COCOA (Mac OS X only)"
+@@ -1177,6 +1181,7 @@ echo "host big endian   $bigendian"
+ echo "target list       $target_list"
+ echo "gprof enabled     $gprof"
+ echo "sparse enabled    $sparse"
++echo "strip binaries    $strip_opt"
+ echo "profiler          $profiler"
+ echo "static build      $static"
+ echo "-Werror enabled   $werror"
+@@ -1251,7 +1256,6 @@ echo "INSTALL=$install" >> $config_mak
+ echo "CC=$cc" >> $config_mak
+ echo "HOST_CC=$host_cc" >> $config_mak
+ echo "AR=$ar" >> $config_mak
+-echo "STRIP=$strip -s -R .comment -R .note" >> $config_mak
+ # XXX: only use CFLAGS and LDFLAGS ?  
+ # XXX: should export HOST_CFLAGS and HOST_LDFLAGS for cross
+ # compilation of dyngen tool (useful for win32 build on Linux host)
+@@ -1338,6 +1342,9 @@ if test "$sparse" = "yes" ; then
+   echo "HOST_CC := REAL_CC=\"\$(HOST_CC)\" cgcc"  >> $config_mak
+   echo "CFLAGS  += -Wbitwise -Wno-transparent-union -Wno-old-initializer -Wno-non-pointer-null" >> $config_mak
+ fi
++if test "$strip_opt" = "yes" ; then
++  echo "STRIP_OPT=-s" >> $config_mak
++fi
+ if test "$bigendian" = "yes" ; then
+   echo "WORDS_BIGENDIAN=yes" >> $config_mak
+   echo "#define WORDS_BIGENDIAN 1" >> $config_h
