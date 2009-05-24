@@ -15,7 +15,6 @@ Patch0: qemu-0.1.5-disable-strip.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: SDL-devel zlib-devel which texi2html gnutls-devel
-BuildRequires: dev86
 BuildRequires: pulseaudio-libs-devel
 Requires: %{name}-user = %{epoch}:%{version}-%{release}
 Requires: %{name}-system-x86 = %{epoch}:%{version}-%{release}
