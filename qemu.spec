@@ -1,7 +1,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
-Version: 0.10.4
-Release: 5%{?dist}
+Version: 0.10.5
+Release: 1%{?dist}
 # Epoch because we pushed a qemu-1.0 package
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -23,19 +23,10 @@ Patch8: 08-vnc-acl-mgmt.patch
 
 Patch9: kvm-upstream-ppc.patch
 Patch10: qemu-fix-debuginfo.patch
-Patch11: qemu-fix-gcc.patch
-Patch12: qemu-roms-more-room.patch
-Patch13: qemu-roms-more-room-fix-vga-align.patch
-Patch14: qemu-bios-bigger-roms.patch
-Patch15: qemu-kvm-fix-kerneldir-includes.patch
-Patch16: qemu-fix-load-linux.patch
-Patch17: qemu-dma-aio-cancellation1.patch
-Patch18: qemu-dma-aio-cancellation2.patch
-Patch19: qemu-dma-aio-cancellation3.patch
-Patch20: qemu-dma-aio-cancellation4.patch
-Patch21: qemu-make-x86-cpuid-feature-names-available-in-file-scope.patch
-Patch22: qemu-fix-x86-feature-modifications-for-features-that-set.patch
-Patch23: qemu-trim-cpu-features-not-supported-by-kvm.patch
+Patch11: qemu-roms-more-room.patch
+Patch12: qemu-roms-more-room-fix-vga-align.patch
+Patch13: qemu-bios-bigger-roms.patch
+Patch14: qemu-kvm-fix-kerneldir-includes.patch
 
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -231,15 +222,6 @@ such as kvmtrace and kvm_stat.
 %patch12 -p1
 %patch13 -p1
 %patch14 -p1
-%patch15 -p1
-%patch16 -p1
-%patch17 -p1
-%patch18 -p1
-%patch19 -p1
-%patch20 -p1
-%patch21 -p1
-#%patch22 -p1
-#%patch23 -p1
 
 %build
 # systems like rhel build system does not have a recent enough linker so
@@ -482,6 +464,19 @@ fi
 %{_mandir}/man1/qemu-img.1*
 
 %changelog
+* Sun May 31 2009 Glauber Costa <glommer@redhat.com> - 2:0.10.5-1
+- Update to 0.10.5, and remove already upstream patches
+    qemu-fix-gcc.patch
+    qemu-fix-load-linux.patch
+    qemu-dma-aio-cancellation1.patch
+    qemu-dma-aio-cancellation2.patch
+    qemu-dma-aio-cancellation3.patch
+    qemu-dma-aio-cancellation4.patch
+    + all cpuid trimming
+
+  Conflicts:
+    qemu-roms-more-room.patch
+
 * Mon May 18 2009 Glauber Costa <glommer@redhat.com> - 2:0.10.4-5
 - Backport cpuid trimming from upstream (#499596)
 
