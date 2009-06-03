@@ -1,7 +1,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 0.10.5
-Release: 1%{?dist}
+Release: 2%{?dist}
 # Epoch because we pushed a qemu-1.0 package
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -27,7 +27,9 @@ Patch11: qemu-roms-more-room.patch
 Patch12: qemu-roms-more-room-fix-vga-align.patch
 Patch13: qemu-bios-bigger-roms.patch
 Patch14: qemu-kvm-fix-kerneldir-includes.patch
-
+Patch15: qemu-fix-net-socket-list-init.patch
+Patch16: qemu-prevent-cdrom-media-eject-while-device-is-locked.patch
+Patch17: qemu-avoid-harmless-msr-warnings.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: SDL-devel zlib-devel which texi2html gnutls-devel cyrus-sasl-devel
@@ -222,6 +224,9 @@ such as kvmtrace and kvm_stat.
 %patch12 -p1
 %patch13 -p1
 %patch14 -p1
+%patch15 -p1
+%patch16 -p1
+%patch17 -p1
 
 %build
 # systems like rhel build system does not have a recent enough linker so
@@ -464,6 +469,11 @@ fi
 %{_mandir}/man1/qemu-img.1*
 
 %changelog
+* Wed Jun  3 2009 Mark McLoughlin <markmc@redhat.com> - 2:0.10.5-2
+- Prevent locked cdrom eject - fixes hang at end of anaconda installs (#501412)
+- Fix crash with '-net socket,listen=...' (#501264)
+- Avoid harmless 'unhandled wrmsr' warnings (#499712)
+
 * Sun May 31 2009 Glauber Costa <glommer@redhat.com> - 2:0.10.5-1
 - Update to 0.10.5, and remove already upstream patches
     qemu-fix-gcc.patch
