@@ -95,7 +95,7 @@ diff -up qemu-kvm-0.10.5/hw/pc.c.roms-more-room qemu-kvm-0.10.5/hw/pc.c
 +            cpu_register_physical_memory(option_rom_start, TARGET_PAGE_SIZE,
                                           option_rom_offset);
 -            load_linux(0xd0000,
-+            load_linux(option_rom_offset,
++            load_linux(option_rom_start,
                         kernel_filename, initrd_filename, kernel_cmdline, below_4g_mem_size);
 -            offset = TARGET_PAGE_SIZE;
 +            offset += TARGET_PAGE_SIZE;
