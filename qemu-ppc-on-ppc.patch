@@ -1,0 +1,38 @@
+From d19076faca944c31bb051b95d285e75ec67902f7 Mon Sep 17 00:00:00 2001
+From: malc <malc@c046a42c-6fe2-441c-8c8c-71466251a162>
+Date: Thu, 2 Apr 2009 01:16:39 +0000
+Subject: [PATCH 1/1] Temporary workaround for ppc on ppc
+
+target-ppc/translate.c puts values of type opcode_t into .opcodes
+section, using GCC extension to do so, and hoping that this will make
+them appear contiguously and in the source order in the resulting
+executable. This assumption is not safe and is known to be violated
+with certain versions of GCC, certain flags passed to it and on
+certain platforms (gcc 4.3.0, -O and PPC/PPC64 for instance)
+
+The workaround consists of adding -fno-unit-at-a-time to the list of
+GCC command line options while building PPC translate.o on a PPC.
+
+git-svn-id: svn://svn.savannah.nongnu.org/qemu/trunk@6967 c046a42c-6fe2-441c-8c8c-71466251a162
+---
+ Makefile.target |    4 ++++
+ 1 files changed, 4 insertions(+), 0 deletions(-)
+
+diff --git a/Makefile.target b/Makefile.target
+index 046427d..e855dc3 100644
+--- a/Makefile.target
++++ b/Makefile.target
+@@ -91,6 +91,10 @@ ifeq ($(ARCH),i386)
+ HELPER_CFLAGS+=-fomit-frame-pointer
+ endif
+ 
++ifeq ($(subst ppc64,ppc,$(ARCH))$(TARGET_BASE_ARCH),ppcppc)
++translate.o: CFLAGS := $(CFLAGS) $(call cc-option, $(CFLAGS), -fno-unit-at-a-time,)
++endif
++
+ ifeq ($(ARCH),sparc)
+   CFLAGS+=-ffixed-g2 -ffixed-g3
+   ifneq ($(CONFIG_SOLARIS),yes)
+-- 
+1.6.0.6
+

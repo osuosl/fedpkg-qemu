@@ -1,7 +1,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 0.10.5
-Release: 2%{?dist}
+Release: 3%{?dist}
 # Epoch because we pushed a qemu-1.0 package
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -30,6 +30,7 @@ Patch14: qemu-kvm-fix-kerneldir-includes.patch
 Patch15: qemu-fix-net-socket-list-init.patch
 Patch16: qemu-prevent-cdrom-media-eject-while-device-is-locked.patch
 Patch17: qemu-avoid-harmless-msr-warnings.patch
+Patch18: qemu-ppc-on-ppc.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: SDL-devel zlib-devel which texi2html gnutls-devel cyrus-sasl-devel
@@ -227,6 +228,7 @@ such as kvmtrace and kvm_stat.
 %patch15 -p1
 %patch16 -p1
 %patch17 -p1
+%patch18 -p1
 
 %build
 # systems like rhel build system does not have a recent enough linker so
@@ -469,6 +471,10 @@ fi
 %{_mandir}/man1/qemu-img.1*
 
 %changelog
+* Wed Jun 17 2009 Mark McLoughlin <markmc@redhat.com> - 2:0.10.5-3
+- ppc-on-ppc fix (#504273)
+- Fix -kernel regression (#506443)
+
 * Wed Jun  3 2009 Mark McLoughlin <markmc@redhat.com> - 2:0.10.5-2
 - Prevent locked cdrom eject - fixes hang at end of anaconda installs (#501412)
 - Fix crash with '-net socket,listen=...' (#501264)

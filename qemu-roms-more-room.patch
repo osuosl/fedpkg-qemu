@@ -31,10 +31,9 @@ git-svn-id: svn://svn.savannah.nongnu.org/qemu/trunk@6896 c046a42c-6fe2-441c-8c8
  hw/pc.c |   29 +++++++++++++++++++----------
  1 files changed, 19 insertions(+), 10 deletions(-)
 
-Index: qemu-kvm-0.10.5/hw/pc.c
-===================================================================
---- qemu-kvm-0.10.5.orig/hw/pc.c
-+++ qemu-kvm-0.10.5/hw/pc.c
+diff -up qemu-kvm-0.10.5/hw/pc.c.roms-more-room qemu-kvm-0.10.5/hw/pc.c
+--- qemu-kvm-0.10.5/hw/pc.c.roms-more-room	2009-06-17 12:54:43.000000000 +0100
++++ qemu-kvm-0.10.5/hw/pc.c	2009-06-17 12:55:43.000000000 +0100
 @@ -818,7 +818,7 @@ static void pc_init1(ram_addr_t ram_size
  {
      char buf[1024];
@@ -95,7 +94,8 @@ Index: qemu-kvm-0.10.5/hw/pc.c
 -            cpu_register_physical_memory(0xd0000, TARGET_PAGE_SIZE,
 +            cpu_register_physical_memory(option_rom_start, TARGET_PAGE_SIZE,
                                           option_rom_offset);
-             load_linux(0xd0000,
+-            load_linux(0xd0000,
++            load_linux(option_rom_offset,
                         kernel_filename, initrd_filename, kernel_cmdline, below_4g_mem_size);
 -            offset = TARGET_PAGE_SIZE;
 +            offset += TARGET_PAGE_SIZE;
