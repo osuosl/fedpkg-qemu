@@ -1,8 +1,46 @@
-Index: qemu-kvm-0.10.4/vnc-tls.c
-===================================================================
---- qemu-kvm-0.10.orig/qemu/vnc-tls.c
-+++ qemu-kvm-0.10.4/vnc-tls.c
-@@ -241,6 +241,22 @@ int vnc_tls_validate_certificate(struct 
+From 9e9226fb865ada61b8b0a6c2c5526fdedfd4d608 Mon Sep 17 00:00:00 2001
+From: aliguori <aliguori@c046a42c-6fe2-441c-8c8c-71466251a162>
+Date: Fri, 6 Mar 2009 20:27:32 +0000
+Subject: [PATCH 07/18] Include auth credentials in 'info vnc' ("Daniel P. Berrange")
+
+This patch extends the 'info vnc' monitor output to include information
+about the VNC client authentication credentials.
+
+For clients authenticated using SASL, this will output the username.
+
+For clients authenticated using x509 certificates, this will output
+the x509 distinguished name.
+
+Auth can be stacked, so both username & x509 dname may be shown.
+
+    Server:
+         address: 0.0.0.0:5902
+            auth: vencrypt+x509+sasl
+    Client:
+         address: 10.33.6.67:38621
+      x509 dname: C=GB,O=ACME,L=London,ST=London,CN=localhost
+        username: admin
+    Client:
+         address: 10.33.6.63:38620
+      x509 dname: C=GB,O=ACME,L=London,ST=London,CN=localhost
+        username: admin
+
+(cherry picked from commit 1263b7d6131cdaed2c460cf03757aaaf5696ec47)
+
+Signed-off-by: Daniel P. Berrange <berrange@redhat.com>
+Signed-off-by: Anthony Liguori <aliguori@us.ibm.com>
+Signed-off-by: Mark McLoughlin <markmc@redhat.com>
+---
+ vnc-tls.c |   17 +++++++++++++++++
+ vnc-tls.h |    3 +++
+ vnc.c     |   19 +++++++++++++++++--
+ 3 files changed, 37 insertions(+), 2 deletions(-)
+
+diff --git a/vnc-tls.c b/vnc-tls.c
+index 666aa07..a37a0b4 100644
+--- a/vnc-tls.c
++++ b/vnc-tls.c
+@@ -241,6 +241,22 @@ int vnc_tls_validate_certificate(struct VncState *vs)
  	    return -1;
  	}
  
@@ -25,7 +63,7 @@ Index: qemu-kvm-0.10.4/vnc-tls.c
  	gnutls_x509_crt_deinit (cert);
      }
  
-@@ -347,6 +363,7 @@ void vnc_tls_client_cleanup(struct VncSt
+@@ -347,6 +363,7 @@ void vnc_tls_client_cleanup(struct VncState *vs)
  	vs->tls.session = NULL;
      }
      vs->tls.wiremode = VNC_WIREMODE_CLEAR;
@@ -33,10 +71,10 @@ Index: qemu-kvm-0.10.4/vnc-tls.c
  }
  
  
-Index: qemu-kvm-0.10.4/vnc-tls.h
-===================================================================
---- qemu-kvm-0.10.orig/qemu/vnc-tls.h
-+++ qemu-kvm-0.10.4/vnc-tls.h
+diff --git a/vnc-tls.h b/vnc-tls.h
+index cda95b9..fd0a2d9 100644
+--- a/vnc-tls.h
++++ b/vnc-tls.h
 @@ -55,6 +55,9 @@ struct VncStateTLS {
      /* Whether data is being TLS encrypted yet */
      int wiremode;
@@ -47,11 +85,11 @@ Index: qemu-kvm-0.10.4/vnc-tls.h
  };
  
  int vnc_tls_client_setup(VncState *vs, int x509Creds);
-Index: qemu-kvm-0.10.4/vnc.c
-===================================================================
---- qemu-kvm-0.10.orig/qemu/vnc.c
-+++ qemu-kvm-0.10.4/vnc.c
-@@ -156,6 +156,21 @@ static void do_info_vnc_client(VncState 
+diff --git a/vnc.c b/vnc.c
+index 33671fd..da68842 100644
+--- a/vnc.c
++++ b/vnc.c
+@@ -156,6 +156,21 @@ static void do_info_vnc_client(VncState *client)
      term_puts("Client:\n");
      term_puts(clientAddr);
      free(clientAddr);
@@ -73,7 +111,7 @@ Index: qemu-kvm-0.10.4/vnc.c
  }
  
  void do_info_vnc(void)
-@@ -1823,7 +1838,7 @@ static int protocol_client_auth(VncState
+@@ -1832,7 +1847,7 @@ static int protocol_client_auth(VncState *vs, uint8_t *data, size_t len)
      /* We only advertise 1 auth scheme at a time, so client
       * must pick the one we sent. Verify this */
      if (data[0] != vs->vd->auth) { /* Reject auth */
@@ -82,7 +120,7 @@ Index: qemu-kvm-0.10.4/vnc.c
         vnc_write_u32(vs, 1);
         if (vs->minor >= 8) {
             static const char err[] = "Authentication failed";
-@@ -1863,7 +1878,7 @@ static int protocol_client_auth(VncState
+@@ -1872,7 +1887,7 @@ static int protocol_client_auth(VncState *vs, uint8_t *data, size_t len)
  #endif /* CONFIG_VNC_SASL */
  
         default: /* Should not be possible, but just in case */
@@ -91,3 +129,6 @@ Index: qemu-kvm-0.10.4/vnc.c
             vnc_write_u8(vs, 1);
             if (vs->minor >= 8) {
                 static const char err[] = "Authentication failed";
+-- 
+1.6.2.2
+

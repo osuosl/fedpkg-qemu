@@ -1,7 +1,38 @@
-Index: qemu-kvm-0.10.4/Makefile
-===================================================================
---- qemu-kvm-0.10.orig/qemu/Makefile
-+++ qemu-kvm-0.10.4/Makefile
+From 6fc44b90006f1bf4763088c4eacd1efec428759b Mon Sep 17 00:00:00 2001
+From: aliguori <aliguori@c046a42c-6fe2-441c-8c8c-71466251a162>
+Date: Fri, 6 Mar 2009 20:27:10 +0000
+Subject: [PATCH 03/18] Refactor keymap code to avoid duplication ("Daniel P. Berrange")
+
+Each of the graphical frontends #include a .c file, for keymap code
+resulting in duplicated definitions & duplicated compiled code. A
+couple of small changes allowed this to be sanitized, so instead of
+doing a #include "keymaps.c", duplicating all code, we can have a
+shared keymaps.h file, and only compile code once. This allows the
+next patch to move the VncState struct out into a header file without
+causing clashing definitions.
+
+(cherry picked from commit 0483755a4d1fd61fe9c284166f67ae08af8d858b)
+
+Signed-off-by: Daniel P. Berrange <berrange@redhat.com>
+Signed-off-by: Anthony Liguori <aliguori@us.ibm.com>
+Signed-off-by: Mark McLoughlin <markmc@redhat.com>
+---
+ Makefile      |    9 +++++--
+ curses.c      |    3 +-
+ curses_keys.h |    9 +++----
+ keymaps.c     |   45 ++++++++++++++++--------------------------
+ keymaps.h     |   60 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ sdl.c         |    3 +-
+ sdl_keysym.h  |    7 ++---
+ vnc.c         |    5 +--
+ vnc_keysym.h  |    7 ++---
+ 9 files changed, 97 insertions(+), 51 deletions(-)
+ create mode 100644 keymaps.h
+
+diff --git a/Makefile b/Makefile
+index 6739626..58585a3 100644
+--- a/Makefile
++++ b/Makefile
 @@ -141,6 +141,7 @@ endif
  AUDIO_OBJS+= wavcapture.o
  OBJS+=$(addprefix audio/, $(AUDIO_OBJS))
@@ -31,11 +62,11 @@ Index: qemu-kvm-0.10.4/Makefile
  
  bt-host.o: CFLAGS += $(CONFIG_BLUEZ_CFLAGS)
  
-Index: qemu-kvm-0.10.4/curses.c
-===================================================================
---- qemu-kvm-0.10.orig/qemu/curses.c
-+++ qemu-kvm-0.10.4/curses.c
-@@ -158,7 +158,6 @@ static void curses_cursor_position(Displ
+diff --git a/curses.c b/curses.c
+index d699b5e..434e1cf 100644
+--- a/curses.c
++++ b/curses.c
+@@ -158,7 +158,6 @@ static void curses_cursor_position(DisplayState *ds, int x, int y)
  /* generic keyboard conversion */
  
  #include "curses_keys.h"
@@ -52,10 +83,10 @@ Index: qemu-kvm-0.10.4/curses.c
          if (!kbd_layout)
              exit(1);
      }
-Index: qemu-kvm-0.10.4/curses_keys.h
-===================================================================
---- qemu-kvm-0.10.orig/qemu/curses_keys.h
-+++ qemu-kvm-0.10.4/curses_keys.h
+diff --git a/curses_keys.h b/curses_keys.h
+index 0105279..fd25451 100644
+--- a/curses_keys.h
++++ b/curses_keys.h
 @@ -21,6 +21,10 @@
   * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
   * THE SOFTWARE.
@@ -67,7 +98,7 @@ Index: qemu-kvm-0.10.4/curses_keys.h
  #define KEY_RELEASE         0x80
  #define KEY_MASK            0x7f
  #define SHIFT_CODE          0x2a
-@@ -239,11 +243,6 @@ static const int curses2keysym[CURSES_KE
+@@ -239,11 +243,6 @@ static const int curses2keysym[CURSES_KEYS] = {
  
  };
  
@@ -79,10 +110,10 @@ Index: qemu-kvm-0.10.4/curses_keys.h
  static const name2keysym_t name2keysym[] = {
      /* Plain ASCII */
      { "space", 0x020 },
-Index: qemu-kvm-0.10.4/keymaps.c
-===================================================================
---- qemu-kvm-0.10.orig/qemu/keymaps.c
-+++ qemu-kvm-0.10.4/keymaps.c
+diff --git a/keymaps.c b/keymaps.c
+index 216e378..3b86dc1 100644
+--- a/keymaps.c
++++ b/keymaps.c
 @@ -22,34 +22,20 @@
   * THE SOFTWARE.
   */
@@ -124,7 +155,7 @@ Index: qemu-kvm-0.10.4/keymaps.c
  
  static void add_to_key_range(struct key_range **krp, int code) {
      struct key_range *kr;
-@@ -73,7 +59,8 @@ static void add_to_key_range(struct key_
+@@ -73,7 +59,8 @@ static void add_to_key_range(struct key_range **krp, int code) {
      }
  }
  
@@ -134,7 +165,7 @@ Index: qemu-kvm-0.10.4/keymaps.c
  					   kbd_layout_t * k)
  {
      FILE *f;
-@@ -102,7 +89,7 @@ static kbd_layout_t *parse_keyboard_layo
+@@ -102,7 +89,7 @@ static kbd_layout_t *parse_keyboard_layout(const char *language,
  	if (!strncmp(line, "map ", 4))
  	    continue;
  	if (!strncmp(line, "include ", 8)) {
@@ -143,7 +174,7 @@ Index: qemu-kvm-0.10.4/keymaps.c
          } else {
  	    char *end_of_keysym = line;
  	    while (*end_of_keysym != 0 && *end_of_keysym != ' ')
-@@ -110,7 +97,7 @@ static kbd_layout_t *parse_keyboard_layo
+@@ -110,7 +97,7 @@ static kbd_layout_t *parse_keyboard_layout(const char *language,
  	    if (*end_of_keysym) {
  		int keysym;
  		*end_of_keysym = 0;
@@ -152,7 +183,7 @@ Index: qemu-kvm-0.10.4/keymaps.c
  		if (keysym == 0) {
                      //		    fprintf(stderr, "Warning: unknown keysym %s\n", line);
  		} else {
-@@ -154,12 +141,14 @@ static kbd_layout_t *parse_keyboard_layo
+@@ -154,12 +141,14 @@ static kbd_layout_t *parse_keyboard_layout(const char *language,
      return k;
  }
  
@@ -170,7 +201,7 @@ Index: qemu-kvm-0.10.4/keymaps.c
  {
      kbd_layout_t *k = kbd_layout;
      if (keysym < MAX_NORMAL_KEYCODE) {
-@@ -180,7 +169,7 @@ static int keysym2scancode(void *kbd_lay
+@@ -180,7 +169,7 @@ static int keysym2scancode(void *kbd_layout, int keysym)
      return 0;
  }
  
@@ -179,7 +210,7 @@ Index: qemu-kvm-0.10.4/keymaps.c
  {
      kbd_layout_t *k = kbd_layout;
      struct key_range *kr;
-@@ -191,7 +180,7 @@ static inline int keycode_is_keypad(void
+@@ -191,7 +180,7 @@ static inline int keycode_is_keypad(void *kbd_layout, int keycode)
      return 0;
  }
  
@@ -188,10 +219,11 @@ Index: qemu-kvm-0.10.4/keymaps.c
  {
      kbd_layout_t *k = kbd_layout;
      struct key_range *kr;
-Index: qemu-kvm-0.10.4/keymaps.h
-===================================================================
+diff --git a/keymaps.h b/keymaps.h
+new file mode 100644
+index 0000000..17f6efd
 --- /dev/null
-+++ qemu-kvm-0.10.4/keymaps.h
++++ b/keymaps.h
 @@ -0,0 +1,60 @@
 +/*
 + * QEMU keysym to keycode conversion using rdesktop keymaps
@@ -253,10 +285,10 @@ Index: qemu-kvm-0.10.4/keymaps.h
 +int keysym_is_numlock(void *kbd_layout, int keysym);
 +
 +#endif /* __QEMU_KEYMAPS_H__ */
-Index: qemu-kvm-0.10.4/sdl.c
-===================================================================
---- qemu-kvm-0.10.orig/qemu/sdl.c
-+++ qemu-kvm-0.10.4/sdl.c
+diff --git a/sdl.c b/sdl.c
+index 74f084c..f0f9fc8 100644
+--- a/sdl.c
++++ b/sdl.c
 @@ -109,7 +109,6 @@ static void sdl_resize(DisplayState *ds)
  /* generic keyboard conversion */
  
@@ -265,7 +297,7 @@ Index: qemu-kvm-0.10.4/sdl.c
  
  static kbd_layout_t *kbd_layout = NULL;
  
-@@ -677,7 +676,7 @@ void sdl_display_init(DisplayState *ds, 
+@@ -677,7 +676,7 @@ void sdl_display_init(DisplayState *ds, int full_screen, int no_frame)
          keyboard_layout = "en-us";
  #endif
      if(keyboard_layout) {
@@ -274,10 +306,10 @@ Index: qemu-kvm-0.10.4/sdl.c
          if (!kbd_layout)
              exit(1);
      }
-Index: qemu-kvm-0.10.4/sdl_keysym.h
-===================================================================
---- qemu-kvm-0.10.orig/qemu/sdl_keysym.h
-+++ qemu-kvm-0.10.4/sdl_keysym.h
+diff --git a/sdl_keysym.h b/sdl_keysym.h
+index c9087d7..c213ef8 100644
+--- a/sdl_keysym.h
++++ b/sdl_keysym.h
 @@ -1,7 +1,6 @@
 -typedef struct {
 -	const char* name;
@@ -289,10 +321,10 @@ Index: qemu-kvm-0.10.4/sdl_keysym.h
  static const name2keysym_t name2keysym[]={
  /* ascii */
      { "space",                0x020},
-Index: qemu-kvm-0.10.4/vnc.c
-===================================================================
---- qemu-kvm-0.10.orig/qemu/vnc.c
-+++ qemu-kvm-0.10.4/vnc.c
+diff --git a/vnc.c b/vnc.c
+index 3e9417d..aafefd8 100644
+--- a/vnc.c
++++ b/vnc.c
 @@ -35,7 +35,6 @@
  
  #include "vnc.h"
@@ -301,7 +333,7 @@ Index: qemu-kvm-0.10.4/vnc.c
  #include "d3des.h"
  
  #ifdef CONFIG_VNC_TLS
-@@ -2420,9 +2419,9 @@ void vnc_display_init(DisplayState *ds)
+@@ -2429,9 +2428,9 @@ void vnc_display_init(DisplayState *ds)
      vs->ds = ds;
  
      if (keyboard_layout)
@@ -313,10 +345,10 @@ Index: qemu-kvm-0.10.4/vnc.c
  
      if (!vs->kbd_layout)
  	exit(1);
-Index: qemu-kvm-0.10.4/vnc_keysym.h
-===================================================================
---- qemu-kvm-0.10.orig/qemu/vnc_keysym.h
-+++ qemu-kvm-0.10.4/vnc_keysym.h
+diff --git a/vnc_keysym.h b/vnc_keysym.h
+index ce355d8..2d255c9 100644
+--- a/vnc_keysym.h
++++ b/vnc_keysym.h
 @@ -1,7 +1,6 @@
 -typedef struct {
 -	const char* name;
@@ -328,3 +360,6 @@ Index: qemu-kvm-0.10.4/vnc_keysym.h
  static const name2keysym_t name2keysym[]={
  /* ascii */
      { "space",                0x020},
+-- 
+1.6.2.2
+

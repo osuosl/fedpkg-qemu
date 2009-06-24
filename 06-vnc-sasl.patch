@@ -1,7 +1,94 @@
-Index: qemu-kvm-0.10.4/Makefile
-===================================================================
---- qemu-kvm-0.10.orig/qemu/Makefile
-+++ qemu-kvm-0.10.4/Makefile
+From 95b704fb6b2a9a7f62bbbfd1b9fd2e23d1c428a5 Mon Sep 17 00:00:00 2001
+From: aliguori <aliguori@c046a42c-6fe2-441c-8c8c-71466251a162>
+Date: Fri, 6 Mar 2009 20:27:28 +0000
+Subject: [PATCH 06/18] Add SASL authentication support ("Daniel P. Berrange")
+
+This patch adds the new SASL authentication protocol to the VNC server.
+
+It is enabled by setting the 'sasl' flag when launching VNC. SASL can
+optionally provide encryption via its SSF layer, if a suitable mechanism
+is configured (eg, GSSAPI/Kerberos, or Digest-MD5).  If an SSF layer is
+not available, then it should be combined with the x509 VNC authentication
+protocol which provides encryption.
+
+eg, if using GSSAPI
+
+   qemu -vnc localhost:1,sasl
+
+eg if using  TLS/x509 for encryption
+
+   qemu -vnc localhost:1,sasl,tls,x509
+
+By default the Cyrus SASL library will look for its configuration in
+the file /etc/sasl2/qemu.conf.  For non-root users, this can be overridden
+by setting the SASL_CONF_PATH environment variable, eg to make it look in
+$HOME/.sasl2.  NB unprivileged users may not have access to the full range
+of SASL mechanisms, since some of them require some administrative privileges
+to configure. The patch includes an example SASL configuration file which
+illustrates config for GSSAPI and Digest-MD5, though it should be noted that
+the latter is not really considered secure any more.
+
+Most of the SASL authentication code is located in a separate source file,
+vnc-auth-sasl.c.  The main vnc.c file only contains minimal integration
+glue, specifically parsing of command line flags / setup, and calls to
+start the SASL auth process, to do encoding/decoding for data.
+
+There are several possible stacks for reading & writing of data, depending
+on the combo of VNC authentication methods in use
+
+ - Clear.    read/write straight to socket
+ - TLS.      read/write via GNUTLS helpers
+ - SASL.     encode/decode via SASL SSF layer, then read/write to socket
+ - SASL+TLS. encode/decode via SASL SSF layer, then read/write via GNUTLS
+
+Hence, the vnc_client_read & vnc_client_write methods have been refactored
+a little.
+
+   vnc_client_read:  main entry point for reading, calls either
+
+       - vnc_client_read_plain   reading, with no intermediate decoding
+       - vnc_client_read_sasl    reading, with SASL SSF decoding
+
+   These two methods, then call vnc_client_read_buf(). This decides
+   whether to write to the socket directly or write via GNUTLS.
+
+The situation is the same for writing data. More extensive comments
+have been added in the code / patch. The vnc_client_read_sasl and
+vnc_client_write_sasl method implementations live in the separate
+vnc-auth-sasl.c file.
+
+The state required for the SASL auth mechanism is kept in a separate
+VncStateSASL struct, defined in vnc-auth-sasl.h and included in the
+main VncState.
+
+The configure script probes for SASL and automatically enables it
+if found, unless --disable-vnc-sasl was given to override it.
+
+(cherry picked from commit 2f9606b3736c3be4dbd606c46525c7b770ced119)
+
+Signed-off-by: Daniel P. Berrange <berrange@redhat.com>
+Signed-off-by: Anthony Liguori <aliguori@us.ibm.com>
+Signed-off-by: Mark McLoughlin <markmc@redhat.com>
+---
+ Makefile            |    7 +-
+ Makefile.target     |    5 +
+ configure           |   34 +++
+ qemu-doc.texi       |   97 ++++++++
+ qemu.sasl           |   34 +++
+ vnc-auth-sasl.c     |  626 +++++++++++++++++++++++++++++++++++++++++++++++++++
+ vnc-auth-sasl.h     |   67 ++++++
+ vnc-auth-vencrypt.c |   12 +-
+ vnc.c               |  249 ++++++++++++++++++---
+ vnc.h               |   31 +++-
+ 10 files changed, 1129 insertions(+), 33 deletions(-)
+ create mode 100644 qemu.sasl
+ create mode 100644 vnc-auth-sasl.c
+ create mode 100644 vnc-auth-sasl.h
+
+diff --git a/Makefile b/Makefile
+index 7a3cad5..f5de0b6 100644
+--- a/Makefile
++++ b/Makefile
 @@ -152,6 +152,9 @@ OBJS+=vnc.o d3des.o
  ifdef CONFIG_VNC_TLS
  OBJS+=vnc-tls.o vnc-auth-vencrypt.o
@@ -30,10 +117,10 @@ Index: qemu-kvm-0.10.4/Makefile
  curses.o: curses.c keymaps.h curses_keys.h
  
  bt-host.o: CFLAGS += $(CONFIG_BLUEZ_CFLAGS)
-Index: qemu-kvm-0.10.4/Makefile.target
-===================================================================
---- qemu-kvm-0.10.orig/qemu/Makefile.target
-+++ qemu-kvm-0.10.4/Makefile.target
+diff --git a/Makefile.target b/Makefile.target
+index a8b198c..e2e23bf 100644
+--- a/Makefile.target
++++ b/Makefile.target
 @@ -613,6 +613,11 @@ CPPFLAGS += $(CONFIG_VNC_TLS_CFLAGS)
  LIBS += $(CONFIG_VNC_TLS_LIBS)
  endif
@@ -46,11 +133,11 @@ Index: qemu-kvm-0.10.4/Makefile.target
  ifdef CONFIG_BLUEZ
  LIBS += $(CONFIG_BLUEZ_LIBS)
  endif
-Index: qemu-kvm-0.10.4/configure
-===================================================================
---- qemu-kvm-0.10.orig/qemu/configure
-+++ qemu-kvm-0.10.4/configure
-@@ -164,6 +164,7 @@ fmod_lib=""
+diff --git a/configure b/configure
+index 23ac0ef..e3522f2 100755
+--- a/configure
++++ b/configure
+@@ -175,6 +175,7 @@ fmod_lib=""
  fmod_inc=""
  oss_lib=""
  vnc_tls="yes"
@@ -58,7 +145,7 @@ Index: qemu-kvm-0.10.4/configure
  bsd="no"
  linux="no"
  solaris="no"
-@@ -404,6 +405,8 @@ for opt do
+@@ -417,6 +418,8 @@ for opt do
    ;;
    --disable-vnc-tls) vnc_tls="no"
    ;;
@@ -67,7 +154,7 @@ Index: qemu-kvm-0.10.4/configure
    --disable-slirp) slirp="no"
    ;;
    --disable-vde) vde="no"
-@@ -563,6 +566,7 @@ echo "                           Availab
+@@ -578,6 +581,7 @@ echo "                           Available cards: $audio_possible_cards"
  echo "  --enable-mixemu          enable mixer emulation"
  echo "  --disable-brlapi         disable BrlAPI"
  echo "  --disable-vnc-tls        disable TLS encryption for VNC server"
@@ -75,7 +162,7 @@ Index: qemu-kvm-0.10.4/configure
  echo "  --disable-curses         disable curses output"
  echo "  --disable-bluez          disable bluez stack connectivity"
  echo "  --disable-kvm            disable KVM acceleration support"
-@@ -890,6 +894,25 @@ EOF
+@@ -919,6 +923,25 @@ EOF
  fi
  
  ##########################################
@@ -101,7 +188,7 @@ Index: qemu-kvm-0.10.4/configure
  # vde libraries probe
  if test "$vde" = "yes" ; then
    cat > $TMPC << EOF
-@@ -1224,6 +1247,11 @@ if test "$vnc_tls" = "yes" ; then
+@@ -1240,6 +1263,11 @@ if test "$vnc_tls" = "yes" ; then
      echo "    TLS CFLAGS    $vnc_tls_cflags"
      echo "    TLS LIBS      $vnc_tls_libs"
  fi
@@ -113,7 +200,7 @@ Index: qemu-kvm-0.10.4/configure
  if test -n "$sparc_cpu"; then
      echo "Target Sparc Arch $sparc_cpu"
  fi
-@@ -1467,6 +1495,12 @@ if test "$vnc_tls" = "yes" ; then
+@@ -1483,6 +1511,12 @@ if test "$vnc_tls" = "yes" ; then
    echo "CONFIG_VNC_TLS_LIBS=$vnc_tls_libs" >> $config_mak
    echo "#define CONFIG_VNC_TLS 1" >> $config_h
  fi
@@ -126,11 +213,11 @@ Index: qemu-kvm-0.10.4/configure
  qemu_version=`head $source_path/VERSION`
  echo "VERSION=$qemu_version" >>$config_mak
  echo "#define QEMU_VERSION \"$qemu_version\"" >> $config_h
-Index: qemu-kvm-0.10.4/qemu-doc.texi
-===================================================================
---- qemu-kvm-0.10.orig/qemu/qemu-doc.texi
-+++ qemu-kvm-0.10.4/qemu-doc.texi
-@@ -624,6 +624,21 @@ path following this option specifies whe
+diff --git a/qemu-doc.texi b/qemu-doc.texi
+index 1cb3318..3ba727e 100644
+--- a/qemu-doc.texi
++++ b/qemu-doc.texi
+@@ -624,6 +624,21 @@ path following this option specifies where the x509 certificates are to
  be loaded from. See the @ref{vnc_security} section for details on generating
  certificates.
  
@@ -152,7 +239,7 @@ Index: qemu-kvm-0.10.4/qemu-doc.texi
  @end table
  
  @end table
-@@ -2069,7 +2084,10 @@ considerations depending on the deployme
+@@ -2069,7 +2084,10 @@ considerations depending on the deployment scenarios.
  * vnc_sec_certificate::
  * vnc_sec_certificate_verify::
  * vnc_sec_certificate_pw::
@@ -256,10 +343,11 @@ Index: qemu-kvm-0.10.4/qemu-doc.texi
  @node gdb_usage
  @section GDB usage
  
-Index: qemu-kvm-0.10.4/qemu.sasl
-===================================================================
+diff --git a/qemu.sasl b/qemu.sasl
+new file mode 100644
+index 0000000..cf19cf8
 --- /dev/null
-+++ qemu-kvm-0.10.4/qemu.sasl
++++ b/qemu.sasl
 @@ -0,0 +1,34 @@
 +# If you want to use the non-TLS socket, then you *must* include
 +# the GSSAPI or DIGEST-MD5 mechanisms, because they are the only
@@ -295,10 +383,11 @@ Index: qemu-kvm-0.10.4/qemu.sasl
 +
 +auxprop_plugin: sasldb
 +
-Index: qemu-kvm-0.10.4/vnc-auth-sasl.c
-===================================================================
+diff --git a/vnc-auth-sasl.c b/vnc-auth-sasl.c
+new file mode 100644
+index 0000000..2882a35
 --- /dev/null
-+++ qemu-kvm-0.10.4/vnc-auth-sasl.c
++++ b/vnc-auth-sasl.c
 @@ -0,0 +1,626 @@
 +/*
 + * QEMU VNC display driver: SASL auth protocol
@@ -926,10 +1015,11 @@ Index: qemu-kvm-0.10.4/vnc-auth-sasl.c
 +}
 +
 +
-Index: qemu-kvm-0.10.4/vnc-auth-sasl.h
-===================================================================
+diff --git a/vnc-auth-sasl.h b/vnc-auth-sasl.h
+new file mode 100644
+index 0000000..a72973a
 --- /dev/null
-+++ qemu-kvm-0.10.4/vnc-auth-sasl.h
++++ b/vnc-auth-sasl.h
 @@ -0,0 +1,67 @@
 +/*
 + * QEMU VNC display driver: SASL auth protocol
@@ -998,11 +1088,11 @@ Index: qemu-kvm-0.10.4/vnc-auth-sasl.h
 +
 +#endif /* __QEMU_VNC_AUTH_SASL_H__ */
 +
-Index: qemu-kvm-0.10.4/vnc-auth-vencrypt.c
-===================================================================
---- qemu-kvm-0.10.orig/qemu/vnc-auth-vencrypt.c
-+++ qemu-kvm-0.10.4/vnc-auth-vencrypt.c
-@@ -43,8 +43,15 @@ static void start_auth_vencrypt_subauth(
+diff --git a/vnc-auth-vencrypt.c b/vnc-auth-vencrypt.c
+index 1f113a7..9ed642c 100644
+--- a/vnc-auth-vencrypt.c
++++ b/vnc-auth-vencrypt.c
+@@ -43,8 +43,15 @@ static void start_auth_vencrypt_subauth(VncState *vs)
         start_auth_vnc(vs);
         break;
  
@@ -1019,7 +1109,7 @@ Index: qemu-kvm-0.10.4/vnc-auth-vencrypt.c
         vnc_write_u8(vs, 1);
         if (vs->minor >= 8) {
             static const char err[] = "Unsupported authentication type";
-@@ -105,7 +112,8 @@ static void vnc_tls_handshake_io(void *o
+@@ -105,7 +112,8 @@ static void vnc_tls_handshake_io(void *opaque) {
  #define NEED_X509_AUTH(vs)			      \
      ((vs)->vd->subauth == VNC_AUTH_VENCRYPT_X509NONE ||   \
       (vs)->vd->subauth == VNC_AUTH_VENCRYPT_X509VNC ||    \
@@ -1029,11 +1119,11 @@ Index: qemu-kvm-0.10.4/vnc-auth-vencrypt.c
  
  
  static int protocol_client_vencrypt_auth(VncState *vs, uint8_t *data, size_t len)
-Index: qemu-kvm-0.10.4/vnc.c
-===================================================================
---- qemu-kvm-0.10.orig/qemu/vnc.c
-+++ qemu-kvm-0.10.4/vnc.c
-@@ -68,7 +68,8 @@ static char *addr_to_string(const char *
+diff --git a/vnc.c b/vnc.c
+index f1c2d61..33671fd 100644
+--- a/vnc.c
++++ b/vnc.c
+@@ -68,7 +68,8 @@ static char *addr_to_string(const char *format,
      return addr;
  }
  
@@ -1043,7 +1133,7 @@ Index: qemu-kvm-0.10.4/vnc.c
      struct sockaddr_storage sa;
      socklen_t salen;
  
-@@ -79,7 +80,8 @@ static char *vnc_socket_local_addr(const
+@@ -79,7 +80,8 @@ static char *vnc_socket_local_addr(const char *format, int fd) {
      return addr_to_string(format, &sa, salen);
  }
  
@@ -1053,7 +1143,7 @@ Index: qemu-kvm-0.10.4/vnc.c
      struct sockaddr_storage sa;
      socklen_t salen;
  
-@@ -125,12 +127,18 @@ static const char *vnc_auth_name(VncDisp
+@@ -125,12 +127,18 @@ static const char *vnc_auth_name(VncDisplay *vd) {
  	    return "vencrypt+x509+vnc";
  	case VNC_AUTH_VENCRYPT_X509PLAIN:
  	    return "vencrypt+x509+plain";
@@ -1072,7 +1162,7 @@ Index: qemu-kvm-0.10.4/vnc.c
      }
      return "unknown";
  }
-@@ -278,7 +286,7 @@ static void vnc_framebuffer_update(VncSt
+@@ -278,7 +286,7 @@ static void vnc_framebuffer_update(VncState *vs, int x, int y, int w, int h,
      vnc_write_s32(vs, encoding);
  }
  
@@ -1081,7 +1171,7 @@ Index: qemu-kvm-0.10.4/vnc.c
  {
      if ((buffer->capacity - buffer->offset) < len) {
  	buffer->capacity += (len + 1024);
-@@ -290,22 +298,22 @@ static void buffer_reserve(Buffer *buffe
+@@ -290,22 +298,22 @@ static void buffer_reserve(Buffer *buffer, size_t len)
      }
  }
  
@@ -1118,7 +1208,7 @@ Index: qemu-kvm-0.10.4/vnc.c
  {
      if (ret == 0 || ret == -1) {
          if (ret == -1) {
-@@ -847,6 +856,9 @@ static int vnc_client_io_error(VncState 
+@@ -847,6 +856,9 @@ static int vnc_client_io_error(VncState *vs, int ret, int last_errno)
  #ifdef CONFIG_VNC_TLS
  	vnc_tls_client_cleanup(vs);
  #endif /* CONFIG_VNC_TLS */
@@ -1237,7 +1327,7 @@ Index: qemu-kvm-0.10.4/vnc.c
  }
  
  void vnc_read_when(VncState *vs, VncReadEvent *func, size_t expecting)
-@@ -913,16 +994,28 @@ void vnc_read_when(VncState *vs, VncRead
+@@ -913,16 +994,28 @@ void vnc_read_when(VncState *vs, VncReadEvent *func, size_t expecting)
      vs->read_handler_expect = expecting;
  }
  
@@ -1329,7 +1419,7 @@ Index: qemu-kvm-0.10.4/vnc.c
  
      while (vs->read_handler && vs->input.offset >= vs->read_handler_expect) {
  	size_t len = vs->read_handler_expect;
-@@ -1722,6 +1855,13 @@ static int protocol_client_auth(VncState
+@@ -1731,6 +1864,13 @@ static int protocol_client_auth(VncState *vs, uint8_t *data, size_t len)
             break;
  #endif /* CONFIG_VNC_TLS */
  
@@ -1343,7 +1433,7 @@ Index: qemu-kvm-0.10.4/vnc.c
         default: /* Should not be possible, but just in case */
             VNC_DEBUG("Reject auth %d\n", vs->vd->auth);
             vnc_write_u8(vs, 1);
-@@ -1923,6 +2063,10 @@ int vnc_display_open(DisplayState *ds, c
+@@ -1932,6 +2072,10 @@ int vnc_display_open(DisplayState *ds, const char *display)
  #ifdef CONFIG_VNC_TLS
      int tls = 0, x509 = 0;
  #endif
@@ -1354,7 +1444,7 @@ Index: qemu-kvm-0.10.4/vnc.c
  
      if (!vnc_display)
          return -1;
-@@ -1942,6 +2086,10 @@ int vnc_display_open(DisplayState *ds, c
+@@ -1951,6 +2095,10 @@ int vnc_display_open(DisplayState *ds, const char *display)
  	    reverse = 1;
  	} else if (strncmp(options, "to=", 3) == 0) {
              to_port = atoi(options+3) + 5900;
@@ -1365,7 +1455,7 @@ Index: qemu-kvm-0.10.4/vnc.c
  #ifdef CONFIG_VNC_TLS
  	} else if (strncmp(options, "tls", 3) == 0) {
  	    tls = 1; /* Require TLS */
-@@ -1978,6 +2126,22 @@ int vnc_display_open(DisplayState *ds, c
+@@ -1987,6 +2135,22 @@ int vnc_display_open(DisplayState *ds, const char *display)
  	}
      }
  
@@ -1388,7 +1478,7 @@ Index: qemu-kvm-0.10.4/vnc.c
      if (password) {
  #ifdef CONFIG_VNC_TLS
  	if (tls) {
-@@ -1990,13 +2154,34 @@ int vnc_display_open(DisplayState *ds, c
+@@ -1999,13 +2163,34 @@ int vnc_display_open(DisplayState *ds, const char *display)
  		vs->subauth = VNC_AUTH_VENCRYPT_TLSVNC;
  	    }
  	} else {
@@ -1425,7 +1515,7 @@ Index: qemu-kvm-0.10.4/vnc.c
      } else {
  #ifdef CONFIG_VNC_TLS
  	if (tls) {
-@@ -2018,6 +2203,16 @@ int vnc_display_open(DisplayState *ds, c
+@@ -2027,6 +2212,16 @@ int vnc_display_open(DisplayState *ds, const char *display)
  #endif
      }
  
@@ -1442,10 +1532,10 @@ Index: qemu-kvm-0.10.4/vnc.c
      if (reverse) {
          /* connect to viewer */
          if (strncmp(display, "unix:", 5) == 0)
-Index: qemu-kvm-0.10.4/vnc.h
-===================================================================
---- qemu-kvm-0.10.orig/qemu/vnc.h
-+++ qemu-kvm-0.10.4/vnc.h
+diff --git a/vnc.h b/vnc.h
+index d69b295..ca39c23 100644
+--- a/vnc.h
++++ b/vnc.h
 @@ -79,6 +79,10 @@ typedef struct VncDisplay VncDisplay;
  #include "vnc-tls.h"
  #include "vnc-auth-vencrypt.h"
@@ -1501,7 +1591,7 @@ Index: qemu-kvm-0.10.4/vnc.h
  
  /* Protocol I/O functions */
  void vnc_write(VncState *vs, const void *data, size_t len);
-@@ -274,8 +285,22 @@ uint32_t read_u32(uint8_t *data, size_t 
+@@ -274,8 +285,22 @@ uint32_t read_u32(uint8_t *data, size_t offset);
  
  /* Protocol stage functions */
  void vnc_client_error(VncState *vs);
@@ -1524,3 +1614,6 @@ Index: qemu-kvm-0.10.4/vnc.h
 +char *vnc_socket_remote_addr(const char *format, int fd);
 +
  #endif /* __QEMU_VNC_H */
+-- 
+1.6.2.2
+

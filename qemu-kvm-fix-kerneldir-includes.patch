@@ -1,7 +1,7 @@
-From cff8aa984290fc74c39f39e17fbca0f0feab6bc4 Mon Sep 17 00:00:00 2001
+From 3b56420544e3b40486d7dc0f8823c20af72256e3 Mon Sep 17 00:00:00 2001
 From: Mark McLoughlin <markmc@redhat.com>
-Date: Wed, 13 May 2009 09:29:56 +0100
-Subject: [PATCH] kvm: user: include arch specific headers from $(KERNELDIR)
+Date: Wed, 24 Jun 2009 14:34:36 +0100
+Subject: [PATCH 14/18] kvm: user: include arch specific headers from $(KERNELDIR)
 
 Currently we only include $(KERNELDIR)/include in CFLAGS,
 but we also have $(KERNELDIR)/arch/$(arch)/include or else
@@ -76,5 +76,5 @@ index b50b540..d88f54c 100644
  tests = $(TEST_DIR)/access.flat $(TEST_DIR)/irq.flat $(TEST_DIR)/sieve.flat \
        $(TEST_DIR)/simple.flat $(TEST_DIR)/stringio.flat \
 -- 
-1.6.0.6
+1.6.2.2
 

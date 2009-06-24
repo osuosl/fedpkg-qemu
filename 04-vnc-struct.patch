@@ -1,7 +1,26 @@
-Index: qemu-kvm-0.10.4/vnc.c
-===================================================================
---- qemu-kvm-0.10.orig/qemu/vnc.c
-+++ qemu-kvm-0.10.4/vnc.c
+From c1b31361bfecd3f67e8766d8df2510c801f536f4 Mon Sep 17 00:00:00 2001
+From: aliguori <aliguori@c046a42c-6fe2-441c-8c8c-71466251a162>
+Date: Fri, 6 Mar 2009 20:27:13 +0000
+Subject: [PATCH 04/18] Move VNC structs into header file ("Daniel P. Berrange")
+
+This patch moves the definitions of VncState and VncDisplay structs
+out into a vnc.h header file. This is to allow the code for TLS
+and SASL auth mechanisms to be moved out of the main vnc.c file.
+
+(cherry picked from commit 19a490bfca85165de1acd2d5c3964fb44615746d)
+
+Signed-off-by: Daniel P. Berrange <berrange@redhat.com>
+Signed-off-by: Anthony Liguori <aliguori@us.ibm.com>
+Signed-off-by: Mark McLoughlin <markmc@redhat.com>
+---
+ vnc.c |  109 +----------------------------------------------
+ vnc.h |  149 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-
+ 2 files changed, 148 insertions(+), 110 deletions(-)
+
+diff --git a/vnc.c b/vnc.c
+index aafefd8..a9b8d63 100644
+--- a/vnc.c
++++ b/vnc.c
 @@ -3,6 +3,7 @@
   *
   * Copyright (C) 2006 Anthony Liguori <anthony@codemonkey.ws>
@@ -37,7 +56,7 @@ Index: qemu-kvm-0.10.4/vnc.c
  // #define _VNC_DEBUG 1
  
  #ifdef _VNC_DEBUG
-@@ -64,103 +56,6 @@ static void vnc_debug_gnutls_log(int lev
+@@ -64,103 +56,6 @@ static void vnc_debug_gnutls_log(int level, const char* str) {
      } \
  }
  
@@ -141,10 +160,10 @@ Index: qemu-kvm-0.10.4/vnc.c
  
  static VncDisplay *vnc_display; /* needed for info vnc */
  static DisplayChangeListener *dcl;
-Index: qemu-kvm-0.10.4/vnc.h
-===================================================================
---- qemu-kvm-0.10.orig/qemu/vnc.h
-+++ qemu-kvm-0.10.4/vnc.h
+diff --git a/vnc.h b/vnc.h
+index 6981606..eb33643 100644
+--- a/vnc.h
++++ b/vnc.h
 @@ -1,5 +1,148 @@
 -#ifndef __VNCTIGHT_H
 -#define __VNCTIGHT_H
@@ -302,3 +321,6 @@ Index: qemu-kvm-0.10.4/vnc.h
  
 -#endif /* __VNCTIGHT_H */
 +#endif /* __QEMU_VNC_H */
+-- 
+1.6.2.2
+

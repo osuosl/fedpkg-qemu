@@ -1,7 +1,7 @@
-From 34b39c2ba6cc08239a707b52bfb2886df2aa8dec Mon Sep 17 00:00:00 2001
+From 0a61b11b0e5e5a39598e7edc900ba272fd407877 Mon Sep 17 00:00:00 2001
 From: aliguori <aliguori@c046a42c-6fe2-441c-8c8c-71466251a162>
 Date: Sat, 28 Mar 2009 17:28:45 +0000
-Subject: [PATCH] get roms more room. (Glauber Costa)
+Subject: [PATCH 11/18] get roms more room. (Glauber Costa)
 
 This patch increases by 50 % the size available for option roms.
 The main motivator is that some roms grew bigger than the 64k we
@@ -22,19 +22,20 @@ urgent need to do it.
 
 [ fix case for vgabioses smaller than 30k, by Carl-Daniel Hailfinger ]
 
+(cherry picked from commit 34b39c2ba6cc08239a707b52bfb2886df2aa8dec)
+
 Signed-off-by: Glauber Costa <glommer@redhat.com>
 Signed-off-by: Anthony Liguori <aliguori@us.ibm.com>
-
-
-git-svn-id: svn://svn.savannah.nongnu.org/qemu/trunk@6896 c046a42c-6fe2-441c-8c8c-71466251a162
+Signed-off-by: Mark McLoughlin <markmc@redhat.com>
 ---
- hw/pc.c |   29 +++++++++++++++++++----------
- 1 files changed, 19 insertions(+), 10 deletions(-)
+ hw/pc.c |   33 +++++++++++++++++++++------------
+ 1 files changed, 21 insertions(+), 12 deletions(-)
 
-diff -up qemu-kvm-0.10.5/hw/pc.c.roms-more-room qemu-kvm-0.10.5/hw/pc.c
---- qemu-kvm-0.10.5/hw/pc.c.roms-more-room	2009-06-17 12:54:43.000000000 +0100
-+++ qemu-kvm-0.10.5/hw/pc.c	2009-06-17 12:55:43.000000000 +0100
-@@ -818,7 +818,7 @@ static void pc_init1(ram_addr_t ram_size
+diff --git a/hw/pc.c b/hw/pc.c
+index 1b8d47a..413da6f 100644
+--- a/hw/pc.c
++++ b/hw/pc.c
+@@ -818,7 +818,7 @@ static void pc_init1(ram_addr_t ram_size, int vga_ram_size,
  {
      char buf[1024];
      int ret, linux_boot, i;
@@ -43,7 +44,7 @@ diff -up qemu-kvm-0.10.5/hw/pc.c.roms-more-room qemu-kvm-0.10.5/hw/pc.c
      ram_addr_t below_4g_mem_size, above_4g_mem_size = 0;
      int bios_size, isa_bios_size, vga_bios_size;
      int pci_option_rom_offset;
-@@ -830,6 +830,7 @@ static void pc_init1(ram_addr_t ram_size
+@@ -830,6 +830,7 @@ static void pc_init1(ram_addr_t ram_size, int vga_ram_size,
      int index;
      BlockDriverState *hd[MAX_IDE_BUS * MAX_IDE_DEVS];
      BlockDriverState *fd[MAX_FD];
@@ -51,7 +52,7 @@ diff -up qemu-kvm-0.10.5/hw/pc.c.roms-more-room qemu-kvm-0.10.5/hw/pc.c
  
      if (ram_size >= 0xe0000000 ) {
          above_4g_mem_size = ram_size - 0xe0000000;
-@@ -905,7 +906,7 @@ static void pc_init1(ram_addr_t ram_size
+@@ -905,7 +906,7 @@ static void pc_init1(ram_addr_t ram_size, int vga_ram_size,
          exit(1);
      }
  
@@ -130,3 +131,6 @@ diff -up qemu-kvm-0.10.5/hw/pc.c.roms-more-room qemu-kvm-0.10.5/hw/pc.c
              offset += size;
          }
          pci_option_rom_offset = offset;
+-- 
+1.6.2.2
+

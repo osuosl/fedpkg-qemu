@@ -1,7 +1,55 @@
-Index: qemu-kvm-0.10.4/vnc.c
-===================================================================
---- qemu-kvm-0.10.orig/qemu/vnc.c
-+++ qemu-kvm-0.10.4/vnc.c
+From a3eb32f433a958afac931e04ce899d004744f5e0 Mon Sep 17 00:00:00 2001
+From: aliguori <aliguori@c046a42c-6fe2-441c-8c8c-71466251a162>
+Date: Fri, 6 Mar 2009 20:27:05 +0000
+Subject: [PATCH 02/18] Enhance 'info vnc' monitor output ("Daniel P. Berrange")
+
+The current 'info vnc' monitor output just displays the VNC server address
+as provided by the -vnc command line flag. This isn't particularly useful
+since it doesn't tell you what VNC is actually listening on. eg, if you
+use '-vnc :1' it is useful to know whether this translated to '0.0.0.0:5901'
+or chose IPv6 ':::5901'.  It is also useful to know the address of the
+client that is currently connected. It is also useful to know the active
+authentication (if any).
+
+This patch tweaks the monitor output to look like:
+
+   (qemu) info vnc
+    Server:
+         address: 0.0.0.0:5902
+            auth: vencrypt+x509
+    Client: none
+
+And when 2 clients are connected
+
+   (qemu) info vnc
+    Server:
+         address: 0.0.0.0:5902
+            auth: vencrypt+x509
+    Client:
+         address: 10.33.6.67:38621
+    Client:
+         address: 10.33.6.63:38620
+
+More data will be added to this later in the patch series...
+
+The 'addr_to_string' helper method in this patch is overly generic
+for the needs of this patch alone. This is because it will be re-used
+by the later SASL patches in this series, where the flexibility is
+important.
+
+(cherry picked from commit 1ff7df1a848044f58d0f3540f1447db4bb1d2d20)
+
+Signed-off-by: Daniel P. Berrange <berrange@redhat.com>
+Signed-off-by: Anthony Liguori <aliguori@us.ibm.com>
+Signed-off-by: Mark McLoughlin <markmc@redhat.com>
+---
+ vnc.c |  139 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-----
+ 1 files changed, 128 insertions(+), 11 deletions(-)
+
+diff --git a/vnc.c b/vnc.c
+index 18a7ad9..3e9417d 100644
+--- a/vnc.c
++++ b/vnc.c
 @@ -166,19 +166,136 @@ struct VncState
  static VncDisplay *vnc_display; /* needed for info vnc */
  static DisplayChangeListener *dcl;
@@ -150,3 +198,6 @@ Index: qemu-kvm-0.10.4/vnc.c
      }
  }
  
+-- 
+1.6.2.2
+

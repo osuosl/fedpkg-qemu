@@ -1,5 +1,7 @@
+From 1941d978942be058aab8df4fafe3a5a444ee17c8 Mon Sep 17 00:00:00 2001
 From: Mark McLoughlin <markmc@redhat.com>
-Subject: [PATCH] Prevent CD-ROM media eject while device is locked
+Date: Wed, 27 May 2009 10:06:11 +0100
+Subject: [PATCH 16/18] Prevent CD-ROM media eject while device is locked
 
 Section 10.8.25 ("START/STOP UNIT Command") of SFF-8020i states that
 if the device is locked we should refuse to eject if the device is
@@ -13,7 +15,10 @@ if the drive has been previously locked.
 
 See also https://bugzilla.redhat.com/501412
 
+(cherry picked from commit aea2a33c73f28ecd8f10b242ecadddcc79c1c28b)
+
 Signed-off-by: Mark McLoughlin <markmc@redhat.com>
+Signed-off-by: Anthony Liguori <aliguori@us.ibm.com>
 ---
  block.c  |    9 ++++++++-
  block.h  |    2 +-

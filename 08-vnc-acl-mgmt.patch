@@ -1,7 +1,96 @@
-Index: qemu-kvm-0.10.4/Makefile
-===================================================================
---- qemu-kvm-0.10.orig/qemu/Makefile
-+++ qemu-kvm-0.10.4/Makefile
+From 5fd8471df80cfd1e868ea50125065536c8fe900c Mon Sep 17 00:00:00 2001
+From: aliguori <aliguori@c046a42c-6fe2-441c-8c8c-71466251a162>
+Date: Fri, 6 Mar 2009 20:27:37 +0000
+Subject: [PATCH 08/18] Support ACLs for controlling VNC access ("Daniel P. Berrange")
+
+This patch introduces a generic internal API for access control lists
+to be used by network servers in QEMU. It adds support for checking
+these ACL in the VNC server, in two places. The first ACL is for the
+SASL authentication mechanism, checking the SASL username. This ACL
+is called 'vnc.username'. The second is for the TLS authentication
+mechanism, when x509 client certificates are turned on, checking against
+the Distinguished Name of the client. This ACL is called 'vnc.x509dname'
+
+The internal API provides for an ACL with the following characteristics
+
+ - A unique name, eg  vnc.username, and vnc.x509dname.
+ - A default policy, allow or deny
+ - An ordered series of match rules, with allow or deny policy
+
+If none of the match rules apply, then the default policy is
+used.
+
+There is a monitor API to manipulate the ACLs, which I'll describe via
+examples
+
+  (qemu) acl show vnc.username
+  policy: allow
+  (qemu) acl policy vnc.username denya
+  acl: policy set to 'deny'
+  (qemu) acl allow vnc.username fred
+  acl: added rule at position 1
+  (qemu) acl allow vnc.username bob
+  acl: added rule at position 2
+  (qemu) acl allow vnc.username joe 1
+  acl: added rule at position 1
+  (qemu) acl show vnc.username
+  policy: deny
+  0: allow fred
+  1: allow joe
+  2: allow bob
+
+  (qemu) acl show vnc.x509dname
+  policy: allow
+  (qemu) acl policy vnc.x509dname deny
+  acl: policy set to 'deny'
+  (qemu) acl allow vnc.x509dname C=GB,O=ACME,L=London,CN=*
+  acl: added rule at position 1
+  (qemu) acl allow vnc.x509dname C=GB,O=ACME,L=Boston,CN=bob
+  acl: added rule at position 2
+  (qemu) acl show vnc.x509dname
+  policy: deny
+  0: allow C=GB,O=ACME,L=London,CN=*
+  1: allow C=GB,O=ACME,L=Boston,CN=bob
+
+By default the VNC server will not use any ACLs, allowing access to
+the server if the user successfully authenticates. To enable use of
+ACLs to restrict user access, the ',acl' flag should be given when
+starting QEMU. The initial ACL activated will be a 'deny all' policy
+and should be customized using monitor commands.
+
+eg enable SASL auth and ACLs
+
+    qemu ....  -vnc localhost:1,sasl,acl
+
+The next patch will provide a way to load a pre-defined ACL when
+starting up
+
+(cherry picked from commit 76655d6dece88bd00e190956e8e4285b682edcbb)
+
+Signed-off-by: Daniel P. Berrange <berrange@redhat.com>
+Signed-off-by: Anthony Liguori <aliguori@us.ibm.com>
+Signed-off-by: Mark McLoughlin <markmc@redhat.com>
+---
+ Makefile        |    6 +-
+ acl.c           |  185 +++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ acl.h           |   74 ++++++++++++++++++++++
+ configure       |   18 +++++
+ monitor.c       |   96 ++++++++++++++++++++++++++++
+ qemu-doc.texi   |   49 +++++++++++++++
+ vnc-auth-sasl.c |   16 ++++-
+ vnc-auth-sasl.h |    7 ++
+ vnc-tls.c       |   19 ++++++
+ vnc-tls.h       |    3 +
+ vnc.c           |   21 ++++++
+ vnc.h           |    3 +
+ 12 files changed, 492 insertions(+), 5 deletions(-)
+ create mode 100644 acl.c
+ create mode 100644 acl.h
+
+diff --git a/Makefile b/Makefile
+index f5de0b6..2af4c06 100644
+--- a/Makefile
++++ b/Makefile
 @@ -148,7 +148,7 @@ endif
  ifdef CONFIG_CURSES
  OBJS+=curses.o
@@ -24,10 +113,11 @@ Index: qemu-kvm-0.10.4/Makefile
  
  vnc.o: CFLAGS += $(CONFIG_VNC_TLS_CFLAGS)
  
-Index: qemu-kvm-0.10.4/acl.c
-===================================================================
+diff --git a/acl.c b/acl.c
+new file mode 100644
+index 0000000..173bf95
 --- /dev/null
-+++ qemu-kvm-0.10.4/acl.c
++++ b/acl.c
 @@ -0,0 +1,185 @@
 +/*
 + * QEMU access control list management
@@ -214,10 +304,11 @@ Index: qemu-kvm-0.10.4/acl.c
 + *  tab-width: 8
 + * End:
 + */
-Index: qemu-kvm-0.10.4/acl.h
-===================================================================
+diff --git a/acl.h b/acl.h
+new file mode 100644
+index 0000000..62a5e56
 --- /dev/null
-+++ qemu-kvm-0.10.4/acl.h
++++ b/acl.h
 @@ -0,0 +1,74 @@
 +/*
 + * QEMU access control list management
@@ -293,11 +384,11 @@ Index: qemu-kvm-0.10.4/acl.h
 + *  tab-width: 8
 + * End:
 + */
-Index: qemu-kvm-0.10.4/configure
-===================================================================
---- qemu-kvm-0.10.orig/qemu/configure
-+++ qemu-kvm-0.10.4/configure
-@@ -913,6 +913,21 @@ EOF
+diff --git a/configure b/configure
+index e3522f2..e00893f 100755
+--- a/configure
++++ b/configure
+@@ -942,6 +942,21 @@ EOF
  fi
  
  ##########################################
@@ -319,7 +410,7 @@ Index: qemu-kvm-0.10.4/configure
  # vde libraries probe
  if test "$vde" = "yes" ; then
    cat > $TMPC << EOF
-@@ -1501,6 +1516,9 @@ if test "$vnc_sasl" = "yes" ; then
+@@ -1517,6 +1532,9 @@ if test "$vnc_sasl" = "yes" ; then
    echo "CONFIG_VNC_SASL_LIBS=$vnc_sasl_libs" >> $config_mak
    echo "#define CONFIG_VNC_SASL 1" >> $config_h
  fi
@@ -329,10 +420,10 @@ Index: qemu-kvm-0.10.4/configure
  qemu_version=`head $source_path/VERSION`
  echo "VERSION=$qemu_version" >>$config_mak
  echo "#define QEMU_VERSION \"$qemu_version\"" >> $config_h
-Index: qemu-kvm-0.10.4/monitor.c
-===================================================================
---- qemu-kvm-0.10.orig/qemu/monitor.c
-+++ qemu-kvm-0.10.4/monitor.c
+diff --git a/monitor.c b/monitor.c
+index 49091e4..022697c 100644
+--- a/monitor.c
++++ b/monitor.c
 @@ -39,6 +39,7 @@
  #include "qemu-timer.h"
  #include "migration.h"
@@ -448,7 +539,7 @@ Index: qemu-kvm-0.10.4/monitor.c
      { NULL, NULL, },
  };
  
-@@ -2995,3 +3082,12 @@ int monitor_read_bdrv_key(BlockDriverSta
+@@ -2995,3 +3082,12 @@ int monitor_read_bdrv_key(BlockDriverState *bs)
      }
      return -EPERM;
  }
@@ -461,11 +552,11 @@ Index: qemu-kvm-0.10.4/monitor.c
 + *  tab-width: 8
 + * End:
 + */
-Index: qemu-kvm-0.10.4/qemu-doc.texi
-===================================================================
---- qemu-kvm-0.10.orig/qemu/qemu-doc.texi
-+++ qemu-kvm-0.10.4/qemu-doc.texi
-@@ -639,6 +639,19 @@ ensures a data encryption preventing com
+diff --git a/qemu-doc.texi b/qemu-doc.texi
+index 3ba727e..0cccddd 100644
+--- a/qemu-doc.texi
++++ b/qemu-doc.texi
+@@ -639,6 +639,19 @@ ensures a data encryption preventing compromise of authentication
  credentials. See the @ref{vnc_security} section for details on using
  SASL authentication.
  
@@ -528,11 +619,11 @@ Index: qemu-kvm-0.10.4/qemu-doc.texi
  @item screendump @var{filename}
  Save screen into PPM image @var{filename}.
  
-Index: qemu-kvm-0.10.4/vnc-auth-sasl.c
-===================================================================
---- qemu-kvm-0.10.orig/qemu/vnc-auth-sasl.c
-+++ qemu-kvm-0.10.4/vnc-auth-sasl.c
-@@ -120,22 +120,32 @@ static int vnc_auth_sasl_check_access(Vn
+diff --git a/vnc-auth-sasl.c b/vnc-auth-sasl.c
+index 2882a35..4b4aca9 100644
+--- a/vnc-auth-sasl.c
++++ b/vnc-auth-sasl.c
+@@ -120,22 +120,32 @@ static int vnc_auth_sasl_check_access(VncState *vs)
  {
      const void *val;
      int err;
@@ -568,10 +659,10 @@ Index: qemu-kvm-0.10.4/vnc-auth-sasl.c
  }
  
  static int vnc_auth_sasl_check_ssf(VncState *vs)
-Index: qemu-kvm-0.10.4/vnc-auth-sasl.h
-===================================================================
---- qemu-kvm-0.10.orig/qemu/vnc-auth-sasl.h
-+++ qemu-kvm-0.10.4/vnc-auth-sasl.h
+diff --git a/vnc-auth-sasl.h b/vnc-auth-sasl.h
+index a72973a..fd9b18a 100644
+--- a/vnc-auth-sasl.h
++++ b/vnc-auth-sasl.h
 @@ -30,6 +30,9 @@
  #include <sasl/sasl.h>
  
@@ -593,11 +684,11 @@ Index: qemu-kvm-0.10.4/vnc-auth-sasl.h
  void vnc_sasl_client_cleanup(VncState *vs);
  
  long vnc_client_read_sasl(VncState *vs);
-Index: qemu-kvm-0.10.4/vnc-tls.c
-===================================================================
---- qemu-kvm-0.10.orig/qemu/vnc-tls.c
-+++ qemu-kvm-0.10.4/vnc-tls.c
-@@ -255,6 +255,25 @@ int vnc_tls_validate_certificate(struct 
+diff --git a/vnc-tls.c b/vnc-tls.c
+index a37a0b4..2d62ac9 100644
+--- a/vnc-tls.c
++++ b/vnc-tls.c
+@@ -255,6 +255,25 @@ int vnc_tls_validate_certificate(struct VncState *vs)
  			  gnutls_strerror (ret));
  		return -1;
  	    }
@@ -623,10 +714,10 @@ Index: qemu-kvm-0.10.4/vnc-tls.c
  	}
  
  	gnutls_x509_crt_deinit (cert);
-Index: qemu-kvm-0.10.4/vnc-tls.h
-===================================================================
---- qemu-kvm-0.10.orig/qemu/vnc-tls.h
-+++ qemu-kvm-0.10.4/vnc-tls.h
+diff --git a/vnc-tls.h b/vnc-tls.h
+index fd0a2d9..2b93633 100644
+--- a/vnc-tls.h
++++ b/vnc-tls.h
 @@ -31,6 +31,8 @@
  #include <gnutls/gnutls.h>
  #include <gnutls/x509.h>
@@ -644,10 +735,10 @@ Index: qemu-kvm-0.10.4/vnc-tls.h
  
      /* Paths to x509 certs/keys */
      char *x509cacert;
-Index: qemu-kvm-0.10.4/vnc.c
-===================================================================
---- qemu-kvm-0.10.orig/qemu/vnc.c
-+++ qemu-kvm-0.10.4/vnc.c
+diff --git a/vnc.c b/vnc.c
+index da68842..44a7746 100644
+--- a/vnc.c
++++ b/vnc.c
 @@ -28,6 +28,7 @@
  #include "sysemu.h"
  #include "qemu_socket.h"
@@ -656,7 +747,7 @@ Index: qemu-kvm-0.10.4/vnc.c
  
  #define VNC_REFRESH_INTERVAL (1000 / 30)
  
-@@ -2082,6 +2083,7 @@ int vnc_display_open(DisplayState *ds, c
+@@ -2091,6 +2092,7 @@ int vnc_display_open(DisplayState *ds, const char *display)
      int sasl = 0;
      int saslErr;
  #endif
@@ -664,7 +755,7 @@ Index: qemu-kvm-0.10.4/vnc.c
  
      if (!vnc_display)
          return -1;
-@@ -2138,9 +2140,28 @@ int vnc_display_open(DisplayState *ds, c
+@@ -2147,9 +2149,28 @@ int vnc_display_open(DisplayState *ds, const char *display)
  		return -1;
  	    }
  #endif
@@ -693,10 +784,10 @@ Index: qemu-kvm-0.10.4/vnc.c
      /*
       * Combinations we support here:
       *
-Index: qemu-kvm-0.10.4/vnc.h
-===================================================================
---- qemu-kvm-0.10.orig/qemu/vnc.h
-+++ qemu-kvm-0.10.4/vnc.h
+diff --git a/vnc.h b/vnc.h
+index ca39c23..6a60f8d 100644
+--- a/vnc.h
++++ b/vnc.h
 @@ -98,6 +98,9 @@ struct VncDisplay
      int subauth; /* Used by VeNCrypt */
      VncDisplayTLS tls;
@@ -707,3 +798,6 @@ Index: qemu-kvm-0.10.4/vnc.h
  };
  
  struct VncState
+-- 
+1.6.2.2
+

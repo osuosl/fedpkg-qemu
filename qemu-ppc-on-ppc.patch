@@ -1,7 +1,7 @@
-From d19076faca944c31bb051b95d285e75ec67902f7 Mon Sep 17 00:00:00 2001
+From 739f7adcf6eeb8486e60fabc7816fff75fac63f9 Mon Sep 17 00:00:00 2001
 From: malc <malc@c046a42c-6fe2-441c-8c8c-71466251a162>
 Date: Thu, 2 Apr 2009 01:16:39 +0000
-Subject: [PATCH 1/1] Temporary workaround for ppc on ppc
+Subject: [PATCH 18/18] Temporary workaround for ppc on ppc
 
 target-ppc/translate.c puts values of type opcode_t into .opcodes
 section, using GCC extension to do so, and hoping that this will make
@@ -13,13 +13,15 @@ certain platforms (gcc 4.3.0, -O and PPC/PPC64 for instance)
 The workaround consists of adding -fno-unit-at-a-time to the list of
 GCC command line options while building PPC translate.o on a PPC.
 
-git-svn-id: svn://svn.savannah.nongnu.org/qemu/trunk@6967 c046a42c-6fe2-441c-8c8c-71466251a162
+(cherry picked from commit d19076faca944c31bb051b95d285e75ec67902f7)
+
+Signed-off-by: Mark McLoughlin <markmc@redhat.com>
 ---
  Makefile.target |    4 ++++
  1 files changed, 4 insertions(+), 0 deletions(-)
 
 diff --git a/Makefile.target b/Makefile.target
-index 046427d..e855dc3 100644
+index e2e23bf..7e18719 100644
 --- a/Makefile.target
 +++ b/Makefile.target
 @@ -91,6 +91,10 @@ ifeq ($(ARCH),i386)
@@ -34,5 +36,5 @@ index 046427d..e855dc3 100644
    CFLAGS+=-ffixed-g2 -ffixed-g3
    ifneq ($(CONFIG_SOLARIS),yes)
 -- 
-1.6.0.6
+1.6.2.2
 

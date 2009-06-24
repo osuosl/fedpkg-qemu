@@ -1,5 +1,7 @@
+From 803934e62dc6394df92ef08fc8df9e49c0c834e7 Mon Sep 17 00:00:00 2001
 From: Glauber Costa <glommer@redhat.com>
-Subject: [PATCH] align vga rom to 4k boundary.
+Date: Wed, 24 Jun 2009 14:28:30 +0100
+Subject: [PATCH 12/18] align vga rom to 4k boundary.
 
 Instead of aligning to 2k boundary, as required by the bios,
 align to 4k boundary, as required by kvm memory functions. Without
@@ -14,14 +16,15 @@ It does not fail with cirrus vga, because it is naturally aligned.
 This problem does not seem to affect upstream qemu.
 
 Signed-off-by: Glauber Costa <glommer@redhat.com>
+Signed-off-by: Mark McLoughlin <markmc@redhat.com>
 ---
- qemu/hw/pc.c |    2 +-
+ hw/pc.c |    2 +-
  1 files changed, 1 insertions(+), 1 deletions(-)
 
-Index: qemu-kvm-0.10.5/hw/pc.c
-===================================================================
---- qemu-kvm-0.10.5.orig/hw/pc.c
-+++ qemu-kvm-0.10.5/hw/pc.c
+diff --git a/hw/pc.c b/hw/pc.c
+index 413da6f..fb6edf4 100644
+--- a/hw/pc.c
++++ b/hw/pc.c
 @@ -925,7 +925,7 @@ vga_bios_error:
              exit(1);
          }
@@ -31,3 +34,6 @@ Index: qemu-kvm-0.10.5/hw/pc.c
  	option_rom_start = 0xc0000 + vga_bios_size;
  
          /* setup basic memory access */
+-- 
+1.6.2.2
+
