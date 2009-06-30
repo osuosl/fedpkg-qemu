@@ -1,7 +1,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 0.10.5
-Release: 1%{?dist}
+Release: 1%{?dist}.1
 # Epoch because we pushed a qemu-1.0 package
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -315,6 +315,9 @@ fi
 %{_mandir}/man1/qemu-img.1*
 
 %changelog
+* Tue Jun 30 2009 Richard Jones <rjones@redhat.com> - 2:0.10.5-1.el5.1
+- Package version regressed in EPEL 5 after the move to Koji. Force rebuild.
+
 * Sun May 24 2009 Lubomir Rintel <lkundrak@v3.sk> - 2:0.10.5-1
 - Use the devel KVM spec file as base for EL-5 qemu
 - Rebase to stable qemu 0.10.5
