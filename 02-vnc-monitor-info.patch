@@ -1,7 +1,7 @@
-From a3eb32f433a958afac931e04ce899d004744f5e0 Mon Sep 17 00:00:00 2001
+From b4b2ff2fbd7e6458fbfa8f2e6af7d1b668a06a1a Mon Sep 17 00:00:00 2001
 From: aliguori <aliguori@c046a42c-6fe2-441c-8c8c-71466251a162>
 Date: Fri, 6 Mar 2009 20:27:05 +0000
-Subject: [PATCH 02/18] Enhance 'info vnc' monitor output ("Daniel P. Berrange")
+Subject: [PATCH] Enhance 'info vnc' monitor output ("Daniel P. Berrange")
 
 The current 'info vnc' monitor output just displays the VNC server address
 as provided by the -vnc command line flag. This isn't particularly useful
@@ -42,12 +42,13 @@ important.
 Signed-off-by: Daniel P. Berrange <berrange@redhat.com>
 Signed-off-by: Anthony Liguori <aliguori@us.ibm.com>
 Signed-off-by: Mark McLoughlin <markmc@redhat.com>
+Fedora-patch: 02-vnc-monitor-info.patch
 ---
  vnc.c |  139 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-----
  1 files changed, 128 insertions(+), 11 deletions(-)
 
 diff --git a/vnc.c b/vnc.c
-index 18a7ad9..3e9417d 100644
+index d6a7225..d7d9b91 100644
 --- a/vnc.c
 +++ b/vnc.c
 @@ -166,19 +166,136 @@ struct VncState
@@ -199,5 +200,5 @@ index 18a7ad9..3e9417d 100644
  }
  
 -- 
-1.6.2.2
+1.6.2.5
 

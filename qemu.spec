@@ -1,14 +1,14 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
-Version: 0.10.5
-Release: 3%{?dist}
+Version: 0.10.6
+Release: 1%{?dist}
 # Epoch because we pushed a qemu-1.0 package
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
 URL: http://www.qemu.org/
 
-Source0: http://download.sourceforge.net/sourceforge/kvm/qemu-kvm-%{version}.tar.gz
+Source0: http://downloads.sourceforge.net/sourceforge/kvm/qemu-kvm-%{version}.tar.gz
 Source1: qemu.init
 Source2: kvm.modules
 
@@ -27,10 +27,8 @@ Patch11: qemu-roms-more-room.patch
 Patch12: qemu-roms-more-room-fix-vga-align.patch
 Patch13: qemu-bios-bigger-roms.patch
 Patch14: qemu-kvm-fix-kerneldir-includes.patch
-Patch15: qemu-fix-net-socket-list-init.patch
-Patch16: qemu-prevent-cdrom-media-eject-while-device-is-locked.patch
-Patch17: qemu-avoid-harmless-msr-warnings.patch
-Patch18: qemu-ppc-on-ppc.patch
+Patch15: qemu-avoid-harmless-msr-warnings.patch
+Patch16: qemu-ppc-on-ppc.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: SDL-devel zlib-devel which texi2html gnutls-devel cyrus-sasl-devel
@@ -227,8 +225,6 @@ such as kvmtrace and kvm_stat.
 %patch14 -p1
 %patch15 -p1
 %patch16 -p1
-%patch17 -p1
-%patch18 -p1
 
 %build
 # systems like rhel build system does not have a recent enough linker so
@@ -471,6 +467,25 @@ fi
 %{_mandir}/man1/qemu-img.1*
 
 %changelog
+* Tue Aug  4 2009 Mark McLoughlin <markmc@redhat.com> - 2:0.10.6-1
+- Update to qemu-kvm-0.10.6; upstream ChangeLog:
+   - merge qemu 0.10.6
+      - fix -net socket,listen
+      - live migration: don't send gratuitous packets all at once
+      - serial: fix lost characters after sysrq
+      - Delete io-handler before closing fd after migration
+      - Fix qemu_aio_flush
+      - i386: fix cpu reset
+      - Prevent CD-ROM eject while device is locked
+      - Fix migration after hot remove with eepro100
+      - Don't start a VM after failed migration if stopped
+      - Fix live migration under heavy IO load
+      - Honor -S on incoming migration
+      - Reset PS2 keyboard/mouse on reset
+   - build and install extboot
+- Drop upstreamed qemu-prevent-cdrom-media-eject-while-device-is-locked.patch
+  and qemu-fix-net-socket-list-init.patch and
+
 * Wed Jun 17 2009 Mark McLoughlin <markmc@redhat.com> - 2:0.10.5-3
 - ppc-on-ppc fix (#504273)
 - Fix -kernel regression (#506443)

@@ -1,7 +1,7 @@
-From 9d5f4a68ddb05d823ef1fde787ac027715fe1f95 Mon Sep 17 00:00:00 2001
+From af17025ce83b924f666617294606ec5ad1a9e833 Mon Sep 17 00:00:00 2001
 From: aliguori <aliguori@c046a42c-6fe2-441c-8c8c-71466251a162>
 Date: Fri, 6 Mar 2009 20:27:23 +0000
-Subject: [PATCH 05/18] Move TLS auth into separate file ("Daniel P. Berrange")
+Subject: [PATCH] Move TLS auth into separate file ("Daniel P. Berrange")
 
 This patch refactors the existing TLS code to make the main VNC code
 more managable. The code moves to two new files
@@ -33,6 +33,7 @@ gnutls_send/recv.
 Signed-off-by: Daniel P. Berrange <berrange@redhat.com>
 Signed-off-by: Anthony Liguori <aliguori@us.ibm.com>
 Signed-off-by: Mark McLoughlin <markmc@redhat.com>
+Fedora-patch: 05-vnc-tls-vencrypt.patch
 ---
  Makefile            |   11 +-
  vnc-auth-vencrypt.c |  167 +++++++++++++++
@@ -48,7 +49,7 @@ Signed-off-by: Mark McLoughlin <markmc@redhat.com>
  create mode 100644 vnc-tls.h
 
 diff --git a/Makefile b/Makefile
-index 58585a3..7a3cad5 100644
+index f74b7eb..680939f 100644
 --- a/Makefile
 +++ b/Makefile
 @@ -149,6 +149,9 @@ ifdef CONFIG_CURSES
@@ -788,7 +789,7 @@ index 0000000..cda95b9
 +#endif /* __QEMU_VNC_TLS_H__ */
 +
 diff --git a/vnc.c b/vnc.c
-index a9b8d63..f1c2d61 100644
+index 7fb31b6..f980d68 100644
 --- a/vnc.c
 +++ b/vnc.c
 @@ -34,21 +34,6 @@
@@ -1476,7 +1477,7 @@ index a9b8d63..f1c2d61 100644
         } else if (vs->vd->auth == VNC_AUTH_VNC) {
              VNC_DEBUG("Tell client VNC auth\n");
              vnc_write_u32(vs, vs->vd->auth);
-@@ -2337,61 +1883,6 @@ void vnc_display_init(DisplayState *ds)
+@@ -2336,61 +1882,6 @@ void vnc_display_init(DisplayState *ds)
      register_displaychangelistener(ds, dcl);
  }
  
@@ -1538,7 +1539,7 @@ index a9b8d63..f1c2d61 100644
  
  void vnc_display_close(DisplayState *ds)
  {
-@@ -2411,7 +1902,7 @@ void vnc_display_close(DisplayState *ds)
+@@ -2410,7 +1901,7 @@ void vnc_display_close(DisplayState *ds)
      vs->auth = VNC_AUTH_INVALID;
  #ifdef CONFIG_VNC_TLS
      vs->subauth = VNC_AUTH_INVALID;
@@ -1547,7 +1548,7 @@ index a9b8d63..f1c2d61 100644
  #endif
  }
  
-@@ -2467,7 +1958,7 @@ int vnc_display_open(DisplayState *ds, const char *display)
+@@ -2466,7 +1957,7 @@ int vnc_display_open(DisplayState *ds, const char *display)
  	    char *start, *end;
  	    x509 = 1; /* Require x509 certificates */
  	    if (strncmp(options, "x509verify", 10) == 0)
@@ -1556,7 +1557,7 @@ index a9b8d63..f1c2d61 100644
  
  	    /* Now check for 'x509=/some/path' postfix
  	     * and use that to setup x509 certificate/key paths */
-@@ -2478,7 +1969,7 @@ int vnc_display_open(DisplayState *ds, const char *display)
+@@ -2477,7 +1968,7 @@ int vnc_display_open(DisplayState *ds, const char *display)
  		char *path = qemu_strndup(start + 1, len);
  
  		VNC_DEBUG("Trying certificate path '%s'\n", path);
@@ -1695,5 +1696,5 @@ index eb33643..d69b295 100644
 +
  #endif /* __QEMU_VNC_H */
 -- 
-1.6.2.2
+1.6.2.5
 

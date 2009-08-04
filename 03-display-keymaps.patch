@@ -1,7 +1,7 @@
-From 6fc44b90006f1bf4763088c4eacd1efec428759b Mon Sep 17 00:00:00 2001
+From 202790c357fcff7f1222f4e7777e0cf561b516d5 Mon Sep 17 00:00:00 2001
 From: aliguori <aliguori@c046a42c-6fe2-441c-8c8c-71466251a162>
 Date: Fri, 6 Mar 2009 20:27:10 +0000
-Subject: [PATCH 03/18] Refactor keymap code to avoid duplication ("Daniel P. Berrange")
+Subject: [PATCH] Refactor keymap code to avoid duplication ("Daniel P. Berrange")
 
 Each of the graphical frontends #include a .c file, for keymap code
 resulting in duplicated definitions & duplicated compiled code. A
@@ -16,6 +16,7 @@ causing clashing definitions.
 Signed-off-by: Daniel P. Berrange <berrange@redhat.com>
 Signed-off-by: Anthony Liguori <aliguori@us.ibm.com>
 Signed-off-by: Mark McLoughlin <markmc@redhat.com>
+Fedora-patch: 03-display-keymaps.patch
 ---
  Makefile      |    9 +++++--
  curses.c      |    3 +-
@@ -30,7 +31,7 @@ Signed-off-by: Mark McLoughlin <markmc@redhat.com>
  create mode 100644 keymaps.h
 
 diff --git a/Makefile b/Makefile
-index 6739626..58585a3 100644
+index 92eb447..f74b7eb 100644
 --- a/Makefile
 +++ b/Makefile
 @@ -141,6 +141,7 @@ endif
@@ -286,7 +287,7 @@ index 0000000..17f6efd
 +
 +#endif /* __QEMU_KEYMAPS_H__ */
 diff --git a/sdl.c b/sdl.c
-index 74f084c..f0f9fc8 100644
+index 95efe8d..8b7a1fe 100644
 --- a/sdl.c
 +++ b/sdl.c
 @@ -109,7 +109,6 @@ static void sdl_resize(DisplayState *ds)
@@ -297,7 +298,7 @@ index 74f084c..f0f9fc8 100644
  
  static kbd_layout_t *kbd_layout = NULL;
  
-@@ -677,7 +676,7 @@ void sdl_display_init(DisplayState *ds, int full_screen, int no_frame)
+@@ -680,7 +679,7 @@ void sdl_display_init(DisplayState *ds, int full_screen, int no_frame)
          keyboard_layout = "en-us";
  #endif
      if(keyboard_layout) {
@@ -322,7 +323,7 @@ index c9087d7..c213ef8 100644
  /* ascii */
      { "space",                0x020},
 diff --git a/vnc.c b/vnc.c
-index 3e9417d..aafefd8 100644
+index d7d9b91..969d5b0 100644
 --- a/vnc.c
 +++ b/vnc.c
 @@ -35,7 +35,6 @@
@@ -333,7 +334,7 @@ index 3e9417d..aafefd8 100644
  #include "d3des.h"
  
  #ifdef CONFIG_VNC_TLS
-@@ -2429,9 +2428,9 @@ void vnc_display_init(DisplayState *ds)
+@@ -2428,9 +2427,9 @@ void vnc_display_init(DisplayState *ds)
      vs->ds = ds;
  
      if (keyboard_layout)
@@ -361,5 +362,5 @@ index ce355d8..2d255c9 100644
  /* ascii */
      { "space",                0x020},
 -- 
-1.6.2.2
+1.6.2.5
 

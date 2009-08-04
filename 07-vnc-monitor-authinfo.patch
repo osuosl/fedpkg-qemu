@@ -1,7 +1,7 @@
-From 9e9226fb865ada61b8b0a6c2c5526fdedfd4d608 Mon Sep 17 00:00:00 2001
+From e61c19737387273e305a2da5c9b28fe42e2eef67 Mon Sep 17 00:00:00 2001
 From: aliguori <aliguori@c046a42c-6fe2-441c-8c8c-71466251a162>
 Date: Fri, 6 Mar 2009 20:27:32 +0000
-Subject: [PATCH 07/18] Include auth credentials in 'info vnc' ("Daniel P. Berrange")
+Subject: [PATCH] Include auth credentials in 'info vnc' ("Daniel P. Berrange")
 
 This patch extends the 'info vnc' monitor output to include information
 about the VNC client authentication credentials.
@@ -30,6 +30,7 @@ Auth can be stacked, so both username & x509 dname may be shown.
 Signed-off-by: Daniel P. Berrange <berrange@redhat.com>
 Signed-off-by: Anthony Liguori <aliguori@us.ibm.com>
 Signed-off-by: Mark McLoughlin <markmc@redhat.com>
+Fedora-patch: 07-vnc-monitor-authinfo.patch
 ---
  vnc-tls.c |   17 +++++++++++++++++
  vnc-tls.h |    3 +++
@@ -86,7 +87,7 @@ index cda95b9..fd0a2d9 100644
  
  int vnc_tls_client_setup(VncState *vs, int x509Creds);
 diff --git a/vnc.c b/vnc.c
-index 33671fd..da68842 100644
+index 3c315d6..9f0e16b 100644
 --- a/vnc.c
 +++ b/vnc.c
 @@ -156,6 +156,21 @@ static void do_info_vnc_client(VncState *client)
@@ -130,5 +131,5 @@ index 33671fd..da68842 100644
             if (vs->minor >= 8) {
                 static const char err[] = "Authentication failed";
 -- 
-1.6.2.2
+1.6.2.5
 

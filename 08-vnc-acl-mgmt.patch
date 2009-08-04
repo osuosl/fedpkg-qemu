@@ -1,7 +1,7 @@
-From 5fd8471df80cfd1e868ea50125065536c8fe900c Mon Sep 17 00:00:00 2001
+From e71cbebb569fa3d9b285a03a72802609b43bd6e9 Mon Sep 17 00:00:00 2001
 From: aliguori <aliguori@c046a42c-6fe2-441c-8c8c-71466251a162>
 Date: Fri, 6 Mar 2009 20:27:37 +0000
-Subject: [PATCH 08/18] Support ACLs for controlling VNC access ("Daniel P. Berrange")
+Subject: [PATCH] Support ACLs for controlling VNC access ("Daniel P. Berrange")
 
 This patch introduces a generic internal API for access control lists
 to be used by network servers in QEMU. It adds support for checking
@@ -70,6 +70,7 @@ starting up
 Signed-off-by: Daniel P. Berrange <berrange@redhat.com>
 Signed-off-by: Anthony Liguori <aliguori@us.ibm.com>
 Signed-off-by: Mark McLoughlin <markmc@redhat.com>
+Fedora-patch: 08-vnc-acl-mgmt.patch
 ---
  Makefile        |    6 +-
  acl.c           |  185 +++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -88,7 +89,7 @@ Signed-off-by: Mark McLoughlin <markmc@redhat.com>
  create mode 100644 acl.h
 
 diff --git a/Makefile b/Makefile
-index f5de0b6..2af4c06 100644
+index 13ae73d..fa1afdc 100644
 --- a/Makefile
 +++ b/Makefile
 @@ -148,7 +148,7 @@ endif
@@ -736,7 +737,7 @@ index fd0a2d9..2b93633 100644
      /* Paths to x509 certs/keys */
      char *x509cacert;
 diff --git a/vnc.c b/vnc.c
-index da68842..44a7746 100644
+index 9f0e16b..f797878 100644
 --- a/vnc.c
 +++ b/vnc.c
 @@ -28,6 +28,7 @@
@@ -747,7 +748,7 @@ index da68842..44a7746 100644
  
  #define VNC_REFRESH_INTERVAL (1000 / 30)
  
-@@ -2091,6 +2092,7 @@ int vnc_display_open(DisplayState *ds, const char *display)
+@@ -2090,6 +2091,7 @@ int vnc_display_open(DisplayState *ds, const char *display)
      int sasl = 0;
      int saslErr;
  #endif
@@ -755,7 +756,7 @@ index da68842..44a7746 100644
  
      if (!vnc_display)
          return -1;
-@@ -2147,9 +2149,28 @@ int vnc_display_open(DisplayState *ds, const char *display)
+@@ -2146,9 +2148,28 @@ int vnc_display_open(DisplayState *ds, const char *display)
  		return -1;
  	    }
  #endif
@@ -799,5 +800,5 @@ index ca39c23..6a60f8d 100644
  
  struct VncState
 -- 
-1.6.2.2
+1.6.2.5
 

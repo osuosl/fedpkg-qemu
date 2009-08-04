@@ -1,7 +1,7 @@
-From a103fc3415c6efcd04a73ca928482fc3467e9400 Mon Sep 17 00:00:00 2001
+From d842e3222f8ce614769d1cf8227bb3b8dbf209bc Mon Sep 17 00:00:00 2001
 From: Glauber Costa <glommer@redhat.com>
 Date: Wed, 24 Jun 2009 14:22:57 +0100
-Subject: [PATCH 09/18] use KVM_UPSTREAM for ppc.
+Subject: [PATCH] use KVM_UPSTREAM for ppc.
 
 ppc should compile with upstream qemu code, so, put these
 defines in ppc specific code that references kvm functions.
@@ -12,6 +12,7 @@ and would break compilation.
 
 Signed-off-by: Glauber Costa <glommer@redhat.com>
 Signed-off-by: Mark McLoughlin <markmc@redhat.com>
+Fedora-patch: kvm-upstream-ppc.patch
 ---
  hw/ppc440.c            |    1 +
  hw/ppc440_bamboo.c     |    1 +
@@ -68,5 +69,5 @@ index e02dcb0..027c8e7 100644
  
  //#define DEBUG_MMU
 -- 
-1.6.2.2
+1.6.2.5
 

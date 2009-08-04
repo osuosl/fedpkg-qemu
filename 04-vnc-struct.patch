@@ -1,7 +1,7 @@
-From c1b31361bfecd3f67e8766d8df2510c801f536f4 Mon Sep 17 00:00:00 2001
+From 35b87b5d1543c563c09361086519ebdc960d4934 Mon Sep 17 00:00:00 2001
 From: aliguori <aliguori@c046a42c-6fe2-441c-8c8c-71466251a162>
 Date: Fri, 6 Mar 2009 20:27:13 +0000
-Subject: [PATCH 04/18] Move VNC structs into header file ("Daniel P. Berrange")
+Subject: [PATCH] Move VNC structs into header file ("Daniel P. Berrange")
 
 This patch moves the definitions of VncState and VncDisplay structs
 out into a vnc.h header file. This is to allow the code for TLS
@@ -12,13 +12,14 @@ and SASL auth mechanisms to be moved out of the main vnc.c file.
 Signed-off-by: Daniel P. Berrange <berrange@redhat.com>
 Signed-off-by: Anthony Liguori <aliguori@us.ibm.com>
 Signed-off-by: Mark McLoughlin <markmc@redhat.com>
+Fedora-patch: 04-vnc-struct.patch
 ---
  vnc.c |  109 +----------------------------------------------
  vnc.h |  149 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-
  2 files changed, 148 insertions(+), 110 deletions(-)
 
 diff --git a/vnc.c b/vnc.c
-index aafefd8..a9b8d63 100644
+index 969d5b0..7fb31b6 100644
 --- a/vnc.c
 +++ b/vnc.c
 @@ -3,6 +3,7 @@
@@ -322,5 +323,5 @@ index 6981606..eb33643 100644
 -#endif /* __VNCTIGHT_H */
 +#endif /* __QEMU_VNC_H */
 -- 
-1.6.2.2
+1.6.2.5
 

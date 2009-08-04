@@ -1,7 +1,7 @@
-From 95b704fb6b2a9a7f62bbbfd1b9fd2e23d1c428a5 Mon Sep 17 00:00:00 2001
+From 1b4f956f40315ecc756e34cdeb923424c7095684 Mon Sep 17 00:00:00 2001
 From: aliguori <aliguori@c046a42c-6fe2-441c-8c8c-71466251a162>
 Date: Fri, 6 Mar 2009 20:27:28 +0000
-Subject: [PATCH 06/18] Add SASL authentication support ("Daniel P. Berrange")
+Subject: [PATCH] Add SASL authentication support ("Daniel P. Berrange")
 
 This patch adds the new SASL authentication protocol to the VNC server.
 
@@ -69,6 +69,7 @@ if found, unless --disable-vnc-sasl was given to override it.
 Signed-off-by: Daniel P. Berrange <berrange@redhat.com>
 Signed-off-by: Anthony Liguori <aliguori@us.ibm.com>
 Signed-off-by: Mark McLoughlin <markmc@redhat.com>
+Fedora-patch: 06-vnc-sasl.patch
 ---
  Makefile            |    7 +-
  Makefile.target     |    5 +
@@ -86,7 +87,7 @@ Signed-off-by: Mark McLoughlin <markmc@redhat.com>
  create mode 100644 vnc-auth-sasl.h
 
 diff --git a/Makefile b/Makefile
-index 7a3cad5..f5de0b6 100644
+index 680939f..13ae73d 100644
 --- a/Makefile
 +++ b/Makefile
 @@ -152,6 +152,9 @@ OBJS+=vnc.o d3des.o
@@ -1120,7 +1121,7 @@ index 1f113a7..9ed642c 100644
  
  static int protocol_client_vencrypt_auth(VncState *vs, uint8_t *data, size_t len)
 diff --git a/vnc.c b/vnc.c
-index f1c2d61..33671fd 100644
+index f980d68..3c315d6 100644
 --- a/vnc.c
 +++ b/vnc.c
 @@ -68,7 +68,8 @@ static char *addr_to_string(const char *format,
@@ -1433,7 +1434,7 @@ index f1c2d61..33671fd 100644
         default: /* Should not be possible, but just in case */
             VNC_DEBUG("Reject auth %d\n", vs->vd->auth);
             vnc_write_u8(vs, 1);
-@@ -1932,6 +2072,10 @@ int vnc_display_open(DisplayState *ds, const char *display)
+@@ -1931,6 +2071,10 @@ int vnc_display_open(DisplayState *ds, const char *display)
  #ifdef CONFIG_VNC_TLS
      int tls = 0, x509 = 0;
  #endif
@@ -1444,7 +1445,7 @@ index f1c2d61..33671fd 100644
  
      if (!vnc_display)
          return -1;
-@@ -1951,6 +2095,10 @@ int vnc_display_open(DisplayState *ds, const char *display)
+@@ -1950,6 +2094,10 @@ int vnc_display_open(DisplayState *ds, const char *display)
  	    reverse = 1;
  	} else if (strncmp(options, "to=", 3) == 0) {
              to_port = atoi(options+3) + 5900;
@@ -1455,7 +1456,7 @@ index f1c2d61..33671fd 100644
  #ifdef CONFIG_VNC_TLS
  	} else if (strncmp(options, "tls", 3) == 0) {
  	    tls = 1; /* Require TLS */
-@@ -1987,6 +2135,22 @@ int vnc_display_open(DisplayState *ds, const char *display)
+@@ -1986,6 +2134,22 @@ int vnc_display_open(DisplayState *ds, const char *display)
  	}
      }
  
@@ -1478,7 +1479,7 @@ index f1c2d61..33671fd 100644
      if (password) {
  #ifdef CONFIG_VNC_TLS
  	if (tls) {
-@@ -1999,13 +2163,34 @@ int vnc_display_open(DisplayState *ds, const char *display)
+@@ -1998,13 +2162,34 @@ int vnc_display_open(DisplayState *ds, const char *display)
  		vs->subauth = VNC_AUTH_VENCRYPT_TLSVNC;
  	    }
  	} else {
@@ -1515,7 +1516,7 @@ index f1c2d61..33671fd 100644
      } else {
  #ifdef CONFIG_VNC_TLS
  	if (tls) {
-@@ -2027,6 +2212,16 @@ int vnc_display_open(DisplayState *ds, const char *display)
+@@ -2026,6 +2211,16 @@ int vnc_display_open(DisplayState *ds, const char *display)
  #endif
      }
  
@@ -1615,5 +1616,5 @@ index d69b295..ca39c23 100644
 +
  #endif /* __QEMU_VNC_H */
 -- 
-1.6.2.2
+1.6.2.5
 

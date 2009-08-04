@@ -1,7 +1,7 @@
-From b7f419eee93569ef0c31c868fa24108d31e66bff Mon Sep 17 00:00:00 2001
+From 6b55d3e74400c9f7e71739abd0dac362a5db1dc6 Mon Sep 17 00:00:00 2001
 From: aliguori <aliguori@c046a42c-6fe2-441c-8c8c-71466251a162>
 Date: Fri, 6 Mar 2009 20:27:02 +0000
-Subject: [PATCH 01/18] Fix bug in TLS authentication ("Daniel P. Berrange")
+Subject: [PATCH] Fix bug in TLS authentication ("Daniel P. Berrange")
 
 This patch was previously posted here:
 
@@ -26,12 +26,13 @@ this patch.
 Signed-off-by: Daniel P. Berrange <berrange@redhat.com>
 Signed-off-by: Anthony Liguori <aliguori@us.ibm.com>
 Signed-off-by: Mark McLoughlin <markmc@redhat.com>
+Fedora-patch: 01-tls-handshake-fix.patch
 ---
  vnc.c |    8 --------
  1 files changed, 0 insertions(+), 8 deletions(-)
 
 diff --git a/vnc.c b/vnc.c
-index 783df80..18a7ad9 100644
+index 1d8ebe7..d6a7225 100644
 --- a/vnc.c
 +++ b/vnc.c
 @@ -2105,14 +2105,6 @@ static int protocol_client_vencrypt_auth(VncState *vs, uint8_t *data, size_t len
@@ -50,5 +51,5 @@ index 783df80..18a7ad9 100644
      return 0;
  }
 -- 
-1.6.2.2
+1.6.2.5
 
