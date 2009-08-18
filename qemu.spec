@@ -1,7 +1,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 0.10.6
-Release: 1%{?dist}
+Release: 2%{?dist}
 # Epoch because we pushed a qemu-1.0 package
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -467,6 +467,9 @@ fi
 %{_mandir}/man1/qemu-img.1*
 
 %changelog
+* Tue Aug 18 2009 Mark McLoughlin <markmc@redhat.com> - 2:0.10.6-2
+- Allow blacklisting of kvm modules (#517866)
+
 * Tue Aug  4 2009 Mark McLoughlin <markmc@redhat.com> - 2:0.10.6-1
 - Update to qemu-kvm-0.10.6; upstream ChangeLog:
    - merge qemu 0.10.6
