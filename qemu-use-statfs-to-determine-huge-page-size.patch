@@ -1,0 +1,117 @@
+From 046661932789fd11acc1293e2106a3eba3e6c840 Mon Sep 17 00:00:00 2001
+From: Joerg Roedel <joerg.roedel@amd.com>
+Date: Fri, 27 Mar 2009 15:34:38 +0100
+Subject: [PATCH] Use statfs to determine size of huge pages
+
+The current method of finding out the size of huge pages does not work
+reliably anymore. Current Linux supports more than one huge page size
+but /proc/meminfo only show one of the supported sizes.
+To find out the real page size used can be found by calling statfs. This
+patch changes qemu to use statfs instead of parsing /proc/meminfo.
+
+(cherry picked from commit f1ac0931a1aeadab2569b7001ec35250e695d94f)
+
+Signed-off-by: Joerg Roedel <joerg.roedel@amd.com>
+Signed-off-by: Avi Kivity <avi@redhat.com>
+Signed-off-by: Mark McLoughlin <markmc@redhat.com>
+Fedora-patch: qemu-use-statfs-to-determine-huge-page-size.patch
+---
+ sysemu.h |    2 +-
+ vl.c     |   42 +++++++++++++++++++-----------------------
+ 2 files changed, 20 insertions(+), 24 deletions(-)
+
+diff --git a/sysemu.h b/sysemu.h
+index 7ca08c1..e8e746d 100644
+--- a/sysemu.h
++++ b/sysemu.h
+@@ -100,7 +100,7 @@ extern int graphic_rotate;
+ extern int no_quit;
+ extern int semihosting_enabled;
+ extern int old_param;
+-extern int hpagesize;
++extern long hpagesize;
+ extern const char *bootp_filename;
+ 
+ #ifdef USE_KQEMU
+diff --git a/vl.c b/vl.c
+index 1774d1c..0bfa380 100644
+--- a/vl.c
++++ b/vl.c
+@@ -62,6 +62,7 @@
+ #include <sys/ioctl.h>
+ #include <sys/resource.h>
+ #include <sys/socket.h>
++#include <sys/vfs.h>
+ #include <netinet/in.h>
+ #include <net/if.h>
+ #if defined(__NetBSD__)
+@@ -256,7 +257,7 @@ const char *mem_path = NULL;
+ #ifdef MAP_POPULATE
+ int mem_prealloc = 1;	/* force preallocation of physical target memory */
+ #endif
+-int hpagesize = 0;
++long hpagesize = 0;
+ const char *cpu_vendor_string;
+ #ifdef TARGET_ARM
+ int old_param = 0;
+@@ -4722,32 +4723,27 @@ void qemu_get_launch_info(int *argc, char ***argv, int *opt_daemonize, const cha
+ }
+ 
+ #ifdef USE_KVM
+-static int gethugepagesize(void)
++
++#define HUGETLBFS_MAGIC       0x958458f6
++
++static long gethugepagesize(const char *path)
+ {
+-    int ret, fd;
+-    char buf[4096];
+-    const char *needle = "Hugepagesize:";
+-    char *size;
+-    unsigned long hugepagesize;
++    struct statfs fs;
++    int ret;
+ 
+-    fd = open("/proc/meminfo", O_RDONLY);
+-    if (fd < 0) {
+-	perror("open");
+-	exit(0);
+-    }
++    do {
++	    ret = statfs(path, &fs);
++    } while (ret != 0 && errno == EINTR);
+ 
+-    ret = read(fd, buf, sizeof(buf));
+-    if (ret < 0) {
+-	perror("read");
+-	exit(0);
++    if (ret != 0) {
++	    perror("statfs");
++	    return 0;
+     }
+ 
+-    size = strstr(buf, needle);
+-    if (!size)
+-	return 0;
+-    size += strlen(needle);
+-    hugepagesize = strtol(size, NULL, 0);
+-    return hugepagesize;
++    if (fs.f_type != HUGETLBFS_MAGIC)
++	    fprintf(stderr, "Warning: path not on HugeTLBFS: %s\n", path);
++
++    return fs.f_bsize;
+ }
+ 
+ static void *alloc_mem_area(size_t memory, unsigned long *len, const char *path)
+@@ -4767,7 +4763,7 @@ static void *alloc_mem_area(size_t memory, unsigned long *len, const char *path)
+     if (asprintf(&filename, "%s/kvm.XXXXXX", path) == -1)
+ 	return NULL;
+ 
+-    hpagesize = gethugepagesize() * 1024;
++    hpagesize = gethugepagesize(path);
+     if (!hpagesize)
+ 	return NULL;
+ 
+-- 
+1.6.2.5
+
