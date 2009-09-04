@@ -1,7 +1,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 0.10.6
-Release: 3%{?dist}
+Release: 4%{?dist}
 # Epoch because we pushed a qemu-1.0 package
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -30,6 +30,7 @@ Patch14: qemu-kvm-fix-kerneldir-includes.patch
 Patch15: qemu-avoid-harmless-msr-warnings.patch
 Patch16: qemu-ppc-on-ppc.patch
 Patch17: qemu-use-statfs-to-determine-huge-page-size.patch
+Patch18: qemu-allow-pulseaudio-to-be-the-default.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: SDL-devel zlib-devel which texi2html gnutls-devel cyrus-sasl-devel
@@ -227,6 +228,7 @@ such as kvmtrace and kvm_stat.
 %patch15 -p1
 %patch16 -p1
 %patch17 -p1
+%patch18 -p1
 
 %build
 # systems like rhel build system does not have a recent enough linker so
@@ -469,6 +471,9 @@ fi
 %{_mandir}/man1/qemu-img.1*
 
 %changelog
+* Fri Sep  4 2009 Mark McLoughlin <markmc@redhat.com> - 2:0.10.6-4
+- Make pulseaudio the default audio backend (#519540, #495964, #496627)
+
 * Fri Sep  4 2009 Mark McLoughlin <markmc@redhat.com> - 2:0.10.6-3
 - Use statfs to determine huge page size, fixing fd leak (#519378)
 
