@@ -1,7 +1,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 0.10.5
-Release: 1%{?dist}.1
+Release: 1%{?dist}.2
 # Epoch because we pushed a qemu-1.0 package
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -90,7 +90,6 @@ platform.
 Summary: QEMU system emulator for ppc
 Group: Development/Tools
 Requires: %{name}-common = %{epoch}:%{version}-%{release}
-Requires: openbios-ppc
 %description system-ppc
 QEMU is a generic and open source processor emulator which achieves a good
 emulation speed by using dynamic translation.
@@ -315,6 +314,9 @@ fi
 %{_mandir}/man1/qemu-img.1*
 
 %changelog
+* Sun May 24 2009 Lubomir Rintel <lkundrak@v3.sk> - 2:0.10.5-1.2
+- Drop bogus dependency
+
 * Tue Jun 30 2009 Richard Jones <rjones@redhat.com> - 2:0.10.5-1.el5.1
 - Package version regressed in EPEL 5 after the move to Koji. Force rebuild.
 
