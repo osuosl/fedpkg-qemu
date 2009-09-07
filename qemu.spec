@@ -314,7 +314,7 @@ fi
 %{_mandir}/man1/qemu-img.1*
 
 %changelog
-* Sun May 24 2009 Lubomir Rintel <lkundrak@v3.sk> - 2:0.10.5-1.2
+* Mon Sep 07 2009 Lubomir Rintel <lkundrak@v3.sk> - 2:0.10.5-1.2
 - Drop bogus dependency
 
 * Tue Jun 30 2009 Richard Jones <rjones@redhat.com> - 2:0.10.5-1.el5.1
