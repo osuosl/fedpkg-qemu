@@ -479,7 +479,7 @@ fi
 %{_mandir}/man1/qemu-img.1*
 
 %changelog
-* Fri Sep 11 2009 Mark McLoughlin <markmc@redhat.com> - 2:0.10.6-4
+* Fri Sep 11 2009 Mark McLoughlin <markmc@redhat.com> - 2:0.10.6-5
 - Fix vnc segfault on disconnect (#501131)
 - Fix vnc screen corruption with e.g. xterm (#503156)
 - Rebase vnc sasl patches on top of these two vnc fixes
