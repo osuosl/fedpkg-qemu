@@ -1,7 +1,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 0.10.6
-Release: 4%{?dist}
+Release: 5%{?dist}
 # Epoch because we pushed a qemu-1.0 package
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -11,6 +11,11 @@ URL: http://www.qemu.org/
 Source0: http://downloads.sourceforge.net/sourceforge/kvm/qemu-kvm-%{version}.tar.gz
 Source1: qemu.init
 Source2: kvm.modules
+
+# Patches for bug #503156 and bug #501131
+# Both will be include in qemu-kvm-0.10.7
+Patch100: qemu-fix-vnc-copyrect-screen-corruption.patch
+Patch101: qemu-fix-vnc-disconnect-segfault.patch
 
 Patch1: 01-tls-handshake-fix.patch
 Patch2: 02-vnc-monitor-info.patch
@@ -210,6 +215,9 @@ such as kvmtrace and kvm_stat.
 
 %prep
 %setup -q -n qemu-kvm-%{version}
+
+%patch100 -p1
+%patch101 -p1
 
 %patch1 -p1
 %patch2 -p1
@@ -471,6 +479,11 @@ fi
 %{_mandir}/man1/qemu-img.1*
 
 %changelog
+* Fri Sep 11 2009 Mark McLoughlin <markmc@redhat.com> - 2:0.10.6-4
+- Fix vnc segfault on disconnect (#501131)
+- Fix vnc screen corruption with e.g. xterm (#503156)
+- Rebase vnc sasl patches on top of these two vnc fixes
+
 * Fri Sep  4 2009 Mark McLoughlin <markmc@redhat.com> - 2:0.10.6-4
 - Make pulseaudio the default audio backend (#519540, #495964, #496627)
 

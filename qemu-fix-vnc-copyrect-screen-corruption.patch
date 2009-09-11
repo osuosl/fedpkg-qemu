@@ -1,0 +1,68 @@
+From 30157150182db6907cde111d8c3d76224b0841df Mon Sep 17 00:00:00 2001
+From: Gerd Hoffmann <kraxel@redhat.com>
+Date: Mon, 27 Jul 2009 17:10:48 +0200
+Subject: [PATCH] BACKPORT: vnc: fix copyrect screen corruption
+
+When sending a copyrect command to the vnc client, we must also update
+the local server surface.  Otherwise the server's and the client's idea
+of the screen content run out of sync and screen updates don't work
+correctly.
+
+[ backport: uses ds_get_data() instead of direct dereference ]
+
+(cherry picked from commit 74ccfe8b7e9c351b3196f68795126e76060903b3)
+
+Signed-off-by: Anthony Liguori <aliguori@us.ibm.com>
+Signed-off-by: Glauber Costa <glommer@redhat.com>
+Signed-off-by: Mark McLoughlin <markmc@redhat.com>
+Fedora-patch: qemu-fix-vnc-copyrect-screen-corruption.patch
+---
+ vnc.c |   23 +++++++++++++++++++++++
+ 1 files changed, 23 insertions(+), 0 deletions(-)
+
+diff --git a/vnc.c b/vnc.c
+index 1d8ebe7..c0700c0 100644
+--- a/vnc.c
++++ b/vnc.c
+@@ -633,8 +633,14 @@ static void send_framebuffer_update(VncState *vs, int x, int y, int w, int h)
+ 
+ static void vnc_copy(VncState *vs, int src_x, int src_y, int dst_x, int dst_y, int w, int h)
+ {
++
++    uint8_t *src_row;
++    uint8_t *dst_row;
++    int y,pitch,depth;
++
+     vnc_update_client(vs);
+ 
++    /* send bitblit op to the vnc client */
+     vnc_write_u8(vs, 0);  /* msg id */
+     vnc_write_u8(vs, 0);
+     vnc_write_u16(vs, 1); /* number of rects */
+@@ -642,6 +648,23 @@ static void vnc_copy(VncState *vs, int src_x, int src_y, int dst_x, int dst_y, i
+     vnc_write_u16(vs, src_x);
+     vnc_write_u16(vs, src_y);
+     vnc_flush(vs);
++
++    /* do bitblit op on the local surface too */
++    pitch = ds_get_linesize(vs->ds);
++    depth = ds_get_bytes_per_pixel(vs->ds);
++    src_row = ds_get_data(vs->ds) + pitch * src_y + depth * src_x;
++    dst_row = ds_get_data(vs->ds) + pitch * dst_y + depth * dst_x;
++    if (dst_y > src_y) {
++        /* copy backwards */
++        src_row += pitch * (h-1);
++        dst_row += pitch * (h-1);
++        pitch = -pitch;
++    }
++    for (y = 0; y < h; y++) {
++        memmove(dst_row, src_row, w * depth);
++        src_row += pitch;
++        dst_row += pitch;
++    }
+ }
+ 
+ static void vnc_dpy_copy(DisplayState *ds, int src_x, int src_y, int dst_x, int dst_y, int w, int h)
+-- 
+1.6.2.5
+

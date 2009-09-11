@@ -1,4 +1,4 @@
-From 35b87b5d1543c563c09361086519ebdc960d4934 Mon Sep 17 00:00:00 2001
+From f710ba3ae8fdfa1206d22a3d77884487f9e52477 Mon Sep 17 00:00:00 2001
 From: aliguori <aliguori@c046a42c-6fe2-441c-8c8c-71466251a162>
 Date: Fri, 6 Mar 2009 20:27:13 +0000
 Subject: [PATCH] Move VNC structs into header file ("Daniel P. Berrange")
@@ -19,7 +19,7 @@ Fedora-patch: 04-vnc-struct.patch
  2 files changed, 148 insertions(+), 110 deletions(-)
 
 diff --git a/vnc.c b/vnc.c
-index 969d5b0..7fb31b6 100644
+index 239a9ce..4d793ab 100644
 --- a/vnc.c
 +++ b/vnc.c
 @@ -3,6 +3,7 @@

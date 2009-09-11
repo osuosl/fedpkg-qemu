@@ -1,4 +1,4 @@
-From 6b55d3e74400c9f7e71739abd0dac362a5db1dc6 Mon Sep 17 00:00:00 2001
+From 9883355cd27949061b396a42bb724853b75ce7f9 Mon Sep 17 00:00:00 2001
 From: aliguori <aliguori@c046a42c-6fe2-441c-8c8c-71466251a162>
 Date: Fri, 6 Mar 2009 20:27:02 +0000
 Subject: [PATCH] Fix bug in TLS authentication ("Daniel P. Berrange")
@@ -32,10 +32,10 @@ Fedora-patch: 01-tls-handshake-fix.patch
  1 files changed, 0 insertions(+), 8 deletions(-)
 
 diff --git a/vnc.c b/vnc.c
-index 1d8ebe7..d6a7225 100644
+index 28e8362..9fa0f82 100644
 --- a/vnc.c
 +++ b/vnc.c
-@@ -2105,14 +2105,6 @@ static int protocol_client_vencrypt_auth(VncState *vs, uint8_t *data, size_t len
+@@ -2158,14 +2158,6 @@ static int protocol_client_vencrypt_auth(VncState *vs, uint8_t *data, size_t len
  	    VNC_DEBUG("Failed to complete TLS\n");
  	    return 0;
  	}

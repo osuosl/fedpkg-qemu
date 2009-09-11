@@ -1,4 +1,4 @@
-From af17025ce83b924f666617294606ec5ad1a9e833 Mon Sep 17 00:00:00 2001
+From a2f48883d67b606218c98dc4996cbb41d3dc0990 Mon Sep 17 00:00:00 2001
 From: aliguori <aliguori@c046a42c-6fe2-441c-8c8c-71466251a162>
 Date: Fri, 6 Mar 2009 20:27:23 +0000
 Subject: [PATCH] Move TLS auth into separate file ("Daniel P. Berrange")
@@ -789,7 +789,7 @@ index 0000000..cda95b9
 +#endif /* __QEMU_VNC_TLS_H__ */
 +
 diff --git a/vnc.c b/vnc.c
-index 7fb31b6..f980d68 100644
+index 4d793ab..4da5fbb 100644
 --- a/vnc.c
 +++ b/vnc.c
 @@ -34,21 +34,6 @@
@@ -814,7 +814,7 @@ index 7fb31b6..f980d68 100644
  #define count_bits(c, v) { \
      for (c = 0; v; v >>= 1) \
      { \
-@@ -204,14 +189,7 @@ static inline uint32_t vnc_has_feature(VncState *vs, int feature) {
+@@ -204,16 +189,9 @@ static inline uint32_t vnc_has_feature(VncState *vs, int feature) {
     3) resolutions > 1024
  */
  
@@ -825,23 +825,25 @@ index 7fb31b6..f980d68 100644
 -static void vnc_write_u8(VncState *vs, uint8_t value);
 -static void vnc_flush(VncState *vs);
  static void vnc_update_client(void *opaque);
+ static void vnc_disconnect_start(VncState *vs);
+ static void vnc_disconnect_finish(VncState *vs);
 -static void vnc_client_read(void *opaque);
  
  static void vnc_colordepth(VncState *vs);
  
-@@ -867,10 +845,7 @@ static int vnc_client_io_error(VncState *vs, int ret, int last_errno)
-         if (vs->input.buffer) qemu_free(vs->input.buffer);
-         if (vs->output.buffer) qemu_free(vs->output.buffer);
+@@ -894,10 +872,7 @@ static void vnc_disconnect_finish(VncState *vs)
+     if (vs->input.buffer) qemu_free(vs->input.buffer);
+     if (vs->output.buffer) qemu_free(vs->output.buffer);
  #ifdef CONFIG_VNC_TLS
--	if (vs->tls_session) {
--	    gnutls_deinit(vs->tls_session);
--	    vs->tls_session = NULL;
--	}
-+	vnc_tls_client_cleanup(vs);
+-    if (vs->tls_session) {
+-        gnutls_deinit(vs->tls_session);
+-        vs->tls_session = NULL;
+-    }
++    vnc_tls_client_cleanup(vs);
  #endif /* CONFIG_VNC_TLS */
-         audio_del(vs);
+     audio_del(vs);
  
-@@ -896,19 +871,20 @@ static int vnc_client_io_error(VncState *vs, int ret, int last_errno)
+@@ -943,20 +918,21 @@ static int vnc_client_io_error(VncState *vs, int ret, int last_errno)
      return ret;
  }
  
@@ -849,7 +851,8 @@ index 7fb31b6..f980d68 100644
 +
 +void vnc_client_error(VncState *vs)
  {
-     vnc_client_io_error(vs, -1, EINVAL);
+     VNC_DEBUG("Closing down client sock: protocol error\n");
+     vnc_disconnect_start(vs);
  }
  
 -static void vnc_client_write(void *opaque)
@@ -866,7 +869,7 @@ index 7fb31b6..f980d68 100644
  	if (ret < 0) {
  	    if (ret == GNUTLS_E_AGAIN)
  		errno = EAGAIN;
-@@ -931,13 +907,13 @@ static void vnc_client_write(void *opaque)
+@@ -979,13 +955,13 @@ static void vnc_client_write(void *opaque)
      }
  }
  
@@ -882,7 +885,7 @@ index 7fb31b6..f980d68 100644
  {
      VncState *vs = opaque;
      long ret;
-@@ -945,8 +921,8 @@ static void vnc_client_read(void *opaque)
+@@ -993,8 +969,8 @@ static void vnc_client_read(void *opaque)
      buffer_reserve(&vs->input, 4096);
  
  #ifdef CONFIG_VNC_TLS
@@ -893,7 +896,7 @@ index 7fb31b6..f980d68 100644
  	if (ret < 0) {
  	    if (ret == GNUTLS_E_AGAIN)
  		errno = EAGAIN;
-@@ -980,7 +956,7 @@ static void vnc_client_read(void *opaque)
+@@ -1033,7 +1009,7 @@ static void vnc_client_read(void *opaque)
      }
  }
  
@@ -902,7 +905,7 @@ index 7fb31b6..f980d68 100644
  {
      buffer_reserve(&vs->output, len);
  
-@@ -991,12 +967,12 @@ static void vnc_write(VncState *vs, const void *data, size_t len)
+@@ -1044,12 +1020,12 @@ static void vnc_write(VncState *vs, const void *data, size_t len)
      buffer_append(&vs->output, data, len);
  }
  
@@ -917,7 +920,7 @@ index 7fb31b6..f980d68 100644
  {
      uint8_t buf[4];
  
-@@ -1008,7 +984,7 @@ static void vnc_write_u32(VncState *vs, uint32_t value)
+@@ -1061,7 +1037,7 @@ static void vnc_write_u32(VncState *vs, uint32_t value)
      vnc_write(vs, buf, 4);
  }
  
@@ -926,7 +929,7 @@ index 7fb31b6..f980d68 100644
  {
      uint8_t buf[2];
  
-@@ -1018,74 +994,39 @@ static void vnc_write_u16(VncState *vs, uint16_t value)
+@@ -1071,74 +1047,39 @@ static void vnc_write_u16(VncState *vs, uint16_t value)
      vnc_write(vs, buf, 2);
  }
  
@@ -939,7 +942,7 @@ index 7fb31b6..f980d68 100644
 -static void vnc_flush(VncState *vs)
 +void vnc_flush(VncState *vs)
  {
-     if (vs->output.offset)
+     if (vs->csock != -1 && vs->output.offset)
  	vnc_client_write(vs);
  }
  
@@ -1007,7 +1010,7 @@ index 7fb31b6..f980d68 100644
  static void client_cut_text(VncState *vs, size_t len, uint8_t *text)
  {
  }
-@@ -1677,6 +1618,11 @@ static int protocol_client_init(VncState *vs, uint8_t *data, size_t len)
+@@ -1730,6 +1671,11 @@ static int protocol_client_init(VncState *vs, uint8_t *data, size_t len)
      return 0;
  }
  
@@ -1019,7 +1022,7 @@ index 7fb31b6..f980d68 100644
  static void make_challenge(VncState *vs)
  {
      int i;
-@@ -1732,12 +1678,12 @@ static int protocol_client_auth_vnc(VncState *vs, uint8_t *data, size_t len)
+@@ -1785,12 +1731,12 @@ static int protocol_client_auth_vnc(VncState *vs, uint8_t *data, size_t len)
  	vnc_write_u32(vs, 0); /* Accept auth */
  	vnc_flush(vs);
  
@@ -1034,7 +1037,7 @@ index 7fb31b6..f980d68 100644
  {
      make_challenge(vs);
      /* Send client a 'random' challenge */
-@@ -1745,410 +1691,8 @@ static int start_auth_vnc(VncState *vs)
+@@ -1798,410 +1744,8 @@ static int start_auth_vnc(VncState *vs)
      vnc_flush(vs);
  
      vnc_read_when(vs, protocol_client_auth_vnc, sizeof(vs->challenge));
@@ -1445,7 +1448,7 @@ index 7fb31b6..f980d68 100644
  
  static int protocol_client_auth(VncState *vs, uint8_t *data, size_t len)
  {
-@@ -2172,17 +1716,19 @@ static int protocol_client_auth(VncState *vs, uint8_t *data, size_t len)
+@@ -2225,17 +1769,19 @@ static int protocol_client_auth(VncState *vs, uint8_t *data, size_t len)
                 vnc_write_u32(vs, 0); /* Accept auth completion */
                 vnc_flush(vs);
             }
@@ -1468,7 +1471,7 @@ index 7fb31b6..f980d68 100644
  #endif /* CONFIG_VNC_TLS */
  
         default: /* Should not be possible, but just in case */
-@@ -2235,7 +1781,7 @@ static int protocol_version(VncState *vs, uint8_t *version, size_t len)
+@@ -2288,7 +1834,7 @@ static int protocol_version(VncState *vs, uint8_t *version, size_t len)
              VNC_DEBUG("Tell client auth none\n");
              vnc_write_u32(vs, vs->vd->auth);
              vnc_flush(vs);
@@ -1477,7 +1480,7 @@ index 7fb31b6..f980d68 100644
         } else if (vs->vd->auth == VNC_AUTH_VNC) {
              VNC_DEBUG("Tell client VNC auth\n");
              vnc_write_u32(vs, vs->vd->auth);
-@@ -2336,61 +1882,6 @@ void vnc_display_init(DisplayState *ds)
+@@ -2391,61 +1937,6 @@ void vnc_display_init(DisplayState *ds)
      register_displaychangelistener(ds, dcl);
  }
  
@@ -1539,7 +1542,7 @@ index 7fb31b6..f980d68 100644
  
  void vnc_display_close(DisplayState *ds)
  {
-@@ -2410,7 +1901,7 @@ void vnc_display_close(DisplayState *ds)
+@@ -2465,7 +1956,7 @@ void vnc_display_close(DisplayState *ds)
      vs->auth = VNC_AUTH_INVALID;
  #ifdef CONFIG_VNC_TLS
      vs->subauth = VNC_AUTH_INVALID;
@@ -1548,7 +1551,7 @@ index 7fb31b6..f980d68 100644
  #endif
  }
  
-@@ -2466,7 +1957,7 @@ int vnc_display_open(DisplayState *ds, const char *display)
+@@ -2521,7 +2012,7 @@ int vnc_display_open(DisplayState *ds, const char *display)
  	    char *start, *end;
  	    x509 = 1; /* Require x509 certificates */
  	    if (strncmp(options, "x509verify", 10) == 0)
@@ -1557,7 +1560,7 @@ index 7fb31b6..f980d68 100644
  
  	    /* Now check for 'x509=/some/path' postfix
  	     * and use that to setup x509 certificate/key paths */
-@@ -2477,7 +1968,7 @@ int vnc_display_open(DisplayState *ds, const char *display)
+@@ -2532,7 +2023,7 @@ int vnc_display_open(DisplayState *ds, const char *display)
  		char *path = qemu_strndup(start + 1, len);
  
  		VNC_DEBUG("Trying certificate path '%s'\n", path);

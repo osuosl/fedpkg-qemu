@@ -1,4 +1,4 @@
-From e61c19737387273e305a2da5c9b28fe42e2eef67 Mon Sep 17 00:00:00 2001
+From 54d323707c4e1603795259fc3078f3e4ef9487d2 Mon Sep 17 00:00:00 2001
 From: aliguori <aliguori@c046a42c-6fe2-441c-8c8c-71466251a162>
 Date: Fri, 6 Mar 2009 20:27:32 +0000
 Subject: [PATCH] Include auth credentials in 'info vnc' ("Daniel P. Berrange")
@@ -87,7 +87,7 @@ index cda95b9..fd0a2d9 100644
  
  int vnc_tls_client_setup(VncState *vs, int x509Creds);
 diff --git a/vnc.c b/vnc.c
-index 3c315d6..9f0e16b 100644
+index 0b62000..de7b3b4 100644
 --- a/vnc.c
 +++ b/vnc.c
 @@ -156,6 +156,21 @@ static void do_info_vnc_client(VncState *client)
@@ -112,7 +112,7 @@ index 3c315d6..9f0e16b 100644
  }
  
  void do_info_vnc(void)
-@@ -1832,7 +1847,7 @@ static int protocol_client_auth(VncState *vs, uint8_t *data, size_t len)
+@@ -1884,7 +1899,7 @@ static int protocol_client_auth(VncState *vs, uint8_t *data, size_t len)
      /* We only advertise 1 auth scheme at a time, so client
       * must pick the one we sent. Verify this */
      if (data[0] != vs->vd->auth) { /* Reject auth */
@@ -121,7 +121,7 @@ index 3c315d6..9f0e16b 100644
         vnc_write_u32(vs, 1);
         if (vs->minor >= 8) {
             static const char err[] = "Authentication failed";
-@@ -1872,7 +1887,7 @@ static int protocol_client_auth(VncState *vs, uint8_t *data, size_t len)
+@@ -1924,7 +1939,7 @@ static int protocol_client_auth(VncState *vs, uint8_t *data, size_t len)
  #endif /* CONFIG_VNC_SASL */
  
         default: /* Should not be possible, but just in case */

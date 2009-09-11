@@ -1,4 +1,4 @@
-From 202790c357fcff7f1222f4e7777e0cf561b516d5 Mon Sep 17 00:00:00 2001
+From 15a868dc4e7a982f9d684a0231938602757c0c25 Mon Sep 17 00:00:00 2001
 From: aliguori <aliguori@c046a42c-6fe2-441c-8c8c-71466251a162>
 Date: Fri, 6 Mar 2009 20:27:10 +0000
 Subject: [PATCH] Refactor keymap code to avoid duplication ("Daniel P. Berrange")
@@ -323,7 +323,7 @@ index c9087d7..c213ef8 100644
  /* ascii */
      { "space",                0x020},
 diff --git a/vnc.c b/vnc.c
-index d7d9b91..969d5b0 100644
+index 7853635..239a9ce 100644
 --- a/vnc.c
 +++ b/vnc.c
 @@ -35,7 +35,6 @@
@@ -334,7 +334,7 @@ index d7d9b91..969d5b0 100644
  #include "d3des.h"
  
  #ifdef CONFIG_VNC_TLS
-@@ -2428,9 +2427,9 @@ void vnc_display_init(DisplayState *ds)
+@@ -2483,9 +2482,9 @@ void vnc_display_init(DisplayState *ds)
      vs->ds = ds;
  
      if (keyboard_layout)

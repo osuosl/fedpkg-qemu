@@ -1,4 +1,4 @@
-From b4b2ff2fbd7e6458fbfa8f2e6af7d1b668a06a1a Mon Sep 17 00:00:00 2001
+From 37beb4aa5dd10764a492d76822f2d7ec04b33fd0 Mon Sep 17 00:00:00 2001
 From: aliguori <aliguori@c046a42c-6fe2-441c-8c8c-71466251a162>
 Date: Fri, 6 Mar 2009 20:27:05 +0000
 Subject: [PATCH] Enhance 'info vnc' monitor output ("Daniel P. Berrange")
@@ -48,7 +48,7 @@ Fedora-patch: 02-vnc-monitor-info.patch
  1 files changed, 128 insertions(+), 11 deletions(-)
 
 diff --git a/vnc.c b/vnc.c
-index d6a7225..d7d9b91 100644
+index 9fa0f82..7853635 100644
 --- a/vnc.c
 +++ b/vnc.c
 @@ -166,19 +166,136 @@ struct VncState
