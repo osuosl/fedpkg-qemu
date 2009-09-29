@@ -1,7 +1,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 0.10.6
-Release: 5%{?dist}
+Release: 6%{?dist}
 # Epoch because we pushed a qemu-1.0 package
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -36,6 +36,7 @@ Patch15: qemu-avoid-harmless-msr-warnings.patch
 Patch16: qemu-ppc-on-ppc.patch
 Patch17: qemu-use-statfs-to-determine-huge-page-size.patch
 Patch18: qemu-allow-pulseaudio-to-be-the-default.patch
+Patch19: qemu-fix-virtio-net-gso-support.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: SDL-devel zlib-devel which texi2html gnutls-devel cyrus-sasl-devel
@@ -237,6 +238,7 @@ such as kvmtrace and kvm_stat.
 %patch16 -p1
 %patch17 -p1
 %patch18 -p1
+%patch19 -p1
 
 %build
 # systems like rhel build system does not have a recent enough linker so
@@ -479,6 +481,9 @@ fi
 %{_mandir}/man1/qemu-img.1*
 
 %changelog
+* Tue Sep 29 2009 Mark McLoughlin <markmc@redhat.com> - 2:0.10.6-6
+- Fix broken virtio-net with 2.6.30 guests (#522994)
+
 * Fri Sep 11 2009 Mark McLoughlin <markmc@redhat.com> - 2:0.10.6-5
 - Fix vnc segfault on disconnect (#501131)
 - Fix vnc screen corruption with e.g. xterm (#503156)

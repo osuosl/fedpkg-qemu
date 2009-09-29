@@ -1,0 +1,42 @@
+From 0a662a2983f1afeb5dce338d7dbe906d5c4c91a7 Mon Sep 17 00:00:00 2001
+From: Mark McLoughlin <markmc@redhat.com>
+Date: Tue, 5 May 2009 09:56:25 +0100
+Subject: [PATCH] virtio-net: Re-instate GSO code removed upstream
+
+This commit:
+
+   commit 559a8f45f34cc50d1a60b4f67a06614d506b2e01
+   Subject: Remove stray GSO code from virtio_net (Mark McLoughlin)
+
+Removed some GSO code from upstream qemu.git, but it needs to
+be re-instated in qemu-kvm.git.
+
+(cherry picked from commit 6e57bb9a636cefdaba7decbd5ac10f1508ff64c0)
+
+Reported-by: Sridhar Samudrala <sri@us.ibm.com>
+Signed-off-by: Mark McLoughlin <markmc@redhat.com>
+Signed-off-by: Avi Kivity <avi@redhat.com>
+Fedora-patch: qemu-fix-virtio-net-gso-support.patch
+---
+ hw/virtio-net.c |    5 +++++
+ 1 files changed, 5 insertions(+), 0 deletions(-)
+
+diff --git a/hw/virtio-net.c b/hw/virtio-net.c
+index f65ecd7..aaab83b 100644
+--- a/hw/virtio-net.c
++++ b/hw/virtio-net.c
+@@ -424,6 +424,11 @@ static int receive_filter(VirtIONet *n, const uint8_t *buf, int size)
+     if (n->promisc)
+         return 1;
+ 
++#ifdef TAP_VNET_HDR
++    if (tap_has_vnet_hdr(n->vc->vlan->first_client))
++        ptr += sizeof(struct virtio_net_hdr);
++#endif
++
+     if (!memcmp(&ptr[12], vlan, sizeof(vlan))) {
+         int vid = be16_to_cpup((uint16_t *)(ptr + 14)) & 0xfff;
+         if (!(n->vlans[vid >> 5] & (1U << (vid & 0x1f))))
+-- 
+1.6.2.5
+
