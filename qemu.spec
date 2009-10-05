@@ -1,7 +1,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 0.10.6
-Release: 6%{?dist}
+Release: 7%{?dist}
 # Epoch because we pushed a qemu-1.0 package
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -119,11 +119,15 @@ This package provides the user mode emulation of qemu targets
 Summary: QEMU system emulator for x86
 Group: Development/Tools
 Requires: %{name}-common = %{epoch}:%{version}-%{release}
-Requires: etherboot-zroms-kvm
-Requires: vgabios
-Requires: bochs-bios >= 2.3.8-0.5
 Provides: kvm = 85
 Obsoletes: kvm < 85
+Requires: vgabios
+Requires: bochs-bios >= 2.3.8-0.5
+Requires: /usr/share/etherboot/e1000-82542.zrom
+Requires: /usr/share/etherboot/rtl8029.zrom
+Requires: /usr/share/etherboot/pcnet32.zrom
+Requires: /usr/share/etherboot/rtl8139.zrom
+Requires: /usr/share/etherboot/virtio-net.zrom
 
 %description system-x86
 QEMU is a generic and open source processor emulator which achieves a good
@@ -481,6 +485,10 @@ fi
 %{_mandir}/man1/qemu-img.1*
 
 %changelog
+* Mon Oct  5 2009 Mark McLoughlin <markmc@redhat.com> - 2:0.10.6-7
+- Use rtl8029 PXE rom for ne2k_pci, not ne (#526243)
+- Also, replace the etherboot-zroms-kvm pkg requires with file-based requires
+
 * Tue Sep 29 2009 Mark McLoughlin <markmc@redhat.com> - 2:0.10.6-6
 - Fix broken virtio-net with 2.6.30 guests (#522994)
 
