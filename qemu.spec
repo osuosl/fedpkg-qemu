@@ -1,7 +1,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 0.10.6
-Release: 8%{?dist}
+Release: 9%{?dist}
 # Epoch because we pushed a qemu-1.0 package
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -38,6 +38,7 @@ Patch17: qemu-use-statfs-to-determine-huge-page-size.patch
 Patch18: qemu-allow-pulseaudio-to-be-the-default.patch
 Patch19: qemu-fix-virtio-net-gso-support.patch
 Patch20: qemu-fix-msr-count-potential-segfault.patch
+Patch21: qemu-disable-copyrect-encoding.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: SDL-devel zlib-devel which texi2html gnutls-devel cyrus-sasl-devel
@@ -245,6 +246,7 @@ such as kvmtrace and kvm_stat.
 %patch18 -p1
 %patch19 -p1
 %patch20 -p1
+%patch21 -p1
 
 %build
 # systems like rhel build system does not have a recent enough linker so
@@ -487,6 +489,9 @@ fi
 %{_mandir}/man1/qemu-img.1*
 
 %changelog
+* Fri Oct 23 2009 Mark McLoughlin <markmc@redhat.com> - 2:0.10.6-9
+- Disable the vnc CopyRect encoding since it's still broken (#503156)
+
 * Mon Oct 19 2009 Mark McLoughlin <markmc@redhat.com> - 2:0.10.6-8
 - Fix potential segfault from too small MSR_COUNT (#528901)
 

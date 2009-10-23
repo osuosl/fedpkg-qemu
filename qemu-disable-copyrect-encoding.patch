@@ -1,0 +1,39 @@
+From 1df8bf2b825dafd9b3c0ea24af184db988fc0741 Mon Sep 17 00:00:00 2001
+From: Mark McLoughlin <markmc@redhat.com>
+Date: Fri, 23 Oct 2009 13:41:52 +0100
+Subject: [PATCH] Disable the vnc CopyRect encoding
+
+Our CopyRect implementation seems to be broken still:
+
+  https://bugzilla.redhat.com/503156
+
+Let's just disable it until someone has a chance to debug further.
+
+Signed-off-by: Mark McLoughlin <markmc@redhat.com>
+Fedora-patch: qemu-disable-copyrect-encoding.patch
+---
+ vnc.c |    7 +++++++
+ 1 files changed, 7 insertions(+), 0 deletions(-)
+
+diff --git a/vnc.c b/vnc.c
+index 119c982..508f40d 100644
+--- a/vnc.c
++++ b/vnc.c
+@@ -1499,7 +1499,14 @@ static void set_encodings(VncState *vs, int32_t *encodings, size_t n_encodings)
+             vs->vnc_encoding = enc;
+             break;
+         case VNC_ENCODING_COPYRECT:
++            /* Our CopyRect handling still seems to be broken, see:
++             *
++             *  https://bugzilla.redhat.com/503156
++             *
++             */
++#ifdef FIXME
+             vs->features |= VNC_FEATURE_COPYRECT_MASK;
++#endif
+             break;
+         case VNC_ENCODING_HEXTILE:
+             vs->features |= VNC_FEATURE_HEXTILE_MASK;
+-- 
+1.6.2.5
+
