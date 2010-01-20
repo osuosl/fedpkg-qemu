@@ -550,7 +550,7 @@ fi
 %{_mandir}/man1/qemu-img.1*
 
 %changelog
-* Wed Jan 20 2009 Justin M. Forbes <jforbes@redhat.com> - 2:0.11.0-13
+* Wed Jan 20 2010 Justin M. Forbes <jforbes@redhat.com> - 2:0.11.0-13
 - Re-enable preadv/pwritev support (#545006)
 - Fix buffer overflow in usb-linux.c (#546483)
 
