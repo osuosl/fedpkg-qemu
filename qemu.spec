@@ -1,7 +1,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 0.11.0
-Release: 12%{?dist}
+Release: 13%{?dist}
 # Epoch because we pushed a qemu-1.0 package
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -58,8 +58,8 @@ Patch11: qemu-properly-save-kvm-system-time-registers.patch
 # Fix dropped packets with non-virtio NICs (#531419)
 Patch12: qemu-fix-dropped-packets-with-non-virtio-nics.patch
 
-# Temporarily disable preadv/pwritev support (#526549)
-Patch13: qemu-disable-preadv-support.patch
+# Fix buffer overflow in usb-linux.c (#546483)
+Patch13: qemu-usb-linux-fix-buffer-overflow.patch
 
 # Fix a use-after-free crasher in the slirp code (#539583)
 Patch14: qemu-slirp-use-after-free.patch
@@ -550,6 +550,10 @@ fi
 %{_mandir}/man1/qemu-img.1*
 
 %changelog
+* Wed Jan 20 2009 Justin M. Forbes <jforbes@redhat.com> - 2:0.11.0-13
+- Re-enable preadv/pwritev support (#545006)
+- Fix buffer overflow in usb-linux.c (#546483)
+
 * Fri Nov 20 2009 Mark McLoughlin <markmc@redhat.com> - 2:0.11.0-12
 - Fix a use-after-free crasher in the slirp code (#539583)
 - Fix overflow in the parallels image format support (#533573)
