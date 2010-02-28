@@ -1,7 +1,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 0.12.3
-Release: 2%{?dist}
+Release: 3%{?dist}
 # Epoch because we pushed a qemu-1.0 package
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -598,7 +598,10 @@ fi
 %{_mandir}/man1/qemu-img.1*
 
 %changelog
-* Sun Feb 28 2010 Justin M. Forbes <jforbes@redhat.com> - 2:0.12.2-1
+* Sun Feb 28 2010 Justin M. Forbes <jforbes@redhat.com> - 2:0.12.3-3
+- Update patches against 0.12.3
+
+* Sun Feb 28 2010 Justin M. Forbes <jforbes@redhat.com> - 2:0.12.3-2
 - Fix sources file
 
 * Fri Feb 26 2010 Justin M. Forbes <jforbes@redhat.com> - 2:0.12.3-1
