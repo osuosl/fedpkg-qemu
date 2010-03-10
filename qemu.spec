@@ -1,7 +1,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
-Version: 0.11.0
-Release: 13%{?dist}
+Version: 0.12.3
+Release: 1%{?dist}
 # Epoch because we pushed a qemu-1.0 package
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -24,52 +24,13 @@ Source6: ksmtuned.init
 Source7: ksmtuned
 Source8: ksmtuned.conf
 
-# Not upstream, why?
-Patch01: qemu-bios-bigger-roms.patch
-
-# Works around broken linux-user build on ppc
-Patch02: qemu-fix-linux-user-build-on-ppc.patch
-
-# Allow the pulseudio backend to be the default
-Patch03: qemu-allow-pulseaudio-to-be-the-default.patch
-
-# Add KSM support - see https://fedoraproject.org/wiki/Features/KSM
-Patch04: qemu-add-ksm-support.patch
-
-# Fix issue causing NIC hotplug confusion when no model is specified (#524022)
-Patch05: qemu-correctly-free-nic-info-structure.patch
-
-# Do not exit during PCI hotplug when an invalid NIC model is passed (#524022)
-Patch06: qemu-do-not-exit-on-pci-hotplug-invalid-nic1.patch
-Patch07: qemu-do-not-exit-on-pci-hotplug-invalid-nic2.patch
-
-# Improve error reporting on file access
-Patch08: qemu-improve-error-reporting-on-file-access.patch
-
-# Fix fs errors with virtio and qcow2 backing file (#524734)
-Patch09: qemu-fix-qcow2-backing-file-with-virtio.patch
-
-# Fix potential segfault from too small MSR_COUNT (#528901)
-Patch10: qemu-fix-msr-count-potential-segfault.patch
-
-# Properly save kvm time registers (#524229)
-Patch11: qemu-properly-save-kvm-system-time-registers.patch
-
-# Fix dropped packets with non-virtio NICs (#531419)
-Patch12: qemu-fix-dropped-packets-with-non-virtio-nics.patch
-
-# Fix buffer overflow in usb-linux.c (#546483)
-Patch13: qemu-usb-linux-fix-buffer-overflow.patch
-
-# Fix a use-after-free crasher in the slirp code (#539583)
-Patch14: qemu-slirp-use-after-free.patch
-
-# Fix overflow in the parallels image format support (#533573)
-Patch15: qemu-parallels-image-format-overflow.patch
+Patch01: 0001-block-avoid-creating-too-large-iovecs-in-multiwrite_.patch
+Patch02: 0002-migration-Clear-fd-also-in-error-cases.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: SDL-devel zlib-devel which texi2html gnutls-devel cyrus-sasl-devel
-BuildRequires: rsync dev86 iasl
+BuildRequires: libaio-devel
+BuildRequires: rsync
 BuildRequires: pciutils-devel
 BuildRequires: pulseaudio-libs-devel
 BuildRequires: ncurses-devel
@@ -155,7 +116,7 @@ Requires: %{name}-common = %{epoch}:%{version}-%{release}
 Provides: kvm = 85
 Obsoletes: kvm < 85
 Requires: vgabios
-Requires: bochs-bios >= 2.3.8-0.8
+Requires: seabios
 Requires: /usr/share/gpxe/e1000-0x100e.rom
 Requires: /usr/share/gpxe/rtl8029.rom
 Requires: /usr/share/gpxe/pcnet32.rom
@@ -256,19 +217,6 @@ such as kvmtrace and kvm_stat.
 
 %patch01 -p1
 %patch02 -p1
-%patch03 -p1
-%patch04 -p1
-%patch05 -p1
-%patch06 -p1
-%patch07 -p1
-%patch08 -p1
-%patch09 -p1
-%patch10 -p1
-%patch11 -p1
-%patch12 -p1
-%patch13 -p1
-%patch14 -p1
-%patch15 -p1
 
 %build
 # --build-id option is used fedora 8 onwards for giving info to the debug packages.
@@ -385,7 +333,7 @@ pxe_link rtl8139 rtl8139
 pxe_link virtio virtio-net
 ln -s ../vgabios/VGABIOS-lgpl-latest.bin  %{buildroot}/%{_datadir}/%{name}/vgabios.bin
 ln -s ../vgabios/VGABIOS-lgpl-latest.cirrus.bin %{buildroot}/%{_datadir}/%{name}/vgabios-cirrus.bin
-ln -s ../bochs/BIOS-bochs-kvm %{buildroot}/%{_datadir}/%{name}/bios.bin
+ln -s ../seabios/bios.bin %{buildroot}/%{_datadir}/%{name}/bios.bin
 ln -s ../openbios/openbios-ppc %{buildroot}/%{_datadir}/%{name}/openbios-ppc
 ln -s ../openbios/openbios-sparc32 %{buildroot}/%{_datadir}/%{name}/openbios-sparc32
 ln -s ../openbios/openbios-sparc64 %{buildroot}/%{_datadir}/%{name}/openbios-sparc64
@@ -490,7 +438,9 @@ fi
 %{_bindir}/qemu
 %{_bindir}/qemu-system-x86_64
 %{_datadir}/%{name}/bios.bin
+%{_datadir}/%{name}/linuxboot.bin
 %{_datadir}/%{name}/multiboot.bin
+%{_datadir}/%{name}/vapic.bin
 %{_datadir}/%{name}/vgabios.bin
 %{_datadir}/%{name}/vgabios-cirrus.bin
 %{_datadir}/%{name}/pxe-e1000.bin
@@ -550,6 +500,11 @@ fi
 %{_mandir}/man1/qemu-img.1*
 
 %changelog
+* Wed Mar 10 2010 Justin M. Forbes <jforbes@redhat.com> - 2:0.12.3-1
+- Update to 0.12.3 upstream
+- Require seabios
+- Migration clear the fd in error cases (#518032)
+
 * Wed Jan 20 2010 Justin M. Forbes <jforbes@redhat.com> - 2:0.11.0-13
 - Re-enable preadv/pwritev support (#545006)
 - Fix buffer overflow in usb-linux.c (#546483)
