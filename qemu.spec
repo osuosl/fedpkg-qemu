@@ -1,7 +1,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 0.12.3
-Release: 1%{?dist}
+Release: 2%{?dist}
 # Epoch because we pushed a qemu-1.0 package
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -26,6 +26,8 @@ Source8: ksmtuned.conf
 
 Patch01: 0001-block-avoid-creating-too-large-iovecs-in-multiwrite_.patch
 Patch02: 0002-migration-Clear-fd-also-in-error-cases.patch
+Patch03: 0003-raw-posix-Detect-CDROM-via-ioctl-on-linux.patch
+Patch04: 0004-usb-linux-increase-buffer-for-USB-control-requests.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: SDL-devel zlib-devel which texi2html gnutls-devel cyrus-sasl-devel
@@ -217,6 +219,8 @@ such as kvmtrace and kvm_stat.
 
 %patch01 -p1
 %patch02 -p1
+%patch03 -p1
+%patch04 -p1
 
 %build
 # --build-id option is used fedora 8 onwards for giving info to the debug packages.
@@ -500,6 +504,10 @@ fi
 %{_mandir}/man1/qemu-img.1*
 
 %changelog
+* Mon Mar 15 2010 Justin M. Forbes <jforbes@redhat.com> - 2:0.12.3-2
+- Detect cdrom via ioctl (#473154)
+- re add increased buffer for USB control requests (#546483)
+
 * Wed Mar 10 2010 Justin M. Forbes <jforbes@redhat.com> - 2:0.12.3-1
 - Update to 0.12.3 upstream
 - Require seabios
