@@ -1,7 +1,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 0.12.3
-Release: 2%{?dist}
+Release: 3%{?dist}
 # Epoch because we pushed a qemu-1.0 package
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -118,7 +118,7 @@ Requires: %{name}-common = %{epoch}:%{version}-%{release}
 Provides: kvm = 85
 Obsoletes: kvm < 85
 Requires: vgabios
-Requires: seabios
+Requires: seabios-bin
 Requires: /usr/share/gpxe/e1000-0x100e.rom
 Requires: /usr/share/gpxe/rtl8029.rom
 Requires: /usr/share/gpxe/pcnet32.rom
@@ -504,6 +504,9 @@ fi
 %{_mandir}/man1/qemu-img.1*
 
 %changelog
+* Tue Apr 20 2010 Justin M. Forbes <jforbes@redhat.com> - 2:0.12.3-3
+- Require seabios-bin which is noarch.
+
 * Mon Mar 15 2010 Justin M. Forbes <jforbes@redhat.com> - 2:0.12.3-2
 - Detect cdrom via ioctl (#473154)
 - re add increased buffer for USB control requests (#546483)
