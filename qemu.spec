@@ -1,7 +1,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 0.12.3
-Release: 3%{?dist}
+Release: 4%{?dist}
 # Epoch because we pushed a qemu-1.0 package
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -28,6 +28,9 @@ Patch01: 0001-block-avoid-creating-too-large-iovecs-in-multiwrite_.patch
 Patch02: 0002-migration-Clear-fd-also-in-error-cases.patch
 Patch03: 0003-raw-posix-Detect-CDROM-via-ioctl-on-linux.patch
 Patch04: 0004-usb-linux-increase-buffer-for-USB-control-requests.patch
+Patch05: 0005-net-remove-NICInfo.bootable-field.patch
+Patch06: 0006-net-remove-broken-net_set_boot_mask-boot-device-vali.patch
+Patch07: 0007-boot-remove-unused-boot_devices_bitmap-variable.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: SDL-devel zlib-devel which texi2html gnutls-devel cyrus-sasl-devel
@@ -221,6 +224,9 @@ such as kvmtrace and kvm_stat.
 %patch02 -p1
 %patch03 -p1
 %patch04 -p1
+%patch05 -p1
+%patch06 -p1
+%patch07 -p1
 
 %build
 # --build-id option is used fedora 8 onwards for giving info to the debug packages.
@@ -398,6 +404,7 @@ fi
 
 %files common
 %defattr(-,root,root)
+%dir %{qemudocdir}
 %doc %{qemudocdir}/Changelog
 %doc %{qemudocdir}/README
 %doc %{qemudocdir}/TODO
@@ -504,6 +511,10 @@ fi
 %{_mandir}/man1/qemu-img.1*
 
 %changelog
+* Fri Apr 23 2010 Justin M. Forbes <jforbes@redhat.com> - 2:0.12.3-4
+- Add ownership of docdir to qemu-common (#572110)
+- Fix "Cannot boot from non-existent NIC" error when using virt-install (#577851)
+
 * Tue Apr 20 2010 Justin M. Forbes <jforbes@redhat.com> - 2:0.12.3-3
 - Require seabios-bin which is noarch.
 
