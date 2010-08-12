@@ -1,7 +1,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
-Version: 0.12.3
-Release: 8%{?dist}
+Version: 0.12.5
+Release: 1%{?dist}
 # Epoch because we pushed a qemu-1.0 package
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -38,8 +38,6 @@ Patch06: qemu-virtio-serial-Add-a-virtserialport-device-for-gen.patch
 Patch07: qemu-Move-virtio-serial-to-Makefile.objs.patch
 Patch08: qemu-virtio-serial-Use-MSI-vectors-for-port-virtqueues.patch
 Patch09: qemu-virtio-console-Rename-virtio-serial.c-back-to-virti.patch
-
-Patch10: qemu-v2-block-avoid-creating-too-large-iovecs-in-multiwrite_merge.patch
 
 # VHostNet Patches
 Patch11: qemu-net-add-API-to-disable-enable-polling.patch
@@ -86,8 +84,6 @@ Patch49: 0049-migration-Clear-fd-also-in-error-cases.patch
 Patch50: 0050-raw-posix-Detect-CDROM-via-ioctl-on-linux.patch
 Patch51: 0051-usb-linux-increase-buffer-for-USB-control-requests.patch
 Patch52: 0052-virtio-console-patches.patch
-Patch53: 0053-net-remove-NICInfo.bootable-field.patch
-Patch54: 0054-net-remove-broken-net_set_boot_mask-boot-device-vali.patch
 Patch55: 0055-boot-remove-unused-boot_devices_bitmap-variable.patch
 
 
@@ -181,7 +177,7 @@ Provides: kvm = 85
 Obsoletes: kvm < 85
 Requires: vgabios
 Requires: seabios-bin
-Requires: /usr/share/gpxe/e1000-0x100e.rom
+Requires: /usr/share/gpxe/8086100e.rom
 Requires: /usr/share/gpxe/rtl8029.rom
 Requires: /usr/share/gpxe/pcnet32.rom
 Requires: /usr/share/gpxe/rtl8139.rom
@@ -290,7 +286,7 @@ such as kvmtrace and kvm_stat.
 %patch07 -p1
 %patch08 -p1
 %patch09 -p1
-%patch10 -p1
+
 %patch11 -p1
 %patch12 -p1
 %patch13 -p1
@@ -333,8 +329,8 @@ such as kvmtrace and kvm_stat.
 %patch50 -p1
 %patch51 -p1
 %patch52 -p1
-%patch53 -p1
-%patch54 -p1
+# %patch53 -p1
+# %patch54 -p1
 %patch55 -p1
 
 %build
@@ -459,7 +455,7 @@ pxe_link() {
   ln -s ../gpxe/$2.rom %{buildroot}%{_datadir}/%{name}/pxe-$1.bin
 }
 
-pxe_link e1000 e1000-0x100e
+pxe_link e1000 8086100e
 pxe_link ne2k_pci rtl8029
 pxe_link pcnet pcnet32
 pxe_link rtl8139 rtl8139
@@ -639,6 +635,11 @@ fi
 %{_mandir}/man1/qemu-img.1*
 
 %changelog
+* Wed Aug 11 2010 Justin M. Forbes <jforbes@redhat.com> - 2:0.12.5-1
+- Fix e1000 gpxe rom requires.
+- Update to 0.12.5 stable for a number of bug fixes.
+- Remove patches already in 0.12.5
+
 * Thu Apr 22 2010 Justin M. Forbes <jforbes@redhat.com> - 2:0.12.3-8
 - Change requires to the noarch seabios-bin
 - Add ownership of docdir to qemu-common (#572110)
