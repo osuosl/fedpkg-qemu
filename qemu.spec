@@ -329,8 +329,6 @@ such as kvmtrace and kvm_stat.
 %patch50 -p1
 %patch51 -p1
 %patch52 -p1
-# %patch53 -p1
-# %patch54 -p1
 %patch55 -p1
 
 %build
@@ -639,6 +637,7 @@ fi
 - Fix e1000 gpxe rom requires.
 - Update to 0.12.5 stable for a number of bug fixes.
 - Remove patches already in 0.12.5
+- Updates to ksm init scripts.
 
 * Thu Apr 22 2010 Justin M. Forbes <jforbes@redhat.com> - 2:0.12.3-8
 - Change requires to the noarch seabios-bin
