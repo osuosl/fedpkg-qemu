@@ -1,6 +1,6 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
-Version: 0.12.5
+Version: 0.13.0
 Release: 1%{?dist}
 # Epoch because we pushed a qemu-1.0 package
 Epoch: 2
@@ -11,6 +11,11 @@ URL: http://www.qemu.org/
 # Allow one off builds to be minimalized without foreign
 # architecture support (--with x86only):
 %define with_x86only  %{?_with_x86only:     1} %{?!_with_x86only:     0}
+
+# OOM killer breaks builds with parallel make on s390(x)
+%ifarch s390 s390x
+%define _smp_mflags %{nil}
+%endif
 
 Source0: http://downloads.sourceforge.net/sourceforge/kvm/qemu-kvm-%{version}.tar.gz
 Source1: qemu.init
@@ -28,64 +33,12 @@ Source6: ksmtuned.init
 Source7: ksmtuned
 Source8: ksmtuned.conf
 
-# virtio-console changes for the F13 VirtioSerial feature
-Patch01: qemu-virtio-Remove-duplicate-macro-definition-for-max.-v.patch
-Patch02: qemu-virtio-console-qdev-conversion-new-virtio-serial-b.patch
-Patch03: qemu-virtio-serial-bus-Maintain-guest-and-host-port-open.patch
-Patch04: qemu-virtio-serial-bus-Add-a-port-name-property-for-po.patch
-Patch05: qemu-virtio-serial-bus-Add-ability-to-hot-unplug-ports.patch
-Patch06: qemu-virtio-serial-Add-a-virtserialport-device-for-gen.patch
-Patch07: qemu-Move-virtio-serial-to-Makefile.objs.patch
-Patch08: qemu-virtio-serial-Use-MSI-vectors-for-port-virtqueues.patch
-Patch09: qemu-virtio-console-Rename-virtio-serial.c-back-to-virti.patch
-
-# VHostNet Patches
-Patch11: qemu-net-add-API-to-disable-enable-polling.patch
-Patch12: qemu-virtio-rename-features-guest_features.patch
-Patch13: qemu-qdev-add-bit-property-type.patch
-Patch14: qemu-qdev-fix-thinko-leading-to-guest-crashes.patch
-Patch15: qemu-virtio-add-features-as-qdev-properties.patch
-Patch16: qemu-virtio-net-mac-property-is-mandatory.patch
-Patch17: qemu-exec-memory-notifiers.patch
-Patch18: qemu-kvm-add-API-to-set-ioeventfd.patch
-Patch19: qemu-notifier-event-notifier-implementation.patch
-Patch20: qemu-virtio-add-notifier-support.patch
-Patch21: qemu-virtio-add-APIs-for-queue-fields.patch
-Patch22: qemu-virtio-add-status-change-callback.patch
-Patch23: qemu-virtio-move-typedef-to-qemu-common.patch
-Patch24: qemu-virtio-pci-fill-in-notifier-support.patch
-Patch25: qemu-tap-add-interface-to-get-device-fd.patch
-Patch26: qemu-vhost-vhost-net-support.patch
-Patch27: qemu-tap-add-vhost-vhostfd-options.patch
-Patch28: qemu-tap-add-API-to-retrieve-vhost-net-header.patch
-Patch29: qemu-virtio-net-vhost-net-support.patch
-Patch30: qemu-kvm-add-vhost.h-header.patch
-Patch31: qemu-kvm-irqfd-support.patch
-Patch32: qemu-msix-add-mask-unmask-notifiers.patch
-Patch33: qemu-virtio-pci-irqfd-support.patch
-Patch34: qemu-virtio-avoid-crash-with-non-tap-backends.patch
-Patch35: qemu-virtio-serial-features-build-fix.patch
-Patch36: qemu-virtio-pci-irqfd-fix-nonkvm-build.patch
-Patch37: qemu-vhost-add-configure-check.patch
+# This patch must be carried through F-15 to support guests created
+# with F-13/
+Patch00: pc-add-a-Fedora-13-machine-type-for-backward-compat.patch
 
 # Fixes from upstream  
-Patch38: 0038-msix-migration-fix.patch
-Patch39: 0039-vhost-logging-thinko-fix.patch
-Patch40: 0040-vhost-move-vhost_set_vq_addr.patch
-Patch41: 0041-vhost-used-addr-migration-fix.patch
-Patch42: 0042-vhost-fix-used-logging-size-math.patch
-Patch43: 0043-vhost-logging-mistake-enable-not-disable-log.patch
-Patch44: 0044-vhost-fix-log-base.patch
-Patch45: 0045-pc-Add-a-Fedora-13-machine-type-that-contains-backpo.patch
-Patch46: 0046-pc-Add-backward-compatibility-options-for-virtio-ser.patch
-Patch47: 0047-virtio-serial-don-t-set-MULTIPORT-for-1-port-dev.patch
-Patch48: 0048-virtio-serial-pci-Allow-MSI-to-be-disabled.patch
-Patch49: 0049-migration-Clear-fd-also-in-error-cases.patch
-Patch50: 0050-raw-posix-Detect-CDROM-via-ioctl-on-linux.patch
-Patch51: 0051-usb-linux-increase-buffer-for-USB-control-requests.patch
-Patch52: 0052-virtio-console-patches.patch
-Patch55: 0055-boot-remove-unused-boot_devices_bitmap-variable.patch
-
+Patch01: 0001-vhost-net-patches-for-qemu-0.13.0-tarball.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: SDL-devel zlib-devel which texi2html gnutls-devel cyrus-sasl-devel
@@ -94,6 +47,7 @@ BuildRequires: rsync
 BuildRequires: pciutils-devel
 BuildRequires: pulseaudio-libs-devel
 BuildRequires: ncurses-devel
+BuildRequires: texinfo
 Requires: %{name}-user = %{epoch}:%{version}-%{release}
 Requires: %{name}-system-x86 = %{epoch}:%{version}-%{release}
 Requires: %{name}-system-sparc = %{epoch}:%{version}-%{release}
@@ -271,65 +225,14 @@ Group: Development/Tools
 
 %description kvm-tools
 This package contains some diagnostics and debugging tools for KVM,
-such as kvmtrace and kvm_stat.
+such as kvm_stat.
 %endif
 
 %prep
 %setup -q -n qemu-kvm-%{version}
 
+%patch00 -p1
 %patch01 -p1
-%patch02 -p1
-%patch03 -p1
-%patch04 -p1
-%patch05 -p1
-%patch06 -p1
-%patch07 -p1
-%patch08 -p1
-%patch09 -p1
-
-%patch11 -p1
-%patch12 -p1
-%patch13 -p1
-%patch14 -p1
-%patch15 -p1
-%patch16 -p1
-%patch17 -p1
-%patch18 -p1
-%patch19 -p1
-%patch20 -p1
-%patch21 -p1
-%patch22 -p1
-%patch23 -p1
-%patch24 -p1
-%patch25 -p1
-%patch26 -p1
-%patch27 -p1
-%patch28 -p1
-%patch29 -p1
-%patch30 -p1
-%patch31 -p1
-%patch32 -p1
-%patch33 -p1
-%patch34 -p1
-%patch35 -p1
-%patch36 -p1
-%patch37 -p1
-%patch38 -p1
-%patch39 -p1
-%patch40 -p1
-%patch41 -p1
-%patch42 -p1
-%patch43 -p1
-%patch44 -p1
-%patch45 -p1
-%patch46 -p1
-%patch47 -p1
-%patch48 -p1
-%patch49 -p1
-%patch50 -p1
-%patch51 -p1
-%patch52 -p1
-%patch55 -p1
 
 %build
 # By default we build everything, but allow x86 to build a minimal version
@@ -352,16 +255,23 @@ such as kvmtrace and kvm_stat.
 extraldflags="-Wl,--build-id";
 buildldflags="VL_LDFLAGS=-Wl,--build-id"
 
+%ifarch s390
+# drop -g flag to prevent memory exhaustion by linker
+%global optflags %(echo %{optflags} | sed 's/-g//')
+sed -i.debug 's/-g//g' configure
+%endif
+
 %ifarch %{ix86} x86_64
 # sdl outputs to alsa or pulseaudio depending on system config, but it's broken (#495964)
 # alsa works, but causes huge CPU load due to bugs
 # oss works, but is very problematic because it grabs exclusive control of the device causing other apps to go haywire
 ./configure --target-list=x86_64-softmmu \
             --prefix=%{_prefix} \
+            --sysconfdir=%{_sysconfdir} \
             --audio-drv-list=pa,sdl,alsa,oss \
             --disable-strip \
             --extra-ldflags=$extraldflags \
-            --extra-cflags="$RPM_OPT_FLAGS" \
+            --extra-cflags="%{optflags}" \
             --disable-xen
 
 echo "config-host.mak contents:"
@@ -373,22 +283,20 @@ make V=1 %{?_smp_mflags} $buildldflags
 cp -a x86_64-softmmu/qemu-system-x86_64 qemu-kvm
 make clean
 
-cd kvm/user
-./configure --prefix=%{_prefix} --kerneldir=$(pwd)/../kernel/
-make kvmtrace
-cd ../../
 %endif
 
 ./configure \
     --target-list="$buildarch" \
     --prefix=%{_prefix} \
+    --sysconfdir=%{_sysconfdir} \
     --interp-prefix=%{_prefix}/qemu-%%M \
     --audio-drv-list=pa,sdl,alsa,oss \
     --disable-kvm \
     --disable-strip \
     --extra-ldflags=$extraldflags \
-    --extra-cflags="$RPM_OPT_FLAGS" \
-    --disable-xen
+    --extra-cflags="%{optflags}" \
+    --disable-xen \
+    --disable-werror
 
 echo "config-host.mak contents:"
 echo "==="
@@ -414,8 +322,6 @@ mkdir -p $RPM_BUILD_ROOT%{_datadir}/%{name}
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/udev/rules.d
 
 install -m 0755 %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/modules/kvm.modules
-install -m 0755 kvm/user/kvmtrace $RPM_BUILD_ROOT%{_bindir}/
-install -m 0755 kvm/user/kvmtrace_format $RPM_BUILD_ROOT%{_bindir}/
 install -m 0755 kvm/kvm_stat $RPM_BUILD_ROOT%{_bindir}/
 install -m 0755 qemu-kvm $RPM_BUILD_ROOT%{_bindir}/
 install -m 0644 %{SOURCE3} $RPM_BUILD_ROOT%{_sysconfdir}/udev/rules.d
@@ -426,7 +332,8 @@ make prefix="${RPM_BUILD_ROOT}%{_prefix}" \
      sharedir="${RPM_BUILD_ROOT}%{_datadir}/%{name}" \
      mandir="${RPM_BUILD_ROOT}%{_mandir}" \
      docdir="${RPM_BUILD_ROOT}%{_docdir}/%{name}-%{version}" \
-     datadir="${RPM_BUILD_ROOT}%{_datadir}/%{name}" install
+     datadir="${RPM_BUILD_ROOT}%{_datadir}/%{name}" \
+     sysconfdir="${RPM_BUILD_ROOT}%{_sysconfdir}" install
 chmod -x ${RPM_BUILD_ROOT}%{_mandir}/man1/*
 install -D -p -m 0755 %{SOURCE1} $RPM_BUILD_ROOT%{_initddir}/qemu
 install -D -p -m 0644 -t ${RPM_BUILD_ROOT}%{qemudocdir} Changelog README TODO COPYING COPYING.LIB LICENSE
@@ -435,11 +342,13 @@ install -D -p -m 0644 qemu.sasl $RPM_BUILD_ROOT%{_sysconfdir}/sasl2/qemu.conf
 
 rm -rf ${RPM_BUILD_ROOT}%{_datadir}/%{name}/pxe*bin
 rm -rf ${RPM_BUILD_ROOT}%{_datadir}/%{name}/vgabios*bin
+rm -rf ${RPM_BUILD_ROOT}%{_datadir}/%{name}/gpxe*rom
 rm -rf ${RPM_BUILD_ROOT}%{_datadir}/%{name}/bios.bin
 rm -rf ${RPM_BUILD_ROOT}%{_datadir}/%{name}/openbios-ppc
 rm -rf ${RPM_BUILD_ROOT}%{_datadir}/%{name}/openbios-sparc32
 rm -rf ${RPM_BUILD_ROOT}%{_datadir}/%{name}/openbios-sparc64
 rm -rf ${RPM_BUILD_ROOT}%{_datadir}/%{name}/petalogix-s3adsp1800.dtb
+rm -rf ${RPM_BUILD_ROOT}%{_datadir}/%{name}/s390-zipl.rom
 %if %{with_x86only}
 rm -rf ${RPM_BUILD_ROOT}%{_datadir}/%{name}/bamboo.dtb
 rm -rf ${RPM_BUILD_ROOT}%{_datadir}/%{name}/ppc_rom.bin
@@ -542,6 +451,7 @@ fi
 %{_initddir}/ksmtuned
 %{_sbindir}/ksmtuned
 %config(noreplace) %{_sysconfdir}/ksmtuned.conf
+%dir %{_sysconfdir}/qemu
 %files user
 %defattr(-,root,root)
 %{_initddir}/qemu
@@ -579,6 +489,7 @@ fi
 %{_datadir}/%{name}/pxe-pcnet.bin
 %{_datadir}/%{name}/pxe-rtl8139.bin
 %{_datadir}/%{name}/pxe-ne2k_pci.bin
+%config(noreplace) %{_sysconfdir}/qemu/target-x86_64.conf
 %ifarch %{ix86} x86_64
 %{_datadir}/%{name}/extboot.bin
 %{_bindir}/qemu-kvm
@@ -586,8 +497,6 @@ fi
 %{_sysconfdir}/udev/rules.d/80-kvm.rules
 %files kvm-tools
 %defattr(-,root,root,-)
-%{_bindir}/kvmtrace
-%{_bindir}/kvmtrace_format
 %{_bindir}/kvm_stat
 %endif
 %if !%{with_x86only}
@@ -633,6 +542,9 @@ fi
 %{_mandir}/man1/qemu-img.1*
 
 %changelog
+* Thu Mar 03 2011 Justin M. Forbes <jforbes@redhat.com> - 2:0.13.0-1
+- Update to 0.13.0 to remove 50+ patches and catch several bugfixes.
+
 * Wed Aug 11 2010 Justin M. Forbes <jforbes@redhat.com> - 2:0.12.5-1
 - Fix e1000 gpxe rom requires.
 - Update to 0.12.5 stable for a number of bug fixes.
