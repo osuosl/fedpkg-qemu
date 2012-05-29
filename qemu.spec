@@ -1,7 +1,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 0.14.0
-Release: 8%{?dist}
+Release: 9%{?dist}
 # Epoch because we pushed a qemu-1.0 package
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -60,6 +60,14 @@ Patch34: 0015-chardev-Allow-frontends-to-notify-backends-of-guest-.patch
 Patch35: 0016-virtio-console-notify-backend-of-guest-open-close.patch
 Patch36: 0017-spice-chardev-listen-to-frontend-guest-open-close.patch
 Patch37: 0018-spice-qemu-char-Fix-flow-control-in-client-guest-dir.patch
+# CVE-2011-1750 virtio-blk: heap buffer overflow (bz 698906, bz 698911)
+Patch38: %{name}-CVE-2011-1750.patch
+# CVE-2011-2527 set groups properly for -runas (bz 720773, bz 720784)
+Patch39: %{name}-CVE-2011-2527.patch
+# CVE-2012-0029 e1000 buffer overflow (bz 783984, bz 772075)
+Patch40: %{name}-CVE-2012-0029.patch
+# virtio-blk: refuse SG_IO requests with scsi=off (bz 770135)
+Patch41: %{name}-virtio-blk_refuse_SG_IO_requests_with_scsi_off.patch
 
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -257,6 +265,10 @@ such as kvm_stat.
 %patch35 -p1
 %patch36 -p1
 %patch37 -p1
+%patch38 -p1
+%patch39 -p1
+%patch40 -p1
+%patch41 -p1
 
 %build
 # By default we build everything, but allow x86 to build a minimal version
@@ -561,6 +573,12 @@ fi
 %{_mandir}/man1/qemu-img.1*
 
 %changelog
+* Tue May 29 2012 Cole Robinson <crobinso@redhat.com> - 0.14.0-9
+- CVE-2011-1750 virtio-blk: heap buffer overflow (bz 698906, bz 698911)
+- CVE-2011-2527 set groups properly for -runas (bz 720773, bz 720784)
+- CVE-2012-0029 e1000 buffer overflow (bz 783984, bz 772075)
+- virtio-blk: refuse SG_IO requests with scsi=off (bz 770135)
+
 * Wed Jun 22 2011 Richard W.M. Jones <rjones@redhat.com> - 2:0.14.0-8
 - Add BR libattr-devel.  This caused the -fstype option to be disabled.
   https://www.redhat.com/archives/libvir-list/2011-June/thread.html#01017
