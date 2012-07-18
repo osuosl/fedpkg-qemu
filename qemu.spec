@@ -1,7 +1,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 0.15.1
-Release: 5%{?dist}
+Release: 6%{?dist}
 # Epoch because we pushed a qemu-1.0 package
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -86,6 +86,8 @@ Patch101: 0101-usb-hub-dont_trigger_assert_on_packet_completion.patch
 Patch102: %{name}-CVE-2012-0029.patch
 # virtio-blk: refuse SG_IO requests with scsi=off (bz 826042)
 Patch103: %{name}-virtio-blk_refuse_SG_IO_requests_with_scsi_off.patch
+# Fix fedora guest hang with virtio console (bz 837925)
+Patch104: %{name}-virtio-console-unconnected-pty.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: SDL-devel zlib-devel which texi2html gnutls-devel cyrus-sasl-devel
@@ -341,6 +343,7 @@ such as kvm_stat.
 %patch101 -p1
 %patch102 -p1
 %patch103 -p1
+%patch104 -p1
 
 %build
 # By default we build everything, but allow x86 to build a minimal version
@@ -721,6 +724,9 @@ fi
 %{_mandir}/man1/qemu-img.1*
 
 %changelog
+* Wed Jul 18 2012 Cole Robinson <crobinso@redhat.com> - 0.15.1-6
+- Fix fedora guest hang with virtio console (bz 837925)
+
 * Tue May 29 2012 Cole Robinson <crobinso@redhat.com> - 0.15.1-5
 - CVE-2012-0029 e1000 buffer overflow (bz 783984, bz 772075)
 - virtio-blk: refuse SG_IO requests with scsi=off (bz 826042)
