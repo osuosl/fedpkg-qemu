@@ -38,7 +38,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.0
-Release: 17%{?dist}
+Release: 18%{?dist}
 # Epoch because we pushed a qemu-1.0 package
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -207,6 +207,8 @@ Patch506: 0506-audio-spice-add-support-for-volume-control.patch
 Patch507: 0507-Do-not-use-pa_simple-PulseAudio-API.patch
 Patch508: 0508-configure-pa_simple-is-not-needed-anymore.patch
 Patch509: 0509-Allow-controlling-volume-with-PulseAudio-backend.patch
+# Fix fedora guest hang with virtio console (bz 837925)
+Patch510: %{name}-virtio-console-unconnected-pty.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: SDL-devel zlib-devel which texi2html gnutls-devel cyrus-sasl-devel
@@ -578,6 +580,7 @@ such as kvm_stat.
 %patch507 -p1
 %patch508 -p1
 %patch509 -p1
+%patch510 -p1
 
 
 %build
@@ -1009,6 +1012,9 @@ fi
 %{_mandir}/man1/qemu-img.1*
 
 %changelog
+* Wed Jul 18 2012 Cole Robinson <crobinso@redhat.com> - 1.0-18
+- Fix fedora guest hang with virtio console (bz 837925)
+
 * Mon Apr 23 2012 Paolo Bonzini <pbonzini@redhat.com> - 2:1.0-17
 - Fix install failure due to set -e (rhbz #815272)
 
