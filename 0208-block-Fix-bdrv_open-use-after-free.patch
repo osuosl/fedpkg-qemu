@@ -1,0 +1,43 @@
+From 72e8677ee72152245f5dc222a85f83a6a382efe8 Mon Sep 17 00:00:00 2001
+From: Kevin Wolf <kwolf@redhat.com>
+Date: Wed, 26 Oct 2011 11:03:01 +0200
+Subject: [PATCH] block: Fix bdrv_open use after free
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+tmp_filename was used outside the block it was defined in, i.e. after it went
+out of scope. Move its declaration to the top level.
+
+Signed-off-by: Kevin Wolf <kwolf@redhat.com>
+(cherry picked from commit 2b5728164fcf5211bbae8d3c2fc6df62dd6b2295)
+
+Signed-off-by: Bruce Rogers <brogers@suse.com>
+Signed-off-by: Andreas Färber <afaerber@suse.de>
+---
+ block.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/block.c b/block.c
+index 9549b9e..4ebb18b 100644
+--- a/block.c
++++ b/block.c
+@@ -526,6 +526,7 @@ int bdrv_open(BlockDriverState *bs, const char *filename, int flags,
+               BlockDriver *drv)
+ {
+     int ret;
++    char tmp_filename[PATH_MAX];
+ 
+     if (flags & BDRV_O_SNAPSHOT) {
+         BlockDriverState *bs1;
+@@ -533,7 +534,6 @@ int bdrv_open(BlockDriverState *bs, const char *filename, int flags,
+         int is_protocol = 0;
+         BlockDriver *bdrv_qcow2;
+         QEMUOptionParameter *options;
+-        char tmp_filename[PATH_MAX];
+         char backing_filename[PATH_MAX];
+ 
+         /* if snapshot, we create a temporary backing file and open it
+-- 
+1.7.11.2
+

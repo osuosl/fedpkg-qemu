@@ -1,0 +1,73 @@
+From 60d8ce5610a8b24ff298d6cb3d9abbd2e6f046bd Mon Sep 17 00:00:00 2001
+From: Anthony Liguori <aliguori@us.ibm.com>
+Date: Sun, 18 Dec 2011 12:59:12 -0600
+Subject: [PATCH] pc: add pc-0.15
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Anthony Liguori <aliguori@us.ibm.com>
+(cherry picked from commit ce01a508e8053350544c88ba68a3f90c44b6bb93)
+
+[BR: bnc#741460]
+Signed-off-by: Bruce Rogers <brogers@suse.com>
+[AF: backported]
+Signed-off-by: Andreas Färber <afaerber@suse.de>
+---
+ hw/pc_piix.c | 26 +++++++++++++++++++++++---
+ 1 file changed, 23 insertions(+), 3 deletions(-)
+
+diff --git a/hw/pc_piix.c b/hw/pc_piix.c
+index b8e0841..20bac9d 100644
+--- a/hw/pc_piix.c
++++ b/hw/pc_piix.c
+@@ -258,8 +258,8 @@ static void pc_xen_hvm_init(ram_addr_t ram_size,
+ }
+ #endif
+ 
+-static QEMUMachine pc_machine = {
+-    .name = "pc-0.14",
++static QEMUMachine pc_machine_v0_15 = {
++    .name = "pc-0.15",
+     .alias = "pc",
+     .desc = "Standard PC",
+     .init = pc_init_pci,
+@@ -267,6 +267,25 @@ static QEMUMachine pc_machine = {
+     .is_default = 1,
+ };
+ 
++static QEMUMachine pc_machine_v0_14 = {
++    .name = "pc-0.14",
++    .desc = "Standard PC",
++    .init = pc_init_pci,
++    .max_cpus = 255,
++    .compat_props = (GlobalProperty[]) {
++        {
++            .driver   = "qxl",
++            .property = "revision",
++            .value    = stringify(2),
++        },{
++            .driver   = "qxl-vga",
++            .property = "revision",
++            .value    = stringify(2),
++        },
++        { /* end of list */ }
++    },
++};
++
+ static QEMUMachine pc_machine_v0_13 = {
+     .name = "pc-0.13",
+     .desc = "Standard PC",
+@@ -498,7 +517,8 @@ static QEMUMachine xenfv_machine = {
+ 
+ static void pc_machine_init(void)
+ {
+-    qemu_register_machine(&pc_machine);
++    qemu_register_machine(&pc_machine_v0_15);
++    qemu_register_machine(&pc_machine_v0_14);
+     qemu_register_machine(&pc_machine_v0_13);
+     qemu_register_machine(&pc_machine_v0_12);
+     qemu_register_machine(&pc_machine_v0_11);
+-- 
+1.7.11.2
+

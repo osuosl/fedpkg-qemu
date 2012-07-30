@@ -1,0 +1,39 @@
+From 1c363aca36c5f53cb04d04fa1ee9a442dd5dbad4 Mon Sep 17 00:00:00 2001
+From: Stefan Weil <sw@weilnetz.de>
+Date: Sat, 25 Feb 2012 14:50:25 +0100
+Subject: [PATCH] ds1338: Add missing break statement
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Without the break statement, case 5 sets month and year from the same
+data. This does not look correct.
+
+The missing break was reported by splint.
+
+Signed-off-by: Stefan Weil <sw@weilnetz.de>
+Reviewed-by: Peter Maydell <peter.maydell@linaro.org>
+Reviewed-by: Andreas Färber <afaerber@suse.de>
+Signed-off-by: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
+(cherry picked from commit fbac6a7d35d119a52606c175aface9bcec805f09)
+
+Signed-off-by: Andreas Färber <afaerber@suse.de>
+---
+ hw/ds1338.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/hw/ds1338.c b/hw/ds1338.c
+index 3522af5..964d2f7 100644
+--- a/hw/ds1338.c
++++ b/hw/ds1338.c
+@@ -97,6 +97,7 @@ static int ds1338_send(i2c_slave *i2c, uint8_t data)
+             break;
+         case 5:
+             s->now.tm_mon = from_bcd(data & 0x1f) - 1;
++            break;
+         case 6:
+             s->now.tm_year = from_bcd(data) + 100;
+             break;
+-- 
+1.7.11.2
+

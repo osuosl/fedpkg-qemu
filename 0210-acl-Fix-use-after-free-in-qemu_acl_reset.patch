@@ -1,0 +1,52 @@
+From fa9ad46e1a4b3707a465bccf6f4431db7a647a08 Mon Sep 17 00:00:00 2001
+From: Markus Armbruster <armbru@redhat.com>
+Date: Fri, 28 Oct 2011 17:07:02 +0200
+Subject: [PATCH] acl: Fix use after free in qemu_acl_reset()
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Reproducer:
+
+    $ MALLOC_PERTURB_=234 qemu-system-x86_64 -vnc :0,acl,sasl [...]
+    QEMU 0.15.50 monitor - type 'help' for more information
+    (qemu) acl_add vnc.username fred allow
+    acl: added rule at position 1
+    (qemu) acl_reset vnc.username
+    Segmentation fault (core dumped)
+
+Spotted by Coverity.
+
+Signed-off-by: Markus Armbruster <armbru@redhat.com>
+Signed-off-by: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
+(cherry picked from commit 0ce6a434176e274a7e86bcaa268542c5cc402696)
+
+Signed-off-by: Bruce Rogers <brogers@suse.com>
+Signed-off-by: Andreas Färber <afaerber@suse.de>
+---
+ acl.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/acl.c b/acl.c
+index 82c2704..cae059f 100644
+--- a/acl.c
++++ b/acl.c
+@@ -95,13 +95,13 @@ int qemu_acl_party_is_allowed(qemu_acl *acl,
+ 
+ void qemu_acl_reset(qemu_acl *acl)
+ {
+-    qemu_acl_entry *entry;
++    qemu_acl_entry *entry, *next_entry;
+ 
+     /* Put back to deny by default, so there is no window
+      * of "open access" while the user re-initializes the
+      * access control list */
+     acl->defaultDeny = 1;
+-    QTAILQ_FOREACH(entry, &acl->entries, next) {
++    QTAILQ_FOREACH_SAFE(entry, &acl->entries, next, next_entry) {
+         QTAILQ_REMOVE(&acl->entries, entry, next);
+         free(entry->match);
+         free(entry);
+-- 
+1.7.11.2
+

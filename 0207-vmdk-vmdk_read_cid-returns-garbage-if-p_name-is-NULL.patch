@@ -1,0 +1,36 @@
+From 1b09be835d853b8fd591e1f5de29ae20ed405722 Mon Sep 17 00:00:00 2001
+From: Pavel Borzenkov <pavel.borzenkov@gmail.com>
+Date: Tue, 18 Oct 2011 21:19:03 +0400
+Subject: [PATCH] vmdk: vmdk_read_cid returns garbage if p_name is NULL
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Spotted by Clang Analyzer
+
+Signed-off-by: Pavel Borzenkov <pavel.borzenkov@gmail.com>
+Signed-off-by: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
+(cherry picked from commit 8379e46d1fd681b8aa4714382e2cdab05e5d0575)
+
+Signed-off-by: Bruce Rogers <brogers@suse.com>
+Signed-off-by: Andreas Färber <afaerber@suse.de>
+---
+ block/vmdk.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/block/vmdk.c b/block/vmdk.c
+index 37478d2..b5caa40 100644
+--- a/block/vmdk.c
++++ b/block/vmdk.c
+@@ -177,7 +177,7 @@ static void vmdk_free_extents(BlockDriverState *bs)
+ static uint32_t vmdk_read_cid(BlockDriverState *bs, int parent)
+ {
+     char desc[DESC_SIZE];
+-    uint32_t cid;
++    uint32_t cid = 0xffffffff;
+     const char *p_name, *cid_str;
+     size_t cid_str_size;
+     BDRVVmdkState *s = bs->opaque;
+-- 
+1.7.11.2
+

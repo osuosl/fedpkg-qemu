@@ -1,0 +1,58 @@
+From 75f2b558df8c3ccd8b980eedf2f4aef8b217587e Mon Sep 17 00:00:00 2001
+From: Alex Williamson <alex.williamson@redhat.com>
+Date: Mon, 31 Oct 2011 08:54:09 -0600
+Subject: [PATCH] Error check find_ram_offset
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Spotted via code review, we initialize offset to 0 to avoid a
+compiler warning, but in the unlikely case that offset is
+never set to something else, we should abort instead of return
+a value that will almost certainly cause problems.
+
+Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+Signed-off-by: Anthony Liguori <aliguori@us.ibm.com>
+(cherry picked from commit 3e837b2c05bc63fe2226baf3c29923d5a688593f)
+
+Signed-off-by: Bruce Rogers <brogers@suse.com>
+Signed-off-by: Andreas Färber <afaerber@suse.de>
+---
+ exec.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
+
+diff --git a/exec.c b/exec.c
+index 6fb589b..537a49f 100644
+--- a/exec.c
++++ b/exec.c
+@@ -2863,7 +2863,7 @@ static void *file_ram_alloc(RAMBlock *block,
+ static ram_addr_t find_ram_offset(ram_addr_t size)
+ {
+     RAMBlock *block, *next_block;
+-    ram_addr_t offset = 0, mingap = RAM_ADDR_MAX;
++    ram_addr_t offset = RAM_ADDR_MAX, mingap = RAM_ADDR_MAX;
+ 
+     if (QLIST_EMPTY(&ram_list.blocks))
+         return 0;
+@@ -2879,10 +2879,17 @@ static ram_addr_t find_ram_offset(ram_addr_t size)
+             }
+         }
+         if (next - end >= size && next - end < mingap) {
+-            offset =  end;
++            offset = end;
+             mingap = next - end;
+         }
+     }
++
++    if (offset == RAM_ADDR_MAX) {
++        fprintf(stderr, "Failed to find gap of requested size: %" PRIu64 "\n",
++                (uint64_t)size);
++        abort();
++    }
++
+     return offset;
+ }
+ 
+-- 
+1.7.11.2
+

@@ -1,0 +1,97 @@
+From 7baf1e0bf54096eceb4c4553c9212599454cd83d Mon Sep 17 00:00:00 2001
+From: Anthony PERARD <anthony.perard@citrix.com>
+Date: Wed, 20 Jul 2011 08:17:42 +0000
+Subject: [PATCH] cpu-common: Have a ram_addr_t of uint64 with Xen.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+In Xen case, memory can be bigger than the host memory. that mean a
+32bits host (and QEMU) should be able to handle a RAM address of 64bits.
+
+Signed-off-by: Anthony PERARD <anthony.perard@citrix.com>
+Signed-off-by: Alexander Graf <agraf@suse.de>
+(cherry picked from commit f15fbc4bd1a24bd1477a846e63e62c6d435912f8)
+
+Signed-off-by: Andreas Färber <afaerber@suse.de>
+---
+ cpu-common.h | 8 ++++++++
+ exec.c       | 9 +++++----
+ xen-all.c    | 2 +-
+ 3 files changed, 14 insertions(+), 5 deletions(-)
+
+diff --git a/cpu-common.h b/cpu-common.h
+index 44b04b3..0700101 100644
+--- a/cpu-common.h
++++ b/cpu-common.h
+@@ -27,7 +27,15 @@ enum device_endian {
+ };
+ 
+ /* address in the RAM (different from a physical address) */
++#if defined(CONFIG_XEN_BACKEND) && TARGET_PHYS_ADDR_BITS == 64
++typedef uint64_t ram_addr_t;
++#  define RAM_ADDR_MAX UINT64_MAX
++#  define RAM_ADDR_FMT "%" PRIx64
++#else
+ typedef unsigned long ram_addr_t;
++#  define RAM_ADDR_MAX ULONG_MAX
++#  define RAM_ADDR_FMT "%lx"
++#endif
+ 
+ /* memory API */
+ 
+diff --git a/exec.c b/exec.c
+index 2160ded..6fb589b 100644
+--- a/exec.c
++++ b/exec.c
+@@ -2863,13 +2863,13 @@ static void *file_ram_alloc(RAMBlock *block,
+ static ram_addr_t find_ram_offset(ram_addr_t size)
+ {
+     RAMBlock *block, *next_block;
+-    ram_addr_t offset = 0, mingap = ULONG_MAX;
++    ram_addr_t offset = 0, mingap = RAM_ADDR_MAX;
+ 
+     if (QLIST_EMPTY(&ram_list.blocks))
+         return 0;
+ 
+     QLIST_FOREACH(block, &ram_list.blocks, next) {
+-        ram_addr_t end, next = ULONG_MAX;
++        ram_addr_t end, next = RAM_ADDR_MAX;
+ 
+         end = block->offset + block->length;
+ 
+@@ -3081,7 +3081,8 @@ void qemu_ram_remap(ram_addr_t addr, ram_addr_t length)
+ #endif
+                 }
+                 if (area != vaddr) {
+-                    fprintf(stderr, "Could not remap addr: %lx@%lx\n",
++                    fprintf(stderr, "Could not remap addr: "
++                            RAM_ADDR_FMT "@" RAM_ADDR_FMT "\n",
+                             length, addr);
+                     exit(1);
+                 }
+@@ -4052,7 +4053,7 @@ void *cpu_physical_memory_map(target_phys_addr_t addr,
+     target_phys_addr_t page;
+     unsigned long pd;
+     PhysPageDesc *p;
+-    ram_addr_t raddr = ULONG_MAX;
++    ram_addr_t raddr = RAM_ADDR_MAX;
+     ram_addr_t rlen;
+     void *ret;
+ 
+diff --git a/xen-all.c b/xen-all.c
+index 167bed6..8f2556a 100644
+--- a/xen-all.c
++++ b/xen-all.c
+@@ -184,7 +184,7 @@ void xen_ram_alloc(ram_addr_t ram_addr, ram_addr_t size)
+     }
+ 
+     if (xc_domain_populate_physmap_exact(xen_xc, xen_domid, nr_pfn, 0, 0, pfn_list)) {
+-        hw_error("xen: failed to populate ram at %lx", ram_addr);
++        hw_error("xen: failed to populate ram at " RAM_ADDR_FMT, ram_addr);
+     }
+ 
+     qemu_free(pfn_list);
+-- 
+1.7.11.2
+

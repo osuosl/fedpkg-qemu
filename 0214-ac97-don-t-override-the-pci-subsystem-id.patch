@@ -1,0 +1,119 @@
+From 498a3d8b7d28b8c114d65d9db5ccf3e96e2458f1 Mon Sep 17 00:00:00 2001
+From: Gerd Hoffmann <kraxel@redhat.com>
+Date: Mon, 7 Nov 2011 16:33:09 +0100
+Subject: [PATCH] ac97: don't override the pci subsystem id
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+This patch removes the code lines which set the subsystem id for the
+emulated ac97 card to 8086:0000.  Due to the device id being zero the
+subsystem id isn't vaild anyway.  With the patch applied the sound card
+gets the default qemu subsystem id (1af4:1100) instead.
+
+[ v2: old & broken id is maintained for -M pc-$oldqemuversion ]
+
+Cc: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+Signed-off-by: Anthony Liguori <aliguori@us.ibm.com>
+(cherry picked from commit 25a21c94c0055e078acb7f7455e66c8a15f32385)
+
+Signed-off-by: Bruce Rogers <brogers@suse.com>
+Signed-off-by: Andreas Färber <afaerber@suse.de>
+---
+ hw/ac97.c    | 16 +++++++++++-----
+ hw/pc_piix.c | 16 ++++++++++++++++
+ 2 files changed, 27 insertions(+), 5 deletions(-)
+
+diff --git a/hw/ac97.c b/hw/ac97.c
+index 0b59896..a039481 100644
+--- a/hw/ac97.c
++++ b/hw/ac97.c
+@@ -149,6 +149,7 @@ typedef struct AC97BusMasterRegs {
+ typedef struct AC97LinkState {
+     PCIDevice dev;
+     QEMUSoundCard card;
++    uint32_t use_broken_id;
+     uint32_t glob_cnt;
+     uint32_t glob_sta;
+     uint32_t cas;
+@@ -1301,11 +1302,12 @@ static int ac97_initfn (PCIDevice *dev)
+     c[PCI_BASE_ADDRESS_0 + 6] = 0x00;
+     c[PCI_BASE_ADDRESS_0 + 7] = 0x00;
+ 
+-    c[PCI_SUBSYSTEM_VENDOR_ID] = 0x86;      /* svid subsystem vendor id rwo */
+-    c[PCI_SUBSYSTEM_VENDOR_ID + 1] = 0x80;
+-
+-    c[PCI_SUBSYSTEM_ID] = 0x00;      /* sid subsystem id rwo */
+-    c[PCI_SUBSYSTEM_ID + 1] = 0x00;
++    if (s->use_broken_id) {
++        c[PCI_SUBSYSTEM_VENDOR_ID] = 0x86;
++        c[PCI_SUBSYSTEM_VENDOR_ID + 1] = 0x80;
++        c[PCI_SUBSYSTEM_ID] = 0x00;
++        c[PCI_SUBSYSTEM_ID + 1] = 0x00;
++    }
+ 
+     c[PCI_INTERRUPT_LINE] = 0x00;      /* intr_ln interrupt line rw */
+     /* TODO: RST# value should be 0. */
+@@ -1336,6 +1338,10 @@ static PCIDeviceInfo ac97_info = {
+     .device_id    = PCI_DEVICE_ID_INTEL_82801AA_5,
+     .revision     = 0x01,
+     .class_id     = PCI_CLASS_MULTIMEDIA_AUDIO,
++    .qdev.props   = (Property[]) {
++        DEFINE_PROP_UINT32("use_broken_id", AC97LinkState, use_broken_id, 0),
++        DEFINE_PROP_END_OF_LIST(),
++    }
+ };
+ 
+ static void ac97_register (void)
+diff --git a/hw/pc_piix.c b/hw/pc_piix.c
+index c5c16b4..31552fd 100644
+--- a/hw/pc_piix.c
++++ b/hw/pc_piix.c
+@@ -300,6 +300,10 @@ static QEMUMachine pc_machine_v0_13 = {
+             .driver   = "virtio-net-pci",
+             .property = "event_idx",
+             .value    = "off",
++        },{
++            .driver   = "AC97",
++            .property = "use_broken_id",
++            .value    = stringify(1),
+         },
+         { /* end of list */ }
+     },
+@@ -343,6 +347,10 @@ static QEMUMachine pc_machine_v0_12 = {
+             .driver   = "virtio-net-pci",
+             .property = "event_idx",
+             .value    = "off",
++        },{
++            .driver   = "AC97",
++            .property = "use_broken_id",
++            .value    = stringify(1),
+         },
+         { /* end of list */ }
+     }
+@@ -394,6 +402,10 @@ static QEMUMachine pc_machine_v0_11 = {
+             .driver   = "virtio-net-pci",
+             .property = "event_idx",
+             .value    = "off",
++        },{
++            .driver   = "AC97",
++            .property = "use_broken_id",
++            .value    = stringify(1),
+         },
+         { /* end of list */ }
+     }
+@@ -457,6 +469,10 @@ static QEMUMachine pc_machine_v0_10 = {
+             .driver   = "virtio-net-pci",
+             .property = "event_idx",
+             .value    = "off",
++        },{
++            .driver   = "AC97",
++            .property = "use_broken_id",
++            .value    = stringify(1),
+         },
+         { /* end of list */ }
+     },
+-- 
+1.7.11.2
+

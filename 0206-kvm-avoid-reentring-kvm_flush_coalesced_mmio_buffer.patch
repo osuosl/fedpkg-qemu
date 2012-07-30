@@ -1,0 +1,60 @@
+From 479c2a6a296d4fafc713746bf96127c1b20c381e Mon Sep 17 00:00:00 2001
+From: Avi Kivity <avi@redhat.com>
+Date: Tue, 18 Oct 2011 19:43:12 +0200
+Subject: [PATCH] kvm: avoid reentring kvm_flush_coalesced_mmio_buffer()
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+mmio callbacks invoked by kvm_flush_coalesced_mmio_buffer() may
+themselves indirectly call kvm_flush_coalesced_mmio_buffer().
+Prevent reentering the function by checking a flag that indicates
+we're processing coalesced mmio requests.
+
+Signed-off-by: Avi Kivity <avi@redhat.com>
+(cherry picked from commit 1cae88b9f4121c9af0bf677435c6129e643280fd)
+
+Signed-off-by: Bruce Rogers <brogers@suse.com>
+Signed-off-by: Andreas Färber <afaerber@suse.de>
+---
+ kvm-all.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/kvm-all.c b/kvm-all.c
+index cbc2532..26621d0 100644
+--- a/kvm-all.c
++++ b/kvm-all.c
+@@ -64,6 +64,7 @@ struct KVMState
+     int vmfd;
+     int coalesced_mmio;
+     struct kvm_coalesced_mmio_ring *coalesced_mmio_ring;
++    bool coalesced_flush_in_progress;
+     int broken_set_mem_region;
+     int migration_log;
+     int vcpu_events;
+@@ -876,6 +877,13 @@ static int kvm_handle_internal_error(CPUState *env, struct kvm_run *run)
+ void kvm_flush_coalesced_mmio_buffer(void)
+ {
+     KVMState *s = kvm_state;
++
++    if (s->coalesced_flush_in_progress) {
++        return;
++    }
++
++    s->coalesced_flush_in_progress = true;
++
+     if (s->coalesced_mmio_ring) {
+         struct kvm_coalesced_mmio_ring *ring = s->coalesced_mmio_ring;
+         while (ring->first != ring->last) {
+@@ -888,6 +896,8 @@ void kvm_flush_coalesced_mmio_buffer(void)
+             ring->first = (ring->first + 1) % KVM_COALESCED_MMIO_MAX;
+         }
+     }
++
++    s->coalesced_flush_in_progress = false;
+ }
+ 
+ static void do_kvm_cpu_synchronize_state(void *_env)
+-- 
+1.7.11.2
+

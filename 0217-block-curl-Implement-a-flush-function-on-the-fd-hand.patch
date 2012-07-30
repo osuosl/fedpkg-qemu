@@ -1,0 +1,76 @@
+From 84be2986f687b998f583b27d8b3e068e87032418 Mon Sep 17 00:00:00 2001
+From: Nick Thomas <nick@bytemark.co.uk>
+Date: Wed, 21 Sep 2011 11:55:49 +0100
+Subject: [PATCH] block/curl: Implement a flush function on the fd handlers
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Nick Thomas <nick@bytemark.co.uk>
+Signed-off-by: Kevin Wolf <kwolf@redhat.com>
+(cherry picked from commit c84dcdc1d6583ebe5841907c99d95deb8c40a6e0)
+
+Signed-off-by: Bruce Rogers <brogers@suse.com>
+Signed-off-by: Andreas Färber <afaerber@suse.de>
+---
+ block/curl.c | 26 ++++++++++++++++++++++----
+ 1 file changed, 22 insertions(+), 4 deletions(-)
+
+diff --git a/block/curl.c b/block/curl.c
+index 407f095..6cf6a70 100644
+--- a/block/curl.c
++++ b/block/curl.c
+@@ -76,6 +76,7 @@ typedef struct BDRVCURLState {
+ 
+ static void curl_clean_state(CURLState *s);
+ static void curl_multi_do(void *arg);
++static int curl_aio_flush(void *opaque);
+ 
+ static int curl_sock_cb(CURL *curl, curl_socket_t fd, int action,
+                         void *s, void *sp)
+@@ -83,14 +84,16 @@ static int curl_sock_cb(CURL *curl, curl_socket_t fd, int action,
+     DPRINTF("CURL (AIO): Sock action %d on fd %d\n", action, fd);
+     switch (action) {
+         case CURL_POLL_IN:
+-            qemu_aio_set_fd_handler(fd, curl_multi_do, NULL, NULL, NULL, s);
++            qemu_aio_set_fd_handler(fd, curl_multi_do, NULL, curl_aio_flush,
++                                    NULL, s);
+             break;
+         case CURL_POLL_OUT:
+-            qemu_aio_set_fd_handler(fd, NULL, curl_multi_do, NULL, NULL, s);
++            qemu_aio_set_fd_handler(fd, NULL, curl_multi_do, curl_aio_flush,
++                                    NULL, s);
+             break;
+         case CURL_POLL_INOUT:
+-            qemu_aio_set_fd_handler(fd, curl_multi_do,
+-                                    curl_multi_do, NULL, NULL, s);
++            qemu_aio_set_fd_handler(fd, curl_multi_do, curl_multi_do,
++                                    curl_aio_flush, NULL, s);
+             break;
+         case CURL_POLL_REMOVE:
+             qemu_aio_set_fd_handler(fd, NULL, NULL, NULL, NULL, NULL);
+@@ -394,6 +397,21 @@ out_noclean:
+     return -EINVAL;
+ }
+ 
++static int curl_aio_flush(void *opaque)
++{
++    BDRVCURLState *s = opaque;
++    int i, j;
++
++    for (i=0; i < CURL_NUM_STATES; i++) {
++        for(j=0; j < CURL_NUM_ACB; j++) {
++            if (s->states[i].acb[j]) {
++                return 1;
++            }
++        }
++    }
++    return 0;
++}
++
+ static void curl_aio_cancel(BlockDriverAIOCB *blockacb)
+ {
+     // Do we have to implement canceling? Seems to work without...
+-- 
+1.7.11.2
+

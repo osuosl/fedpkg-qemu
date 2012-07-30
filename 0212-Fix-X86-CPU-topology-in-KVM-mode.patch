@@ -1,0 +1,55 @@
+From 7a890dc5d4e79e4ced03aa9d3665c9a1df3e448e Mon Sep 17 00:00:00 2001
+From: Bharata B Rao <bharata.rao@gmail.com>
+Date: Wed, 2 Nov 2011 14:16:08 +0530
+Subject: [PATCH] Fix X86 CPU topology in KVM mode
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+apic id returned to guest kernel in ebx for cpuid(function=1) depends on
+CPUX86State->cpuid_apic_id which gets populated after the cpuid information
+is cached in the host kernel. This results in broken CPU topology in guest.
+
+Fix this by setting cpuid_apic_id before cpuid information is passed to
+the host kernel. This is done by moving the setting of cpuid_apic_id
+to cpu_x86_init() where it will work for both KVM as well as TCG modes.
+
+Acked-by: Jan Kiszka <jan.kiszka@siemens.com>
+Signed-off-by: Bharata B Rao <bharata.rao@gmail.com>
+Signed-off-by: Anthony Liguori <aliguori@us.ibm.com>
+(cherry picked from commit f2209eb854a016eabc444b45f6d6b1636949141f)
+
+Signed-off-by: Bruce Rogers <brogers@suse.com>
+Signed-off-by: Andreas Färber <afaerber@suse.de>
+---
+ hw/pc.c              | 1 -
+ target-i386/helper.c | 1 +
+ 2 files changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/hw/pc.c b/hw/pc.c
+index a3e8539..14ce684 100644
+--- a/hw/pc.c
++++ b/hw/pc.c
+@@ -931,7 +931,6 @@ static CPUState *pc_new_cpu(const char *cpu_model)
+         exit(1);
+     }
+     if ((env->cpuid_features & CPUID_APIC) || smp_cpus > 1) {
+-        env->cpuid_apic_id = env->cpu_index;
+         env->apic_state = apic_init(env, env->cpuid_apic_id);
+     }
+     qemu_register_reset(pc_cpu_reset, env);
+diff --git a/target-i386/helper.c b/target-i386/helper.c
+index e9be104..829c1da 100644
+--- a/target-i386/helper.c
++++ b/target-i386/helper.c
+@@ -1258,6 +1258,7 @@ CPUX86State *cpu_x86_init(const char *cpu_model)
+         cpu_x86_close(env);
+         return NULL;
+     }
++    env->cpuid_apic_id = env->cpu_index;
+     mce_init(env);
+ 
+     qemu_init_vcpu(env);
+-- 
+1.7.11.2
+

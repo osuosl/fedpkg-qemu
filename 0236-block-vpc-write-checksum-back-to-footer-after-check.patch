@@ -1,0 +1,41 @@
+From add89f969fc86f3b3223c4283ee49fcb507b8f81 Mon Sep 17 00:00:00 2001
+From: Zhang Shengju <zhangsju@gmail.com>
+Date: Tue, 13 Mar 2012 22:38:13 +0800
+Subject: [PATCH] block/vpc: write checksum back to footer after check
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+After validation check, the 'checksum' is not written back
+to footer, which leave it with zero.
+
+This results in errors while loadding it under Microsoft's
+Hyper-V environment, and also errors from utilities like
+Citrix's vhd-util.
+
+Signed-off-by: Zhang Shengju <sean_zhang@trendmicro.com.cn>
+Signed-off-by: Kevin Wolf <kwolf@redhat.com>
+(cherry picked from commit c088b691363070d151f80cc1fde4b7c151bdfe8f)
+
+Signed-off-by: Andreas Färber <afaerber@suse.de>
+---
+ block/vpc.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/block/vpc.c b/block/vpc.c
+index ac33e15..55201e2 100644
+--- a/block/vpc.c
++++ b/block/vpc.c
+@@ -170,6 +170,9 @@ static int vpc_open(BlockDriverState *bs, int flags)
+         fprintf(stderr, "block-vpc: The header checksum of '%s' is "
+             "incorrect.\n", bs->filename);
+ 
++    /* Write 'checksum' back to footer, or else will leave it with zero. */
++    footer->checksum = be32_to_cpu(checksum);
++
+     // The visible size of a image in Virtual PC depends on the geometry
+     // rather than on the size stored in the footer (the size in the footer
+     // is too large usually)
+-- 
+1.7.11.2
+

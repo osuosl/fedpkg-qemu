@@ -1,0 +1,95 @@
+From 3cc7ef743b3f04ff986c820f67444d2dec946167 Mon Sep 17 00:00:00 2001
+From: Anthony Liguori <aliguori@us.ibm.com>
+Date: Sun, 18 Dec 2011 13:07:03 -0600
+Subject: [PATCH] pc: fix event_idx compatibility for virtio devices
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+event_idx was introduced in 0.15 and must be disabled for all virtio-pci devices
+(including virtio-balloon-pci).
+
+Signed-off-by: Anthony Liguori <aliguori@us.ibm.com>
+(cherry picked from commit ea830ebb74461c5ad6d199857fb000d2e0284c69)
+
+[BR: bnc#741460]
+Signed-off-by: Bruce Rogers <brogers@suse.com>
+Signed-off-by: Andreas Färber <afaerber@suse.de>
+---
+ hw/pc_piix.c | 32 ++++++++++++++++++++++++++++++++
+ 1 file changed, 32 insertions(+)
+
+diff --git a/hw/pc_piix.c b/hw/pc_piix.c
+index 20bac9d..b179465 100644
+--- a/hw/pc_piix.c
++++ b/hw/pc_piix.c
+@@ -281,6 +281,22 @@ static QEMUMachine pc_machine_v0_14 = {
+             .driver   = "qxl-vga",
+             .property = "revision",
+             .value    = stringify(2),
++        },{
++            .driver   = "virtio-blk-pci",
++            .property = "event_idx",
++            .value    = "off",
++        },{
++            .driver   = "virtio-serial-pci",
++            .property = "event_idx",
++            .value    = "off",
++        },{
++            .driver   = "virtio-net-pci",
++            .property = "event_idx",
++            .value    = "off",
++        },{
++            .driver   = "virtio-balloon-pci",
++            .property = "event_idx",
++            .value    = "off",
+         },
+         { /* end of list */ }
+     },
+@@ -321,6 +337,10 @@ static QEMUMachine pc_machine_v0_13 = {
+             .property = "event_idx",
+             .value    = "off",
+         },{
++            .driver   = "virtio-balloon-pci",
++            .property = "event_idx",
++            .value    = "off",
++        },{
+             .driver   = "AC97",
+             .property = "use_broken_id",
+             .value    = stringify(1),
+@@ -368,6 +388,10 @@ static QEMUMachine pc_machine_v0_12 = {
+             .property = "event_idx",
+             .value    = "off",
+         },{
++            .driver   = "virtio-balloon-pci",
++            .property = "event_idx",
++            .value    = "off",
++        },{
+             .driver   = "AC97",
+             .property = "use_broken_id",
+             .value    = stringify(1),
+@@ -423,6 +447,10 @@ static QEMUMachine pc_machine_v0_11 = {
+             .property = "event_idx",
+             .value    = "off",
+         },{
++            .driver   = "virtio-balloon-pci",
++            .property = "event_idx",
++            .value    = "off",
++        },{
+             .driver   = "AC97",
+             .property = "use_broken_id",
+             .value    = stringify(1),
+@@ -490,6 +518,10 @@ static QEMUMachine pc_machine_v0_10 = {
+             .property = "event_idx",
+             .value    = "off",
+         },{
++            .driver   = "virtio-balloon-pci",
++            .property = "event_idx",
++            .value    = "off",
++        },{
+             .driver   = "AC97",
+             .property = "use_broken_id",
+             .value    = stringify(1),
+-- 
+1.7.11.2
+

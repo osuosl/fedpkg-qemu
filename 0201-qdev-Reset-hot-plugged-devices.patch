@@ -1,0 +1,39 @@
+From c09233797d29cc18bc7d304ceeb8bef72f3acefb Mon Sep 17 00:00:00 2001
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Date: Sun, 24 Jul 2011 19:38:36 +0200
+Subject: [PATCH] qdev: Reset hot-plugged devices
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Device models rely on the core invoking their reset handlers after init.
+We do this in the cold-plug case, but so far we miss this step after
+hot-plug.
+
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+Signed-off-by: Anthony Liguori <aliguori@us.ibm.com>
+(cherry picked from commit 5ab28c8340f683121c081a181adfd9f72ab85cba)
+
+[AF: Fixes BNC#722958 / LTC#75394.]
+Signed-off-by: Andreas Färber <afaerber@suse.de>
+---
+ hw/qdev.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/hw/qdev.c b/hw/qdev.c
+index a0fcd06..b4ea8e1 100644
+--- a/hw/qdev.c
++++ b/hw/qdev.c
+@@ -289,6 +289,9 @@ int qdev_init(DeviceState *dev)
+                                        dev->alias_required_for_version);
+     }
+     dev->state = DEV_STATE_INITIALIZED;
++    if (dev->hotplugged && dev->info->reset) {
++        dev->info->reset(dev);
++    }
+     return 0;
+ }
+ 
+-- 
+1.7.11.2
+

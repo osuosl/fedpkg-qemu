@@ -1,0 +1,49 @@
+From 89409a7eee1d25a91c31402fdb35d8554e3a99d0 Mon Sep 17 00:00:00 2001
+From: Peter Maydell <peter.maydell@linaro.org>
+Date: Thu, 13 Oct 2011 18:45:37 +0100
+Subject: [PATCH] compatfd.c: Don't pass NULL pointer to SYS_signalfd
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Don't pass a NULL pointer in to SYS_signalfd in qemu_signalfd_available():
+this isn't valid and Valgrind complains about it.
+
+Signed-off-by: Peter Maydell <peter.maydell@linaro.org>
+Reviewed-by: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
+Signed-off-by: Andrzej Zaborowski <andrew.zaborowski@intel.com>
+(cherry picked from commit 7f84c1272b601be88daeb828ec1890890c7aae25)
+
+Signed-off-by: Bruce Rogers <brogers@suse.com>
+Signed-off-by: Andreas Färber <afaerber@suse.de>
+---
+ compatfd.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
+
+diff --git a/compatfd.c b/compatfd.c
+index 31654c6..02306a4 100644
+--- a/compatfd.c
++++ b/compatfd.c
+@@ -119,9 +119,17 @@ int qemu_signalfd(const sigset_t *mask)
+ bool qemu_signalfd_available(void)
+ {
+ #ifdef CONFIG_SIGNALFD
++    sigset_t mask;
++    int fd;
++    bool ok;
++    sigemptyset(&mask);
+     errno = 0;
+-    syscall(SYS_signalfd, -1, NULL, _NSIG / 8);
+-    return errno != ENOSYS;
++    fd = syscall(SYS_signalfd, -1, &mask, _NSIG / 8);
++    ok = (errno != ENOSYS);
++    if (fd >= 0) {
++        close(fd);
++    }
++    return ok;
+ #else
+     return false;
+ #endif
+-- 
+1.7.11.2
+

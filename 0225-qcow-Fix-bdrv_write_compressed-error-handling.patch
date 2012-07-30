@@ -1,0 +1,93 @@
+From 5202e9d55b745eddde9ba6bd08af32fcae347e93 Mon Sep 17 00:00:00 2001
+From: Kevin Wolf <kwolf@redhat.com>
+Date: Wed, 26 Oct 2011 11:21:50 +0200
+Subject: [PATCH] qcow: Fix bdrv_write_compressed error handling
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Kevin Wolf <kwolf@redhat.com>
+Reviewed-by: Paolo Bonzini <pbonzini@redhat.com>
+(cherry picked from commit 64ebe71aa0e498d24e8c02b133192142fce3a0d0)
+
+Signed-off-by: Bruce Rogers <brogers@suse.com>
+[AF: backported]
+Signed-off-by: Andreas Färber <afaerber@suse.de>
+---
+ block/qcow.c | 30 +++++++++++++++++++-----------
+ 1 file changed, 19 insertions(+), 11 deletions(-)
+
+diff --git a/block/qcow.c b/block/qcow.c
+index 227b104..115b820 100644
+--- a/block/qcow.c
++++ b/block/qcow.c
+@@ -926,8 +926,6 @@ static int qcow_write_compressed(BlockDriverState *bs, int64_t sector_num,
+         return -EINVAL;
+ 
+     out_buf = qemu_malloc(s->cluster_size + (s->cluster_size / 1000) + 128);
+-    if (!out_buf)
+-        return -1;
+ 
+     /* best compression, small window, no zlib header */
+     memset(&strm, 0, sizeof(strm));
+@@ -935,8 +933,8 @@ static int qcow_write_compressed(BlockDriverState *bs, int64_t sector_num,
+                        Z_DEFLATED, -12,
+                        9, Z_DEFAULT_STRATEGY);
+     if (ret != 0) {
+-        qemu_free(out_buf);
+-        return -1;
++        ret = -EINVAL;
++        goto fail;
+     }
+ 
+     strm.avail_in = s->cluster_size;
+@@ -946,9 +944,9 @@ static int qcow_write_compressed(BlockDriverState *bs, int64_t sector_num,
+ 
+     ret = deflate(&strm, Z_FINISH);
+     if (ret != Z_STREAM_END && ret != Z_OK) {
+-        qemu_free(out_buf);
+         deflateEnd(&strm);
+-        return -1;
++        ret = -EINVAL;
++        goto fail;
+     }
+     out_len = strm.next_out - out_buf;
+ 
+@@ -956,19 +954,29 @@ static int qcow_write_compressed(BlockDriverState *bs, int64_t sector_num,
+ 
+     if (ret != Z_STREAM_END || out_len >= s->cluster_size) {
+         /* could not compress: write normal cluster */
+-        bdrv_write(bs, sector_num, buf, s->cluster_sectors);
++        ret = bdrv_write(bs, sector_num, buf, s->cluster_sectors);
++        if (ret < 0) {
++            goto fail;
++        }
+     } else {
+         cluster_offset = get_cluster_offset(bs, sector_num << 9, 2,
+                                             out_len, 0, 0);
++        if (cluster_offset == 0) {
++            ret = -EIO;
++            goto fail;
++        }
++
+         cluster_offset &= s->cluster_offset_mask;
+-        if (bdrv_pwrite(bs->file, cluster_offset, out_buf, out_len) != out_len) {
+-            qemu_free(out_buf);
+-            return -1;
++        ret = bdrv_pwrite(bs->file, cluster_offset, out_buf, out_len);
++        if (ret < 0) {
++            goto fail;
+         }
+     }
+ 
++    ret = 0;
++fail:
+     qemu_free(out_buf);
+-    return 0;
++    return ret;
+ }
+ 
+ static int qcow_flush(BlockDriverState *bs)
+-- 
+1.7.11.2
+

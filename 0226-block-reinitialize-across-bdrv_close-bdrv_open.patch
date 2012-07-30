@@ -1,0 +1,55 @@
+From 2432c8cf0a61be64094dae724638a9a081ee4bf9 Mon Sep 17 00:00:00 2001
+From: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
+Date: Thu, 27 Oct 2011 10:54:28 +0100
+Subject: [PATCH] block: reinitialize across bdrv_close()/bdrv_open()
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Several BlockDriverState fields are not being reinitialized across
+bdrv_close()/bdrv_open().  Make sure they are reset to their default
+values.
+
+Signed-off-by: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
+Signed-off-by: Kevin Wolf <kwolf@redhat.com>
+(cherry picked from commit 03f541bd6eacdc6c2893f72b975257c89cab2b74)
+
+Signed-off-by: Bruce Rogers <brogers@suse.com>
+[AF: backported]
+Signed-off-by: Andreas Färber <afaerber@suse.de>
+---
+ block.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/block.c b/block.c
+index 8d77746..1d6d26b 100644
+--- a/block.c
++++ b/block.c
+@@ -426,11 +426,14 @@ static int bdrv_open_common(BlockDriverState *bs, const char *filename,
+     bs->total_sectors = 0;
+     bs->encrypted = 0;
+     bs->valid_key = 0;
++    bs->sg = 0;
+     bs->open_flags = flags;
++    bs->growable = 0;
+     /* buffer_alignment defaulted to 512, drivers can change this value */
+     bs->buffer_alignment = 512;
+ 
+     pstrcpy(bs->filename, sizeof(bs->filename), filename);
++    bs->backing_file[0] = '\0';
+ 
+     if (use_bdrv_whitelist && !bdrv_is_whitelisted(drv)) {
+         return -ENOTSUP;
+@@ -439,8 +442,7 @@ static int bdrv_open_common(BlockDriverState *bs, const char *filename,
+     bs->drv = drv;
+     bs->opaque = qemu_mallocz(drv->instance_size);
+ 
+-    if (flags & BDRV_O_CACHE_WB)
+-        bs->enable_write_cache = 1;
++    bs->enable_write_cache = !!(flags & BDRV_O_CACHE_WB);
+ 
+     /*
+      * Clear flags that are internal to the block layer before opening the
+-- 
+1.7.11.2
+

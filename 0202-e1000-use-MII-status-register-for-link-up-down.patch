@@ -1,0 +1,147 @@
+From 461473595d1dd1131cb060c460c87ca7b652939e Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>
+Date: Wed, 17 Aug 2011 11:03:14 +0200
+Subject: [PATCH] e1000: use MII status register for link up/down
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Some guests will use the standard MII status register
+to verify link state.  They will not notice link changes
+unless this register is updated.
+
+Verified with Linux 3.0 and Windows XP guests.
+
+Without this patch, ethtool will report speed and duplex as
+unknown when the link is down, but still report the link as
+up.  This is because the Linux e1000 driver checks the
+mac_reg[STATUS] register link state before it checks speed
+and duplex, but uses the phy_reg[PHY_STATUS] register for
+the actual link state check.  Fix by updating both registers
+on link state changes.
+
+Linux guest before:
+
+ (qemu) set_link e1000.0 off
+
+ kvm-sid:~# ethtool eth0
+ Settings for eth0:
+        Supported ports: [ TP ]
+        Supported link modes:   10baseT/Half 10baseT/Full
+                                100baseT/Half 100baseT/Full
+                                1000baseT/Full
+        Supports auto-negotiation: Yes
+        Advertised link modes:  10baseT/Half 10baseT/Full
+                                100baseT/Half 100baseT/Full
+                                1000baseT/Full
+        Advertised pause frame use: No
+        Advertised auto-negotiation: Yes
+        Speed: Unknown!
+        Duplex: Unknown! (255)
+        Port: Twisted Pair
+        PHYAD: 0
+        Transceiver: internal
+        Auto-negotiation: on
+        MDI-X: Unknown
+        Supports Wake-on: umbg
+        Wake-on: d
+        Current message level: 0x00000007 (7)
+                               drv probe link
+        Link detected: yes
+
+ (qemu) set_link e1000.0 on
+
+Linux guest after:
+
+ (qemu) set_link e1000.0 off
+ [   63.384221] e1000: eth0 NIC Link is Down
+
+ kvm-sid:~# ethtool eth0
+ Settings for eth0:
+        Supported ports: [ TP ]
+        Supported link modes:   10baseT/Half 10baseT/Full
+                                100baseT/Half 100baseT/Full
+                                1000baseT/Full
+        Supports auto-negotiation: Yes
+        Advertised link modes:  10baseT/Half 10baseT/Full
+                                100baseT/Half 100baseT/Full
+                                1000baseT/Full
+        Advertised pause frame use: No
+        Advertised auto-negotiation: Yes
+        Speed: Unknown!
+        Duplex: Unknown! (255)
+        Port: Twisted Pair
+        PHYAD: 0
+        Transceiver: internal
+        Auto-negotiation: on
+        MDI-X: Unknown
+        Supports Wake-on: umbg
+        Wake-on: d
+        Current message level: 0x00000007 (7)
+                               drv probe link
+        Link detected: no
+
+ (qemu) set_link e1000.0 on
+ [   84.304582] e1000: eth0 NIC Link is Up 1000 Mbps Full Duplex, Flow Control: RX
+
+Signed-off-by: Bjørn Mork <bjorn@mork.no>
+Signed-off-by: Anthony Liguori <aliguori@us.ibm.com>
+(cherry picked from commit d4044c2a6b9ba4a00dd653f515a4b0ebfcb7e125)
+
+Signed-off-by: Andreas Färber <afaerber@suse.de>
+---
+ hw/e1000.c    |  7 +++++--
+ hw/e1000_hw.h | 17 +++++++++++++++++
+ 2 files changed, 22 insertions(+), 2 deletions(-)
+
+diff --git a/hw/e1000.c b/hw/e1000.c
+index 96d84f9..e4d9ab5 100644
+--- a/hw/e1000.c
++++ b/hw/e1000.c
+@@ -624,10 +624,13 @@ e1000_set_link_status(VLANClientState *nc)
+     E1000State *s = DO_UPCAST(NICState, nc, nc)->opaque;
+     uint32_t old_status = s->mac_reg[STATUS];
+ 
+-    if (nc->link_down)
++    if (nc->link_down) {
+         s->mac_reg[STATUS] &= ~E1000_STATUS_LU;
+-    else
++        s->phy_reg[PHY_STATUS] &= ~MII_SR_LINK_STATUS;
++    } else {
+         s->mac_reg[STATUS] |= E1000_STATUS_LU;
++        s->phy_reg[PHY_STATUS] |= MII_SR_LINK_STATUS;
++    }
+ 
+     if (s->mac_reg[STATUS] != old_status)
+         set_ics(s, 0, E1000_ICR_LSC);
+diff --git a/hw/e1000_hw.h b/hw/e1000_hw.h
+index 9bd8a4b..2e341ac 100644
+--- a/hw/e1000_hw.h
++++ b/hw/e1000_hw.h
+@@ -349,6 +349,23 @@
+ #define M88E1000_PHY_VCO_REG_BIT8  0x100 /* Bits 8 & 11 are adjusted for */
+ #define M88E1000_PHY_VCO_REG_BIT11 0x800    /* improved BER performance */
+ 
++/* PHY Status Register */
++#define MII_SR_EXTENDED_CAPS     0x0001	/* Extended register capabilities */
++#define MII_SR_JABBER_DETECT     0x0002	/* Jabber Detected */
++#define MII_SR_LINK_STATUS       0x0004	/* Link Status 1 = link */
++#define MII_SR_AUTONEG_CAPS      0x0008	/* Auto Neg Capable */
++#define MII_SR_REMOTE_FAULT      0x0010	/* Remote Fault Detect */
++#define MII_SR_AUTONEG_COMPLETE  0x0020	/* Auto Neg Complete */
++#define MII_SR_PREAMBLE_SUPPRESS 0x0040	/* Preamble may be suppressed */
++#define MII_SR_EXTENDED_STATUS   0x0100	/* Ext. status info in Reg 0x0F */
++#define MII_SR_100T2_HD_CAPS     0x0200	/* 100T2 Half Duplex Capable */
++#define MII_SR_100T2_FD_CAPS     0x0400	/* 100T2 Full Duplex Capable */
++#define MII_SR_10T_HD_CAPS       0x0800	/* 10T   Half Duplex Capable */
++#define MII_SR_10T_FD_CAPS       0x1000	/* 10T   Full Duplex Capable */
++#define MII_SR_100X_HD_CAPS      0x2000	/* 100X  Half Duplex Capable */
++#define MII_SR_100X_FD_CAPS      0x4000	/* 100X  Full Duplex Capable */
++#define MII_SR_100T4_CAPS        0x8000	/* 100T4 Capable */
++
+ /* Interrupt Cause Read */
+ #define E1000_ICR_TXDW          0x00000001 /* Transmit desc written back */
+ #define E1000_ICR_TXQE          0x00000002 /* Transmit Queue empty */
+-- 
+1.7.11.2
+

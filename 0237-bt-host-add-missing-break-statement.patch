@@ -1,0 +1,36 @@
+From 557393c06af445a23f65667d16d1ff43b5d7ae6d Mon Sep 17 00:00:00 2001
+From: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
+Date: Thu, 12 Jan 2012 14:17:04 +0000
+Subject: [PATCH] bt-host: add missing break statement
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+The switch statement in bt_host_read() is missing a break in one case.
+Andrzej Zaborowski <andrew.zaborowski@intel.com> confirmed that this is
+not an intentional fall-through.
+
+Reviewed-by: Stefan Weil <sw@weilnetz.de>
+Signed-off-by: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
+(cherry picked from commit f7253270fc66a60e4faf639a3c4ce0b352553b24)
+
+Signed-off-by: Andreas Färber <afaerber@suse.de>
+---
+ bt-host.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/bt-host.c b/bt-host.c
+index 095254d..df59494 100644
+--- a/bt-host.c
++++ b/bt-host.c
+@@ -130,6 +130,7 @@ static void bt_host_read(void *opaque)
+             pktlen = MIN(pkt[2] + 3, s->len);
+             s->len -= pktlen;
+             pkt += pktlen;
++            break;
+ 
+         default:
+         bad_pkt:
+-- 
+1.7.11.2
+

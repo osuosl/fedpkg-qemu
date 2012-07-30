@@ -1,0 +1,64 @@
+From 1add57cd4c48d9eb6517f685f67480b4f4f3f13b Mon Sep 17 00:00:00 2001
+From: Markus Armbruster <armbru@redhat.com>
+Date: Fri, 4 Nov 2011 10:38:29 +0100
+Subject: [PATCH] console: Fix rendering of VGA underline
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+vga_putcharxy()'s underline code sets font_data to 0xffff instead of
+0xff.  vga_putcharxy() then reads dmask16[0xffff >> 4] and
+dmask4[0xffff >> 6].  In practice, these out-of-bounds subscripts
+"only" put a few crap bits into the display surface.
+
+For 32 bit pixels, there's no array access.  font_data's extra bits go
+straight into the display surface.
+
+Broken when commit 6d6f7c28 implemented underline.
+
+Spotted by Coverity.
+
+Signed-off-by: Markus Armbruster <armbru@redhat.com>
+Signed-off-by: Anthony Liguori <aliguori@us.ibm.com>
+(cherry picked from commit 439229c7cb97f6c4cddd3965c3e9d2b8319fe83c)
+
+Signed-off-by: Bruce Rogers <brogers@suse.com>
+Signed-off-by: Andreas Färber <afaerber@suse.de>
+---
+ console.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/console.c b/console.c
+index 242086c..07c82b8 100644
+--- a/console.c
++++ b/console.c
+@@ -461,7 +461,7 @@ static void vga_putcharxy(DisplayState *ds, int x, int y, int ch,
+             font_data = *font_ptr++;
+             if (t_attrib->uline
+                 && ((i == FONT_HEIGHT - 2) || (i == FONT_HEIGHT - 3))) {
+-                font_data = 0xFFFF;
++                font_data = 0xFF;
+             }
+             ((uint32_t *)d)[0] = (dmask16[(font_data >> 4)] & xorcol) ^ bgcol;
+             ((uint32_t *)d)[1] = (dmask16[(font_data >> 0) & 0xf] & xorcol) ^ bgcol;
+@@ -474,7 +474,7 @@ static void vga_putcharxy(DisplayState *ds, int x, int y, int ch,
+             font_data = *font_ptr++;
+             if (t_attrib->uline
+                 && ((i == FONT_HEIGHT - 2) || (i == FONT_HEIGHT - 3))) {
+-                font_data = 0xFFFF;
++                font_data = 0xFF;
+             }
+             ((uint32_t *)d)[0] = (dmask4[(font_data >> 6)] & xorcol) ^ bgcol;
+             ((uint32_t *)d)[1] = (dmask4[(font_data >> 4) & 3] & xorcol) ^ bgcol;
+@@ -487,7 +487,7 @@ static void vga_putcharxy(DisplayState *ds, int x, int y, int ch,
+         for(i = 0; i < FONT_HEIGHT; i++) {
+             font_data = *font_ptr++;
+             if (t_attrib->uline && ((i == FONT_HEIGHT - 2) || (i == FONT_HEIGHT - 3))) {
+-                font_data = 0xFFFF;
++                font_data = 0xFF;
+             }
+             ((uint32_t *)d)[0] = (-((font_data >> 7)) & xorcol) ^ bgcol;
+             ((uint32_t *)d)[1] = (-((font_data >> 6) & 1) & xorcol) ^ bgcol;
+-- 
+1.7.11.2
+

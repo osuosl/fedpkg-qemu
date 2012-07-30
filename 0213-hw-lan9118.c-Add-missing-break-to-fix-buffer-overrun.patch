@@ -1,0 +1,37 @@
+From e9552556f514b334b78ed56e32b4af366b429a0b Mon Sep 17 00:00:00 2001
+From: Peter Maydell <peter.maydell@linaro.org>
+Date: Wed, 9 Nov 2011 18:59:54 +0000
+Subject: [PATCH] hw/lan9118.c: Add missing 'break' to fix buffer overrun
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Add a missing 'break' statement to fix a buffer overrun when
+executing the EEPROM write-all command. Spotted by Coverity
+(see bug 887883).
+
+Signed-off-by: Peter Maydell <peter.maydell@linaro.org>
+Signed-off-by: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
+(cherry picked from commit 0e3b800e71cb7759d099eabbd8ad4c4fe848e381)
+
+Signed-off-by: Bruce Rogers <brogers@suse.com>
+Signed-off-by: Andreas Färber <afaerber@suse.de>
+---
+ hw/lan9118.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/hw/lan9118.c b/hw/lan9118.c
+index 73a8661..494b11d 100644
+--- a/hw/lan9118.c
++++ b/hw/lan9118.c
+@@ -863,6 +863,7 @@ static void lan9118_eeprom_cmd(lan9118_state *s, int cmd, int addr)
+         } else {
+             DPRINTF("EEPROM Write All (ignored)\n");
+         }
++        break;
+     case 5: /* ERASE */
+         if (s->eeprom_writable) {
+             s->eeprom[addr] = 0xff;
+-- 
+1.7.11.2
+

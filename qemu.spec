@@ -1,8 +1,8 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 0.15.1
-Release: 6%{?dist}
-# Epoch because we pushed a qemu-1.0 package
+Release: 7%{?dist}
+# Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -89,6 +89,51 @@ Patch103: %{name}-virtio-blk_refuse_SG_IO_requests_with_scsi_off.patch
 # Fix fedora guest hang with virtio console (bz 837925)
 Patch104: %{name}-virtio-console-unconnected-pty.patch
 
+# Patches from 0.15 stable
+Patch200: 0200-ccid-Fix-buffer-overrun-in-handling-of-VSC_ATR-messa.patch
+Patch201: 0201-qdev-Reset-hot-plugged-devices.patch
+Patch202: 0202-e1000-use-MII-status-register-for-link-up-down.patch
+Patch203: 0203-e1000-Don-t-set-the-Capabilities-List-bit.patch
+Patch205: 0205-compatfd.c-Don-t-pass-NULL-pointer-to-SYS_signalfd.patch
+Patch206: 0206-kvm-avoid-reentring-kvm_flush_coalesced_mmio_buffer.patch
+Patch207: 0207-vmdk-vmdk_read_cid-returns-garbage-if-p_name-is-NULL.patch
+Patch208: 0208-block-Fix-bdrv_open-use-after-free.patch
+Patch209: 0209-ide-Fix-off-by-one-error-in-array-index-check.patch
+Patch210: 0210-acl-Fix-use-after-free-in-qemu_acl_reset.patch
+Patch211: 0211-migration-flush-migration-data-to-disk.patch
+Patch212: 0212-Fix-X86-CPU-topology-in-KVM-mode.patch
+Patch213: 0213-hw-lan9118.c-Add-missing-break-to-fix-buffer-overrun.patch
+Patch214: 0214-ac97-don-t-override-the-pci-subsystem-id.patch
+Patch215: 0215-vvfat-Fix-potential-buffer-overflow.patch
+Patch216: 0216-vns-tls-don-t-use-depricated-gnutls-functions.patch
+Patch217: 0217-block-curl-Implement-a-flush-function-on-the-fd-hand.patch
+Patch218: 0218-hda-do-not-mix-output-and-input-streams-RHBZ-740493.patch
+Patch219: 0219-hda-do-not-mix-output-and-input-stream-states-RHBZ-7.patch
+Patch220: 0220-Teach-block-vdi-about-discarded-no-longer-allocated-.patch
+Patch221: 0221-vmdk-Improve-error-handling.patch
+Patch222: 0222-block-set-bs-read_only-before-.bdrv_open.patch
+Patch223: 0223-console-Fix-rendering-of-VGA-underline.patch
+Patch224: 0224-block-Fix-vpc-initialization-of-the-Dynamic-Disk-Hea.patch
+Patch225: 0225-qcow-Fix-bdrv_write_compressed-error-handling.patch
+Patch226: 0226-block-reinitialize-across-bdrv_close-bdrv_open.patch
+Patch227: 0227-qxl-stride-fixup.patch
+Patch228: 0228-vmdk-Fix-possible-segfaults.patch
+Patch230: 0230-cpu-common-Have-a-ram_addr_t-of-uint64-with-Xen.patch
+Patch231: 0231-Error-check-find_ram_offset.patch
+Patch236: 0236-block-vpc-write-checksum-back-to-footer-after-check.patch
+Patch237: 0237-bt-host-add-missing-break-statement.patch
+Patch238: 0238-ds1338-Add-missing-break-statement.patch
+Patch239: 0239-block-vdi-Zero-unused-parts-when-allocating-a-new-bl.patch
+# CVE-2012-2652: Possible symlink attacks with -snapshot (bz 825697, bz
+# 824919)
+Patch240: %{name}-snapshot-symlink-attack.patch
+# Fix systemtap tapsets (bz 831763)
+Patch241: %{name}-fix-systemtap.patch
+# Fix qmp response race caused by spice server bug (bz 744015)
+Patch242: %{name}-spice-server-threading.patch
+# Fix text mode screendumps (bz 819155)
+Patch243: %{name}-fix-text-mode-screendumps.patch
+
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: SDL-devel zlib-devel which texi2html gnutls-devel cyrus-sasl-devel
 BuildRequires: libaio-devel
@@ -121,6 +166,13 @@ Requires: %{name}-img = %{epoch}:%{version}-%{release}
 
 Obsoletes: %{name}-system-ppc
 Obsoletes: %{name}-system-sparc
+
+# Needed for F14->F16+ upgrade
+# https://bugzilla.redhat.com/show_bug.cgi?id=694802
+Obsoletes: openbios-common
+Obsoletes: openbios-ppc
+Obsoletes: openbios-sparc32
+Obsoletes: openbios-sparc64
 
 %define qemudocdir %{_docdir}/%{name}-%{version}
 
@@ -161,9 +213,9 @@ Group: Development/Tools
 Requires(post): /usr/bin/getent
 Requires(post): /usr/sbin/groupadd
 Requires(post): /usr/sbin/useradd
-Requires(post): /sbin/chkconfig
-Requires(preun): /sbin/service /sbin/chkconfig
-Requires(postun): /sbin/service
+Requires(post): systemd-units
+Requires(preun): systemd-units
+Requires(postun): systemd-units
 %description common
 QEMU is a generic and open source processor emulator which achieves a good
 emulation speed by using dynamic translation.
@@ -211,9 +263,8 @@ fi
 Summary: QEMU user mode emulation of qemu targets
 Group: Development/Tools
 Requires: %{name}-common = %{epoch}:%{version}-%{release}
-Requires(post): /sbin/chkconfig
-Requires(preun): /sbin/service /sbin/chkconfig
-Requires(postun): /sbin/service
+Requires(post): systemd-units
+Requires(postun): systemd-units
 %description user
 QEMU is a generic and open source processor emulator which achieves a good
 emulation speed by using dynamic translation.
@@ -228,6 +279,7 @@ Provides: kvm = 85
 Obsoletes: kvm < 85
 Requires: vgabios >= 0.6c-2
 Requires: seabios-bin >= 0.6.0-2
+Requires: sgabios-bin
 Requires: /usr/share/gpxe/8086100e.rom
 Requires: /usr/share/gpxe/rtl8029.rom
 Requires: /usr/share/gpxe/pcnet32.rom
@@ -344,6 +396,45 @@ such as kvm_stat.
 %patch102 -p1
 %patch103 -p1
 %patch104 -p1
+
+%patch200 -p1
+%patch201 -p1
+%patch202 -p1
+%patch203 -p1
+%patch205 -p1
+%patch206 -p1
+%patch207 -p1
+%patch208 -p1
+%patch209 -p1
+%patch210 -p1
+%patch211 -p1
+%patch212 -p1
+%patch213 -p1
+%patch214 -p1
+%patch215 -p1
+%patch216 -p1
+%patch217 -p1
+%patch218 -p1
+%patch219 -p1
+%patch220 -p1
+%patch221 -p1
+%patch222 -p1
+%patch223 -p1
+%patch224 -p1
+%patch225 -p1
+%patch226 -p1
+%patch227 -p1
+%patch228 -p1
+%patch230 -p1
+%patch231 -p1
+%patch236 -p1
+%patch237 -p1
+%patch238 -p1
+%patch239 -p1
+%patch240 -p1
+%patch241 -p1
+%patch242 -p1
+%patch243 -p1
 
 %build
 # By default we build everything, but allow x86 to build a minimal version
@@ -498,6 +589,7 @@ ln -s ../vgabios/VGABIOS-lgpl-latest.cirrus.bin %{buildroot}/%{_datadir}/%{name}
 ln -s ../vgabios/VGABIOS-lgpl-latest.qxl.bin %{buildroot}/%{_datadir}/%{name}/vgabios-qxl.bin
 ln -s ../vgabios/VGABIOS-lgpl-latest.stdvga.bin %{buildroot}/%{_datadir}/%{name}/vgabios-stdvga.bin
 ln -s ../vgabios/VGABIOS-lgpl-latest.vmware.bin %{buildroot}/%{_datadir}/%{name}/vgabios-vmware.bin
+ln -s ../sgabios/sgabios.bin %{buildroot}/%{_datadir}/%{name}/sgabios.bin
 ln -s ../seabios/bios.bin %{buildroot}/%{_datadir}/%{name}/bios.bin
 
 mkdir -p $RPM_BUILD_ROOT%{_exec_prefix}/lib/binfmt.d
@@ -540,40 +632,46 @@ rm -rf $RPM_BUILD_ROOT
 %ifarch %{ix86} x86_64
 # load kvm modules now, so we can make sure no reboot is needed.
 # If there's already a kvm module installed, we don't mess with it
-sh %{_sysconfdir}/sysconfig/modules/kvm.modules
+sh %{_sysconfdir}/sysconfig/modules/kvm.modules || :
 %endif
 
 %post common
 if [ $1 -eq 1 ] ; then
-    getent group kvm >/dev/null || groupadd -g 36 -r kvm
-    getent group qemu >/dev/null || groupadd -g 107 -r qemu
-    getent passwd qemu >/dev/null || \
-        useradd -r -u 107 -g qemu -G kvm -d / -s /sbin/nologin \
-        -c "qemu user" qemu
-
-    /bin/systemctl enable ksm.service
-    /bin/systemctl enable ksmtuned.service
+    # Initial installation
+    /bin/systemctl enable ksm.service >/dev/null 2>&1 || :
+    /bin/systemctl enable ksmtuned.service >/dev/null 2>&1 || :
 fi
 
+getent group kvm >/dev/null || groupadd -g 36 -r kvm
+getent group qemu >/dev/null || groupadd -g 107 -r qemu
+getent passwd qemu >/dev/null || \
+    useradd -r -u 107 -g qemu -G kvm -d / -s /sbin/nologin \
+    -c "qemu user" qemu
+
 %preun common
-if [ $1 -eq 0 ]; then
-    /bin/systemctl --system stop ksmtuned.service &>/dev/null || :
-    /bin/systemctl --system stop ksm.service &>/dev/null || :
-    /bin/systemctl disable ksmtuned.service
-    /bin/systemctl disable ksm.service
+if [ $1 -eq 0 ] ; then
+    # Package removal, not upgrade
+    /bin/systemctl --no-reload disable ksmtuned.service > /dev/null 2>&1 || :
+    /bin/systemctl --no-reload disable ksm.service > /dev/null 2>&1 || :
+    /bin/systemctl stop ksmtuned.service > /dev/null 2>&1 || :
+    /bin/systemctl stop ksm.service > /dev/null 2>&1 || :
 fi
 
 %postun common
-if [ $1 -ge 1 ]; then
-    /bin/systemctl --system try-restart ksm.service &>/dev/null || :
-    /bin/systemctl --system try-restart ksmtuned.service &>/dev/null || :
+/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+if [ $1 -ge 1 ] ; then
+    # Package upgrade, not uninstall
+    /bin/systemctl try-restart ksmtuned.service >/dev/null 2>&1 || :
+    /bin/systemctl try-restart ksm.service >/dev/null 2>&1 || :
 fi
+
 
 %post user
 /bin/systemctl --system try-restart systemd-binfmt.service &>/dev/null || :
 
 %postun user
 /bin/systemctl --system try-restart systemd-binfmt.service &>/dev/null || :
+
 
 %files
 %defattr(-,root,root)
@@ -648,6 +746,7 @@ fi
 %{_bindir}/qemu
 %{_bindir}/qemu-system-x86_64
 %{_datadir}/%{name}/bios.bin
+%{_datadir}/%{name}/sgabios.bin
 %{_datadir}/%{name}/linuxboot.bin
 %{_datadir}/%{name}/multiboot.bin
 %{_datadir}/%{name}/mpc8544ds.dtb
@@ -724,6 +823,18 @@ fi
 %{_mandir}/man1/qemu-img.1*
 
 %changelog
+* Sun Jul 29 2012 Cole Robinson <crobinso@redhat.com> - 0.15.1-7
+- Pull patches from 0.15 stable
+- CVE-2012-2652: Possible symlink attacks with -snapshot (bz 825697, bz
+  824919)
+- Fix systemtap tapsets (bz 831763)
+- Fix qmp response race caused by spice server bug (bz 744015)
+- Fix text mode screendumps (bz 819155)
+- Don't renable ksm on update (bz 815156)
+- Fix RPM install error on non-virt machines (bz 660629)
+- Obsolete openbios to fix upgrade dependency issues (bz 694802)
+- Fix sgabios integration (bz 791344)
+
 * Wed Jul 18 2012 Cole Robinson <crobinso@redhat.com> - 0.15.1-6
 - Fix fedora guest hang with virtio console (bz 837925)
 
@@ -734,7 +845,7 @@ fi
 * Mon Jan 30 2012 Justin M. Forbes <jforbes@redhat.com> - 2:0.15.1-4
 - Add vhost-net to kvm.modules
 - Fix USB passthrough assert on packet completion (#769625)
-- 
+
 * Thu Jan  5 2012 Christophe Fergeau <cfergeau@redhat.com> - 2:0.15.1-3.1
 - Backport patches from qemu 1.0 to fix floppy drives (#753863)
 
@@ -749,7 +860,7 @@ fi
 - Require seabios-bin >= 0.6.0-2 (#741992)
 - Replace init scripts with systemd units (#741920)
 - Update to 0.15.1 stable upstream
-  
+
 * Fri Oct 21 2011 Paul Moore <pmoore@redhat.com>
 - Enable full relro and PIE (rhbz #738812)
 

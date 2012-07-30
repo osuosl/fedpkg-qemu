@@ -1,0 +1,55 @@
+From f51851ea928882bd3d49cbb6d953723294239d8a Mon Sep 17 00:00:00 2001
+From: Kevin Wolf <kwolf@redhat.com>
+Date: Wed, 26 Oct 2011 12:25:52 +0200
+Subject: [PATCH] vmdk: Fix possible segfaults
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Data we read from the disk isn't necessarily null terminated and may not
+contain the string we're looking for. The code needs to be a bit more careful
+here.
+
+Signed-off-by: Kevin Wolf <kwolf@redhat.com>
+(cherry picked from commit 93897b9fd43548e9c15cf8bece2d9e5174b01fc7)
+
+Signed-off-by: Bruce Rogers <brogers@suse.com>
+Signed-off-by: Andreas Färber <afaerber@suse.de>
+---
+ block/vmdk.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/block/vmdk.c b/block/vmdk.c
+index 8284747..f4fce08 100644
+--- a/block/vmdk.c
++++ b/block/vmdk.c
+@@ -196,6 +196,7 @@ static uint32_t vmdk_read_cid(BlockDriverState *bs, int parent)
+         cid_str_size = sizeof("CID");
+     }
+ 
++    desc[DESC_SIZE - 1] = '\0';
+     p_name = strstr(desc, cid_str);
+     if (p_name != NULL) {
+         p_name += cid_str_size;
+@@ -212,13 +213,17 @@ static int vmdk_write_cid(BlockDriverState *bs, uint32_t cid)
+     BDRVVmdkState *s = bs->opaque;
+     int ret;
+ 
+-    memset(desc, 0, sizeof(desc));
+     ret = bdrv_pread(bs->file, s->desc_offset, desc, DESC_SIZE);
+     if (ret < 0) {
+         return ret;
+     }
+ 
++    desc[DESC_SIZE - 1] = '\0';
+     tmp_str = strstr(desc, "parentCID");
++    if (tmp_str == NULL) {
++        return -EINVAL;
++    }
++
+     pstrcpy(tmp_desc, sizeof(tmp_desc), tmp_str);
+     p_name = strstr(desc, "CID");
+     if (p_name != NULL) {
+-- 
+1.7.11.2
+

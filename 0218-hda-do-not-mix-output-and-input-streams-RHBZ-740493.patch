@@ -1,0 +1,51 @@
+From 05a5f7c79ad8dc4887e7cd60c2572121b51adce7 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Marc-Andr=C3=A9=20Lureau?= <marcandre.lureau@gmail.com>
+Date: Tue, 25 Oct 2011 16:53:00 +0200
+Subject: [PATCH] hda: do not mix output and input streams, RHBZ #740493
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Windows 7 may use the same stream number for input and output.
+That will result in lot of garbage on playback.
+
+The hardcoded value of 4 needs to be in sync with GCAP streams
+description and IN/OUT registers.
+
+Signed-off-by: Marc-Andr? Lureau <marcandre.lureau@redhat.com>
+Signed-off-by: malc <av1474@comtv.ru>
+(cherry picked from commit 36ac4ad3d054a7b4962a6393630a73591cfa9558)
+
+Signed-off-by: Bruce Rogers <brogers@suse.com>
+Signed-off-by: Andreas Färber <afaerber@suse.de>
+---
+ hw/intel-hda.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
+
+diff --git a/hw/intel-hda.c b/hw/intel-hda.c
+index 5a2bc3a..7d02558 100644
+--- a/hw/intel-hda.c
++++ b/hw/intel-hda.c
+@@ -389,14 +389,15 @@ static bool intel_hda_xfer(HDACodecDevice *dev, uint32_t stnr, bool output,
+ {
+     HDACodecBus *bus = DO_UPCAST(HDACodecBus, qbus, dev->qdev.parent_bus);
+     IntelHDAState *d = container_of(bus, IntelHDAState, codecs);
+-    IntelHDAStream *st = NULL;
+     target_phys_addr_t addr;
+     uint32_t s, copy, left;
++    IntelHDAStream *st;
+     bool irq = false;
+ 
+-    for (s = 0; s < ARRAY_SIZE(d->st); s++) {
+-        if (stnr == ((d->st[s].ctl >> 20) & 0x0f)) {
+-            st = d->st + s;
++    st = output ? d->st + 4 : d->st;
++    for (s = 0; s < 4; s++) {
++        if (stnr == ((st[s].ctl >> 20) & 0x0f)) {
++            st = st + s;
+             break;
+         }
+     }
+-- 
+1.7.11.2
+
