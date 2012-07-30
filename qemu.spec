@@ -37,9 +37,9 @@
 
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
-Version: 1.0
-Release: 18%{?dist}
-# Epoch because we pushed a qemu-1.0 package
+Version: 1.0.1
+Release: 1%{?dist}
+# Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -74,35 +74,6 @@ Source9: ksmtuned.conf
 
 Source10: qemu-guest-agent.service
 Source11: 99-qemu-guest-agent.rules
-
-# Patches queued for 1.0.1 stable
-Patch01: 0001-malta-Fix-regression-i8259-interrupts-did-not-work.patch
-Patch02: 0002-exec.c-Fix-subpage-memory-access-to-RAM-MemoryRegion.patch
-Patch03: 0003-hw-9pfs-Improve-portability-to-older-systems.patch
-Patch04: 0004-hw-9pfs-use-migration-blockers-to-prevent-live-migra.patch
-Patch05: 0005-hw-9pfs-Reset-server-state-during-TVERSION.patch
-Patch06: 0006-hw-9pfs-Add-qdev.reset-callback-for-virtio-9p-pci-de.patch
-Patch07: 0007-hw-9pfs-Use-the-correct-file-descriptor-in-Fsdriver-.patch
-Patch08: 0008-hw-9pfs-replace-iovec-manipulation-with-QEMUIOVector.patch
-Patch09: 0009-hw-9pfs-Use-the-correct-signed-type-for-different-va.patch
-Patch10: 0010-target-i386-fix-cmpxchg-instruction-emulation.patch
-Patch11: 0011-configure-Enable-build-by-default-PIE-read-only-relo.patch
-Patch12: 0012-cris-Handle-conditional-stores-on-CRISv10.patch
-Patch13: 0013-pc-add-pc-0.15.patch
-Patch14: 0014-pc-fix-event_idx-compatibility-for-virtio-devices.patch
-Patch15: 0015-Fix-parse-of-usb-device-description-with-multiple-co.patch
-Patch16: 0016-usb-storage-cancel-I-O-on-reset.patch
-Patch17: 0017-usb-host-properly-release-port-on-unplug-exit.patch
-Patch18: 0018-usb-ohci-td.cbp-incorrectly-updated-near-page-end.patch
-Patch19: 0019-target-sh4-ignore-ocbp-and-ocbwb-instructions.patch
-Patch20: 0020-PPC-Fix-linker-scripts-on-ppc-hosts.patch
-Patch21: 0021-qiov-prevent-double-free-or-use-after-free.patch
-Patch22: 0022-coroutine-switch-per-thread-free-pool-to-a-global-po.patch
-Patch23: 0023-qemu-img-rebase-Fix-for-undersized-backing-files.patch
-Patch24: 0024-Documentation-Add-qemu-img-t-parameter-in-man-page.patch
-Patch25: 0025-rbd-always-set-out-parameter-in-qemu_rbd_snap_list.patch
-Patch26: 0026-e1000-bounds-packet-size-against-buffer-size.patch
-Patch27: virtio-blk_refuse_SG_IO_requests_with_scsi_off.patch
 
 # USB-redir patches all upstream for 1.1 except for the chardev flowcontrol set
 Patch101: 0101-usb-redir-Clear-iso-irq-error-when-stopping-the-stre.patch
@@ -154,7 +125,6 @@ Patch146: 0146-usb-redir-Not-finding-an-async-urb-id-is-not-an-erro.patch
 Patch147: 0147-usb-ehci-Ensure-frindex-writes-leave-a-valid-frindex.patch
 
 # General bug fixes
-Patch201: Fix_save-restore_of_in-kernel_i8259.patch
 Patch202: qemu-virtio-9p-noatime.patch
 
 # Feature patches, should be in 1.1 before release
@@ -209,6 +179,13 @@ Patch508: 0508-configure-pa_simple-is-not-needed-anymore.patch
 Patch509: 0509-Allow-controlling-volume-with-PulseAudio-backend.patch
 # Fix fedora guest hang with virtio console (bz 837925)
 Patch510: %{name}-virtio-console-unconnected-pty.patch
+# Fix VNC audio tunnelling (bz 840653)
+Patch511: %{name}-fix-vnc-audio.patch
+# CVE-2012-2652: Possible symlink attacks with -snapshot (bz 825697, bz
+# 824919)
+Patch512: %{name}-snapshot-symlink-attack.patch
+# Fix systemtap tapsets (bz 831763)
+Patch513: %{name}-fix-systemtap.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: SDL-devel zlib-devel which texi2html gnutls-devel cyrus-sasl-devel
@@ -218,7 +195,7 @@ BuildRequires: pciutils-devel
 BuildRequires: pulseaudio-libs-devel
 BuildRequires: ncurses-devel
 BuildRequires: libattr-devel
-BuildRequires: usbredir-devel
+BuildRequires: usbredir-devel >= 0.4.1
 BuildRequires: texinfo
 %ifarch %{ix86} x86_64
 BuildRequires: spice-protocol >= 0.8.1
@@ -267,6 +244,13 @@ Requires: %{name}-img = %{epoch}:%{version}-%{release}
 Obsoletes: %{name}-system-ppc
 Obsoletes: %{name}-system-sparc
 
+# Needed for F14->F16+ upgrade
+# https://bugzilla.redhat.com/show_bug.cgi?id=694802
+Obsoletes: openbios-common
+Obsoletes: openbios-ppc
+Obsoletes: openbios-sparc32
+Obsoletes: openbios-sparc64
+
 %define qemudocdir %{_docdir}/%{name}-%{version}
 
 %description
@@ -312,9 +296,9 @@ Group: Development/Tools
 Requires(post): /usr/bin/getent
 Requires(post): /usr/sbin/groupadd
 Requires(post): /usr/sbin/useradd
-Requires(post): /sbin/chkconfig
-Requires(preun): /sbin/service /sbin/chkconfig
-Requires(postun): /sbin/service
+Requires(post): systemd-units
+Requires(preun): systemd-units
+Requires(postun): systemd-units
 %description common
 QEMU is a generic and open source processor emulator which achieves a good
 emulation speed by using dynamic translation.
@@ -362,9 +346,8 @@ fi
 Summary: QEMU user mode emulation of qemu targets
 Group: Development/Tools
 Requires: %{name}-common = %{epoch}:%{version}-%{release}
-Requires(post): /sbin/chkconfig
-Requires(preun): /sbin/service /sbin/chkconfig
-Requires(postun): /sbin/service
+Requires(post): systemd-units
+Requires(postun): systemd-units
 %description user
 QEMU is a generic and open source processor emulator which achieves a good
 emulation speed by using dynamic translation.
@@ -454,33 +437,6 @@ such as kvm_stat.
 
 %prep
 %setup -q -n qemu-kvm-%{version}
-%patch01 -p1
-%patch02 -p1
-%patch03 -p1
-%patch04 -p1
-%patch05 -p1
-%patch06 -p1
-%patch07 -p1
-%patch08 -p1
-%patch09 -p1
-%patch10 -p1
-%patch11 -p1
-%patch12 -p1
-%patch13 -p1
-%patch14 -p1
-%patch15 -p1
-%patch16 -p1
-%patch17 -p1
-%patch18 -p1
-%patch19 -p1
-%patch20 -p1
-%patch21 -p1
-%patch22 -p1
-%patch23 -p1
-%patch24 -p1
-%patch25 -p1
-%patch26 -p1
-%patch27 -p1
 
 %patch101 -p1
 %patch102 -p1
@@ -530,7 +486,6 @@ such as kvm_stat.
 %patch146 -p1
 %patch147 -p1
 
-%patch201 -p1
 %patch202 -p1
 
 %patch301 -p1
@@ -581,6 +536,9 @@ such as kvm_stat.
 %patch508 -p1
 %patch509 -p1
 %patch510 -p1
+%patch511 -p1
+%patch512 -p1
+%patch513 -p1
 
 
 %build
@@ -816,38 +774,46 @@ rm -rf $RPM_BUILD_ROOT
 %ifarch %{ix86} x86_64
 # load kvm modules now, so we can make sure no reboot is needed.
 # If there's already a kvm module installed, we don't mess with it
-sh %{_sysconfdir}/sysconfig/modules/kvm.modules
+sh %{_sysconfdir}/sysconfig/modules/kvm.modules || :
 %endif
 
 %post common
+if [ $1 -eq 1 ] ; then
+    # Initial installation
+    /bin/systemctl enable ksm.service >/dev/null 2>&1 || :
+    /bin/systemctl enable ksmtuned.service >/dev/null 2>&1 || :
+fi
+
 getent group kvm >/dev/null || groupadd -g 36 -r kvm
 getent group qemu >/dev/null || groupadd -g 107 -r qemu
 getent passwd qemu >/dev/null || \
   useradd -r -u 107 -g qemu -G kvm -d / -s /sbin/nologin \
     -c "qemu user" qemu
 
-/bin/systemctl enable ksm.service
-/bin/systemctl enable ksmtuned.service
-
 %preun common
-if [ $1 -eq 0 ]; then
-    /bin/systemctl --system stop ksmtuned.service &>/dev/null || :
-    /bin/systemctl --system stop ksm.service &>/dev/null || :
-    /bin/systemctl disable ksmtuned.service
-    /bin/systemctl disable ksm.service
+if [ $1 -eq 0 ] ; then
+    # Package removal, not upgrade
+    /bin/systemctl --no-reload disable ksmtuned.service > /dev/null 2>&1 || :
+    /bin/systemctl --no-reload disable ksm.service > /dev/null 2>&1 || :
+    /bin/systemctl stop ksmtuned.service > /dev/null 2>&1 || :
+    /bin/systemctl stop ksm.service > /dev/null 2>&1 || :
 fi
 
 %postun common
-if [ $1 -ge 1 ]; then
-    /bin/systemctl --system try-restart ksm.service &>/dev/null || :
-    /bin/systemctl --system try-restart ksmtuned.service &>/dev/null || :
+/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+if [ $1 -ge 1 ] ; then
+    # Package upgrade, not uninstall
+    /bin/systemctl try-restart ksmtuned.service >/dev/null 2>&1 || :
+    /bin/systemctl try-restart ksm.service >/dev/null 2>&1 || :
 fi
+
 
 %post user
 /bin/systemctl --system try-restart systemd-binfmt.service &>/dev/null || :
 
 %postun user
 /bin/systemctl --system try-restart systemd-binfmt.service &>/dev/null || :
+
 
 %files
 %defattr(-,root,root)
@@ -1012,6 +978,16 @@ fi
 %{_mandir}/man1/qemu-img.1*
 
 %changelog
+* Sun Jul 29 2012 Cole Robinson <crobinso@redhat.com> - 1.0.1-2
+- Fix VNC audio tunnelling (bz 840653)
+- CVE-2012-2652: Possible symlink attacks with -snapshot (bz 825697, bz
+  824919)
+- Fix systemtap tapsets (bz 831763)
+- Don't renable ksm on update (bz 815156)
+- Bump usbredir dep (bz 812097)
+- Fix RPM install error on non-virt machines (bz 660629)
+- Obsolete openbios to fix upgrade dependency issues (bz 694802)
+
 * Wed Jul 18 2012 Cole Robinson <crobinso@redhat.com> - 1.0-18
 - Fix fedora guest hang with virtio console (bz 837925)
 

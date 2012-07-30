@@ -1,0 +1,16 @@
+diff -rup qemu-kvm-1.0.1/scripts/tracetool foo/scripts/tracetool
+--- qemu-kvm-1.0.1/scripts/tracetool	2012-04-16 22:15:17.000000000 -0400
++++ foo/scripts/tracetool	2012-07-29 20:46:52.628797169 -0400
+@@ -499,6 +499,12 @@ EOF
+         # 'limit' is a reserved keyword
+         if [ "$arg" = "limit" ]; then
+           arg="_limit"
++        if [ "$arg" = "in" ]; then
++          arg="_in"
++        if [ "$arg" = "next" ]; then
++          arg="_next"
++        if [ "$arg" = "self" ]; then
++          arg="_self"
+         fi
+         cat <<EOF
+   $arg = \$arg$i;
