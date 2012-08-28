@@ -34,13 +34,12 @@
 %bcond_without fdt              # enabled
 %endif
 
-%global gitdate 20120806
-%global gitcommit 3e430569
+%global rcversion rc1
 
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
-Version: 1.2
-Release: 0.3.%{gitdate}git%{gitcommit}%{?dist}
+Version: 1.2.0
+Release: 0.4.%{rcversion}%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -56,14 +55,7 @@ ExclusiveArch: x86_64
 %define _smp_mflags %{nil}
 %endif
 
-# There aren't any 1.2 releases yet, so we have to pull from git:
-#
-# git clone git://git.kernel.org/pub/scm/virt/kvm/qemu-kvm.git
-# cd qemu-kvm
-# git archive -o ../qemu-kvm-%{version}-%{gitcommit}.tar.gz \
-#     --prefix=qemu-kvm-%{version}/ %{gitcommit}
-Source0: qemu-kvm-%{version}-%{gitcommit}.tar.gz
-#Source0: http://downloads.sourceforge.net/sourceforge/kvm/qemu-kvm-%{version}.tar.gz
+Source0: http://downloads.sourceforge.net/sourceforge/kvm/qemu-kvm-%{version}-%{rcversion}.tar.gz
 
 Source1: qemu.binfmt
 
@@ -88,11 +80,8 @@ Source11: 99-qemu-guest-agent.rules
 Patch1: 0001-mips-Fix-link-error-with-piix4_pm_init.patch
 
 # Add ./configure --disable-kvm-options
-# Sent upstream on August 13 2012
+# keep: Carrying locally until qemu-kvm is fully merged into qemu.git
 Patch2: 0002-configure-Add-disable-kvm-options.patch
-
-# Fix broken vhost-net (upstream).
-Patch3: 0001-virtio-fix-vhost-handling.patch
 
 # The infamous chardev flow control patches
 Patch101: 0101-char-Split-out-tcp-socket-close-code-in-a-separate-f.patch
@@ -127,6 +116,7 @@ BuildRequires: texinfo
 %ifarch %{ix86} x86_64
 BuildRequires: spice-protocol >= 0.8.1
 BuildRequires: spice-server-devel >= 0.9.0
+BuildRequires: libseccomp-devel >= 1.0.0
 %endif
 # For network block driver
 BuildRequires: libcurl-devel
@@ -287,6 +277,9 @@ Requires: vgabios >= 0.6c-2
 Requires: seabios-bin >= 0.6.0-2
 Requires: sgabios-bin
 Requires: ipxe-roms-qemu
+%ifarch %{ix86} x86_64
+Requires: libseccomp >= 1.0.0
+%endif
 
 %description system-x86
 QEMU is a generic and open source processor emulator which achieves a good
@@ -382,11 +375,10 @@ such as kvm_stat.
 %endif
 
 %prep
-%setup -q -n qemu-kvm-%{version}
+%setup -q -n qemu-kvm-%{version}-%{rcversion}
 
 %patch1 -p1
 %patch2 -p1
-%patch3 -p1
 
 %patch101 -p1
 %patch102 -p1
@@ -446,6 +438,7 @@ dobuild() {
 %ifarch %{ix86} x86_64
         --enable-spice \
         --enable-mixemu \
+        --enable-seccomp \
 %endif
 %if %{without rbd}
         --disable-rbd \
@@ -878,6 +871,9 @@ fi
 %{_mandir}/man1/qemu-img.1*
 
 %changelog
+* Tue Aug 28 2012 Cole Robinson <crobinso@redhat.com> 1.2.0-0.4.rc1
+- Update to 1.2.0-rc1
+
 * Mon Aug 20 2012 Richard W.M. Jones <rjones@redhat.com> - 1.2-0.3.20120806git3e430569
 - Backport Bonzini's vhost-net fix (RHBZ#848400).
 
