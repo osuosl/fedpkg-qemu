@@ -39,7 +39,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.2.0
-Release: 0.4.%{rcversion}%{?dist}
+Release: 0.5.%{rcversion}%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -197,7 +197,7 @@ Group: Development/Tools
 # update qemu-img without updating librdb you get:
 # qemu-img: undefined symbol: rbd_flush
 # ** NB ** This can be removed after Fedora 17 is released.
-Requires: ceph >= 0.37-2
+Conflicts: ceph < 0.37-2
 %endif
 
 %description img
@@ -871,6 +871,10 @@ fi
 %{_mandir}/man1/qemu-img.1*
 
 %changelog
+* Tue Sep 04 2012 Adam Jackson <ajax@redhat.com> 1.2.0-0.5.rc1
+- Flip Requires: ceph >= foo to Conflicts: ceph < foo, so we pull in only the
+  libraries which we need and not the rest of ceph which we don't.
+
 * Tue Aug 28 2012 Cole Robinson <crobinso@redhat.com> 1.2.0-0.4.rc1
 - Update to 1.2.0-rc1
 
