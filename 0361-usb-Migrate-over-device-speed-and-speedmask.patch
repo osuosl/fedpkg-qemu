@@ -1,0 +1,43 @@
+From 6ba840c192897029895930a504527d4350b88d26 Mon Sep 17 00:00:00 2001
+From: Hans de Goede <hdegoede@redhat.com>
+Date: Thu, 6 Sep 2012 15:34:19 +0200
+Subject: [PATCH 361/366] usb: Migrate over device speed and speedmask
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ hw/usb.h     | 4 ++--
+ hw/usb/bus.c | 2 ++
+ 2 files changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/hw/usb.h b/hw/usb.h
+index 48c8926..918af99 100644
+--- a/hw/usb.h
++++ b/hw/usb.h
+@@ -204,9 +204,9 @@ struct USBDevice {
+     uint32_t flags;
+ 
+     /* Actual connected speed */
+-    int speed;
++    int32_t speed;
+     /* Supported speeds, not in info because it may be variable (hostdevs) */
+-    int speedmask;
++    int32_t speedmask;
+     uint8_t addr;
+     char product_desc[32];
+     int auto_attach;
+diff --git a/hw/usb/bus.c b/hw/usb/bus.c
+index b649360..223c1df 100644
+--- a/hw/usb/bus.c
++++ b/hw/usb/bus.c
+@@ -55,6 +55,8 @@ const VMStateDescription vmstate_usb_device = {
+     .minimum_version_id = 1,
+     .post_load = usb_device_post_load,
+     .fields = (VMStateField []) {
++        VMSTATE_INT32(speed, USBDevice),
++        VMSTATE_INT32(speedmask, USBDevice),
+         VMSTATE_UINT8(addr, USBDevice),
+         VMSTATE_INT32(state, USBDevice),
+         VMSTATE_INT32(remote_wakeup, USBDevice),
+-- 
+1.7.12
+

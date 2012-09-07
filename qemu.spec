@@ -34,12 +34,10 @@
 %bcond_without fdt              # enabled
 %endif
 
-%global rcversion rc1
-
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.2.0
-Release: 0.5.%{rcversion}%{?dist}
+Release: 1%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -55,7 +53,10 @@ ExclusiveArch: x86_64
 %define _smp_mflags %{nil}
 %endif
 
-Source0: http://downloads.sourceforge.net/sourceforge/kvm/qemu-kvm-%{version}-%{rcversion}.tar.gz
+# This is generated from the git qemu-kvm-1.2.0 tag, replace with proper
+# upstream tarbal once available
+Source0: qemu-kvm-%{version}.tar.gz
+#Source0: http://downloads.sourceforge.net/sourceforge/kvm/qemu-kvm-%{version}.tar.gz
 
 Source1: qemu.binfmt
 
@@ -98,6 +99,96 @@ Patch111: 0111-usb-redir-Add-flow-control-support.patch
 Patch112: 0112-virtio-serial-bus-replay-guest_open-on-migration.patch
 Patch113: 0113-char-Disable-write-callback-if-throttled-chardev-is-.patch
 
+# Spice features from upstream master: seamless migration & dynamic monitors
+Patch201: 0201-spice-abort-on-invalid-streaming-cmdline-params.patch
+Patch202: 0202-spice-notify-spice-server-on-vm-start-stop.patch
+Patch203: 0203-spice-notify-on-vm-state-change-only-via-spice_serve.patch
+Patch204: 0204-spice-migration-add-QEVENT_SPICE_MIGRATE_COMPLETED.patch
+Patch205: 0205-spice-add-migrated-flag-to-spice-info.patch
+Patch206: 0206-spice-adding-seamless-migration-option-to-the-comman.patch
+Patch207: 0207-spice-increase-the-verbosity-of-spice-section-in-qem.patch
+Patch208: 0208-qxl-update_area_io-guest_bug-on-invalid-parameters.patch
+Patch209: 0209-qxl-disallow-unknown-revisions.patch
+Patch210: 0210-qxl-add-QXL_IO_MONITORS_CONFIG_ASYNC.patch
+Patch211: 0211-configure-print-spice-protocol-and-spice-server-vers.patch
+Patch212: 0212-spice-make-number-of-surfaces-runtime-configurable.patch
+Patch213: 0213-qxl-Add-set_client_capabilities-interface-to-QXLInte.patch
+Patch214: 0214-Remove-ifdef-QXL_COMMAND_FLAG_COMPAT_16BPP.patch
+Patch215: 0215-qxl-dont-update-invalid-area.patch
+
+# Ugh, ton of USB bugfixes / preparation patches for usb-redir
+# live-migration which did not make 1.2.0 :|
+# All are in upstream master so can be dropped next qemu release
+Patch0301: 0301-usb-controllers-do-not-need-to-check-for-babble-them.patch
+Patch0302: 0302-usb-core-Don-t-set-packet-state-to-complete-on-a-nak.patch
+Patch0303: 0303-usb-core-Add-a-usb_ep_find_packet_by_id-helper-funct.patch
+Patch0304: 0304-usb-core-Allow-the-first-packet-of-a-pipelined-ep-to.patch
+Patch0305: 0305-Revert-ehci-don-t-flush-cache-on-doorbell-rings.patch
+Patch0306: 0306-ehci-Validate-qh-is-not-changed-unexpectedly-by-the-.patch
+Patch0307: 0307-ehci-Update-copyright-headers-to-reflect-recent-work.patch
+Patch0308: 0308-ehci-Properly-cleanup-packets-on-cancel.patch
+Patch0309: 0309-ehci-Properly-report-completed-but-not-yet-processed.patch
+Patch0310: 0310-ehci-check-for-EHCI_ASYNC_FINISHED-first-in-ehci_fre.patch
+Patch0311: 0311-ehci-trace-guest-bugs.patch
+Patch0312: 0312-ehci-add-doorbell-trace-events.patch
+Patch0313: 0313-ehci-Add-some-additional-ehci_trace_guest_bug-calls.patch
+Patch0314: 0314-ehci-Fix-memory-leak-in-handling-of-NAK-ed-packets.patch
+Patch0315: 0315-ehci-Handle-USB_RET_PROCERR-in-ehci_fill_queue.patch
+Patch0316: 0316-ehci-Correct-a-comment-in-fetchqtd-packet-processing.patch
+Patch0317: 0317-usb-redir-Never-return-USB_RET_NAK-for-async-handled.patch
+Patch0318: 0318-usb-redir-Don-t-delay-handling-of-open-events-to-a-b.patch
+Patch0319: 0319-usb-redir-Get-rid-of-async-struct-get-member.patch
+Patch0320: 0320-usb-redir-Get-rid-of-local-shadow-copy-of-packet-hea.patch
+Patch0321: 0321-usb-redir-Get-rid-of-unused-async-struct-dev-member.patch
+Patch0322: 0322-usb-redir-Move-to-core-packet-id-and-queue-handling.patch
+Patch0323: 0323-usb-redir-Return-babble-when-getting-more-bulk-data-.patch
+Patch0324: 0324-usb-redir-Convert-to-new-libusbredirparser-0.5-API.patch
+Patch0325: 0325-usb-redir-Set-ep-max_packet_size-if-available.patch
+Patch0326: 0326-usb-redir-Add-a-usbredir_reject_device-helper-functi.patch
+Patch0327: 0327-usb-redir-Ensure-our-peer-has-the-necessary-caps-whe.patch
+Patch0328: 0328-usb-redir-Enable-pipelining-for-bulk-endpoints.patch
+Patch0329: 0329-Better-name-usb-braille-device.patch
+Patch0330: 0330-usb-audio-fix-usb-version.patch
+Patch0331: 0331-xhci-rip-out-background-transfer-code.patch
+Patch0332: 0332-xhci-drop-buffering.patch
+Patch0333: 0333-xhci-move-device-lookup-into-xhci_setup_packet.patch
+Patch0334: 0334-xhci-implement-mfindex.patch
+Patch0335: 0335-xhci-iso-xfer-support.patch
+Patch0336: 0336-xhci-trace-cc-codes-in-cleartext.patch
+Patch0337: 0337-xhci-add-trace_usb_xhci_ep_set_dequeue.patch
+Patch0338: 0338-xhci-fix-runtime-write-tracepoint.patch
+Patch0339: 0339-xhci-update-register-layout.patch
+Patch0340: 0340-xhci-update-port-handling.patch
+Patch0341: 0341-usb3-superspeed-descriptors.patch
+Patch0342: 0342-usb3-superspeed-endpoint-companion.patch
+Patch0343: 0343-usb3-bos-decriptor.patch
+Patch0344: 0344-usb-storage-usb3-support.patch
+Patch0345: 0345-xhci-fix-cleanup-msi.patch
+Patch0346: 0346-xhci-rework-interrupt-handling.patch
+Patch0347: 0347-xhci-add-msix-support.patch
+Patch0348: 0348-xhci-move-register-update-into-xhci_intr_raise.patch
+Patch0349: 0349-xhci-add-XHCIInterrupter.patch
+Patch0350: 0350-xhci-prepare-xhci_runtime_-read-write-for-multiple-i.patch
+Patch0351: 0351-xhci-pick-target-interrupter.patch
+Patch0352: 0352-xhci-support-multiple-interrupters.patch
+Patch0353: 0353-xhci-kill-xhci_mem_-read-write-dispatcher-functions.patch
+Patch0354: 0354-xhci-allow-bytewise-capability-register-reads.patch
+Patch0355: 0355-ehci-switch-to-new-style-memory-ops.patch
+Patch0356: 0356-xhci-drop-unused-wlength.patch
+Patch0357: 0357-usb-host-allow-emulated-non-async-control-requests-w.patch
+
+# And the last few ehci fixes + the actual usb-redir live migration code
+# Not yet upstream but should get there real soon
+Patch0358: 0358-ehci-Don-t-set-seen-to-0-when-removing-unseen-queue-.patch
+Patch0359: 0359-ehci-Walk-async-schedule-before-and-after-migration.patch
+Patch0360: 0360-ehci-Don-t-process-too-much-frames-in-1-timer-tick.patch
+Patch0361: 0361-usb-Migrate-over-device-speed-and-speedmask.patch
+Patch0362: 0362-usb-redir-Change-cancelled-packet-code-into-a-generi.patch
+Patch0363: 0363-usb-redir-Add-an-already_in_flight-packet-id-queue.patch
+Patch0364: 0364-usb-redir-Store-max_packet_size-in-endp_data.patch
+Patch0365: 0365-usb-redir-Add-support-for-migration.patch
+Patch0366: 0366-usb-redir-Add-chardev-open-close-debug-logging.patch
+
 BuildRequires: SDL-devel
 BuildRequires: zlib-devel
 BuildRequires: which
@@ -111,11 +202,11 @@ BuildRequires: pciutils-devel
 BuildRequires: pulseaudio-libs-devel
 BuildRequires: ncurses-devel
 BuildRequires: libattr-devel
-BuildRequires: usbredir-devel >= 0.4.1
+BuildRequires: usbredir-devel >= 0.5
 BuildRequires: texinfo
 %ifarch %{ix86} x86_64
-BuildRequires: spice-protocol >= 0.8.1
-BuildRequires: spice-server-devel >= 0.9.0
+BuildRequires: spice-protocol >= 0.12.1
+BuildRequires: spice-server-devel >= 0.11.3
 BuildRequires: libseccomp-devel >= 1.0.0
 %endif
 # For network block driver
@@ -375,7 +466,7 @@ such as kvm_stat.
 %endif
 
 %prep
-%setup -q -n qemu-kvm-%{version}-%{rcversion}
+%setup -q -n qemu-kvm-%{version}
 
 %patch1 -p1
 %patch2 -p1
@@ -393,6 +484,90 @@ such as kvm_stat.
 %patch111 -p1
 %patch112 -p1
 %patch113 -p1
+
+%patch201 -p1
+%patch202 -p1
+%patch203 -p1
+%patch204 -p1
+%patch205 -p1
+%patch206 -p1
+%patch207 -p1
+%patch208 -p1
+%patch209 -p1
+%patch210 -p1
+%patch211 -p1
+%patch212 -p1
+%patch213 -p1
+%patch214 -p1
+%patch215 -p1
+
+%patch301 -p1
+%patch302 -p1
+%patch303 -p1
+%patch304 -p1
+%patch305 -p1
+%patch306 -p1
+%patch307 -p1
+%patch308 -p1
+%patch309 -p1
+%patch310 -p1
+%patch311 -p1
+%patch312 -p1
+%patch313 -p1
+%patch314 -p1
+%patch315 -p1
+%patch316 -p1
+%patch317 -p1
+%patch318 -p1
+%patch319 -p1
+%patch320 -p1
+%patch321 -p1
+%patch322 -p1
+%patch323 -p1
+%patch324 -p1
+%patch325 -p1
+%patch326 -p1
+%patch327 -p1
+%patch328 -p1
+%patch329 -p1
+%patch330 -p1
+%patch331 -p1
+%patch332 -p1
+%patch333 -p1
+%patch334 -p1
+%patch335 -p1
+%patch336 -p1
+%patch337 -p1
+%patch338 -p1
+%patch339 -p1
+%patch340 -p1
+%patch341 -p1
+%patch342 -p1
+%patch343 -p1
+%patch344 -p1
+%patch345 -p1
+%patch346 -p1
+%patch347 -p1
+%patch348 -p1
+%patch349 -p1
+%patch350 -p1
+%patch351 -p1
+%patch352 -p1
+%patch353 -p1
+%patch354 -p1
+%patch355 -p1
+%patch356 -p1
+%patch357 -p1
+%patch358 -p1
+%patch359 -p1
+%patch360 -p1
+%patch361 -p1
+%patch362 -p1
+%patch363 -p1
+%patch364 -p1
+%patch365 -p1
+%patch366 -p1
+
 
 %build
 buildarch="i386-softmmu x86_64-softmmu arm-softmmu cris-softmmu \
@@ -871,6 +1046,12 @@ fi
 %{_mandir}/man1/qemu-img.1*
 
 %changelog
+* Fri Sep  9 2012 Hans de Goede <hdegoede@redhat.com> - 2:1.2.0-1
+- New upstream release 1.2.0 final
+- Add support for Spice seamless migration
+- Add support for Spice dynamic monitors
+- Add support for usb-redir live migration
+
 * Tue Sep 04 2012 Adam Jackson <ajax@redhat.com> 1.2.0-0.5.rc1
 - Flip Requires: ceph >= foo to Conflicts: ceph < foo, so we pull in only the
   libraries which we need and not the rest of ceph which we don't.
