@@ -1,0 +1,49 @@
+From d2901e4798cb106d5b265aa4e3ae05c06bf2bd1c Mon Sep 17 00:00:00 2001
+From: Hans de Goede <hdegoede@redhat.com>
+Date: Thu, 6 Sep 2012 17:10:48 +0200
+Subject: [PATCH 360/366] ehci: Don't process too much frames in 1 timer tick
+
+The Linux ehci isoc scheduling code fills the entire schedule ahead of
+time minus 80 frames. If we make a large jump in where we are in the
+schedule, ie 40 frames, then the scheduler all of a sudden will only have
+40 frames left to work in, causing it to fail packet submissions
+with error -27 (-EFBIG).
+
+Note at first I had MAX_FR_PER_TICK set to 8, which works well with newer
+Linux guest kernels, but not with older ones (such as the RHEL-6 kernel).
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ hw/usb/hcd-ehci.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/hw/usb/hcd-ehci.c b/hw/usb/hcd-ehci.c
+index 30d2b56..5398544 100644
+--- a/hw/usb/hcd-ehci.c
++++ b/hw/usb/hcd-ehci.c
+@@ -140,6 +140,7 @@
+ #define NB_PORTS         6        // Number of downstream ports
+ #define BUFF_SIZE        5*4096   // Max bytes to transfer per transaction
+ #define MAX_QH           100      // Max allowable queue heads in a chain
++#define MAX_FR_PER_TICK  4        /* Max frames to process in one timer tick */
+ 
+ /*  Internal periodic / asynchronous schedule state machine states
+  */
+@@ -2460,6 +2461,14 @@ static void ehci_frame_timer(void *opaque)
+             DPRINTF("WARNING - EHCI skipped %d frames\n", skipped_frames);
+         }
+ 
++        /*
++         * Processing too much frames at once causes the Linux EHCI isoc
++         * scheduling code to fail packet re-submissions with -EFBIG.
++         */
++        if (frames > MAX_FR_PER_TICK) {
++            frames = MAX_FR_PER_TICK;
++        }
++
+         for (i = 0; i < frames; i++) {
+             ehci_update_frindex(ehci, 1);
+             ehci_advance_periodic_state(ehci);
+-- 
+1.7.12
+

@@ -1,0 +1,33 @@
+From 0b32fd99ab948db3b4cac32562272095a2594f4c Mon Sep 17 00:00:00 2001
+From: Gerd Hoffmann <kraxel@redhat.com>
+Date: Thu, 6 Sep 2012 11:55:06 +0200
+Subject: [PATCH 356/366] xhci: drop unused wlength
+
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+---
+ hw/usb/hcd-xhci.c | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/hw/usb/hcd-xhci.c b/hw/usb/hcd-xhci.c
+index 2918e64..e0ca690 100644
+--- a/hw/usb/hcd-xhci.c
++++ b/hw/usb/hcd-xhci.c
+@@ -1505,7 +1505,6 @@ static int xhci_fire_ctl_transfer(XHCIState *xhci, XHCITransfer *xfer)
+ {
+     XHCITRB *trb_setup, *trb_status;
+     uint8_t bmRequestType;
+-    uint16_t wLength;
+     int ret;
+ 
+     trb_setup = &xfer->trbs[0];
+@@ -1540,7 +1539,6 @@ static int xhci_fire_ctl_transfer(XHCIState *xhci, XHCITransfer *xfer)
+     }
+ 
+     bmRequestType = trb_setup->parameter;
+-    wLength = trb_setup->parameter >> 48;
+ 
+     xfer->in_xfer = bmRequestType & USB_DIR_IN;
+     xfer->iso_xfer = false;
+-- 
+1.7.12
+
