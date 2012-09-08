@@ -1,7 +1,7 @@
-From 4e0fcd7ef28b0ee06fd6f9d736dbdccefcf0b2bf Mon Sep 17 00:00:00 2001
+From b422d151d0861ed346bed7cddb410a6b4c67711b Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Tue, 4 Sep 2012 17:03:54 +0200
-Subject: [PATCH 363/366] usb-redir: Add an already_in_flight packet-id queue
+Subject: [PATCH 362/365] usb-redir: Add an already_in_flight packet-id queue
 
 After a live migration, the usb-hcd will re-queue all packets by
 walking over the schedule in the guest memory again, but requests which

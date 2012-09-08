@@ -1,7 +1,7 @@
-From 4d7d1b57fa5d3a950818e5dee459aefa4dc6ae27 Mon Sep 17 00:00:00 2001
+From efbf5d06a89ec7b329d2aa15d3a6ea023b63c646 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Tue, 4 Sep 2012 14:18:34 +0200
-Subject: [PATCH 362/366] usb-redir: Change cancelled packet code into a
+Subject: [PATCH 361/365] usb-redir: Change cancelled packet code into a
  generic packet-id queue
 
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
