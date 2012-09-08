@@ -1,15 +1,15 @@
-From e6a683c844845c53bcf14f9fb3ea175331eaca0c Mon Sep 17 00:00:00 2001
+From 0d733a1280bdaba402c6efbfae116408d7c81bb0 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Wed, 5 Sep 2012 09:21:44 +0200
-Subject: [PATCH 365/366] usb-redir: Add support for migration
+Subject: [PATCH 364/365] usb-redir: Add support for migration
 
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
- hw/usb/redirect.c | 331 +++++++++++++++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 328 insertions(+), 3 deletions(-)
+ hw/usb/redirect.c | 349 +++++++++++++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 346 insertions(+), 3 deletions(-)
 
 diff --git a/hw/usb/redirect.c b/hw/usb/redirect.c
-index d8568ae..8dbb722 100644
+index d8568ae..812096e 100644
 --- a/hw/usb/redirect.c
 +++ b/hw/usb/redirect.c
 @@ -65,8 +65,8 @@ struct endp_data {
@@ -93,7 +93,7 @@ index d8568ae..8dbb722 100644
      add_boot_device_path(dev->bootindex, &udev->qdev, NULL);
      return 0;
  }
-@@ -1530,6 +1556,304 @@ static void usbredir_interrupt_packet(void *priv, uint64_t id,
+@@ -1530,6 +1556,322 @@ static void usbredir_interrupt_packet(void *priv, uint64_t id,
      }
  }
  
@@ -113,6 +113,24 @@ index d8568ae..8dbb722 100644
 +    USBRedirDevice *dev = priv;
 +    struct USBEndpoint *usb_ep;
 +    int i;
++
++    switch (dev->device_info.speed) {
++    case usb_redir_speed_low:
++        dev->dev.speed = USB_SPEED_LOW;
++        break;
++    case usb_redir_speed_full:
++        dev->dev.speed = USB_SPEED_FULL;
++        break;
++    case usb_redir_speed_high:
++        dev->dev.speed = USB_SPEED_HIGH;
++        break;
++    case usb_redir_speed_super:
++        dev->dev.speed = USB_SPEED_SUPER;
++        break;
++    default:
++        dev->dev.speed = USB_SPEED_FULL;
++    }
++    dev->dev.speedmask = (1 << dev->dev.speed);
 +
 +    for (i = 0; i < MAX_ENDPOINTS; i++) {
 +        usb_ep = usb_ep_get(&dev->dev,
@@ -398,7 +416,7 @@ index d8568ae..8dbb722 100644
  static Property usbredir_properties[] = {
      DEFINE_PROP_CHR("chardev", USBRedirDevice, cs),
      DEFINE_PROP_UINT8("debug", USBRedirDevice, debug, 0),
-@@ -1550,6 +1874,7 @@ static void usbredir_class_initfn(ObjectClass *klass, void *data)
+@@ -1550,6 +1892,7 @@ static void usbredir_class_initfn(ObjectClass *klass, void *data)
      uc->handle_reset   = usbredir_handle_reset;
      uc->handle_data    = usbredir_handle_data;
      uc->handle_control = usbredir_handle_control;

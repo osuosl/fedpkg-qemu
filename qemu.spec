@@ -37,7 +37,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.2.0
-Release: 1%{?dist}
+Release: 2%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -115,6 +115,7 @@ Patch212: 0212-spice-make-number-of-surfaces-runtime-configurable.patch
 Patch213: 0213-qxl-Add-set_client_capabilities-interface-to-QXLInte.patch
 Patch214: 0214-Remove-ifdef-QXL_COMMAND_FLAG_COMPAT_16BPP.patch
 Patch215: 0215-qxl-dont-update-invalid-area.patch
+Patch216: 0216-qxl-Ignore-set_client_capabilities-pre-post-migrate.patch
 
 # Ugh, ton of USB bugfixes / preparation patches for usb-redir
 # live-migration which did not make 1.2.0 :|
@@ -182,12 +183,11 @@ Patch0357: 0357-usb-host-allow-emulated-non-async-control-requests-w.patch
 Patch0358: 0358-ehci-Don-t-set-seen-to-0-when-removing-unseen-queue-.patch
 Patch0359: 0359-ehci-Walk-async-schedule-before-and-after-migration.patch
 Patch0360: 0360-ehci-Don-t-process-too-much-frames-in-1-timer-tick.patch
-Patch0361: 0361-usb-Migrate-over-device-speed-and-speedmask.patch
-Patch0362: 0362-usb-redir-Change-cancelled-packet-code-into-a-generi.patch
-Patch0363: 0363-usb-redir-Add-an-already_in_flight-packet-id-queue.patch
-Patch0364: 0364-usb-redir-Store-max_packet_size-in-endp_data.patch
-Patch0365: 0365-usb-redir-Add-support-for-migration.patch
-Patch0366: 0366-usb-redir-Add-chardev-open-close-debug-logging.patch
+Patch0361: 0361-usb-redir-Change-cancelled-packet-code-into-a-generi.patch
+Patch0362: 0362-usb-redir-Add-an-already_in_flight-packet-id-queue.patch
+Patch0363: 0363-usb-redir-Store-max_packet_size-in-endp_data.patch
+Patch0364: 0364-usb-redir-Add-support-for-migration.patch
+Patch0365: 0365-usb-redir-Add-chardev-open-close-debug-logging.patch
 
 BuildRequires: SDL-devel
 BuildRequires: zlib-devel
@@ -500,6 +500,7 @@ such as kvm_stat.
 %patch213 -p1
 %patch214 -p1
 %patch215 -p1
+%patch216 -p1
 
 %patch301 -p1
 %patch302 -p1
@@ -566,7 +567,6 @@ such as kvm_stat.
 %patch363 -p1
 %patch364 -p1
 %patch365 -p1
-%patch366 -p1
 
 
 %build
@@ -1046,6 +1046,10 @@ fi
 %{_mandir}/man1/qemu-img.1*
 
 %changelog
+* Sat Sep 10 2012 Hans de Goede <hdegoede@redhat.com> - 2:1.2.0-2
+- Fix crash on (seamless) migration
+- Sync usbredir live migration patches with upstream
+
 * Fri Sep  9 2012 Hans de Goede <hdegoede@redhat.com> - 2:1.2.0-1
 - New upstream release 1.2.0 final
 - Add support for Spice seamless migration

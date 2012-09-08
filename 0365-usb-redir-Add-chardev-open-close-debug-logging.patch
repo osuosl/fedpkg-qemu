@@ -1,7 +1,7 @@
-From 93691f50a5200651f22e698cc29be0b1a020f5c5 Mon Sep 17 00:00:00 2001
+From 3efd9345ea643cf6f15776425213a92a442dd217 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Wed, 5 Sep 2012 15:56:57 +0200
-Subject: [PATCH 366/366] usb-redir: Add chardev open / close debug logging
+Subject: [PATCH 365/365] usb-redir: Add chardev open / close debug logging
 
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
@@ -9,7 +9,7 @@ Signed-off-by: Hans de Goede <hdegoede@redhat.com>
  1 file changed, 6 insertions(+)
 
 diff --git a/hw/usb/redirect.c b/hw/usb/redirect.c
-index 8dbb722..95a2167 100644
+index 812096e..b03c412 100644
 --- a/hw/usb/redirect.c
 +++ b/hw/usb/redirect.c
 @@ -864,6 +864,7 @@ static void usbredir_chardev_close_bh(void *opaque)

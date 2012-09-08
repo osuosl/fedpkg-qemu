@@ -1,7 +1,7 @@
-From 372d6c55bbe5fb092ff9e96c72ff53bfd10fdede Mon Sep 17 00:00:00 2001
+From c9917c910cf59e2407bbf51770724c5ec17d9cd1 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Thu, 6 Sep 2012 20:52:36 +0200
-Subject: [PATCH 364/366] usb-redir: Store max_packet_size in endp_data
+Subject: [PATCH 363/365] usb-redir: Store max_packet_size in endp_data
 
 So that we've a place to migrate it to / from to allow restoring it after
 migration.
