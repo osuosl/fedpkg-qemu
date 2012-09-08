@@ -1046,11 +1046,11 @@ fi
 %{_mandir}/man1/qemu-img.1*
 
 %changelog
-* Sat Sep 10 2012 Hans de Goede <hdegoede@redhat.com> - 2:1.2.0-2
+* Sat Sep  8 2012 Hans de Goede <hdegoede@redhat.com> - 2:1.2.0-2
 - Fix crash on (seamless) migration
 - Sync usbredir live migration patches with upstream
 
-* Fri Sep  9 2012 Hans de Goede <hdegoede@redhat.com> - 2:1.2.0-1
+* Fri Sep  7 2012 Hans de Goede <hdegoede@redhat.com> - 2:1.2.0-1
 - New upstream release 1.2.0 final
 - Add support for Spice seamless migration
 - Add support for Spice dynamic monitors
