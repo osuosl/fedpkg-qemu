@@ -37,7 +37,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.2.0
-Release: 2%{?dist}
+Release: 3%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -188,6 +188,13 @@ Patch0362: 0362-usb-redir-Add-an-already_in_flight-packet-id-queue.patch
 Patch0363: 0363-usb-redir-Store-max_packet_size-in-endp_data.patch
 Patch0364: 0364-usb-redir-Add-support-for-migration.patch
 Patch0365: 0365-usb-redir-Add-chardev-open-close-debug-logging.patch
+
+# Revert c3767ed0eb5d0.
+# NOT upstream (hopefully will be soon).
+# See: https://bugzilla.redhat.com/show_bug.cgi?id=853408
+# and: https://lists.gnu.org/archive/html/qemu-devel/2012-09/msg00526.html
+# plus followups.
+Patch0900: 0001-Revert-qemu-char-Re-connect-for-tcp_chr_write-unconn.patch
 
 BuildRequires: SDL-devel
 BuildRequires: zlib-devel
@@ -567,6 +574,8 @@ such as kvm_stat.
 %patch363 -p1
 %patch364 -p1
 %patch365 -p1
+
+%patch900 -p1
 
 
 %build
@@ -1046,6 +1055,9 @@ fi
 %{_mandir}/man1/qemu-img.1*
 
 %changelog
+* Wed Sep 12 2012 Richard W.M. Jones <rjones@redhat.com> - 2:1.2.0-3
+- Fix RHBZ#853408 which causes libguestfs failure.
+
 * Sat Sep  8 2012 Hans de Goede <hdegoede@redhat.com> - 2:1.2.0-2
 - Fix crash on (seamless) migration
 - Sync usbredir live migration patches with upstream
