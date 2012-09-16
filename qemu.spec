@@ -39,7 +39,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.2.0
-Release: 7%{?dist}
+Release: 8%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -456,7 +456,7 @@ Summary: QEMU system emulator for PPC
 Group: Development/Tools
 Requires: %{name}-common = %{epoch}:%{version}-%{release}
 Requires: openbios
-Requires: SLOF = 0-0.1.git%{SLOF_gittagdate}
+Requires: SLOF = 0-0.1.git%{SLOF_gittagdate}%{?dist}
 %description system-ppc
 QEMU is a generic and open source processor emulator which achieves a good
 emulation speed by using dynamic translation.
@@ -1057,9 +1057,9 @@ fi
 %{_mandir}/man1/qemu-img.1*
 
 %changelog
-* Sun Sep 16 2012 Richard W.M. Jones <rjones@redhat.com> - 2:1.2.0-7
+* Sun Sep 16 2012 Richard W.M. Jones <rjones@redhat.com> - 2:1.2.0-8
 - Use 'global' instead of 'define', and underscore in definition name,
-  and n-v-r of SLOF, all to fix RHBZ#855252.
+  n-v-r, and 'dist' tag of SLOF, all to fix RHBZ#855252.
 
 * Fri Sep 14 2012 Paolo Bonzini <pbonzini@redhat.com> - 2:1.2.0-4
 - add versioned dependency from qemu-system-ppc to SLOF (BZ#855252)
