@@ -811,18 +811,7 @@ install -m 0644 %{SOURCE10} $RPM_BUILD_ROOT%{_unitdir}
 install -m 0644 %{SOURCE11} $RPM_BUILD_ROOT%{_udevdir}
 
 %check
-# Hangs intermittently after printing:
-#
-# GTESTER tests/test-qmp-input-strict
-# GTESTER tests/test-qmp-commands
-# GTESTER tests/test-string-input-visitor
-# GTESTER tests/test-qmp-input-visitor
-# GTESTER tests/test-string-output-visitor
-# GTESTER tests/check-qdict
-# GTESTER tests/check-qjson
-# GTESTER tests/test-qmp-output-visitor
-#
-#make check
+make check
 
 %post system-x86
 %ifarch %{ix86} x86_64
