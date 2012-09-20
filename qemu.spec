@@ -39,7 +39,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.2.0
-Release: 8%{?dist}
+Release: 9%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -116,8 +116,16 @@ Patch211: 0211-configure-print-spice-protocol-and-spice-server-vers.patch
 Patch212: 0212-spice-make-number-of-surfaces-runtime-configurable.patch
 Patch213: 0213-qxl-Add-set_client_capabilities-interface-to-QXLInte.patch
 Patch214: 0214-Remove-ifdef-QXL_COMMAND_FLAG_COMPAT_16BPP.patch
-Patch215: 0215-qxl-dont-update-invalid-area.patch
-Patch216: 0216-qxl-Ignore-set_client_capabilities-pre-post-migrate.patch
+Patch215: 0215-spice-switch-to-queue-for-vga-mode-updates.patch
+Patch216: 0216-spice-split-qemu_spice_create_update.patch
+Patch217: 0217-spice-add-screen-mirror.patch
+Patch218: 0218-spice-send-updates-only-for-changed-screen-content.patch
+Patch219: 0219-qxl-dont-update-invalid-area.patch
+Patch220: 0220-qxl-Ignore-set_client_capabilities-pre-post-migrate.patch
+Patch221: 0221-qxl-better-cleanup-for-surface-destroy.patch
+Patch222: 0222-hw-qxl-tracing-fixes.patch
+Patch223: 0223-qxl-add-trace-event-for-QXL_IO_LOG.patch
+Patch224: 0224-hw-qxl-support-client-monitor-configuration-via-devi.patch
 
 # Ugh, ton of USB bugfixes / preparation patches for usb-redir
 # live-migration which did not make 1.2.0 :|
@@ -176,20 +184,23 @@ Patch0351: 0351-xhci-pick-target-interrupter.patch
 Patch0352: 0352-xhci-support-multiple-interrupters.patch
 Patch0353: 0353-xhci-kill-xhci_mem_-read-write-dispatcher-functions.patch
 Patch0354: 0354-xhci-allow-bytewise-capability-register-reads.patch
-Patch0355: 0355-ehci-switch-to-new-style-memory-ops.patch
-Patch0356: 0356-xhci-drop-unused-wlength.patch
-Patch0357: 0357-usb-host-allow-emulated-non-async-control-requests-w.patch
-
+Patch0355: 0355-usb-host-allow-emulated-non-async-control-requests-w.patch
+Patch0356: 0356-ehci-switch-to-new-style-memory-ops.patch
+Patch0357: 0357-ehci-Fix-interrupts-stopping-when-Interrupt-Threshol.patch
+Patch0358: 0358-ehci-Don-t-process-too-much-frames-in-1-timer-tick-v.patch
+Patch0359: 0359-configure-usbredir-fixes.patch
+Patch0360: 0360-ehci-Don-t-set-seen-to-0-when-removing-unseen-queue-.patch
+Patch0361: 0361-ehci-Walk-async-schedule-before-and-after-migration.patch
+Patch0362: 0362-usb-redir-Change-cancelled-packet-code-into-a-generi.patch
+Patch0363: 0363-usb-redir-Add-an-already_in_flight-packet-id-queue.patch
+Patch0364: 0364-usb-redir-Store-max_packet_size-in-endp_data.patch
+Patch0365: 0365-usb-redir-Add-support-for-migration.patch
+Patch0366: 0366-usb-redir-Add-chardev-open-close-debug-logging.patch
+Patch0367: 0367-usb-redir-Revert-usb-redir-part-of-commit-93bfef4c.patch
+Patch0368: 0368-uhci-Don-t-queue-up-packets-after-one-with-the-SPD-f.patch
 # And the last few ehci fixes + the actual usb-redir live migration code
 # Not yet upstream but should get there real soon
-Patch0358: 0358-ehci-Don-t-set-seen-to-0-when-removing-unseen-queue-.patch
-Patch0359: 0359-ehci-Walk-async-schedule-before-and-after-migration.patch
-Patch0360: 0360-ehci-Don-t-process-too-much-frames-in-1-timer-tick.patch
-Patch0361: 0361-usb-redir-Change-cancelled-packet-code-into-a-generi.patch
-Patch0362: 0362-usb-redir-Add-an-already_in_flight-packet-id-queue.patch
-Patch0363: 0363-usb-redir-Store-max_packet_size-in-endp_data.patch
-Patch0364: 0364-usb-redir-Add-support-for-migration.patch
-Patch0365: 0365-usb-redir-Add-chardev-open-close-debug-logging.patch
+Patch0369: 0369-ehci-Fix-interrupt-packet-MULT-handling.patch
 
 # Revert c3767ed0eb5d0.
 # NOT upstream (hopefully will be soon).
@@ -510,6 +521,14 @@ such as kvm_stat.
 %patch214 -p1
 %patch215 -p1
 %patch216 -p1
+%patch217 -p1
+%patch218 -p1
+%patch219 -p1
+%patch220 -p1
+%patch221 -p1
+%patch222 -p1
+%patch223 -p1
+%patch224 -p1
 
 %patch301 -p1
 %patch302 -p1
@@ -576,6 +595,10 @@ such as kvm_stat.
 %patch363 -p1
 %patch364 -p1
 %patch365 -p1
+%patch366 -p1
+%patch367 -p1
+%patch368 -p1
+%patch369 -p1
 
 %patch900 -p1
 
@@ -1046,6 +1069,9 @@ fi
 %{_mandir}/man1/qemu-img.1*
 
 %changelog
+* Thu Sep 20 2012 Hans de Goede <hdegoede@redhat.com> - 2:1.2.0-9
+- Sync USB and Spice patchsets with upstream
+
 * Sun Sep 16 2012 Richard W.M. Jones <rjones@redhat.com> - 2:1.2.0-8
 - Use 'global' instead of 'define', and underscore in definition name,
   n-v-r, and 'dist' tag of SLOF, all to fix RHBZ#855252.

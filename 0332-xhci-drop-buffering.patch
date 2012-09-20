@@ -1,7 +1,7 @@
-From ad14386b3f1ccd445afd30d30a343cb9fcf6c0a7 Mon Sep 17 00:00:00 2001
+From ba184fe5a0e63bd40956b456d85a01da13d6183d Mon Sep 17 00:00:00 2001
 From: Gerd Hoffmann <kraxel@redhat.com>
 Date: Fri, 17 Aug 2012 11:04:36 +0200
-Subject: [PATCH 332/366] xhci: drop buffering
+Subject: [PATCH 332/369] xhci: drop buffering
 
 This patch splits the xhci_xfer_data function into three.
 The xhci_xfer_data function used to do does two things:
@@ -21,14 +21,16 @@ The patch also fixes reporting of transaction errors which must be
 reported unconditinally, not only in case the guest asks for it
 using the ISP flag.
 
+[ v2: fix warning ]
+
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 ---
- hw/usb/hcd-xhci.c | 183 +++++++++++++++++++++---------------------------------
+ hw/usb/hcd-xhci.c | 185 +++++++++++++++++++++---------------------------------
  trace-events      |   2 +-
- 2 files changed, 72 insertions(+), 113 deletions(-)
+ 2 files changed, 72 insertions(+), 115 deletions(-)
 
 diff --git a/hw/usb/hcd-xhci.c b/hw/usb/hcd-xhci.c
-index c0a2476..c858b6d 100644
+index c0a2476..446d692 100644
 --- a/hw/usb/hcd-xhci.c
 +++ b/hw/usb/hcd-xhci.c
 @@ -305,6 +305,7 @@ typedef struct XHCIState XHCIState;
@@ -266,7 +268,15 @@ index c0a2476..c858b6d 100644
          xhci_stall_ep(xfer);
          break;
      default:
-@@ -1279,8 +1280,7 @@ static int xhci_fire_ctl_transfer(XHCIState *xhci, XHCITransfer *xfer)
+@@ -1271,7 +1272,6 @@ static int xhci_fire_ctl_transfer(XHCIState *xhci, XHCITransfer *xfer)
+ {
+     XHCITRB *trb_setup, *trb_status;
+     uint8_t bmRequestType;
+-    uint16_t wLength;
+     XHCIPort *port;
+     USBDevice *dev;
+     int ret;
+@@ -1279,8 +1279,7 @@ static int xhci_fire_ctl_transfer(XHCIState *xhci, XHCITransfer *xfer)
      trb_setup = &xfer->trbs[0];
      trb_status = &xfer->trbs[xfer->trb_count-1];
  
@@ -276,10 +286,12 @@ index c0a2476..c858b6d 100644
  
      /* at most one Event Data TRB allowed after STATUS */
      if (TRB_TYPE(*trb_status) == TR_EVDATA && xfer->trb_count > 2) {
-@@ -1311,18 +1311,6 @@ static int xhci_fire_ctl_transfer(XHCIState *xhci, XHCITransfer *xfer)
-     bmRequestType = trb_setup->parameter;
-     wLength = trb_setup->parameter >> 48;
+@@ -1309,19 +1308,6 @@ static int xhci_fire_ctl_transfer(XHCIState *xhci, XHCITransfer *xfer)
+     }
  
+     bmRequestType = trb_setup->parameter;
+-    wLength = trb_setup->parameter >> 48;
+-
 -    if (xfer->data && xfer->data_alloced < wLength) {
 -        xfer->data_alloced = 0;
 -        g_free(xfer->data);
@@ -291,11 +303,10 @@ index c0a2476..c858b6d 100644
 -        xfer->data_alloced = wLength;
 -    }
 -    xfer->data_length = wLength;
--
+ 
      port = &xhci->ports[xhci->slots[xfer->slotid-1].port-1];
      dev = xhci_find_device(port, xhci->slots[xfer->slotid-1].devaddr);
-     if (!dev) {
-@@ -1336,9 +1324,6 @@ static int xhci_fire_ctl_transfer(XHCIState *xhci, XHCITransfer *xfer)
+@@ -1336,9 +1322,6 @@ static int xhci_fire_ctl_transfer(XHCIState *xhci, XHCITransfer *xfer)
  
      xhci_setup_packet(xfer, dev);
      xfer->packet.parameter = trb_setup->parameter;
@@ -305,7 +316,7 @@ index c0a2476..c858b6d 100644
  
      ret = usb_handle_packet(dev, &xfer->packet);
  
-@@ -1359,16 +1344,6 @@ static int xhci_submit(XHCIState *xhci, XHCITransfer *xfer, XHCIEPContext *epctx
+@@ -1359,16 +1342,6 @@ static int xhci_submit(XHCIState *xhci, XHCITransfer *xfer, XHCIEPContext *epctx
  
      xfer->in_xfer = epctx->type>>2;
  
@@ -322,7 +333,7 @@ index c0a2476..c858b6d 100644
      if (epctx->type == ET_ISO_IN || epctx->type == ET_ISO_OUT) {
          xfer->pkts = 1;
      } else {
-@@ -1402,9 +1377,6 @@ static int xhci_submit(XHCIState *xhci, XHCITransfer *xfer, XHCIEPContext *epctx
+@@ -1402,9 +1375,6 @@ static int xhci_submit(XHCIState *xhci, XHCITransfer *xfer, XHCIEPContext *epctx
          return -1;
      }
  
@@ -332,7 +343,7 @@ index c0a2476..c858b6d 100644
      ret = usb_handle_packet(dev, &xfer->packet);
  
      xhci_complete_packet(xfer, ret);
-@@ -1416,20 +1388,7 @@ static int xhci_submit(XHCIState *xhci, XHCITransfer *xfer, XHCIEPContext *epctx
+@@ -1416,20 +1386,7 @@ static int xhci_submit(XHCIState *xhci, XHCITransfer *xfer, XHCIEPContext *epctx
  
  static int xhci_fire_transfer(XHCIState *xhci, XHCITransfer *xfer, XHCIEPContext *epctx)
  {
