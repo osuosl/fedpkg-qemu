@@ -39,7 +39,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.2.0
-Release: 9%{?dist}
+Release: 10%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -126,6 +126,9 @@ Patch221: 0221-qxl-better-cleanup-for-surface-destroy.patch
 Patch222: 0222-hw-qxl-tracing-fixes.patch
 Patch223: 0223-qxl-add-trace-event-for-QXL_IO_LOG.patch
 Patch224: 0224-hw-qxl-support-client-monitor-configuration-via-devi.patch
+Patch225: 0225-qxl-always-update-displaysurface-on-resize.patch
+Patch226: 0226-qxl-update_area_io-cleanup-invalid-parameters-handli.patch
+Patch227: 0227-qxl-fix-range-check-for-rev3-io-commands.patch
 
 # Ugh, ton of USB bugfixes / preparation patches for usb-redir
 # live-migration which did not make 1.2.0 :|
@@ -201,6 +204,7 @@ Patch0368: 0368-uhci-Don-t-queue-up-packets-after-one-with-the-SPD-f.patch
 # And the last few ehci fixes + the actual usb-redir live migration code
 # Not yet upstream but should get there real soon
 Patch0369: 0369-ehci-Fix-interrupt-packet-MULT-handling.patch
+Patch0370: 0370-usb-redir-Adjust-pkg-config-check-for-usbredirparser.patch
 
 # Revert c3767ed0eb5d0.
 # NOT upstream (hopefully will be soon).
@@ -222,7 +226,7 @@ BuildRequires: pciutils-devel
 BuildRequires: pulseaudio-libs-devel
 BuildRequires: ncurses-devel
 BuildRequires: libattr-devel
-BuildRequires: usbredir-devel >= 0.5
+BuildRequires: usbredir-devel >= 0.5.2
 BuildRequires: texinfo
 %ifarch %{ix86} x86_64
 BuildRequires: spice-protocol >= 0.12.1
@@ -529,6 +533,9 @@ such as kvm_stat.
 %patch222 -p1
 %patch223 -p1
 %patch224 -p1
+%patch225 -p1
+%patch226 -p1
+%patch227 -p1
 
 %patch301 -p1
 %patch302 -p1
@@ -599,6 +606,7 @@ such as kvm_stat.
 %patch367 -p1
 %patch368 -p1
 %patch369 -p1
+%patch370 -p1
 
 %patch900 -p1
 
@@ -1069,6 +1077,10 @@ fi
 %{_mandir}/man1/qemu-img.1*
 
 %changelog
+* Tue Sep 25 2012 Hans de Goede <hdegoede@redhat.com> - 2:1.2.0-9
+- Sync Spice patchsets with upstream (rhbz#860238)
+- Fix building with usbredir >= 0.5.2
+
 * Thu Sep 20 2012 Hans de Goede <hdegoede@redhat.com> - 2:1.2.0-9
 - Sync USB and Spice patchsets with upstream
 
