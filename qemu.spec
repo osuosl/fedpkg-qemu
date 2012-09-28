@@ -853,6 +853,7 @@ make check
 # load kvm modules now, so we can make sure no reboot is needed.
 # If there's already a kvm module installed, we don't mess with it
 sh %{_sysconfdir}/sysconfig/modules/kvm.modules || :
+udevadm trigger --sysname-match=kvm || :
 %endif
 
 %post common
@@ -1081,6 +1082,9 @@ fi
 %{_mandir}/man1/qemu-img.1*
 
 %changelog
+* Fri Sep 28 2012 Paolo Bonzini <pbonzini@redhat.com> - 2:1.2.0-12
+- Call udevadm on post, fixing bug 860658
+
 * Fri Sep 28 2012 Hans de Goede <hdegoede@redhat.com> - 2:1.2.0-11
 - Rebuild against latest spice-server and spice-protocol
 - Fix non-seamless migration failing with vms with usb-redir devices,
