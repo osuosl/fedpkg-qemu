@@ -39,7 +39,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.2.0
-Release: 10%{?dist}
+Release: 11%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -205,6 +205,8 @@ Patch0368: 0368-uhci-Don-t-queue-up-packets-after-one-with-the-SPD-f.patch
 # Not yet upstream but should get there real soon
 Patch0369: 0369-ehci-Fix-interrupt-packet-MULT-handling.patch
 Patch0370: 0370-usb-redir-Adjust-pkg-config-check-for-usbredirparser.patch
+Patch0371: 0371-usb-redir-Change-usbredir_open_chardev-into-usbredir.patch
+Patch0372: 0372-usb-redir-Don-t-make-migration-fail-in-none-seamless.patch
 
 # Revert c3767ed0eb5d0.
 # NOT upstream (hopefully will be soon).
@@ -229,8 +231,8 @@ BuildRequires: libattr-devel
 BuildRequires: usbredir-devel >= 0.5.2
 BuildRequires: texinfo
 %ifarch %{ix86} x86_64
-BuildRequires: spice-protocol >= 0.12.1
-BuildRequires: spice-server-devel >= 0.11.3
+BuildRequires: spice-protocol >= 0.12.2
+BuildRequires: spice-server-devel >= 0.12.0
 BuildRequires: libseccomp-devel >= 1.0.0
 %endif
 # For network block driver
@@ -607,6 +609,8 @@ such as kvm_stat.
 %patch368 -p1
 %patch369 -p1
 %patch370 -p1
+%patch371 -p1
+%patch372 -p1
 
 %patch900 -p1
 
@@ -1077,7 +1081,12 @@ fi
 %{_mandir}/man1/qemu-img.1*
 
 %changelog
-* Tue Sep 25 2012 Hans de Goede <hdegoede@redhat.com> - 2:1.2.0-9
+* Fri Sep 28 2012 Hans de Goede <hdegoede@redhat.com> - 2:1.2.0-11
+- Rebuild against latest spice-server and spice-protocol
+- Fix non-seamless migration failing with vms with usb-redir devices,
+  to allow boxes to load such vms from disk
+
+* Tue Sep 25 2012 Hans de Goede <hdegoede@redhat.com> - 2:1.2.0-10
 - Sync Spice patchsets with upstream (rhbz#860238)
 - Fix building with usbredir >= 0.5.2
 
