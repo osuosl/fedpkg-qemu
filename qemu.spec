@@ -1,7 +1,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 0.15.1
-Release: 7%{?dist}
+Release: 8%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -133,6 +133,8 @@ Patch241: %{name}-fix-systemtap.patch
 Patch242: %{name}-spice-server-threading.patch
 # Fix text mode screendumps (bz 819155)
 Patch243: %{name}-fix-text-mode-screendumps.patch
+# CVE-2012-3515 VT100 emulation vulnerability (bz 854600, bz 851252)
+Patch244: 0244-console-bounds-check-whenever-changing-the-cursor-du.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: SDL-devel zlib-devel which texi2html gnutls-devel cyrus-sasl-devel
@@ -435,6 +437,7 @@ such as kvm_stat.
 %patch241 -p1
 %patch242 -p1
 %patch243 -p1
+%patch244 -p1
 
 %build
 # By default we build everything, but allow x86 to build a minimal version
@@ -823,6 +826,9 @@ fi
 %{_mandir}/man1/qemu-img.1*
 
 %changelog
+* Sun Oct 07 2012 Cole Robinson <crobinso@redhat.com> - 0.15.1-8
+- CVE-2012-3515 VT100 emulation vulnerability (bz #854600, bz #851252)
+
 * Sun Jul 29 2012 Cole Robinson <crobinso@redhat.com> - 0.15.1-7
 - Pull patches from 0.15 stable
 - CVE-2012-2652: Possible symlink attacks with -snapshot (bz 825697, bz
