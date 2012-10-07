@@ -38,7 +38,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.0.1
-Release: 1%{?dist}
+Release: 2%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -186,6 +186,12 @@ Patch511: %{name}-fix-vnc-audio.patch
 Patch512: %{name}-snapshot-symlink-attack.patch
 # Fix systemtap tapsets (bz 831763)
 Patch513: %{name}-fix-systemtap.patch
+# Remove comma from 1.0.1 version number
+Patch514: 0001-qemu-1.0.1-VERSION.patch
+# CVE-2012-3515 VT100 emulation vulnerability (bz 854600, bz 851252)
+Patch515: 0002-console-bounds-check-whenever-changing-the-cursor-du.patch
+# Fix slirp crash (bz 845793)
+Patch516: 0003-slirp-Fix-requeuing-of-batchq-packets-in-if_start.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: SDL-devel zlib-devel which texi2html gnutls-devel cyrus-sasl-devel
@@ -539,6 +545,9 @@ such as kvm_stat.
 %patch511 -p1
 %patch512 -p1
 %patch513 -p1
+%patch514 -p1
+%patch515 -p1
+%patch516 -p1
 
 
 %build
@@ -775,6 +784,7 @@ rm -rf $RPM_BUILD_ROOT
 # load kvm modules now, so we can make sure no reboot is needed.
 # If there's already a kvm module installed, we don't mess with it
 sh %{_sysconfdir}/sysconfig/modules/kvm.modules || :
+udevadm trigger --sysname-match=kvm || :
 %endif
 
 %post common
@@ -978,7 +988,13 @@ fi
 %{_mandir}/man1/qemu-img.1*
 
 %changelog
-* Sun Jul 29 2012 Cole Robinson <crobinso@redhat.com> - 1.0.1-2
+* Sun Oct 07 2012 Cole Robinson <crobinso@redhat.com> - 1.0.1-2
+- Remove comma from 1.0.1 version number
+- CVE-2012-3515 VT100 emulation vulnerability (bz #854600, bz #851252)
+- Fix slirp crash (bz #845793)
+- Fix KVM module permissions after install (bz #863374)
+
+* Sun Jul 29 2012 Cole Robinson <crobinso@redhat.com> - 1.0.1-1
 - Fix VNC audio tunnelling (bz 840653)
 - CVE-2012-2652: Possible symlink attacks with -snapshot (bz 825697, bz
   824919)
