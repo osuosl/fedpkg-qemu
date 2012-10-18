@@ -98,7 +98,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.2.0
-Release: 14%{?dist}
+Release: 15%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -801,10 +801,11 @@ dobuild --target-list=%{kvm_target}-softmmu
   --probe-prefix qemu.kvm < ./trace-events > qemu-kvm.stp
 
 cp -a %{kvm_target}-softmmu/qemu-system-%{kvm_target} qemu-kvm
+
+make clean
 %endif
 
 %if %{without kvmonly}
-make clean
 # Build qemu-system-* with consistent default of kvm=off
 dobuild --target-list="$buildarch" --disable-kvm-options
 %endif
@@ -1224,6 +1225,9 @@ fi
 %{_mandir}/man1/qemu-img.1*
 
 %changelog
+* Thu Oct 18 2012 Dan Horák <dan[at]danny.cz> - 2:1.2.0-15
+- fix build on non-kvm arches like s390(x)
+
 * Wed Oct 17 2012 Paolo Bonzini <pbonzini@redhat.com> - 2:1.2.0-14
 - Change SLOF Requires for the new version number
 
