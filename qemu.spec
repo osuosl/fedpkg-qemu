@@ -719,18 +719,17 @@ buildarch="i386-softmmu x86_64-softmmu arm-softmmu cris-softmmu \
     mips64el-softmmu sh4-softmmu sh4eb-softmmu sparc-softmmu sparc64-softmmu \
     ppc-softmmu ppcemb-softmmu ppc64-softmmu \
     i386-linux-user x86_64-linux-user alpha-linux-user arm-linux-user \
-    armeb-linux-user cris-linux-user m68k-linux-user mips-linux-user \
-    mipsel-linux-user ppc-linux-user ppc64-linux-user \
-    ppc64abi32-linux-user sh4-linux-user sh4eb-linux-user \
-    sparc-linux-user sparc64-linux-user sparc32plus-linux-user"
+    armeb-linux-user cris-linux-user m68k-linux-user \
+    microblaze-linux-user microblazeel-linux-user mips-linux-user \
+    mipsel-linux-user or32-linux-user ppc-linux-user ppc64-linux-user \
+    ppc64abi32-linux-user s390x-linux-user sh4-linux-user sh4eb-linux-user \
+    sparc-linux-user sparc64-linux-user sparc32plus-linux-user \
+    unicore32-linux-user"
 %endif
 
-# Targets we don't build as of qemu 1.1.50
+# Targets we don't build as of qemu 1.2.0
 # alpha-softmmu lm32-softmmu microblaze-softmmu microblazeel-softmmu
 # or32-softmmu s390x-softmmu xtensa-softmmu xtensaeb-softmmu unicore32-softmmu
-# alpha-linux-user microblaze-linux-user microblazeel-linux-user
-# or32-linux-user unicore32-linux-user s390x-linux-user
-
 
 # --build-id option is used for giving info to the debug packages.
 extraldflags="-Wl,--build-id";
@@ -1080,16 +1079,21 @@ fi
 %{_bindir}/qemu-armeb
 %{_bindir}/qemu-cris
 %{_bindir}/qemu-m68k
+%{_bindir}/qemu-microblaze
+%{_bindir}/qemu-microblazeel
 %{_bindir}/qemu-mips
 %{_bindir}/qemu-mipsel
+%{_bindir}/qemu-or32
 %{_bindir}/qemu-ppc
 %{_bindir}/qemu-ppc64
 %{_bindir}/qemu-ppc64abi32
+%{_bindir}/qemu-s390x
 %{_bindir}/qemu-sh4
 %{_bindir}/qemu-sh4eb
 %{_bindir}/qemu-sparc
 %{_bindir}/qemu-sparc32plus
 %{_bindir}/qemu-sparc64
+%{_bindir}/qemu-unicore32
 %{_datadir}/systemtap/tapset/qemu-i386.stp
 %{_datadir}/systemtap/tapset/qemu-x86_64.stp
 %{_datadir}/systemtap/tapset/qemu-alpha.stp
@@ -1097,16 +1101,21 @@ fi
 %{_datadir}/systemtap/tapset/qemu-armeb.stp
 %{_datadir}/systemtap/tapset/qemu-cris.stp
 %{_datadir}/systemtap/tapset/qemu-m68k.stp
+%{_datadir}/systemtap/tapset/qemu-microblaze.stp
+%{_datadir}/systemtap/tapset/qemu-microblazeel.stp
 %{_datadir}/systemtap/tapset/qemu-mips.stp
 %{_datadir}/systemtap/tapset/qemu-mipsel.stp
+%{_datadir}/systemtap/tapset/qemu-or32.stp
 %{_datadir}/systemtap/tapset/qemu-ppc.stp
 %{_datadir}/systemtap/tapset/qemu-ppc64.stp
 %{_datadir}/systemtap/tapset/qemu-ppc64abi32.stp
+%{_datadir}/systemtap/tapset/qemu-s390x.stp
 %{_datadir}/systemtap/tapset/qemu-sh4.stp
 %{_datadir}/systemtap/tapset/qemu-sh4eb.stp
 %{_datadir}/systemtap/tapset/qemu-sparc.stp
 %{_datadir}/systemtap/tapset/qemu-sparc32plus.stp
 %{_datadir}/systemtap/tapset/qemu-sparc64.stp
+%{_datadir}/systemtap/tapset/qemu-unicore32.stp
 %endif
 
 %if 0%{?system_x86:1}
@@ -1229,6 +1238,7 @@ fi
 
 %changelog
 * Fri Oct 19 2012 Paolo Bonzini <pbonzini@redhat.com> - 2:1.2.0-16
+- add missing linux-user targets
 - fix previous commit
 
 * Thu Oct 18 2012 Dan Horák <dan[at]danny.cz> - 2:1.2.0-15
