@@ -802,10 +802,13 @@ dobuild --target-list=%{kvm_target}-softmmu
 
 cp -a %{kvm_target}-softmmu/qemu-system-%{kvm_target} qemu-kvm
 
-make clean
 %endif
 
 %if %{without kvmonly}
+%if 0%{?need_qemu_kvm}
+make clean
+%endif
+
 # Build qemu-system-* with consistent default of kvm=off
 dobuild --target-list="$buildarch" --disable-kvm-options
 %endif
@@ -1225,6 +1228,9 @@ fi
 %{_mandir}/man1/qemu-img.1*
 
 %changelog
+* Fri Oct 19 2012 Paolo Bonzini <pbonzini@redhat.com> - 2:1.2.0-16
+- fix previous commit
+
 * Thu Oct 18 2012 Dan Horák <dan[at]danny.cz> - 2:1.2.0-15
 - fix build on non-kvm arches like s390(x)
 
