@@ -80,13 +80,16 @@
 # If not kvmonly, build all packages and give them normal names. qemu-kvm
 # is a simple wrapper package and is only build for archs that support KVM.
 %global user          user
+%global system_alpha  system-alpha
 %global system_arm    system-arm
 %global system_cris   system-cris
 %global system_lm32   system-lm32
 %global system_m68k   system-m68k
+%global system_microblaze   system-microblaze
 %global system_mips   system-mips
 %global system_or32   system-or32
 %global system_ppc    system-ppc
+%global system_s390x  system-s390x
 %global system_sh4    system-sh4
 %global system_sparc  system-sparc
 %global system_x86    system-x86
@@ -94,8 +97,8 @@
 %global system_unicore32   system-unicore32
 %endif
 
-# libfdt is only needed to build ARM and PPC emulators
-%if 0%{?system_arm:1}%{?system_ppc:1}
+# libfdt is only needed to build ARM, Microblaze or PPC emulators
+%if 0%{?system_arm:1}%{?system_microblaze:1}%{?system_ppc:1}
 %global need_fdt      1
 %endif
 
@@ -334,6 +337,9 @@ BuildRequires: libcap-devel
 %if 0%{?user:1}
 Requires: %{name}-%{user} = %{epoch}:%{version}-%{release}
 %endif
+%if 0%{?system_alpha:1}
+Requires: %{name}-%{system_alpha} = %{epoch}:%{version}-%{release}
+%endif
 %if 0%{?system_arm:1}
 Requires: %{name}-%{system_arm} = %{epoch}:%{version}-%{release}
 %endif
@@ -346,6 +352,9 @@ Requires: %{name}-%{system_lm32} = %{epoch}:%{version}-%{release}
 %if 0%{?system_m68k:1}
 Requires: %{name}-%{system_m68k} = %{epoch}:%{version}-%{release}
 %endif
+%if 0%{?system_microblaze:1}
+Requires: %{name}-%{system_microblaze} = %{epoch}:%{version}-%{release}
+%endif
 %if 0%{?system_mips:1}
 Requires: %{name}-%{system_mips} = %{epoch}:%{version}-%{release}
 %endif
@@ -354,6 +363,9 @@ Requires: %{name}-%{system_or32} = %{epoch}:%{version}-%{release}
 %endif
 %if 0%{?system_ppc:1}
 Requires: %{name}-%{system_ppc} = %{epoch}:%{version}-%{release}
+%endif
+%if 0%{?system_s390x:1}
+Requires: %{name}-%{system_s390x} = %{epoch}:%{version}-%{release}
 %endif
 %if 0%{?system_sh4:1}
 Requires: %{name}-%{system_sh4} = %{epoch}:%{version}-%{release}
@@ -505,6 +517,18 @@ machine that supports it, this package also provides the KVM virtualization
 platform.
 %endif
 
+%if 0%{?system_alpha:1}
+%package %{system_alpha}
+Summary: QEMU system emulator for Alpha
+Group: Development/Tools
+Requires: %{name}-common = %{epoch}:%{version}-%{release}
+%description %{system_alpha}
+QEMU is a generic and open source processor emulator which achieves a good
+emulation speed by using dynamic translation.
+
+This package provides the system emulator for Alpha systems.
+%endif
+
 %if 0%{?system_arm:1}
 %package %{system_arm}
 Summary: QEMU system emulator for ARM
@@ -565,6 +589,18 @@ emulation speed by using dynamic translation.
 This package provides the system emulator for ColdFire boards.
 %endif
 
+%if 0%{?system_microblaze:1}
+%package %{system_microblaze}
+Summary: QEMU system emulator for Microblaze
+Group: Development/Tools
+Requires: %{name}-common = %{epoch}:%{version}-%{release}
+%description %{system_microblaze}
+QEMU is a generic and open source processor emulator which achieves a good
+emulation speed by using dynamic translation.
+
+This package provides the system emulator for Microblaze boards.
+%endif
+
 %if 0%{?system_or32:1}
 %package %{system_or32}
 Summary: QEMU system emulator for OpenRisc32
@@ -575,6 +611,18 @@ QEMU is a generic and open source processor emulator which achieves a good
 emulation speed by using dynamic translation.
 
 This package provides the system emulator for OpenRisc32 boards.
+%endif
+
+%if 0%{?system_s390x:1}
+%package %{system_s390x}
+Summary: QEMU system emulator for S390
+Group: Development/Tools
+Requires: %{name}-common = %{epoch}:%{version}-%{release}
+%description %{system_s390x}
+QEMU is a generic and open source processor emulator which achieves a good
+emulation speed by using dynamic translation.
+
+This package provides the system emulator for S390 systems.
 %endif
 
 %if 0%{?system_sh4:1}
@@ -778,10 +826,10 @@ such as kvm_stat.
 %if %{with kvmonly}
     buildarch="%{kvm_target}-softmmu"
 %else
-buildarch="i386-softmmu x86_64-softmmu arm-softmmu cris-softmmu \
-    lm32-softmmu m68k-softmmu \
+buildarch="i386-softmmu x86_64-softmmu alpha-softmmu arm-softmmu cris-softmmu \
+    lm32-softmmu m68k-softmmu microblaze-softmmu microblazeel-softmmu \
     mips-softmmu mipsel-softmmu mips64-softmmu mips64el-softmmu \
-    or32-softmmu ppc-softmmu ppcemb-softmmu ppc64-softmmu \
+    or32-softmmu ppc-softmmu ppcemb-softmmu ppc64-softmmu s390x-softmmu \
     sh4-softmmu sh4eb-softmmu sparc-softmmu sparc64-softmmu \
     xtensa-softmmu xtensaeb-softmmu unicore32-softmmu \
     i386-linux-user x86_64-linux-user alpha-linux-user arm-linux-user \
@@ -792,9 +840,6 @@ buildarch="i386-softmmu x86_64-softmmu arm-softmmu cris-softmmu \
     sparc-linux-user sparc64-linux-user sparc32plus-linux-user \
     unicore32-linux-user"
 %endif
-
-# Targets we don't build as of qemu 1.2.0
-# alpha-softmmu microblaze-softmmu microblazeel-softmmu s390x-softmmu
 
 # --build-id option is used for giving info to the debug packages.
 extraldflags="-Wl,--build-id";
@@ -930,19 +975,20 @@ rm -rf ${RPM_BUILD_ROOT}%{_datadir}/%{name}/openbios-sparc64
 rm -rf ${RPM_BUILD_ROOT}%{_datadir}/%{name}/slof.bin
 
 # remove possibly unpackaged files:
+%if 0%{!?system_alpha:1}
+rm -rf ${RPM_BUILD_ROOT}%{_datadir}/%{name}/palcode-clipper
+%endif
+%if 0%{!?system_microblaze:1}
+rm -rf ${RPM_BUILD_ROOT}%{_datadir}/%{name}/petalogix*.dtb
+%endif
 %if 0%{!?system_ppc:1}
 rm -f ${RPM_BUILD_ROOT}%{_datadir}/%{name}/bamboo.dtb
 rm -f ${RPM_BUILD_ROOT}%{_datadir}/%{name}/ppc_rom.bin
 rm -f ${RPM_BUILD_ROOT}%{_datadir}/%{name}/spapr-rtas.bin
 %endif
-
-# The following aren't provided by any Fedora package
-
-# Used by target s390/s390x
+%if 0%{!?system_s390x:1}
 rm -rf ${RPM_BUILD_ROOT}%{_datadir}/%{name}/s390-zipl.rom
-rm -rf ${RPM_BUILD_ROOT}%{_datadir}/%{name}/palcode-clipper
-# Binary device trees for microblaze target
-rm -rf ${RPM_BUILD_ROOT}%{_datadir}/%{name}/petalogix*.dtb
+%endif
 
 # Provided by package ipxe
 rm -rf ${RPM_BUILD_ROOT}%{_datadir}/%{name}/pxe*rom
@@ -1222,6 +1268,14 @@ fi
 %{_bindir}/kvm_stat
 %endif
 
+%if 0%{?system_alpha:1}
+%files %{system_alpha}
+%defattr(-,root,root)
+%{_bindir}/qemu-system-alpha
+%{_datadir}/systemtap/tapset/qemu-system-alpha.stp
+%{_datadir}/%{name}/palcode-clipper
+%endif
+
 %if 0%{?system_arm:1}
 %files %{system_arm}
 %defattr(-,root,root)
@@ -1263,11 +1317,29 @@ fi
 %{_datadir}/systemtap/tapset/qemu-system-m68k.stp
 %endif
 
+%if 0%{?system_microblaze:1}
+%files %{system_microblaze}
+%defattr(-,root,root)
+%{_bindir}/qemu-system-microblaze
+%{_bindir}/qemu-system-microblazeel
+%{_datadir}/systemtap/tapset/qemu-system-microblaze.stp
+%{_datadir}/systemtap/tapset/qemu-system-microblazeel.stp
+%{_datadir}/%{name}/petalogix*.dtb
+%endif
+
 %if 0%{?system_or32:1}
 %files %{system_or32}
 %defattr(-,root,root)
 %{_bindir}/qemu-system-or32
 %{_datadir}/systemtap/tapset/qemu-system-or32.stp
+%endif
+
+%if 0%{?system_s390x:1}
+%files %{system_s390x}
+%defattr(-,root,root)
+%{_bindir}/qemu-system-s390x
+%{_datadir}/systemtap/tapset/qemu-system-s390x.stp
+%{_datadir}/%{name}/s390-zipl.rom
 %endif
 
 %if 0%{?system_sh4:1}
@@ -1333,6 +1405,7 @@ fi
 
 %changelog
 * Fri Oct 19 2012 Paolo Bonzini <pbonzini@redhat.com> - 2:1.2.0-16
+- distribute pre-built firmware or device trees for Alpha, Microblaze, S390
 - add missing system targets
 - add missing linux-user targets
 - fix previous commit
