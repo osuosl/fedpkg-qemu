@@ -36,8 +36,7 @@
 %if %{with exclusive_x86_64}
 %global kvm_archs x86_64
 %else
-# TODO: s390
-%global kvm_archs %{ix86} x86_64 ppc64
+%global kvm_archs %{ix86} x86_64 ppc64 s390x
 %endif
 
 %ifarch %{ix86} x86_64
@@ -71,6 +70,11 @@
 %global system_ppc    kvm
 %global kvm_package   system-ppc
 %global kvm_target    ppc64
+%endif
+%ifarch s390x
+%global system_s390x  kvm
+%global kvm_package   system-s390x
+%global kvm_target    s390x
 %endif
 
 %if %{with kvmonly}
@@ -974,7 +978,11 @@ rm -rf ${RPM_BUILD_ROOT}%{_datadir}/%{name}/openbios-sparc64
 # Provided by package SLOF
 rm -rf ${RPM_BUILD_ROOT}%{_datadir}/%{name}/slof.bin
 
-# remove possibly unpackaged files:
+# Remove possibly unpackaged files.  Unlike others that are removed
+# unconditionally, these firmware files are still distributed as a binary
+# together with the qemu package.  We should try to move at least s390-zipl.rom
+# to a separate package...  Discussed here on the packaging list:
+# https://lists.fedoraproject.org/pipermail/packaging/2012-July/008563.html
 %if 0%{!?system_alpha:1}
 rm -rf ${RPM_BUILD_ROOT}%{_datadir}/%{name}/palcode-clipper
 %endif
@@ -1340,6 +1348,10 @@ fi
 %{_bindir}/qemu-system-s390x
 %{_datadir}/systemtap/tapset/qemu-system-s390x.stp
 %{_datadir}/%{name}/s390-zipl.rom
+%ifarch s390x
+%{?kvm_files:}
+%{?qemu_kvm_files:}
+%endif
 %endif
 
 %if 0%{?system_sh4:1}
@@ -1405,6 +1417,7 @@ fi
 
 %changelog
 * Fri Oct 19 2012 Paolo Bonzini <pbonzini@redhat.com> - 2:1.2.0-16
+- add s390x KVM support
 - distribute pre-built firmware or device trees for Alpha, Microblaze, S390
 - add missing system targets
 - add missing linux-user targets

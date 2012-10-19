@@ -6,19 +6,19 @@ case $(uname -m) in
         grep svm /proc/cpuinfo >/dev/null 2>&1 && svm=1
 
         if [ "$vmx" ] || [ "$svm" ]; then
-            [ "$vmx" ] && modprobe -b kvm-intel >/dev/null 2>&1
-            [ "$svm" ] && modprobe -b kvm-amd >/dev/null 2>&1
-
-            kvm=1
+            [ "$vmx" ] && modprobe -b kvm-intel >/dev/null 2>&1 && kvm=1
+            [ "$svm" ] && modprobe -b kvm-amd >/dev/null 2>&1 && kvm=1
         fi
         ;;
     ppc64)
         grep OPAL  /proc/cpuinfo >/dev/null 2>&1 && opal=1
 
         if [ "$opal" ]; then
-            modprobe -b kvm >/dev/null 2>&1
-            kvm=1
+            modprobe -b kvm >/dev/null 2>&1 && kvm=1
         fi
+        ;;
+    s390x)
+        modprobe -b kvm >/dev/null 2>&1 && kvm=1
         ;;
 esac
 
