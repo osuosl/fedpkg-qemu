@@ -82,12 +82,16 @@
 %global user          user
 %global system_arm    system-arm
 %global system_cris   system-cris
+%global system_lm32   system-lm32
 %global system_m68k   system-m68k
 %global system_mips   system-mips
+%global system_or32   system-or32
 %global system_ppc    system-ppc
 %global system_sh4    system-sh4
 %global system_sparc  system-sparc
 %global system_x86    system-x86
+%global system_xtensa   system-xtensa
+%global system_unicore32   system-unicore32
 %endif
 
 # libfdt is only needed to build ARM and PPC emulators
@@ -336,11 +340,17 @@ Requires: %{name}-%{system_arm} = %{epoch}:%{version}-%{release}
 %if 0%{?system_cris:1}
 Requires: %{name}-%{system_cris} = %{epoch}:%{version}-%{release}
 %endif
+%if 0%{?system_lm32:1}
+Requires: %{name}-%{system_lm32} = %{epoch}:%{version}-%{release}
+%endif
 %if 0%{?system_m68k:1}
 Requires: %{name}-%{system_m68k} = %{epoch}:%{version}-%{release}
 %endif
 %if 0%{?system_mips:1}
 Requires: %{name}-%{system_mips} = %{epoch}:%{version}-%{release}
+%endif
+%if 0%{?system_or32:1}
+Requires: %{name}-%{system_or32} = %{epoch}:%{version}-%{release}
 %endif
 %if 0%{?system_ppc:1}
 Requires: %{name}-%{system_ppc} = %{epoch}:%{version}-%{release}
@@ -351,8 +361,14 @@ Requires: %{name}-%{system_sh4} = %{epoch}:%{version}-%{release}
 %if 0%{?system_sparc:1}
 Requires: %{name}-%{system_sparc} = %{epoch}:%{version}-%{release}
 %endif
+%if 0%{?system_unicore32:1}
+Requires: %{name}-%{system_unicore32} = %{epoch}:%{version}-%{release}
+%endif
 %if 0%{?system_x86:1}
 Requires: %{name}-%{system_x86} = %{epoch}:%{version}-%{release}
+%endif
+%if 0%{?system_xtensa:1}
+Requires: %{name}-%{system_xtensa} = %{epoch}:%{version}-%{release}
 %endif
 Requires: %{name}-img = %{epoch}:%{version}-%{release}
 
@@ -491,67 +507,91 @@ platform.
 
 %if 0%{?system_arm:1}
 %package %{system_arm}
-Summary: QEMU system emulator for arm
+Summary: QEMU system emulator for ARM
 Group: Development/Tools
 Requires: %{name}-common = %{epoch}:%{version}-%{release}
 %description %{system_arm}
 QEMU is a generic and open source processor emulator which achieves a good
 emulation speed by using dynamic translation.
 
-This package provides the system emulator for arm
+This package provides the system emulator for ARM boards.
 %endif
 
 %if 0%{?system_mips:1}
 %package %{system_mips}
-Summary: QEMU system emulator for mips
+Summary: QEMU system emulator for MIPS
 Group: Development/Tools
 Requires: %{name}-common = %{epoch}:%{version}-%{release}
 %description %{system_mips}
 QEMU is a generic and open source processor emulator which achieves a good
 emulation speed by using dynamic translation.
 
-This package provides the system emulator for mips
+This package provides the system emulator for MIPS boards.
 %endif
 
 %if 0%{?system_cris:1}
 %package %{system_cris}
-Summary: QEMU system emulator for cris
+Summary: QEMU system emulator for CRIS
 Group: Development/Tools
 Requires: %{name}-common = %{epoch}:%{version}-%{release}
 %description %{system_cris}
 QEMU is a generic and open source processor emulator which achieves a good
 emulation speed by using dynamic translation.
 
-This package provides the system emulator for cris
+This package provides the system emulator for CRIS boards.
+%endif
+
+%if 0%{?system_lm32:1}
+%package %{system_lm32}
+Summary: QEMU system emulator for LatticeMico32
+Group: Development/Tools
+Requires: %{name}-common = %{epoch}:%{version}-%{release}
+%description %{system_lm32}
+QEMU is a generic and open source processor emulator which achieves a good
+emulation speed by using dynamic translation.
+
+This package provides the system emulator for LatticeMico32 boards.
 %endif
 
 %if 0%{?system_m68k:1}
 %package %{system_m68k}
-Summary: QEMU system emulator for m68k
+Summary: QEMU system emulator for ColdFire (m68k)
 Group: Development/Tools
 Requires: %{name}-common = %{epoch}:%{version}-%{release}
 %description %{system_m68k}
 QEMU is a generic and open source processor emulator which achieves a good
 emulation speed by using dynamic translation.
 
-This package provides the system emulator for m68k
+This package provides the system emulator for ColdFire boards.
+%endif
+
+%if 0%{?system_or32:1}
+%package %{system_or32}
+Summary: QEMU system emulator for OpenRisc32
+Group: Development/Tools
+Requires: %{name}-common = %{epoch}:%{version}-%{release}
+%description %{system_or32}
+QEMU is a generic and open source processor emulator which achieves a good
+emulation speed by using dynamic translation.
+
+This package provides the system emulator for OpenRisc32 boards.
 %endif
 
 %if 0%{?system_sh4:1}
 %package %{system_sh4}
-Summary: QEMU system emulator for sh4
+Summary: QEMU system emulator for SH4
 Group: Development/Tools
 Requires: %{name}-common = %{epoch}:%{version}-%{release}
 %description %{system_sh4}
 QEMU is a generic and open source processor emulator which achieves a good
 emulation speed by using dynamic translation.
 
-This package provides the system emulator for sh4
+This package provides the system emulator for SH4 boards.
 %endif
 
 %if 0%{?system_sparc:1}
 %package %{system_sparc}
-Summary: QEMU system emulator for sparc
+Summary: QEMU system emulator for SPARC
 Group: Development/Tools
 Requires: %{name}-common = %{epoch}:%{version}-%{release}
 Requires: openbios
@@ -559,7 +599,7 @@ Requires: openbios
 QEMU is a generic and open source processor emulator which achieves a good
 emulation speed by using dynamic translation.
 
-This package provides the system emulator for sparc and sparc64
+This package provides the system emulator for SPARC and SPARC64 systems.
 %endif
 
 %if 0%{?system_ppc:1}
@@ -573,7 +613,31 @@ Requires: SLOF = 0.1.git%{SLOF_gittagdate}
 QEMU is a generic and open source processor emulator which achieves a good
 emulation speed by using dynamic translation.
 
-This package provides the system emulator for ppc
+This package provides the system emulator for PPC and PPC64 systems.
+%endif
+
+%if 0%{?system_xtensa:1}
+%package %{system_xtensa}
+Summary: QEMU system emulator for Xtensa
+Group: Development/Tools
+Requires: %{name}-common = %{epoch}:%{version}-%{release}
+%description %{system_xtensa}
+QEMU is a generic and open source processor emulator which achieves a good
+emulation speed by using dynamic translation.
+
+This package provides the system emulator for Xtensa boards.
+%endif
+
+%if 0%{?system_unicore32:1}
+%package %{system_unicore32}
+Summary: QEMU system emulator for Unicore32
+Group: Development/Tools
+Requires: %{name}-common = %{epoch}:%{version}-%{release}
+%description %{system_unicore32}
+QEMU is a generic and open source processor emulator which achieves a good
+emulation speed by using dynamic translation.
+
+This package provides the system emulator for Unicore32 boards.
 %endif
 
 %ifarch %{kvm_archs}
@@ -715,9 +779,11 @@ such as kvm_stat.
     buildarch="%{kvm_target}-softmmu"
 %else
 buildarch="i386-softmmu x86_64-softmmu arm-softmmu cris-softmmu \
-    m68k-softmmu mips-softmmu mipsel-softmmu mips64-softmmu \
-    mips64el-softmmu sh4-softmmu sh4eb-softmmu sparc-softmmu sparc64-softmmu \
-    ppc-softmmu ppcemb-softmmu ppc64-softmmu \
+    lm32-softmmu m68k-softmmu \
+    mips-softmmu mipsel-softmmu mips64-softmmu mips64el-softmmu \
+    or32-softmmu ppc-softmmu ppcemb-softmmu ppc64-softmmu \
+    sh4-softmmu sh4eb-softmmu sparc-softmmu sparc64-softmmu \
+    xtensa-softmmu xtensaeb-softmmu unicore32-softmmu \
     i386-linux-user x86_64-linux-user alpha-linux-user arm-linux-user \
     armeb-linux-user cris-linux-user m68k-linux-user \
     microblaze-linux-user microblazeel-linux-user mips-linux-user \
@@ -728,8 +794,7 @@ buildarch="i386-softmmu x86_64-softmmu arm-softmmu cris-softmmu \
 %endif
 
 # Targets we don't build as of qemu 1.2.0
-# alpha-softmmu lm32-softmmu microblaze-softmmu microblazeel-softmmu
-# or32-softmmu s390x-softmmu xtensa-softmmu xtensaeb-softmmu unicore32-softmmu
+# alpha-softmmu microblaze-softmmu microblazeel-softmmu s390x-softmmu
 
 # --build-id option is used for giving info to the debug packages.
 extraldflags="-Wl,--build-id";
@@ -1184,11 +1249,25 @@ fi
 %{_datadir}/systemtap/tapset/qemu-system-cris.stp
 %endif
 
+%if 0%{?system_lm32:1}
+%files %{system_lm32}
+%defattr(-,root,root)
+%{_bindir}/qemu-system-lm32
+%{_datadir}/systemtap/tapset/qemu-system-lm32.stp
+%endif
+
 %if 0%{?system_m68k:1}
 %files %{system_m68k}
 %defattr(-,root,root)
 %{_bindir}/qemu-system-m68k
 %{_datadir}/systemtap/tapset/qemu-system-m68k.stp
+%endif
+
+%if 0%{?system_or32:1}
+%files %{system_or32}
+%defattr(-,root,root)
+%{_bindir}/qemu-system-or32
+%{_datadir}/systemtap/tapset/qemu-system-or32.stp
 %endif
 
 %if 0%{?system_sh4:1}
@@ -1229,6 +1308,22 @@ fi
 %endif
 %endif
 
+%if 0%{?system_unicore32:1}
+%files %{system_unicore32}
+%defattr(-,root,root)
+%{_bindir}/qemu-system-unicore32
+%{_datadir}/systemtap/tapset/qemu-system-unicore32.stp
+%endif
+
+%if 0%{?system_xtensa:1}
+%files %{system_xtensa}
+%defattr(-,root,root)
+%{_bindir}/qemu-system-xtensa
+%{_bindir}/qemu-system-xtensaeb
+%{_datadir}/systemtap/tapset/qemu-system-xtensa.stp
+%{_datadir}/systemtap/tapset/qemu-system-xtensaeb.stp
+%endif
+
 %files img
 %defattr(-,root,root)
 %{_bindir}/qemu-img
@@ -1238,6 +1333,7 @@ fi
 
 %changelog
 * Fri Oct 19 2012 Paolo Bonzini <pbonzini@redhat.com> - 2:1.2.0-16
+- add missing system targets
 - add missing linux-user targets
 - fix previous commit
 
