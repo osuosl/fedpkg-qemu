@@ -414,8 +414,11 @@ Patch0407: 0407-virtio-console-Enable-port-throttling-when-chardev-i.patch
 Patch0408: 0408-spice-qemu-char.c-add-throttling.patch
 Patch0409: 0409-spice-qemu-char.c-remove-intermediate-buffer.patch
 Patch0410: 0410-usb-redir-Add-flow-control-support.patch
-Patch0411: 0411-virtio-serial-bus-replay-guest_open-on-migration.patch
+# 411 superceded by 414 which does the same thing but on top of 413 that is
+# going upstream.
 Patch0412: 0412-char-Disable-write-callback-if-throttled-chardev-is-.patch
+Patch0413: 0413-hw-virtio-serial-bus-post_load-send_event-when-vm-is.patch
+Patch0414: 0414-hw-virtio-serial-bus-replay-guest-open-on-destinatio.patch
 
 # Spice features from upstream master: seamless migration & dynamic monitors
 Patch0500: 0500-qxl-disallow-unknown-revisions.patch
@@ -489,7 +492,6 @@ Patch803: 0803-dtrace-backend-add-function-to-reserved-words.patch
 Patch804: 0804-wip-hw-qxl-inject-interrupts-in-any-state.patch
 # 38f419f (configure: Fix CONFIG_QEMU_HELPERDIR generation, 2012-10-17)
 Patch805: 0805-configure-Fix-CONFIG_QEMU_HELPERDIR-generation.patch
-
 
 BuildRequires: SDL-devel
 BuildRequires: zlib-devel
@@ -1169,8 +1171,10 @@ such as kvm_stat.
 %patch0408 -p1
 %patch0409 -p1
 %patch0410 -p1
-%patch0411 -p1
+# 411 superceded by 414
 %patch0412 -p1
+%patch0413 -p1
+%patch0414 -p1
 
 %patch0500 -p1
 %patch0501 -p1
@@ -1234,7 +1238,6 @@ such as kvm_stat.
 %patch803 -p1
 %patch804 -p1
 %patch805 -p1
-
 
 %build
 %if %{with kvmonly}
@@ -1852,6 +1855,10 @@ fi
 %endif
 
 %changelog
+* Tue Nov 17 2012 Alon Levy <alevy@redhat.com> - 2:1.2.0-24
+- Rewrite fix for bz #725965 based on fix for bz #867366
+- Resolve bz #867366
+
 * Fri Nov 16 2012 Paolo Bonzini <pbonzini@redhat.com> - 2:1.2.0-23
 - Backport --with separate_kvm support from EPEL branch
 
