@@ -109,7 +109,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.2.0
-Release: 17%{?dist}
+Release: 18%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -466,6 +466,13 @@ Patch0800: 0800-mips-Fix-link-error-with-piix4_pm_init.patch
 # Add ./configure --disable-kvm-options
 # keep: Carrying locally until qemu-kvm is fully merged into qemu.git
 Patch0801: 0801-configure-Add-disable-kvm-options.patch
+# Fix loading arm initrd if kernel is very large (bz 862766)
+Patch802: 0802-arm_boot-Change-initrd-load-address-to-halfway-throu.patch
+# Don't use reserved word 'function' in systemtap files (bz 870972)
+Patch803: 0803-dtrace-backend-add-function-to-reserved-words.patch
+# Drop assertion that was triggering when pausing guests w/ qxl (bz
+# 870972)
+Patch804: 0804-wip-hw-qxl-inject-interrupts-in-any-state.patch
 
 
 BuildRequires: SDL-devel
@@ -1198,6 +1205,9 @@ such as kvm_stat.
 
 %patch0800 -p1
 %patch0801 -p1
+%patch802 -p1
+%patch803 -p1
+%patch804 -p1
 
 
 %build
@@ -1790,6 +1800,12 @@ fi
 %{_mandir}/man1/qemu-img.1*
 
 %changelog
+* Tue Oct 30 2012 Cole Robinson <crobinso@redhat.com> - 2:1.2.0-18
+- Fix loading arm initrd if kernel is very large (bz #862766)
+- Don't use reserved word 'function' in systemtap files (bz #870972)
+- Drop assertion that was triggering when pausing guests w/ qxl (bz
+  #870972)
+
 * Sun Oct 28 2012 Cole Robinson <crobinso@redhat.com> - 2:1.2.0-17
 - Pull patches queued for qemu 1.2.1
 
