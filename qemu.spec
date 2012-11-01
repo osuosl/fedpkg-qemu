@@ -109,7 +109,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.2.0
-Release: 18%{?dist}
+Release: 19%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -423,6 +423,11 @@ Patch0510: 0510-hw-qxl-support-client-monitor-configuration-via-devi.patch
 Patch0511: 0511-qxl-always-update-displaysurface-on-resize.patch
 Patch0512: 0512-qxl-update_area_io-cleanup-invalid-parameters-handli.patch
 Patch0513: 0513-qxl-fix-range-check-for-rev3-io-commands.patch
+Patch0514: 0514-hw-qxl-exit-on-failure-to-register-qxl-interface.patch
+Patch0515: 0515-hw-qxl-fix-condition-for-exiting-guest_bug.patch
+Patch0516: 0516-hw-qxl-qxl_dirty_surfaces-use-uintptr_t.patch
+Patch0517: 0517-spice-raise-requirement-to-0.12.patch
+Patch0518: 0518-qxl-set-default-revision-to-4.patch
 
 # usb-redir live-migration and misc bits, will be in before 1.3.0
 Patch0600: 0600-usb-redir-Convert-to-new-libusbredirparser-0.5-API.patch
@@ -1166,6 +1171,11 @@ such as kvm_stat.
 %patch0511 -p1
 %patch0512 -p1
 %patch0513 -p1
+%patch0514 -p1
+%patch0515 -p1
+%patch0516 -p1
+%patch0517 -p1
+%patch0518 -p1
 
 %patch0600 -p1
 %patch0601 -p1
@@ -1800,6 +1810,11 @@ fi
 %{_mandir}/man1/qemu-img.1*
 
 %changelog
+* Thu Nov  1 2012 Hans de Goede <hdegoede@redhat.com> - 2:1.2.0-19
+- Sync spice patches with upstream, minor bugfixes and set the qxl pci
+  device revision to 4 by default, so that guests know they can use
+  the new features
+
 * Tue Oct 30 2012 Cole Robinson <crobinso@redhat.com> - 2:1.2.0-18
 - Fix loading arm initrd if kernel is very large (bz #862766)
 - Don't use reserved word 'function' in systemtap files (bz #870972)
