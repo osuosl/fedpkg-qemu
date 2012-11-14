@@ -778,7 +778,11 @@ Obsoletes: kvm < 85
 Requires: vgabios
 Requires: seabios
 Requires: sgabios-bin
+%if 0%{?rhel} > 0 && 0%{?rhel} < 7
+Requires: gpxe-roms-qemu
+%else
 Requires: ipxe-roms-qemu
+%endif
 %endif
 %if 0%{?have_seccomp:1}
 Requires: libseccomp >= 1.0.0
