@@ -196,7 +196,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.2.0
-Release: 19%{?dist}
+Release: 19%{?dist}.1
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -2065,6 +2065,17 @@ fi
 %endif
 
 %changelog
+* Thu Nov 11 2012 Lubomir Rintel <lkundrak@v3.sk> - 2:1.2.0-19.1
+- Add EPEL 6 support
+- Allow building a package that is able to coexist with el6's kvm package
+- Require gpxe-roms-qemu in EPEL6
+- Allow builds without usbredir
+- Allow builds without xfsprogs
+- Do not stick certain dependencies to exact revisions
+- Allow building without libfdt
+- Allow builds with intree firmware
+- Bring back sysvinit support
+
 * Thu Nov  1 2012 Hans de Goede <hdegoede@redhat.com> - 2:1.2.0-19
 - Sync spice patches with upstream, minor bugfixes and set the qxl pci
   device revision to 4 by default, so that guests know they can use
