@@ -530,7 +530,7 @@ BuildRequires: pciutils-devel
 BuildRequires: pulseaudio-libs-devel
 BuildRequires: ncurses-devel
 BuildRequires: libattr-devel
-BuildRequires: usbredir-devel >= 0.5.2
+BuildRequires: usbredir-devel
 BuildRequires: texinfo
 %if 0%{?have_spice:1}
 BuildRequires: spice-protocol >= 0.12.2
@@ -757,8 +757,8 @@ Requires: %{name}-common = %{epoch}:%{version}-%{release}
 Provides: kvm = 85
 Obsoletes: kvm < 85
 %if %{without intree_pc_roms}
-Requires: vgabios >= 0.6c-2
-Requires: seabios-bin >= 0.6.0-2
+Requires: vgabios
+Requires: seabios
 Requires: sgabios-bin
 Requires: ipxe-roms-qemu
 %endif
