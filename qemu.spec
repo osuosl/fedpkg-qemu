@@ -1,3 +1,12 @@
+# ===== 8< ===== HACK ===== 8< ===== HACK ===== 8< ===== HACK ===== 8< =====
+# Compiler is quite resource intensive while generating debuginfo for
+# certain files, # particularly sparc64-softmmu/target-sparc/translate.o and
+# thus we're # very likely to run out of memory. Disable as muchx
+# paralellization as we can, to make it survive the build.
+%global optflags %(rpm --eval '%%{optflags}' |sed 's/-pipe//')
+%global _smp_mflags %{nil}
+# ===== 8< ===== HACK ===== 8< ===== HACK ===== 8< ===== HACK ===== 8< =====
+
 # build-time settings that support --with or --without:
 #
 # = kvmonly =
