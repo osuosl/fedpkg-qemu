@@ -47,6 +47,11 @@
 # Enable usbredir support.
 #
 # Enabled by default.
+#
+# = separate_kvm =
+# Do not build and install stuff that would colide with separately packaged KVM.
+#
+# Disabled by default.
 
 %if 0%{?rhel}
 # RHEL-specific defaults:
@@ -61,6 +66,7 @@
 %bcond_without have_libfdt      # enabled
 %bcond_without have_xfsprogs    # enabled
 %bcond_without have_usbredir    # enabled
+%bcond_with    separate_kvm     # disabled
 %else
 # General defaults:
 %bcond_with    kvmonly          # disabled
@@ -74,15 +80,21 @@
 %bcond_without have_libfdt      # enabled
 %bcond_without have_xfsprogs    # enabled
 %bcond_without have_usbredir    # enabled
+%bcond_with    separate_kvm     # disabled
 %endif
 
 %global SLOF_gittagdate 20120731
 
+%if %{without separate_kvm}
 %if %{with exclusive_x86_64}
 %global kvm_archs x86_64
 %else
 %global kvm_archs %{ix86} x86_64 ppc64 s390x
 %endif
+%else
+%global kvm_archs %{ix86} ppc64 s390x
+%endif
+
 
 %ifarch %{ix86} x86_64
 %if %{with seccomp}
@@ -105,11 +117,13 @@
 %global kvm_target    i386
 %global need_qemu_kvm 1
 %endif
+%if %{without separate_kvm}
 %ifarch x86_64
 %global system_x86    kvm
 %global kvm_package   system-x86
 %global kvm_target    x86_64
 %global need_qemu_kvm 1
+%endif
 %endif
 %ifarch ppc64
 %global system_ppc    kvm
@@ -636,7 +650,11 @@ Requires: %{name}-%{system_x86} = %{epoch}:%{version}-%{release}
 %if 0%{?system_xtensa:1}
 Requires: %{name}-%{system_xtensa} = %{epoch}:%{version}-%{release}
 %endif
+%if %{without separate_kvm}
 Requires: %{name}-img = %{epoch}:%{version}-%{release}
+%else
+Requires: %{name}-img
+%endif
 
 %define qemudocdir %{_docdir}/%{name}
 
@@ -1586,6 +1604,21 @@ mkdir -p $RPM_BUILD_ROOT%{_initddir}
 install -D -p -m 0755 %{SOURCE66610} $RPM_BUILD_ROOT%{_initddir}/qemu-ga
 %endif
 
+%if %{with separate_kvm}
+rm $RPM_BUILD_ROOT%{_bindir}/qemu-img
+rm $RPM_BUILD_ROOT%{_bindir}/qemu-io
+rm $RPM_BUILD_ROOT%{_bindir}/vscclient
+rm $RPM_BUILD_ROOT%{_mandir}/man1/qemu-img.1*
+
+rm $RPM_BUILD_ROOT%{_bindir}/qemu-ga
+%if %{with systemd}
+rm $RPM_BUILD_ROOT%{_unitdir}/qemu-guest-agent.service
+rm $RPM_BUILD_ROOT%{_udevdir}/99-qemu-guest-agent.rules
+%else
+rm $RPM_BUILD_ROOT%{_initddir}/qemu-ga
+%endif
+%endif
+
 %check
 make check
 
@@ -1597,6 +1630,7 @@ sh %{_sysconfdir}/sysconfig/modules/kvm.modules || :
 udevadm trigger --sysname-match=kvm || :
 %endif
 
+%if %{without separate_kvm}
 %post common
 if [ $1 -eq 1 ] ; then
     # Initial installation
@@ -1645,6 +1679,7 @@ if [ $1 -ge 1 ] ; then
     /sbin/service ksmtuned condrestart &>/dev/null || :
 %endif
 fi
+%endif
 
 
 %if 0%{?user:1}
@@ -1712,6 +1747,7 @@ fi
 %{_bindir}/virtfs-proxy-helper
 %{_libexecdir}/qemu-bridge-helper
 %config(noreplace) %{_sysconfdir}/sasl2/qemu.conf
+%if %{without separate_kvm}
 %if %{with systemd}
 /lib/systemd/system/ksm.service
 /lib/systemd/ksmctl
@@ -1726,8 +1762,25 @@ fi
 %endif
 %{_sbindir}/ksmtuned
 %config(noreplace) %{_sysconfdir}/ksmtuned.conf
+%else
+%if %{with systemd}
+%exclude /lib/systemd/system/ksm.service
+%exclude /lib/systemd/ksmctl
+%else
+%exclude %{_initddir}/ksm
+%endif
+%config(noreplace) %{_sysconfdir}/sysconfig/ksm
+%if %{with systemd}
+%exclude /lib/systemd/system/ksmtuned.service
+%else
+%exclude %{_initddir}/ksmtuned
+%endif
+%exclude %{_sbindir}/ksmtuned
+%exclude %config(noreplace) %{_sysconfdir}/ksmtuned.conf
+%endif
 %dir %{_sysconfdir}/qemu
 
+%if %{without separate_kvm}
 %files guest-agent
 %defattr(-,root,root,-)
 %doc COPYING README
@@ -1737,6 +1790,7 @@ fi
 %{_udevdir}/99-qemu-guest-agent.rules
 %else
 %{_initddir}/qemu-ga
+%endif
 %endif
 
 %if 0%{?user:1}
@@ -1821,9 +1875,11 @@ fi
 %{_datadir}/%{name}/cpus-x86_64.conf
 %{_datadir}/%{name}/qemu-icon.bmp
 %config(noreplace) %{_sysconfdir}/qemu/target-x86_64.conf
+%if %{without separate_kvm}
 %ifarch %{ix86} x86_64
 %{?kvm_files:}
 %{?qemu_kvm_files:}
+%endif
 %endif
 %endif
 
@@ -1973,12 +2029,14 @@ fi
 %{_datadir}/systemtap/tapset/qemu-system-xtensaeb.stp
 %endif
 
+%if %{without separate_kvm}
 %files img
 %defattr(-,root,root)
 %{_bindir}/qemu-img
 %{_bindir}/qemu-io
 %{_bindir}/vscclient
 %{_mandir}/man1/qemu-img.1*
+%endif
 
 %changelog
 * Thu Nov  1 2012 Hans de Goede <hdegoede@redhat.com> - 2:1.2.0-19
