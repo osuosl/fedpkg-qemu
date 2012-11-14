@@ -1,0 +1,86 @@
+#!/bin/bash
+#
+# qemu-ga: QEMU Guest Agent init script
+# Author: Lubomir Rintel <lkundrak@v3.sk>
+#
+# chkconfig: - 80 30
+# description: QEMU Guest Agents lets a virtualized guest use functionality
+#              provided by the host hypervisor.
+# processname: qemu-ga
+# config: /etc/sysconfig/qemu-ga
+# pidfile: /var/run/qemu-ga.pid
+#
+### BEGIN INIT INFO
+# Provides: qemu-ga
+# Required-Start:
+# Required-Stop:
+# Should-Start:
+# Default-Start:
+# Default-Stop: 0 1 2 6
+# Short-Description: QEMU Guest Agent
+# Description: QEMU Guest Agents lets a virtualized guest use functionality
+#              provided by the host hypervisor.
+### END INIT INFO
+
+. /etc/rc.d/init.d/functions
+
+prog=qemu-ga
+qemuga=/usr/bin/qemu-ga
+pidfile=${PIDFILE-/var/run/ksmtune.pid}
+QEMUGA_DEV=/dev/virtio-ports/org.qemu.guest_agent.0
+RETVAL=0
+
+# Source service configuration.
+[ -e /etc/sysconfig/$prog ] && . /etc/sysconfig/$prog
+
+# Do nothing if the channel is not present
+[ -e "$QEMUGA_DEV" ] || exit 0
+
+start() {
+    echo -n $"Starting $prog: "
+    daemon --pidfile=${pidfile} $qemuga --daemonize $QEMUGA_OPTS
+    RETVAL=$?
+    echo
+    [ $RETVAL -eq 0 ] && touch /var/lock/subsys/$prog
+}
+
+stop() {
+    echo -n $"Stopping $prog: "
+    killproc -p ${pidfile}
+    RETVAL=$?
+    echo
+    [ $RETVAL -eq 0 ] && rm -f /var/lock/subsys/$prog
+}
+
+restart() {
+    stop
+    start
+}
+
+condrestart() {
+    [ -e /var/lock/subsys/$prog ] && restart || :
+}
+
+case "$1" in
+  start)
+	start
+	;;
+  stop)
+	stop
+	;;
+  status)
+        status -p ${pidfile} $prog
+	RETVAL=$?
+	;;
+  restart|force-reload)
+	restart
+	;;
+  condrestart|try-restart)
+	condrestart
+	;;
+  *)
+	echo $"Usage: $prog {start|stop|restart|force-reload|condrestart|try-restart|status|retune|help}"
+	RETVAL=2
+esac
+
+exit $RETVAL
