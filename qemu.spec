@@ -42,6 +42,11 @@
 # Enable XFS discard support.
 #
 # Enabled by default.
+#
+# = have_usbredir =
+# Enable usbredir support.
+#
+# Enabled by default.
 
 %if 0%{?rhel}
 # RHEL-specific defaults:
@@ -55,6 +60,7 @@
 %bcond_with    intree_pc_roms   # disabled
 %bcond_without have_libfdt      # enabled
 %bcond_without have_xfsprogs    # enabled
+%bcond_without have_usbredir    # enabled
 %else
 # General defaults:
 %bcond_with    kvmonly          # disabled
@@ -67,6 +73,7 @@
 %bcond_with    intree_pc_roms   # disabled
 %bcond_without have_libfdt      # enabled
 %bcond_without have_xfsprogs    # enabled
+%bcond_without have_usbredir    # enabled
 %endif
 
 %global SLOF_gittagdate 20120731
@@ -537,7 +544,9 @@ BuildRequires: pciutils-devel
 BuildRequires: pulseaudio-libs-devel
 BuildRequires: ncurses-devel
 BuildRequires: libattr-devel
+%if %{with have_usbredir}
 BuildRequires: usbredir-devel
+%endif
 BuildRequires: texinfo
 %if 0%{?have_spice:1}
 BuildRequires: spice-protocol >= 0.12.2
