@@ -18,41 +18,66 @@
 # = systemd =
 # Install systemd unit files instead of sysvinit scripts.
 #
-# Enabled by default.
+# Enabled by default, except in EPEL6.
 #
 # = intree_roms =
 # Install non-pc (openbios and slof) firmware from QEMU tree instead of using
 # separately packaged images.
 #
-# Disabled by default.
+# Disabled by default, except in EPEL6.
 #
 # = intree_pc_roms =
 # Install pc firmware (vgabios, bios, boot roms, etc.) from QEMU tree instead
 # of using separately packaged images.
 #
-# Disabled by default.
+# Disabled by default, except in EPEL6/{i686/ppc64}.
 #
 # = have_libfdt =
 # Build with ability to inject kernel arguments in fdt on certain
 # platforms.
 #
-# Enabled by default.
+# Enabled by default, except in EPEL6.
 #
 # = have_xfsprogs =
 # Enable XFS discard support.
 #
-# Enabled by default.
+# Enabled by default, except in EPEL6/{i686,ppc64}.
 #
 # = have_usbredir =
 # Enable usbredir support.
 #
-# Enabled by default.
+# Enabled by default, except in EPEL6/{i686,ppc64}.
 #
 # = separate_kvm =
 # Do not build and install stuff that would colide with separately packaged KVM.
 #
-# Disabled by default.
+# Disabled by default, except in EPEL6/x86_64.
 
+%if 0%{?rhel} == 6
+# EPEL for RHEL 6
+%bcond_with    kvmonly          # disabled
+%bcond_with    exclusive_x86_64 # disabled
+%bcond_with    rbd              # disabled
+%bcond_with    spice            # disabled
+%bcond_with    seccomp          # disabled
+%bcond_with    systemd          # disabled
+%bcond_with    have_libfdt      # disabled
+%bcond_with    have_xfsprogs    # disabled
+%ifarch x86_64
+%bcond_without intree_roms      # enabled
+%bcond_with    intree_pc_roms   # disabled
+%bcond_without separate_kvm     # enabled
+%else
+%bcond_without intree_roms      # enabled
+%bcond_without intree_pc_roms   # enabled
+%bcond_with    separate_kvm     # disabled
+%endif
+%ifarch %{ix86} x86_64
+%bcond_without have_usbredir    # enabled
+%else
+%bcond_with    have_usbredir    # disabled
+%endif
+%else
 %if 0%{?rhel}
 # RHEL-specific defaults:
 %bcond_without kvmonly          # enabled
@@ -81,6 +106,7 @@
 %bcond_without have_xfsprogs    # enabled
 %bcond_without have_usbredir    # enabled
 %bcond_with    separate_kvm     # disabled
+%endif
 %endif
 
 %global SLOF_gittagdate 20120731
