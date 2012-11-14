@@ -37,6 +37,11 @@
 # platforms.
 #
 # Enabled by default.
+#
+# = have_xfsprogs =
+# Enable XFS discard support.
+#
+# Enabled by default.
 
 %if 0%{?rhel}
 # RHEL-specific defaults:
@@ -49,6 +54,7 @@
 %bcond_with    intree_roms      # disabled
 %bcond_with    intree_pc_roms   # disabled
 %bcond_without have_libfdt      # enabled
+%bcond_without have_xfsprogs    # enabled
 %else
 # General defaults:
 %bcond_with    kvmonly          # disabled
@@ -60,6 +66,7 @@
 %bcond_with    intree_roms      # disabled
 %bcond_with    intree_pc_roms   # disabled
 %bcond_without have_libfdt      # enabled
+%bcond_without have_xfsprogs    # enabled
 %endif
 
 %global SLOF_gittagdate 20120731
@@ -551,7 +558,9 @@ BuildRequires: systemtap-sdt-devel
 # For smartcard NSS support
 BuildRequires: nss-devel
 # For XFS discard support in raw-posix.c
+%if %{with have_xfsprogs}
 BuildRequires: xfsprogs-devel
+%endif
 # For VNC JPEG support
 BuildRequires: libjpeg-devel
 # For VNC PNG support
