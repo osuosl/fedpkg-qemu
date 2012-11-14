@@ -31,6 +31,12 @@
 # of using separately packaged images.
 #
 # Disabled by default.
+#
+# = have_libfdt =
+# Build with ability to inject kernel arguments in fdt on certain
+# platforms.
+#
+# Enabled by default.
 
 %if 0%{?rhel}
 # RHEL-specific defaults:
@@ -42,6 +48,7 @@
 %bcond_without systemd          # enabled
 %bcond_with    intree_roms      # disabled
 %bcond_with    intree_pc_roms   # disabled
+%bcond_without have_libfdt      # enabled
 %else
 # General defaults:
 %bcond_with    kvmonly          # disabled
@@ -52,6 +59,7 @@
 %bcond_without systemd          # enabled
 %bcond_with    intree_roms      # disabled
 %bcond_with    intree_pc_roms   # disabled
+%bcond_without have_libfdt      # enabled
 %endif
 
 %global SLOF_gittagdate 20120731
@@ -126,7 +134,9 @@
 
 # libfdt is only needed to build ARM, Microblaze or PPC emulators
 %if 0%{?system_arm:1}%{?system_microblaze:1}%{?system_ppc:1}
+%if %{with have_libfdt}
 %global need_fdt      1
+%endif
 %endif
 
 Summary: QEMU is a FAST! processor emulator
