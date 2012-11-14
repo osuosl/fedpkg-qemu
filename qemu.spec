@@ -19,6 +19,18 @@
 # Install systemd unit files instead of sysvinit scripts.
 #
 # Enabled by default.
+#
+# = intree_roms =
+# Install non-pc (openbios and slof) firmware from QEMU tree instead of using
+# separately packaged images.
+#
+# Disabled by default.
+#
+# = intree_pc_roms =
+# Install pc firmware (vgabios, bios, boot roms, etc.) from QEMU tree instead
+# of using separately packaged images.
+#
+# Disabled by default.
 
 %if 0%{?rhel}
 # RHEL-specific defaults:
@@ -28,6 +40,8 @@
 %bcond_without spice            # enabled
 %bcond_without seccomp          # enabled
 %bcond_without systemd          # enabled
+%bcond_with    intree_roms      # disabled
+%bcond_with    intree_pc_roms   # disabled
 %else
 # General defaults:
 %bcond_with    kvmonly          # disabled
@@ -36,6 +50,8 @@
 %bcond_without spice            # enabled
 %bcond_without seccomp          # enabled
 %bcond_without systemd          # enabled
+%bcond_with    intree_roms      # disabled
+%bcond_with    intree_pc_roms   # disabled
 %endif
 
 %global SLOF_gittagdate 20120731
@@ -730,10 +746,12 @@ Group: Development/Tools
 Requires: %{name}-common = %{epoch}:%{version}-%{release}
 Provides: kvm = 85
 Obsoletes: kvm < 85
+%if %{without intree_pc_roms}
 Requires: vgabios >= 0.6c-2
 Requires: seabios-bin >= 0.6.0-2
 Requires: sgabios-bin
 Requires: ipxe-roms-qemu
+%endif
 %if 0%{?have_seccomp:1}
 Requires: libseccomp >= 1.0.0
 %endif
@@ -872,7 +890,9 @@ This package provides the system emulator for SH4 boards.
 Summary: QEMU system emulator for SPARC
 Group: Development/Tools
 Requires: %{name}-common = %{epoch}:%{version}-%{release}
+%if %{without intree_roms}
 Requires: openbios
+%endif
 %description %{system_sparc}
 QEMU is a generic and open source processor emulator which achieves a good
 emulation speed by using dynamic translation.
@@ -885,8 +905,10 @@ This package provides the system emulator for SPARC and SPARC64 systems.
 Summary: QEMU system emulator for PPC
 Group: Development/Tools
 Requires: %{name}-common = %{epoch}:%{version}-%{release}
+%if %{without intree_roms}
 Requires: openbios
 Requires: SLOF = 0.1.git%{SLOF_gittagdate}
+%endif
 %description %{system_ppc}
 QEMU is a generic and open source processor emulator which achieves a good
 emulation speed by using dynamic translation.
@@ -1409,12 +1431,14 @@ install -D -p -m 0644 -t ${RPM_BUILD_ROOT}%{qemudocdir} Changelog README TODO CO
 
 install -D -p -m 0644 qemu.sasl $RPM_BUILD_ROOT%{_sysconfdir}/sasl2/qemu.conf
 
+%if %{without intree_roms}
 # Provided by package openbios
 rm -rf ${RPM_BUILD_ROOT}%{_datadir}/%{name}/openbios-ppc
 rm -rf ${RPM_BUILD_ROOT}%{_datadir}/%{name}/openbios-sparc32
 rm -rf ${RPM_BUILD_ROOT}%{_datadir}/%{name}/openbios-sparc64
 # Provided by package SLOF
 rm -rf ${RPM_BUILD_ROOT}%{_datadir}/%{name}/slof.bin
+%endif
 
 # Remove possibly unpackaged files.  Unlike others that are removed
 # unconditionally, these firmware files are still distributed as a binary
@@ -1436,6 +1460,7 @@ rm -f ${RPM_BUILD_ROOT}%{_datadir}/%{name}/spapr-rtas.bin
 rm -rf ${RPM_BUILD_ROOT}%{_datadir}/%{name}/s390-zipl.rom
 %endif
 
+%if %{without intree_pc_roms}
 # Provided by package ipxe
 rm -rf ${RPM_BUILD_ROOT}%{_datadir}/%{name}/pxe*rom
 # Provided by package vgabios
@@ -1454,6 +1479,7 @@ pxe_link() {
 }
 
 pxe_link e1000 8086100e
+pxe_link eepro100 80861209
 pxe_link ne2k_pci 10ec8029
 pxe_link pcnet 10222000
 pxe_link rtl8139 10ec8139
@@ -1470,6 +1496,7 @@ rom_link ../vgabios/VGABIOS-lgpl-latest.stdvga.bin vgabios-stdvga.bin
 rom_link ../vgabios/VGABIOS-lgpl-latest.vmware.bin vgabios-vmware.bin
 rom_link ../seabios/bios.bin bios.bin
 rom_link ../sgabios/sgabios.bin sgabios.bin
+%endif
 %endif
 
 %if %{with systemd}
@@ -1758,6 +1785,7 @@ fi
 %{_datadir}/%{name}/pxe-pcnet.rom
 %{_datadir}/%{name}/pxe-rtl8139.rom
 %{_datadir}/%{name}/pxe-ne2k_pci.rom
+%{_datadir}/%{name}/pxe-eepro100.rom
 %{_datadir}/%{name}/cpus-x86_64.conf
 %{_datadir}/%{name}/qemu-icon.bmp
 %config(noreplace) %{_sysconfdir}/qemu/target-x86_64.conf
@@ -1867,6 +1895,10 @@ fi
 %{_bindir}/qemu-system-sparc64
 %{_datadir}/systemtap/tapset/qemu-system-sparc.stp
 %{_datadir}/systemtap/tapset/qemu-system-sparc64.stp
+%if %{with intree_roms}
+%{_datadir}/%{name}/openbios-sparc32
+%{_datadir}/%{name}/openbios-sparc64
+%endif
 %endif
 
 %if 0%{?system_ppc:1}
@@ -1879,6 +1911,10 @@ fi
 %{_datadir}/systemtap/tapset/qemu-system-ppc.stp
 %{_datadir}/systemtap/tapset/qemu-system-ppc64.stp
 %{_datadir}/systemtap/tapset/qemu-system-ppcemb.stp
+%if %{with intree_roms}
+%{_datadir}/%{name}/openbios-ppc
+%{_datadir}/%{name}/slof.bin
+%endif
 %endif
 %{_datadir}/%{name}/bamboo.dtb
 %{_datadir}/%{name}/ppc_rom.bin
