@@ -109,7 +109,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.2.0
-Release: 19%{?dist}
+Release: 20%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -148,6 +148,7 @@ Source9: ksmtuned.conf
 
 Source10: qemu-guest-agent.service
 Source11: 99-qemu-guest-agent.rules
+Source12: bridge.conf
 
 # Patches queued for 1.2.1 stable
 Patch0001: 0001-target-xtensa-convert-host-errno-values-to-guest.patch
@@ -1477,6 +1478,10 @@ mkdir -p $RPM_BUILD_ROOT%{_udevdir}
 install -m 0644 %{SOURCE10} $RPM_BUILD_ROOT%{_unitdir}
 install -m 0644 %{SOURCE11} $RPM_BUILD_ROOT%{_udevdir}
 
+# Install rules to use the bridge helper with libvirt's virbr0
+install -m 0644 %{SOURCE12} $RPM_BUILD_ROOT%{_sysconfdir}/qemu
+chmod u+s $RPM_BUILD_ROOT%{_libexecdir}/qemu-bridge-helper
+
 %check
 make check
 
@@ -1573,6 +1578,7 @@ fi
 %{_sbindir}/ksmtuned
 %config(noreplace) %{_sysconfdir}/ksmtuned.conf
 %dir %{_sysconfdir}/qemu
+%config(noreplace) %{_sysconfdir}/qemu/bridge.conf
 
 %files guest-agent
 %defattr(-,root,root,-)
@@ -1810,6 +1816,10 @@ fi
 %{_mandir}/man1/qemu-img.1*
 
 %changelog
+* Thu Nov 15 2012 Paolo Bonzini <pbonzini@redhat.com> - 2:1.2.0-20
+- Install qemu-bridge-helper as suid root
+- Distribute a sample /etc/qemu/bridge.conf file
+
 * Thu Nov  1 2012 Hans de Goede <hdegoede@redhat.com> - 2:1.2.0-19
 - Sync spice patches with upstream, minor bugfixes and set the qxl pci
   device revision to 4 by default, so that guests know they can use
