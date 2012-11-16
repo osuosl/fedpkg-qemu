@@ -205,7 +205,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.2.0
-Release: 19%{?dist}.1
+Release: 22%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -248,6 +248,7 @@ Source9: ksmtuned.conf
 Source10: qemu-guest-agent.service
 Source11: 99-qemu-guest-agent.rules
 Source66610: qemu-ga.init
+Source12: bridge.conf
 
 # Patches queued for 1.2.1 stable
 Patch0001: 0001-target-xtensa-convert-host-errno-values-to-guest.patch
@@ -578,6 +579,8 @@ Patch803: 0803-dtrace-backend-add-function-to-reserved-words.patch
 # Drop assertion that was triggering when pausing guests w/ qxl (bz
 # 870972)
 Patch804: 0804-wip-hw-qxl-inject-interrupts-in-any-state.patch
+# 38f419f (configure: Fix CONFIG_QEMU_HELPERDIR generation, 2012-10-17)
+Patch805: 0805-configure-Fix-CONFIG_QEMU_HELPERDIR-generation.patch
 
 
 BuildRequires: SDL-devel
@@ -1356,6 +1359,7 @@ such as kvm_stat.
 %patch802 -p1
 %patch803 -p1
 %patch804 -p1
+%patch805 -p1
 
 
 %build
@@ -1654,6 +1658,10 @@ rm $RPM_BUILD_ROOT%{_initddir}/qemu-ga
 %endif
 %endif
 
+# Install rules to use the bridge helper with libvirt's virbr0
+install -m 0644 %{SOURCE12} $RPM_BUILD_ROOT%{_sysconfdir}/qemu
+chmod u+s $RPM_BUILD_ROOT%{_libexecdir}/qemu-bridge-helper
+
 %check
 make check
 
@@ -1814,6 +1822,7 @@ fi
 %exclude %config(noreplace) %{_sysconfdir}/ksmtuned.conf
 %endif
 %dir %{_sysconfdir}/qemu
+%config(noreplace) %{_sysconfdir}/qemu/bridge.conf
 
 %if %{without separate_kvm}
 %files guest-agent
@@ -2074,6 +2083,17 @@ fi
 %endif
 
 %changelog
+* Fri Nov 16 2012 Paolo Bonzini <pbonzini@redhat.com> - 2:1.2.0-22
+- Fix previous commit
+
+* Fri Nov 16 2012 Paolo Bonzini <pbonzini@redhat.com> - 2:1.2.0-21
+- Backport commit 38f419f (configure: Fix CONFIG_QEMU_HELPERDIR generation,
+  2012-10-17)
+
+* Thu Nov 15 2012 Paolo Bonzini <pbonzini@redhat.com> - 2:1.2.0-20
+- Install qemu-bridge-helper as suid root
+- Distribute a sample /etc/qemu/bridge.conf file
+
 * Thu Nov 11 2012 Lubomir Rintel <lkundrak@v3.sk> - 2:1.2.0-19.1
 - Add EPEL 6 support
 - Allow building a package that is able to coexist with el6's kvm package
