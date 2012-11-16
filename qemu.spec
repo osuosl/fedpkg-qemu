@@ -109,7 +109,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.2.0
-Release: 20%{?dist}
+Release: 21%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -479,6 +479,8 @@ Patch803: 0803-dtrace-backend-add-function-to-reserved-words.patch
 # Drop assertion that was triggering when pausing guests w/ qxl (bz
 # 870972)
 Patch804: 0804-wip-hw-qxl-inject-interrupts-in-any-state.patch
+# 38f419f (configure: Fix CONFIG_QEMU_HELPERDIR generation, 2012-10-17)
+Patch805: 0805-configure-Fix-CONFIG_QEMU_HELPERDIR-generation.patch
 
 
 BuildRequires: SDL-devel
@@ -1219,6 +1221,7 @@ such as kvm_stat.
 %patch802 -p1
 %patch803 -p1
 %patch804 -p1
+%patch805 -p1
 
 
 %build
@@ -1816,6 +1819,10 @@ fi
 %{_mandir}/man1/qemu-img.1*
 
 %changelog
+* Fri Nov 16 2012 Paolo Bonzini <pbonzini@redhat.com> - 2:1.2.0-21
+- Backport commit 38f419f (configure: Fix CONFIG_QEMU_HELPERDIR generation,
+  2012-10-17)
+
 * Thu Nov 15 2012 Paolo Bonzini <pbonzini@redhat.com> - 2:1.2.0-20
 - Install qemu-bridge-helper as suid root
 - Distribute a sample /etc/qemu/bridge.conf file
