@@ -14,6 +14,11 @@
 # Enable rbd support.
 #
 # Enable by default, except on RHEL.
+#
+# = separate_kvm =
+# Do not build and install stuff that would colide with separately packaged KVM.
+#
+# Disabled by default, except on EPEL.
 
 %if 0%{?rhel}
 # RHEL-specific defaults:
@@ -22,6 +27,7 @@
 %bcond_with    rbd              # disabled
 %bcond_without spice            # enabled
 %bcond_without seccomp          # enabled
+%bcond_with    separate_kvm     # disabled - for EPEL
 %else
 # General defaults:
 %bcond_with    kvmonly          # disabled
@@ -29,15 +35,20 @@
 %bcond_without rbd              # enabled
 %bcond_without spice            # enabled
 %bcond_without seccomp          # enabled
+%bcond_with    separate_kvm     # disabled
 %endif
 
 %global SLOF_gittagdate 20120731
 
+%if %{without separate_kvm}
+%global kvm_archs %{ix86} x86_64 ppc64 s390x
+%else
+%global kvm_archs %{ix86} ppc64 s390x
+%endif
 %if %{with exclusive_x86_64}
 %global kvm_archs x86_64
-%else
-%global kvm_archs %{ix86} x86_64 ppc64 s390x
 %endif
+
 
 %ifarch %{ix86} x86_64
 %if %{with seccomp}
@@ -109,7 +120,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.2.0
-Release: 22%{?dist}
+Release: 23%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -584,7 +595,11 @@ Requires: %{name}-%{system_x86} = %{epoch}:%{version}-%{release}
 %if 0%{?system_xtensa:1}
 Requires: %{name}-%{system_xtensa} = %{epoch}:%{version}-%{release}
 %endif
+%if %{without separate_kvm}
 Requires: %{name}-img = %{epoch}:%{version}-%{release}
+%else
+Requires: %{name}-img
+%endif
 
 %define qemudocdir %{_docdir}/%{name}
 
@@ -1485,6 +1500,17 @@ install -m 0644 %{SOURCE11} $RPM_BUILD_ROOT%{_udevdir}
 install -m 0644 %{SOURCE12} $RPM_BUILD_ROOT%{_sysconfdir}/qemu
 chmod u+s $RPM_BUILD_ROOT%{_libexecdir}/qemu-bridge-helper
 
+%if %{with separate_kvm}
+rm $RPM_BUILD_ROOT%{_bindir}/qemu-img
+rm $RPM_BUILD_ROOT%{_bindir}/qemu-io
+rm $RPM_BUILD_ROOT%{_bindir}/vscclient
+rm $RPM_BUILD_ROOT%{_mandir}/man1/qemu-img.1*
+
+rm $RPM_BUILD_ROOT%{_bindir}/qemu-ga
+rm $RPM_BUILD_ROOT%{_unitdir}/qemu-guest-agent.service
+rm $RPM_BUILD_ROOT%{_udevdir}/99-qemu-guest-agent.rules
+%endif
+
 %check
 make check
 
@@ -1496,6 +1522,7 @@ sh %{_sysconfdir}/sysconfig/modules/kvm.modules || :
 udevadm trigger --sysname-match=kvm || :
 %endif
 
+%if %{without separate_kvm}
 %post common
 if [ $1 -eq 1 ] ; then
     # Initial installation
@@ -1525,6 +1552,7 @@ if [ $1 -ge 1 ] ; then
     /bin/systemctl try-restart ksmtuned.service >/dev/null 2>&1 || :
     /bin/systemctl try-restart ksm.service >/dev/null 2>&1 || :
 fi
+%endif
 
 
 %if 0%{?user:1}
@@ -1574,21 +1602,25 @@ fi
 %{_bindir}/virtfs-proxy-helper
 %{_libexecdir}/qemu-bridge-helper
 %config(noreplace) %{_sysconfdir}/sasl2/qemu.conf
+%if %{without separate_kvm}
 /lib/systemd/system/ksm.service
 /lib/systemd/ksmctl
 %config(noreplace) %{_sysconfdir}/sysconfig/ksm
 /lib/systemd/system/ksmtuned.service
 %{_sbindir}/ksmtuned
 %config(noreplace) %{_sysconfdir}/ksmtuned.conf
+%endif
 %dir %{_sysconfdir}/qemu
 %config(noreplace) %{_sysconfdir}/qemu/bridge.conf
 
+%if %{without separate_kvm}
 %files guest-agent
 %defattr(-,root,root,-)
 %doc COPYING README
 %{_bindir}/qemu-ga
 %{_unitdir}/qemu-guest-agent.service
 %{_udevdir}/99-qemu-guest-agent.rules
+%endif
 
 %if 0%{?user:1}
 %files %{user}
@@ -1667,9 +1699,11 @@ fi
 %{_datadir}/%{name}/cpus-x86_64.conf
 %{_datadir}/%{name}/qemu-icon.bmp
 %config(noreplace) %{_sysconfdir}/qemu/target-x86_64.conf
+%if %{without separate_kvm}
 %ifarch %{ix86} x86_64
 %{?kvm_files:}
 %{?qemu_kvm_files:}
+%endif
 %endif
 %endif
 
@@ -1811,14 +1845,19 @@ fi
 %{_datadir}/systemtap/tapset/qemu-system-xtensaeb.stp
 %endif
 
+%if %{without separate_kvm}
 %files img
 %defattr(-,root,root)
 %{_bindir}/qemu-img
 %{_bindir}/qemu-io
 %{_bindir}/vscclient
 %{_mandir}/man1/qemu-img.1*
+%endif
 
 %changelog
+* Fri Nov 16 2012 Paolo Bonzini <pbonzini@redhat.com> - 2:1.2.0-23
+- Backport --with separate_kvm support from EPEL branch
+
 * Fri Nov 16 2012 Paolo Bonzini <pbonzini@redhat.com> - 2:1.2.0-22
 - Fix previous commit
 
