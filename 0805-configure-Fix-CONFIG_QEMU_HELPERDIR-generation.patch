@@ -18,9 +18,9 @@ index f9c31f4..9f33c7d 100755
 --- a/configure
 +++ b/configure
 @@ -3200,7 +3200,7 @@ echo "qemu_confdir=$qemu_confdir" >> $config_host_mak
+ echo "qemu_confdir=$qemu_confdir" >> $config_host_mak
  echo "qemu_datadir=$qemu_datadir" >> $config_host_mak
  echo "qemu_docdir=$qemu_docdir" >> $config_host_mak
- echo "qemu_localstatedir=$local_statedir" >> $config_host_mak
 -echo "CONFIG_QEMU_HELPERDIR=\"$libexecdir\"" >> $config_host_mak
 +echo "CONFIG_QEMU_HELPERDIR=\"`eval echo $libexecdir`\"" >> $config_host_mak
  
