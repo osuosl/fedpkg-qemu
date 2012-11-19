@@ -136,10 +136,7 @@ ExclusiveArch: %{kvm_archs}
 %define _smp_mflags %{nil}
 %endif
 
-# This is generated from the git qemu-kvm-1.2.0 tag, replace with proper
-# upstream tarbal once available
-Source0: qemu-kvm-%{version}.tar.gz
-#Source0: http://downloads.sourceforge.net/sourceforge/kvm/qemu-kvm-%{version}.tar.gz
+Source0: http://downloads.sourceforge.net/sourceforge/kvm/qemu-kvm-%{version}.tar.gz
 
 Source1: qemu.binfmt
 
