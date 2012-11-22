@@ -120,7 +120,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.2.0
-Release: 23%{?dist}
+Release: 24%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -1503,8 +1503,9 @@ chmod u+s $RPM_BUILD_ROOT%{_libexecdir}/qemu-bridge-helper
 %if %{with separate_kvm}
 rm $RPM_BUILD_ROOT%{_bindir}/qemu-img
 rm $RPM_BUILD_ROOT%{_bindir}/qemu-io
-rm $RPM_BUILD_ROOT%{_bindir}/vscclient
+rm $RPM_BUILD_ROOT%{_bindir}/qemu-nbd
 rm $RPM_BUILD_ROOT%{_mandir}/man1/qemu-img.1*
+rm $RPM_BUILD_ROOT%{_mandir}/man8/qemu-nbd.8*
 
 rm $RPM_BUILD_ROOT%{_bindir}/qemu-ga
 rm $RPM_BUILD_ROOT%{_unitdir}/qemu-guest-agent.service
@@ -1595,10 +1596,9 @@ fi
 %doc %{qemudocdir}/LICENSE
 %dir %{_datadir}/%{name}/
 %{_datadir}/%{name}/keymaps/
+%{_bindir}/vscclient
 %{_mandir}/man1/qemu.1*
 %{_mandir}/man1/virtfs-proxy-helper.1*
-%{_mandir}/man8/qemu-nbd.8*
-%{_bindir}/qemu-nbd
 %{_bindir}/virtfs-proxy-helper
 %{_libexecdir}/qemu-bridge-helper
 %config(noreplace) %{_sysconfdir}/sasl2/qemu.conf
@@ -1850,12 +1850,16 @@ fi
 %defattr(-,root,root)
 %{_bindir}/qemu-img
 %{_bindir}/qemu-io
-%{_bindir}/vscclient
+%{_bindir}/qemu-nbd
 %{_mandir}/man1/qemu-img.1*
+%{_mandir}/man8/qemu-nbd.8*
 %endif
 
 %changelog
-* Tue Nov 17 2012 Alon Levy <alevy@redhat.com> - 2:1.2.0-24
+* Thu Nov 22 2012 Paolo Bonzini <pbonzini@redhat.com> - 2:1.2.0-24
+- Move vscclient to qemu-common, qemu-nbd to qemu-img
+
+* Tue Nov 20 2012 Alon Levy <alevy@redhat.com> - 2:1.2.0-23
 - Rewrite fix for bz #725965 based on fix for bz #867366
 - Resolve bz #867366
 
