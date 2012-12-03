@@ -109,7 +109,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.2.0
-Release: 24%{?dist}
+Release: 25%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -484,6 +484,10 @@ Patch803: 0803-dtrace-backend-add-function-to-reserved-words.patch
 Patch804: 0804-wip-hw-qxl-inject-interrupts-in-any-state.patch
 # 38f419f (configure: Fix CONFIG_QEMU_HELPERDIR generation, 2012-10-17)
 Patch805: 0805-configure-Fix-CONFIG_QEMU_HELPERDIR-generation.patch
+
+# libcacard
+Patch1001: 1001-libcacard-fix-missing-symbols-in-libcacard.so.patch
+Patch1002: 1002-configure-move-vscclient-binary-under-libcacard.patch
 
 BuildRequires: SDL-devel
 BuildRequires: zlib-devel
@@ -902,6 +906,29 @@ This package contains some diagnostics and debugging tools for KVM,
 such as kvm_stat.
 %endif
 
+%package -n libcacard
+Summary:        Common Access Card (CAC) Emulation
+Group:          Development/Libraries
+
+%description -n libcacard
+Common Access Card (CAC) emulation library.
+
+%package -n libcacard-tools
+Summary:        CAC Emulation tools
+Group:          Development/Libraries
+Requires:       libcacard = %{epoch}:%{version}-%{release}
+
+%description -n libcacard-tools
+CAC emulation tools.
+
+%package -n libcacard-devel
+Summary:        CAC Emulation devel
+Group:          Development/Libraries
+Requires:       libcacard = %{epoch}:%{version}-%{release}
+
+%description -n libcacard-devel
+CAC emulation development files.
+
 %prep
 %setup -q -n qemu-kvm-%{version}
 
@@ -1227,6 +1254,10 @@ such as kvm_stat.
 %patch804 -p1
 %patch805 -p1
 
+# libcacard
+%patch1001 -p1
+%patch1002 -p1
+
 %build
 %if %{with kvmonly}
     buildarch="%{kvm_target}-softmmu"
@@ -1260,6 +1291,7 @@ sed -i.debug 's/"-g $CFLAGS"/"$CFLAGS"/g' configure
 dobuild() {
     ./configure \
         --prefix=%{_prefix} \
+        --libdir=%{_libdir} \
         --sysconfdir=%{_sysconfdir} \
         --interp-prefix=%{_prefix}/qemu-%%M \
         --audio-drv-list=pa,sdl,alsa,oss \
@@ -1293,6 +1325,8 @@ dobuild() {
     echo "==="
 
     make V=1 %{?_smp_mflags} $buildldflags
+    make V=1 %{?_smp_mflags} $buildldflags libcacard.la
+    make V=1 %{?_smp_mflags} $buildldflags libcacard/vscclient
 }
 
 # This is kind of confusing. We run ./configure + make twice here to
@@ -1488,6 +1522,10 @@ install -m 0644 %{SOURCE11} $RPM_BUILD_ROOT%{_udevdir}
 install -m 0644 %{SOURCE12} $RPM_BUILD_ROOT%{_sysconfdir}/qemu
 chmod u+s $RPM_BUILD_ROOT%{_libexecdir}/qemu-bridge-helper
 
+make %{?_smp_mflags} $buildldflags DESTDIR=$RPM_BUILD_ROOT install-libcacard
+find $RPM_BUILD_ROOT -name '*.la' -or -name '*.a' | xargs rm -f
+find $RPM_BUILD_ROOT -name "libcacard.so*" -exec chmod +x \{\} \;
+
 %check
 make check
 
@@ -1570,7 +1608,6 @@ fi
 %doc %{qemudocdir}/LICENSE
 %dir %{_datadir}/%{name}/
 %{_datadir}/%{name}/keymaps/
-%{_bindir}/vscclient
 %{_mandir}/man1/qemu.1*
 %{_mandir}/man1/virtfs-proxy-helper.1*
 %{_bindir}/virtfs-proxy-helper
@@ -1821,7 +1858,25 @@ fi
 %{_mandir}/man1/qemu-img.1*
 %{_mandir}/man8/qemu-nbd.8*
 
+
+%files -n libcacard
+%defattr(-,root,root,-)
+%{_libdir}/libcacard.so.*
+
+%files -n libcacard-tools
+%defattr(-,root,root,-)
+%{_bindir}/vscclient
+
+%files -n libcacard-devel
+%defattr(-,root,root,-)
+%{_includedir}/cacard
+%{_libdir}/libcacard.so
+%{_libdir}/pkgconfig/libcacard.pc
+
 %changelog
+* Wed Nov 28 2012 Alon Levy <alevy@redhat.com> - 2:1.2.0-25
+* Merge libcacard into qemu, since they both use the same sources now.
+
 * Thu Nov 22 2012 Paolo Bonzini <pbonzini@redhat.com> - 2:1.2.0-24
 - Move vscclient to qemu-common, qemu-nbd to qemu-img
 
