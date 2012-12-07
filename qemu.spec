@@ -137,6 +137,25 @@ ExclusiveArch: %{kvm_archs}
 %endif
 
 Source0: http://wiki.qemu-project.org/download/%{name}-%{version}.tar.bz2
+# libcacard build fixes (heading upstream)
+Patch1: 0000-libcacard-fix-missing-symbols-in-libcacard.so.patch
+Patch2: 0001-configure-move-vscclient-binary-under-libcacard.patch
+# Fix migration from qemu-kvm 1.2 to qemu 1.3
+Patch3: 0002-Fix-migration-from-qemu-kvm-1.2.patch
+# Flow control series
+Patch4: 0100-char-Split-out-tcp-socket-close-code-in-a-separate-f.patch
+Patch5: 0101-char-Add-a-QemuChrHandlers-struct-to-initialise-char.patch
+Patch6: 0102-iohandlers-Add-enable-disable_write_fd_handler-funct.patch
+Patch7: 0103-char-Add-framework-for-a-write-unblocked-callback.patch
+Patch8: 0104-char-Update-send_all-to-handle-nonblocking-chardev-w.patch
+Patch9: 0105-char-Equip-the-unix-tcp-backend-to-handle-nonblockin.patch
+Patch10: 0106-char-Throttle-when-host-connection-is-down.patch
+Patch11: 0107-virtio-console-Enable-port-throttling-when-chardev-i.patch
+Patch12: 0108-spice-qemu-char.c-add-throttling.patch
+Patch13: 0109-spice-qemu-char.c-remove-intermediate-buffer.patch
+Patch14: 0110-usb-redir-Add-flow-control-support.patch
+Patch15: 0111-char-Disable-write-callback-if-throttled-chardev-is-.patch
+Patch16: 0112-hw-virtio-serial-bus-replay-guest-open-on-destinatio.patch
 
 Source1: qemu.binfmt
 
@@ -607,6 +626,22 @@ CAC emulation development files.
 
 %prep
 %setup -q
+%patch1 -p1
+%patch2 -p1
+%patch3 -p1
+%patch4 -p1
+%patch5 -p1
+%patch6 -p1
+%patch7 -p1
+%patch8 -p1
+%patch9 -p1
+%patch10 -p1
+%patch11 -p1
+%patch12 -p1
+%patch13 -p1
+%patch14 -p1
+%patch15 -p1
+%patch16 -p1
 
 
 %build
@@ -1225,6 +1260,15 @@ fi
 %{_libdir}/pkgconfig/libcacard.pc
 
 %changelog
+* Fri Dec 07 2012 Cole Robinson <crobinso@redhat.com> - 2:1.3.0-1
+- Switch base tarball from qemu-kvm to qemu
+- qemu 1.3 release
+- Option to use linux VFIO driver to assign PCI devices
+- Many USB3 improvements
+- New paravirtualized hardware random number generator device.
+- Support for Glusterfs volumes with "gluster://" -drive URI
+- Block job commands for live block commit and storage migration
+
 * Wed Nov 28 2012 Alon Levy <alevy@redhat.com> - 2:1.2.0-25
 * Merge libcacard into qemu, since they both use the same sources now.
 
