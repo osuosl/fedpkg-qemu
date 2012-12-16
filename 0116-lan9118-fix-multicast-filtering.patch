@@ -33,5 +33,5 @@ index ff0a50b..ceaf96f 100644
              return (s->mac_hashh >> (hash & 0x1f)) & 1;
          } else {
 -- 
-1.7.12.1
+1.8.0.2
 

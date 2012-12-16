@@ -34,5 +34,5 @@ index 04ef7c4..5b15ee3 100644
                  if (!err) {
                      switch ((*obj)->kind) {
 -- 
-1.7.12.1
+1.8.0.2
 

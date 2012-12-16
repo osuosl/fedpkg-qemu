@@ -1580,5 +1580,5 @@ index 0c61e63..66119cd 100644
          set_cc_static(s);
          tcg_temp_free_i64(tmp);
 -- 
-1.7.12.1
+1.8.0.2
 

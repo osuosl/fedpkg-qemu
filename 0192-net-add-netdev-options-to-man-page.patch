@@ -77,5 +77,5 @@ index 1af4fec..1021ab7 100644
  Connect VLAN @var{n} to PORT @var{n} of a vde switch running on host and
  listening for incoming connections on @var{socketpath}. Use GROUP @var{groupname}
 -- 
-1.7.12.1
+1.8.0.2
 

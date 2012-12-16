@@ -82,5 +82,5 @@ index e7c36f4..35eb441 100644
          q->dev = ehci_find_device(q->ehci, devaddr);
      }
 -- 
-1.7.12.1
+1.8.0.2
 

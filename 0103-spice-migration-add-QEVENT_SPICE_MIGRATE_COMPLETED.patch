@@ -89,5 +89,5 @@ index 1a7a773..851e869 100644
          spice_server_migrate_end(spice_server, true);
      } else if (migration_has_failed(s)) {
 -- 
-1.7.12.1
+1.8.0.2
 

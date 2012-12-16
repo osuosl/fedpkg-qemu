@@ -54,5 +54,5 @@ index b0db921..c7c8786 100644
              *int_mask |= 0x02;
              /* short packet: do not update QH */
 -- 
-1.7.12.1
+1.8.0.2
 

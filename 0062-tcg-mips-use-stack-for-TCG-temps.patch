@@ -43,5 +43,5 @@ index 0ea6a76..c05169f 100644
 -                  CPU_TEMP_BUF_NLONGS * sizeof(long));
  }
 -- 
-1.7.12.1
+1.8.0.2
 

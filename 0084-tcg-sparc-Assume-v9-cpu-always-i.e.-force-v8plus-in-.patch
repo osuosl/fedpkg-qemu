@@ -282,5 +282,5 @@ index 93421cd..16c4e1d 100644
                                 (tcg_target_long)sizeof(tcg_target_long) - 1) &
          ~(sizeof(tcg_target_long) - 1);
 -- 
-1.7.12.1
+1.8.0.2
 

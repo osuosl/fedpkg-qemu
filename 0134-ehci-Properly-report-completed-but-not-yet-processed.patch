@@ -1,8 +1,8 @@
 From c7251f2557d09ce4b8466eeccd0f3264c297c515 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Thu, 30 Aug 2012 15:18:24 +0200
-Subject: [PATCH] ehci: Properly report completed but not yet processed
- packets to the guest
+Subject: [PATCH] ehci: Properly report completed but not yet processed packets
+ to the guest
 
 Reported packets which have completed before being cancelled as such to the
 host. Note that the new code path this patch adds is untested since it I've
@@ -48,5 +48,5 @@ index 4fe85c8..0a6c9ef 100644
      usb_packet_cleanup(&p->packet);
      g_free(p);
 -- 
-1.7.12.1
+1.8.0.2
 

@@ -42,5 +42,5 @@ index b9a7da9..ceea644 100644
             folding.  Constants will be substituted to arguments by register
             allocator where needed and possible.  Also detect copies. */
 -- 
-1.7.12.1
+1.8.0.2
 

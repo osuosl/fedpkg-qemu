@@ -110,5 +110,5 @@ index 7debc8a..1cb1f36 100644
              nb_call_args = (args[0] >> 16) + (args[0] & 0xffff);
              if (!(args[nb_call_args + 1] & (TCG_CALL_CONST | TCG_CALL_PURE))) {
 -- 
-1.7.12.1
+1.8.0.2
 

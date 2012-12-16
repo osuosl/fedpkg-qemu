@@ -35,5 +35,5 @@ index b5cea26..d7a948f 100755
  echo "xfsctl support    $xfs"
  echo "nss used          $smartcard_nss"
 -- 
-1.7.12.1
+1.8.0.2
 

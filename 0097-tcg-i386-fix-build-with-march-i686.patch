@@ -30,5 +30,5 @@ index 85c6b81..616ef23 100644
  #if TCG_TARGET_REG_BITS == 32
      { INDEX_op_mulu2_i32, { "a", "d", "a", "r" } },
 -- 
-1.7.12.1
+1.8.0.2
 

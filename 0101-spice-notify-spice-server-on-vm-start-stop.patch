@@ -51,5 +51,5 @@ index bb4f585..a515c94 100644
      g_free(x509_cert_file);
      g_free(x509_cacert_file);
 -- 
-1.7.12.1
+1.8.0.2
 

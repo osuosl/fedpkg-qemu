@@ -37,5 +37,5 @@ index 4fc48f8..bb4f585 100644
  static const char *compression_names[] = {
      [ SPICE_IMAGE_COMPRESS_OFF ]      = "off",
 -- 
-1.7.12.1
+1.8.0.2
 

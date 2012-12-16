@@ -55,5 +55,5 @@ index a1f256c..f528146 100755
  case " $target_list " in
    *"-softmmu "*) softmmu=yes
 -- 
-1.7.12.1
+1.8.0.2
 

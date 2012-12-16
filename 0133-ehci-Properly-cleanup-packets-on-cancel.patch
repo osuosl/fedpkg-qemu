@@ -25,5 +25,5 @@ index 78a248f..4fe85c8 100644
      QTAILQ_REMOVE(&p->queue->packets, p, next);
      usb_packet_cleanup(&p->packet);
 -- 
-1.7.12.1
+1.8.0.2
 

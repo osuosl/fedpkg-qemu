@@ -43,5 +43,5 @@ index 519432a..16f7880 100644
          audio_print_settings (as);
          goto fail;
 -- 
-1.7.12.1
+1.8.0.2
 

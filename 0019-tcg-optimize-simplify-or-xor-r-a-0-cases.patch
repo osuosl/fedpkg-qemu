@@ -26,5 +26,5 @@ index 63f970d..0db849e 100644
                  /* Proceed with possible constant folding. */
                  break;
 -- 
-1.7.12.1
+1.8.0.2
 

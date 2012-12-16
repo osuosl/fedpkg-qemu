@@ -38,5 +38,5 @@ index ad725b5..f305e21 100644
                                dinfo->bdrv, 0x10000,
                                (flash_size + 0xffff) >> 16,
 -- 
-1.7.12.1
+1.8.0.2
 

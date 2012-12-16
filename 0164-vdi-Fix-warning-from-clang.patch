@@ -71,5 +71,5 @@ index c4f1529..550cf58 100644
          if (ftruncate(fd, sizeof(header) + bmap_size + blocks * block_size)) {
              result = -errno;
 -- 
-1.7.12.1
+1.8.0.2
 

@@ -89,5 +89,5 @@ index d147e70..7020d65 100644
  #define TCG_TARGET_HAS_bswap32_i32      1
  #define TCG_TARGET_HAS_rot_i32          1
 -- 
-1.7.12.1
+1.8.0.2
 

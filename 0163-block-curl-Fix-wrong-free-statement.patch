@@ -33,5 +33,5 @@ index e7c3634..c1074cd 100644
  
  static int64_t curl_getlength(BlockDriverState *bs)
 -- 
-1.7.12.1
+1.8.0.2
 

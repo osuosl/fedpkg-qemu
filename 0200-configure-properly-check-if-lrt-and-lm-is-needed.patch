@@ -76,5 +76,5 @@ index 9e53cc2..a1f256c 100755
  
  if test "$darwin" != "yes" -a "$mingw32" != "yes" -a "$solaris" != yes -a \
 -- 
-1.7.12.1
+1.8.0.2
 

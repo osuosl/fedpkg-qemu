@@ -63,5 +63,5 @@ index 33783ee..27846f1 100644
  Similar to setcond, except that the 64-bit values T1 and T2 are
  formed from two 32-bit arguments.  The result is a 32-bit value.
 -- 
-1.7.12.1
+1.8.0.2
 

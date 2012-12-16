@@ -323,5 +323,5 @@ index 3eb27fa..c0a2476 100644
          }
          length = xhci_ring_chain_length(xhci, &epctx->ring);
 -- 
-1.7.12.1
+1.8.0.2
 

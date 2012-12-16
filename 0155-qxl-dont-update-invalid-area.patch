@@ -40,5 +40,5 @@ index 27f3779..038a8bb 100644
              cookie = qxl_cookie_new(QXL_COOKIE_TYPE_IO,
                                      QXL_IO_UPDATE_AREA_ASYNC);
 -- 
-1.7.12.1
+1.8.0.2
 

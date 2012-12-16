@@ -48,5 +48,5 @@ index 07ba1f8..c734a71 100644
  #if defined(_WIN32)
  #define GCC_WEAK __attribute__((weak))
 -- 
-1.7.12.1
+1.8.0.2
 

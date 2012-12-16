@@ -179,5 +179,5 @@ index 6b42e35..360543b 100644
  Only the formats @code{qcow2}, @code{qed} and @code{vdi} support
  consistency checks.
 -- 
-1.7.12.1
+1.8.0.2
 

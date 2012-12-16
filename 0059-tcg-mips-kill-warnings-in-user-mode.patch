@@ -162,5 +162,5 @@ index 9293745..a09c0d6 100644
  #if defined(CONFIG_SOFTMMU)
      tcg_out_opc_sa(s, OPC_SRL, TCG_REG_A0, addr_regl, TARGET_PAGE_BITS - CPU_TLB_ENTRY_BITS);
 -- 
-1.7.12.1
+1.8.0.2
 

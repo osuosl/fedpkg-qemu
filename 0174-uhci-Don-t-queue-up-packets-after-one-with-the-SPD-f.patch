@@ -43,5 +43,5 @@ index c7c8786..cdc8bc3 100644
              }
              link = curr_qh ? qh.link : td.link;
 -- 
-1.7.12.1
+1.8.0.2
 

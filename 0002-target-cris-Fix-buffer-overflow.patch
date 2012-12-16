@@ -31,5 +31,5 @@ index 1ad9ec7..ad31877 100644
  			cpu_fprintf(f, "s%2.2d=%8.8x ",
  				    i, env->sregs[srs][i]);
 -- 
-1.7.12.1
+1.8.0.2
 

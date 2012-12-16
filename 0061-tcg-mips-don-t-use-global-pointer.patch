@@ -33,5 +33,5 @@ index 8b38f98..0ea6a76 100644
      tcg_add_target_add_op_defs(mips_op_defs);
      tcg_set_frame(s, TCG_AREG0, offsetof(CPUArchState, temp_buf),
 -- 
-1.7.12.1
+1.8.0.2
 

@@ -1,8 +1,8 @@
 From 8daf993d3d75acea92ef5054c924c7d825ae812e Mon Sep 17 00:00:00 2001
 From: Peter Maydell <peter.maydell@linaro.org>
 Date: Wed, 19 Sep 2012 14:51:38 +0100
-Subject: [PATCH] arch_init.c: Improve '-soundhw help' for
- non-HAS_AUDIO_CHOICE archs
+Subject: [PATCH] arch_init.c: Improve '-soundhw help' for non-HAS_AUDIO_CHOICE
+ archs
 
 For architectures which don't set HAS_AUDIO_CHOICE, improve the
 '-soundhw help' message so that it doesn't simply print an empty
@@ -39,5 +39,5 @@ index 47977de..f849f9b 100644
      }
      else {
 -- 
-1.7.12.1
+1.8.0.2
 

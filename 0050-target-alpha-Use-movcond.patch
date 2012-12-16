@@ -156,5 +156,5 @@ index 12de6a3..4a9011a 100644
  
  #define QUAL_RM_N       0x080   /* Round mode nearest even */
 -- 
-1.7.12.1
+1.8.0.2
 

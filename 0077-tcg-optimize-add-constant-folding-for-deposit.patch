@@ -42,5 +42,5 @@ index c8ae50b..35532a1 100644
              tmp = do_constant_folding_cond(op, args[1], args[2], args[3]);
              if (tmp != 2) {
 -- 
-1.7.12.1
+1.8.0.2
 

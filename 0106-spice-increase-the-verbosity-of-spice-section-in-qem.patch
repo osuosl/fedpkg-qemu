@@ -46,5 +46,5 @@ index dd7aa63..1af4fec 100644
  @item -spice @var{option}[,@var{option}[,...]]
  @findex -spice
 -- 
-1.7.12.1
+1.8.0.2
 

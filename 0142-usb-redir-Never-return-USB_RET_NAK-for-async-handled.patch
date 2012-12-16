@@ -1,8 +1,7 @@
 From 262c9bb1e59c2cd561dad1cf9d47c50f07af0e0f Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Fri, 17 Aug 2012 17:27:08 +0200
-Subject: [PATCH] usb-redir: Never return USB_RET_NAK for async handled
- packets
+Subject: [PATCH] usb-redir: Never return USB_RET_NAK for async handled packets
 
 USB_RET_NAK is not a valid response for async handled packets (and will
 trigger an assert as such).
@@ -43,5 +42,5 @@ index 10b4fbb..7f3719b 100644
          return USB_RET_BABBLE;
      case usb_redir_ioerror:
 -- 
-1.7.12.1
+1.8.0.2
 

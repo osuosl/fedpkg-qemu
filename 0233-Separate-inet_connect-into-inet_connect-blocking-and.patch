@@ -184,5 +184,5 @@ index 385e345..01b2daf 100644
              g_free(vs->display);
              vs->display = NULL;
 -- 
-1.7.12.1
+1.8.0.2
 

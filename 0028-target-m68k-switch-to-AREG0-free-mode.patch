@@ -498,5 +498,5 @@ index 9fc1e31..10bb303 100644
          switch(dc->is_jmp) {
          case DISAS_NEXT:
 -- 
-1.7.12.1
+1.8.0.2
 

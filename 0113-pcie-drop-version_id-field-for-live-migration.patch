@@ -75,5 +75,5 @@ index b8ab0c7..4889194 100644
      .vmsd       = &vmstate_pcie_device,                              \
      .flags      = VMS_STRUCT,                                        \
 -- 
-1.7.12.1
+1.8.0.2
 

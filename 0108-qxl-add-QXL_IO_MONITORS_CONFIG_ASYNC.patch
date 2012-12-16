@@ -323,5 +323,5 @@ index 672d65e..bcff114 100644
  
  typedef struct QXLCookie {
 -- 
-1.7.12.1
+1.8.0.2
 
