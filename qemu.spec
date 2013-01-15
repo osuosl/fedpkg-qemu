@@ -120,7 +120,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.3.0
-Release: 1%{?dist}
+Release: 2%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -1266,6 +1266,10 @@ fi
 %{_libdir}/pkgconfig/libcacard.pc
 
 %changelog
+* Tue Jan 15 2013 Hans de Goede <hdegoede@redhat.com> - 2:1.3.0-2
+- Fix 0110-usb-redir-Add-flow-control-support.patch being mangled on rebase
+  to 1.3.0, breaking usbredir support
+
 * Fri Dec 07 2012 Cole Robinson <crobinso@redhat.com> - 2:1.3.0-1
 - Switch base tarball from qemu-kvm to qemu
 - qemu 1.3 release
