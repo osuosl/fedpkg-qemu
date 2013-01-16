@@ -38,7 +38,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.0.1
-Release: 2%{?dist}
+Release: 3%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -192,6 +192,8 @@ Patch514: 0001-qemu-1.0.1-VERSION.patch
 Patch515: 0002-console-bounds-check-whenever-changing-the-cursor-du.patch
 # Fix slirp crash (bz 845793)
 Patch516: 0003-slirp-Fix-requeuing-of-batchq-packets-in-if_start.patch
+# CVE-2012-6075: Buffer overflow in e1000 nic (bz 889301, bz 889304)
+Patch517: 0001-e1000-Discard-oversized-packets-based-on-SBP-LPE.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: SDL-devel zlib-devel which texi2html gnutls-devel cyrus-sasl-devel
@@ -548,6 +550,7 @@ such as kvm_stat.
 %patch514 -p1
 %patch515 -p1
 %patch516 -p1
+%patch517 -p1
 
 
 %build
@@ -988,6 +991,9 @@ fi
 %{_mandir}/man1/qemu-img.1*
 
 %changelog
+* Wed Jan 16 2013 Cole Robinson <crobinso@redhat.com> - 2:1.0.1-3
+- CVE-2012-6075: Buffer overflow in e1000 nic (bz #889301, bz #889304)
+
 * Sun Oct 07 2012 Cole Robinson <crobinso@redhat.com> - 1.0.1-2
 - Remove comma from 1.0.1 version number
 - CVE-2012-3515 VT100 emulation vulnerability (bz #854600, bz #851252)
