@@ -109,7 +109,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.2.2
-Release: 1%{?dist}
+Release: 2%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -522,6 +522,8 @@ Patch0706: 0706-libcacard-fix-missing-symbols-in-libcacard.so.patch
 Patch0707: 0707-configure-move-vscclient-binary-under-libcacard.patch
 # Fix libvirt + seccomp combo (bz 855162)
 Patch0708: 0708-seccomp-adding-new-syscalls-bugzilla-855162.patch
+# CVE-2012-6075: Buffer overflow in e1000 nic (bz 889301, bz 889304)
+Patch709: 0709-e1000-Discard-oversized-packets-based-on-SBP-LPE.patch
 
 
 BuildRequires: SDL-devel
@@ -702,24 +704,13 @@ with the host over a virtio-serial channel named "org.qemu.guest_agent.0"
 This package does not need to be installed on the host OS.
 
 %post guest-agent
-if [ $1 -eq 1 ] ; then
-    # Initial installation.
-    /bin/systemctl daemon-reload >/dev/null 2>&1 || :
-fi
+%systemd_post qemu-guest-agent.service
 
 %preun guest-agent
-if [ $1 -eq 0 ] ; then
-    # Package removal, not upgrade.
-    /bin/systemctl stop qemu-guest-agent.service > /dev/null 2>&1 || :
-fi
+%systemd_preun qemu-guest-agent.service
 
 %postun guest-agent
-/bin/systemctl daemon-reload >/dev/null 2>&1 || :
-if [ $1 -ge 1 ] ; then
-    # Package upgrade, not uninstall.
-    /bin/systemctl try-restart qemu-guest-agent.service >/dev/null 2>&1 || :
-fi
-
+%systemd_postun_with_restart qemu-guest-agent.service
 
 
 %if 0%{?user:1}
@@ -1334,6 +1325,7 @@ CAC emulation development files.
 %patch0706 -p1
 %patch0707 -p1
 %patch0708 -p1
+%patch709 -p1
 
 
 %build
@@ -1615,12 +1607,10 @@ sh %{_sysconfdir}/sysconfig/modules/kvm.modules || :
 udevadm trigger --sysname-match=kvm || :
 %endif
 
+
 %post common
-if [ $1 -eq 1 ] ; then
-    # Initial installation
-    /bin/systemctl enable ksm.service >/dev/null 2>&1 || :
-    /bin/systemctl enable ksmtuned.service >/dev/null 2>&1 || :
-fi
+%systemd_post ksm.service
+%systemd_post ksmtuned.service
 
 getent group kvm >/dev/null || groupadd -g 36 -r kvm
 getent group qemu >/dev/null || groupadd -g 107 -r qemu
@@ -1628,22 +1618,15 @@ getent passwd qemu >/dev/null || \
   useradd -r -u 107 -g qemu -G kvm -d / -s /sbin/nologin \
     -c "qemu user" qemu
 
+
 %preun common
-if [ $1 -eq 0 ] ; then
-    # Package removal, not upgrade
-    /bin/systemctl --no-reload disable ksmtuned.service > /dev/null 2>&1 || :
-    /bin/systemctl --no-reload disable ksm.service > /dev/null 2>&1 || :
-    /bin/systemctl stop ksmtuned.service > /dev/null 2>&1 || :
-    /bin/systemctl stop ksm.service > /dev/null 2>&1 || :
-fi
+%systemd_preun ksm.service
+%systemd_preun ksmtuned.service
+
 
 %postun common
-/bin/systemctl daemon-reload >/dev/null 2>&1 || :
-if [ $1 -ge 1 ] ; then
-    # Package upgrade, not uninstall
-    /bin/systemctl try-restart ksmtuned.service >/dev/null 2>&1 || :
-    /bin/systemctl try-restart ksm.service >/dev/null 2>&1 || :
-fi
+%systemd_postun_with_restart ksm.service
+%systemd_postun_with_restart ksmtuned.service
 
 
 %if 0%{?user:1}
@@ -1952,6 +1935,10 @@ fi
 %{_libdir}/pkgconfig/libcacard.pc
 
 %changelog
+* Wed Jan 16 2013 Cole Robinson <crobinso@redhat.com> - 2:1.2.2-2
+- CVE-2012-6075: Buffer overflow in e1000 nic (bz #889301, bz #889304)
+- Use systemd spec macros (bz #850285)
+
 * Sun Dec 16 2012 Cole Robinson <crobinso@redhat.com> - 2:1.2.2-1
 - Update to qemu 1.2.2 stable
 - Fix libvirt + seccomp combo (bz #855162)
