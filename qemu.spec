@@ -120,7 +120,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.3.0
-Release: 2%{?dist}
+Release: 3%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -137,25 +137,31 @@ ExclusiveArch: %{kvm_archs}
 %endif
 
 Source0: http://wiki.qemu-project.org/download/%{name}-%{version}.tar.bz2
-# libcacard build fixes (heading upstream)
-Patch1: 0000-libcacard-fix-missing-symbols-in-libcacard.so.patch
-Patch2: 0001-configure-move-vscclient-binary-under-libcacard.patch
-# Fix migration from qemu-kvm 1.2 to qemu 1.3
-Patch3: 0002-Fix-migration-from-qemu-kvm-1.2.patch
+# libcacard build fixes (upstream)
+Patch0001: 0001-libcacard-fix-missing-symbols-in-libcacard.so.patch
+Patch0002: 0002-configure-move-vscclient-binary-under-libcacard.patch
+
+# Fix test suite on i686 (patch heading upstream)
+Patch0003: 0003-rtc-test-skip-year-2038-overflow-check-in-case-time_.patch
+
+# Fix migration from qemu-kvm 1.2 to qemu 1.3 (non-upstream)
+Patch0004: 0004-Fix-migration-compat-with-qemu-kvm.patch
+
 # Flow control series
-Patch4: 0100-char-Split-out-tcp-socket-close-code-in-a-separate-f.patch
-Patch5: 0101-char-Add-a-QemuChrHandlers-struct-to-initialise-char.patch
-Patch6: 0102-iohandlers-Add-enable-disable_write_fd_handler-funct.patch
-Patch7: 0103-char-Add-framework-for-a-write-unblocked-callback.patch
-Patch8: 0104-char-Update-send_all-to-handle-nonblocking-chardev-w.patch
-Patch9: 0105-char-Equip-the-unix-tcp-backend-to-handle-nonblockin.patch
-Patch10: 0106-char-Throttle-when-host-connection-is-down.patch
-Patch11: 0107-virtio-console-Enable-port-throttling-when-chardev-i.patch
-Patch12: 0108-spice-qemu-char.c-add-throttling.patch
-Patch13: 0109-spice-qemu-char.c-remove-intermediate-buffer.patch
-Patch14: 0110-usb-redir-Add-flow-control-support.patch
-Patch15: 0111-char-Disable-write-callback-if-throttled-chardev-is-.patch
-Patch16: 0112-hw-virtio-serial-bus-replay-guest-open-on-destinatio.patch
+Patch0101: 0101-char-Split-out-tcp-socket-close-code-in-a-separate-f.patch
+Patch0102: 0102-char-Add-a-QemuChrHandlers-struct-to-initialise-char.patch
+Patch0103: 0103-iohandlers-Add-enable-disable_write_fd_handler-funct.patch
+Patch0104: 0104-char-Add-framework-for-a-write-unblocked-callback.patch
+Patch0105: 0105-char-Update-send_all-to-handle-nonblocking-chardev-w.patch
+Patch0106: 0106-char-Equip-the-unix-tcp-backend-to-handle-nonblockin.patch
+Patch0107: 0107-char-Throttle-when-host-connection-is-down.patch
+Patch0108: 0108-virtio-console-Enable-port-throttling-when-chardev-i.patch
+Patch0109: 0109-spice-qemu-char.c-add-throttling.patch
+Patch0110: 0110-spice-qemu-char.c-remove-intermediate-buffer.patch
+Patch0111: 0111-usb-redir-Add-flow-control-support.patch
+Patch0112: 0112-char-Disable-write-callback-if-throttled-chardev-is-.patch
+Patch0113: 0113-hw-virtio-serial-bus-replay-guest-open-on-destinatio.patch
+
 
 Source1: qemu.binfmt
 
@@ -362,24 +368,13 @@ with the host over a virtio-serial channel named "org.qemu.guest_agent.0"
 This package does not need to be installed on the host OS.
 
 %post guest-agent
-if [ $1 -eq 1 ] ; then
-    # Initial installation.
-    /bin/systemctl daemon-reload >/dev/null 2>&1 || :
-fi
+%systemd_post qemu-guest-agent.service
 
 %preun guest-agent
-if [ $1 -eq 0 ] ; then
-    # Package removal, not upgrade.
-    /bin/systemctl stop qemu-guest-agent.service > /dev/null 2>&1 || :
-fi
+%systemd_preun qemu-guest-agent.service
 
 %postun guest-agent
-/bin/systemctl daemon-reload >/dev/null 2>&1 || :
-if [ $1 -ge 1 ] ; then
-    # Package upgrade, not uninstall.
-    /bin/systemctl try-restart qemu-guest-agent.service >/dev/null 2>&1 || :
-fi
-
+%systemd_postun_with_restart qemu-guest-agent.service
 
 
 %if 0%{?user:1}
@@ -626,22 +621,31 @@ CAC emulation development files.
 
 %prep
 %setup -q
-%patch1 -p1
-%patch2 -p1
-%patch3 -p1
-%patch4 -p1
-%patch5 -p1
-%patch6 -p1
-%patch7 -p1
-%patch8 -p1
-%patch9 -p1
-%patch10 -p1
-%patch11 -p1
-%patch12 -p1
-%patch13 -p1
-%patch14 -p1
-%patch15 -p1
-%patch16 -p1
+# libcacard build fixes (upstream)
+%patch0001 -p1
+%patch0002 -p1
+
+# Fix test suite on i686 (patch heading upstream)
+%patch0003 -p1
+
+# Fix migration from qemu-kvm 1.2 to qemu 1.3 (non-upstream)
+%patch0004 -p1
+
+# Flow control series
+%patch0101 -p1
+%patch0102 -p1
+%patch0103 -p1
+%patch0104 -p1
+%patch0105 -p1
+%patch0106 -p1
+%patch0107 -p1
+%patch0108 -p1
+%patch0109 -p1
+%patch0110 -p1
+%patch0111 -p1
+%patch0112 -p1
+%patch0113 -p1
+
 
 
 %build
@@ -681,13 +685,19 @@ dobuild() {
         --sysconfdir=%{_sysconfdir} \
         --interp-prefix=%{_prefix}/qemu-%%M \
         --audio-drv-list=pa,sdl,alsa,oss \
+        --localstatedir=%{_localstatedir} \
+        --libexecdir=%{_libexecdir} \
         --disable-strip \
         --extra-ldflags="$extraldflags -pie -Wl,-z,relro -Wl,-z,now" \
         --extra-cflags="%{optflags} -fPIE -DPIE" \
+        --enable-mixemu \
+        --enable-trace-backend=dtrace \
+        --disable-werror \
+        --disable-xen \
+        --enable-kvm \
 %if 0%{?have_spice:1}
         --enable-spice \
 %endif
-        --enable-mixemu \
 %if 0%{?have_seccomp:1}
         --enable-seccomp \
 %endif
@@ -699,10 +709,6 @@ dobuild() {
 %else
         --disable-fdt \
 %endif
-        --enable-trace-backend=dtrace \
-        --disable-werror \
-        --disable-xen \
-        --enable-kvm \
         "$@"
 
     echo "config-host.mak contents:"
@@ -903,14 +909,9 @@ make %{?_smp_mflags} $buildldflags DESTDIR=$RPM_BUILD_ROOT install-libcacard
 find $RPM_BUILD_ROOT -name '*.la' -or -name '*.a' | xargs rm -f
 find $RPM_BUILD_ROOT -name "libcacard.so*" -exec chmod +x \{\} \;
 
-%check
-# qemu 1.3 tests fail on i686:
-# GTESTER check-qtest-i386
-# **
-# ERROR:tests/rtc-test.c:209:set_year_20xx: assertion failed (cmos_read(RTC_HOURS) == 0x02): (25 == 2)
-# GTester: last random seed: R02S3c33904d728a7716fb49ee76edbb6e40
 
-#make check
+%check
+make check
 
 %ifarch %{kvm_archs}
 %post %{kvm_package}
@@ -920,13 +921,11 @@ sh %{_sysconfdir}/sysconfig/modules/kvm.modules || :
 udevadm trigger --sysname-match=kvm || :
 %endif
 
+
 %if %{without separate_kvm}
 %post common
-if [ $1 -eq 1 ] ; then
-    # Initial installation
-    /bin/systemctl enable ksm.service >/dev/null 2>&1 || :
-    /bin/systemctl enable ksmtuned.service >/dev/null 2>&1 || :
-fi
+%systemd_post ksm.service
+%systemd_post ksmtuned.service
 
 getent group kvm >/dev/null || groupadd -g 36 -r kvm
 getent group qemu >/dev/null || groupadd -g 107 -r qemu
@@ -934,22 +933,15 @@ getent passwd qemu >/dev/null || \
   useradd -r -u 107 -g qemu -G kvm -d / -s /sbin/nologin \
     -c "qemu user" qemu
 
+
 %preun common
-if [ $1 -eq 0 ] ; then
-    # Package removal, not upgrade
-    /bin/systemctl --no-reload disable ksmtuned.service > /dev/null 2>&1 || :
-    /bin/systemctl --no-reload disable ksm.service > /dev/null 2>&1 || :
-    /bin/systemctl stop ksmtuned.service > /dev/null 2>&1 || :
-    /bin/systemctl stop ksm.service > /dev/null 2>&1 || :
-fi
+%systemd_preun ksm.service
+%systemd_preun ksmtuned.service
+
 
 %postun common
-/bin/systemctl daemon-reload >/dev/null 2>&1 || :
-if [ $1 -ge 1 ] ; then
-    # Package upgrade, not uninstall
-    /bin/systemctl try-restart ksmtuned.service >/dev/null 2>&1 || :
-    /bin/systemctl try-restart ksm.service >/dev/null 2>&1 || :
-fi
+%systemd_postun_with_restart ksm.service
+%systemd_postun_with_restart ksmtuned.service
 %endif
 
 
@@ -1266,6 +1258,11 @@ fi
 %{_libdir}/pkgconfig/libcacard.pc
 
 %changelog
+* Tue Jan 15 2013 Cole Robinson <crobinso@redhat.com> - 2:1.3.0-3
+- Fix migration from qemu-kvm
+- Fix the test suite on i686
+- Use systemd macros in specfile (bz #850285)
+
 * Tue Jan 15 2013 Hans de Goede <hdegoede@redhat.com> - 2:1.3.0-2
 - Fix 0110-usb-redir-Add-flow-control-support.patch being mangled on rebase
   to 1.3.0, breaking usbredir support

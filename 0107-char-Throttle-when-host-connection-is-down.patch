@@ -1,7 +1,4 @@
-From c2ddb156db52808a89d91edf5bb1449f226d3ecd Mon Sep 17 00:00:00 2001
-Message-Id: <c2ddb156db52808a89d91edf5bb1449f226d3ecd.1354903384.git.crobinso@redhat.com>
-In-Reply-To: <9f0944a25bc1094fa7a74ac9df14e184e2c5c82d.1354903384.git.crobinso@redhat.com>
-References: <9f0944a25bc1094fa7a74ac9df14e184e2c5c82d.1354903384.git.crobinso@redhat.com>
+From 7ce910503a5db38f23a13ae5f56e256d80caf1e4 Mon Sep 17 00:00:00 2001
 From: Amit Shah <amit.shah@redhat.com>
 Date: Mon, 21 Mar 2011 22:05:10 +0100
 Subject: [PATCH] char: Throttle when host connection is down#
@@ -56,5 +53,5 @@ index e7cd42a..5c71f0c 100644
          return ret;
      } else {
 -- 
-1.8.0
+1.8.1
 

@@ -1,7 +1,4 @@
 From df9d09b15cb4b8397bfe984bf3f54dbb5457d446 Mon Sep 17 00:00:00 2001
-Message-Id: <df9d09b15cb4b8397bfe984bf3f54dbb5457d446.1354903384.git.crobinso@redhat.com>
-In-Reply-To: <94afb78477a5b078449e5d48b38e74aac3fa5ac4.1354903384.git.crobinso@redhat.com>
-References: <94afb78477a5b078449e5d48b38e74aac3fa5ac4.1354903384.git.crobinso@redhat.com>
 From: Alon Levy <alevy@redhat.com>
 Date: Thu, 29 Nov 2012 14:11:19 +0200
 Subject: [PATCH] configure: move vscclient binary under libcacard
@@ -92,5 +89,5 @@ index 49a9729..750713a 100644
  	$(LIBTOOL) --mode=install $(INSTALL_DATA) libcacard.pc "$(DESTDIR)$(libdir)/pkgconfig"
  	for inc in *.h; do \
 -- 
-1.8.0
+1.8.1
 

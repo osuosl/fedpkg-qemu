@@ -1,7 +1,4 @@
-From 448ba28f493820e91b65986901165cb28ff5fd78 Mon Sep 17 00:00:00 2001
-Message-Id: <448ba28f493820e91b65986901165cb28ff5fd78.1354903384.git.crobinso@redhat.com>
-In-Reply-To: <9f0944a25bc1094fa7a74ac9df14e184e2c5c82d.1354903384.git.crobinso@redhat.com>
-References: <9f0944a25bc1094fa7a74ac9df14e184e2c5c82d.1354903384.git.crobinso@redhat.com>
+From ebe349109322787302da1f65709b77568055ce96 Mon Sep 17 00:00:00 2001
 From: Amit Shah <amit.shah@redhat.com>
 Date: Mon, 21 Mar 2011 20:32:58 +0100
 Subject: [PATCH] iohandlers: Add enable/disable_write_fd_handler() functions
@@ -76,5 +73,5 @@ index 326c742..883ad43 100644
   * qemu_set_fd_handler2: Register a file descriptor with the main loop
   *
 -- 
-1.8.0
+1.8.1
 

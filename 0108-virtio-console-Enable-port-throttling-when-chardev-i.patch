@@ -1,7 +1,4 @@
-From afae0976cf4e3ba7f2810c1afaecac96646a2a2b Mon Sep 17 00:00:00 2001
-Message-Id: <afae0976cf4e3ba7f2810c1afaecac96646a2a2b.1354903384.git.crobinso@redhat.com>
-In-Reply-To: <9f0944a25bc1094fa7a74ac9df14e184e2c5c82d.1354903384.git.crobinso@redhat.com>
-References: <9f0944a25bc1094fa7a74ac9df14e184e2c5c82d.1354903384.git.crobinso@redhat.com>
+From 8fd5d7cbbb8245185c800062fc6bc0ac9e749375 Mon Sep 17 00:00:00 2001
 From: Amit Shah <amit.shah@redhat.com>
 Date: Mon, 21 Mar 2011 22:06:41 +0100
 Subject: [PATCH] virtio-console: Enable port throttling when chardev is slow
@@ -49,5 +46,5 @@ index 066590c..2b5e515 100644
  
  static int virtconsole_initfn(VirtIOSerialPort *port)
 -- 
-1.8.0
+1.8.1
 

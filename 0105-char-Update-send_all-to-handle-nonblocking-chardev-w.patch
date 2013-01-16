@@ -1,7 +1,4 @@
-From dfbe8c51243ecd2ad33037cfbbb37440cc3d03ee Mon Sep 17 00:00:00 2001
-Message-Id: <dfbe8c51243ecd2ad33037cfbbb37440cc3d03ee.1354903384.git.crobinso@redhat.com>
-In-Reply-To: <9f0944a25bc1094fa7a74ac9df14e184e2c5c82d.1354903384.git.crobinso@redhat.com>
-References: <9f0944a25bc1094fa7a74ac9df14e184e2c5c82d.1354903384.git.crobinso@redhat.com>
+From 98984a6b82406c233819a7afa7f35d3df4c386b0 Mon Sep 17 00:00:00 2001
 From: Amit Shah <amit.shah@redhat.com>
 Date: Mon, 21 Mar 2011 22:00:27 +0100
 Subject: [PATCH] char: Update send_all() to handle nonblocking chardev write
@@ -172,5 +169,5 @@ index 02490ad..cceab98 100644
  /* callback function for nonblocking connect
   * valid fd on success, negative error code on failure
 -- 
-1.8.0
+1.8.1
 

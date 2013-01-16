@@ -1,7 +1,4 @@
-From 26139c9fd71229699c6d59c31631a539ac3830fd Mon Sep 17 00:00:00 2001
-Message-Id: <26139c9fd71229699c6d59c31631a539ac3830fd.1354903384.git.crobinso@redhat.com>
-In-Reply-To: <9f0944a25bc1094fa7a74ac9df14e184e2c5c82d.1354903384.git.crobinso@redhat.com>
-References: <9f0944a25bc1094fa7a74ac9df14e184e2c5c82d.1354903384.git.crobinso@redhat.com>
+From e8a6c8da28eb73704099b4ae2172bca7fa4d0bd7 Mon Sep 17 00:00:00 2001
 From: Amit Shah <amit.shah@redhat.com>
 Date: Mon, 21 Mar 2011 22:02:47 +0100
 Subject: [PATCH] char: Equip the unix/tcp backend to handle nonblocking
@@ -81,5 +78,5 @@ index 53803a3..e7cd42a 100644
      if (is_listen) {
          s->listen_fd = fd;
 -- 
-1.8.0
+1.8.1
 

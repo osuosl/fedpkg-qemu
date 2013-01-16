@@ -1,0 +1,29 @@
+From 43eb809a0f98b644cf4a2dd6a257185ad781346c Mon Sep 17 00:00:00 2001
+From: Gerd Hoffmann <kraxel@redhat.com>
+Date: Mon, 7 Jan 2013 15:11:52 +0100
+Subject: [PATCH] rtc-test: skip year-2038 overflow check in case time_t is
+ 32bit only
+
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+---
+ tests/rtc-test.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/tests/rtc-test.c b/tests/rtc-test.c
+index 02edbf5..e7123ca 100644
+--- a/tests/rtc-test.c
++++ b/tests/rtc-test.c
+@@ -201,6 +201,10 @@ static void set_year_20xx(void)
+     g_assert_cmpint(cmos_read(RTC_YEAR), ==, 0x11);
+     g_assert_cmpint(cmos_read(RTC_CENTURY), ==, 0x20);
+ 
++    if (sizeof(time_t) == 4) {
++        return;
++    }
++
+     /* Set a date in 2080 to ensure there is no year-2038 overflow.  */
+     cmos_write(RTC_REG_A, 0x76);
+     cmos_write(RTC_YEAR, 0x80);
+-- 
+1.8.1
+

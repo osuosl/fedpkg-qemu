@@ -1,11 +1,7 @@
-From 736b3ad749e5c60de44d4c5836b59d2287b6b918 Mon Sep 17 00:00:00 2001
-Message-Id: <736b3ad749e5c60de44d4c5836b59d2287b6b918.1354903384.git.crobinso@redhat.com>
-In-Reply-To: <9f0944a25bc1094fa7a74ac9df14e184e2c5c82d.1354903384.git.crobinso@redhat.com>
-References: <9f0944a25bc1094fa7a74ac9df14e184e2c5c82d.1354903384.git.crobinso@redhat.com>
+From 824da34c4d46c0e7707198dc0c4714a5ab775251 Mon Sep 17 00:00:00 2001
 From: Amit Shah <amit.shah@redhat.com>
 Date: Fri, 2 Dec 2011 15:42:55 +0530
-Subject: [PATCH] char: Disable write callback if throttled chardev is
- detached
+Subject: [PATCH] char: Disable write callback if throttled chardev is detached
 
 If a throttled chardev is detached from the frontend device, all future
 callbacks should be suppressed.  Not doing this results in a segfault.
@@ -36,5 +32,5 @@ index 5c71f0c..16ad6b6 100644
      }
      s->chr_can_read = handlers->fd_can_read;
 -- 
-1.8.0
+1.8.1
 

@@ -1,7 +1,4 @@
-From 501ffec04b2b5104ef854624027f0cd769d5d314 Mon Sep 17 00:00:00 2001
-Message-Id: <501ffec04b2b5104ef854624027f0cd769d5d314.1354903384.git.crobinso@redhat.com>
-In-Reply-To: <9f0944a25bc1094fa7a74ac9df14e184e2c5c82d.1354903384.git.crobinso@redhat.com>
-References: <9f0944a25bc1094fa7a74ac9df14e184e2c5c82d.1354903384.git.crobinso@redhat.com>
+From 687d91769e40878f3b8ebb9bdd8ee256a40c97cd Mon Sep 17 00:00:00 2001
 From: Amit Shah <amit.shah@redhat.com>
 Date: Mon, 21 Mar 2011 20:31:45 +0100
 Subject: [PATCH] char: Add a QemuChrHandlers struct to initialise chardev
@@ -1042,5 +1039,5 @@ index fbfab4e..4ab5b69 100644
  
      inbuf = g_string_new("");
 -- 
-1.8.0
+1.8.1
 

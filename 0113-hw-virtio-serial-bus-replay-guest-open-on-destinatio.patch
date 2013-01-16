@@ -1,7 +1,4 @@
-From 1f54fab0e8f692986254b69c607f4151d9743260 Mon Sep 17 00:00:00 2001
-Message-Id: <1f54fab0e8f692986254b69c607f4151d9743260.1354903384.git.crobinso@redhat.com>
-In-Reply-To: <9f0944a25bc1094fa7a74ac9df14e184e2c5c82d.1354903384.git.crobinso@redhat.com>
-References: <9f0944a25bc1094fa7a74ac9df14e184e2c5c82d.1354903384.git.crobinso@redhat.com>
+From ab88ff277044974715aab3fd88b168c00605d193 Mon Sep 17 00:00:00 2001
 From: Alon Levy <alevy@redhat.com>
 Date: Fri, 16 Nov 2012 16:24:47 +0200
 Subject: [PATCH] hw/virtio-serial-bus: replay guest open on destination
@@ -53,5 +50,5 @@ index 155da58..fd19984 100644
      g_free(s->post_load.connected);
      s->post_load.connected = NULL;
 -- 
-1.8.0
+1.8.1
 

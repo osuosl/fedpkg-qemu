@@ -1,7 +1,4 @@
-From ea5fefd1ca7fb951c534333a78618ec6d6d89581 Mon Sep 17 00:00:00 2001
-Message-Id: <ea5fefd1ca7fb951c534333a78618ec6d6d89581.1354903384.git.crobinso@redhat.com>
-In-Reply-To: <9f0944a25bc1094fa7a74ac9df14e184e2c5c82d.1354903384.git.crobinso@redhat.com>
-References: <9f0944a25bc1094fa7a74ac9df14e184e2c5c82d.1354903384.git.crobinso@redhat.com>
+From 646046655c6aed23a9e39064242e0803704d74e8 Mon Sep 17 00:00:00 2001
 From: Amit Shah <amit.shah@redhat.com>
 Date: Mon, 21 Mar 2011 21:41:42 +0100
 Subject: [PATCH] char: Add framework for a 'write unblocked' callback
@@ -61,5 +58,5 @@ index ff206cb..9e1b0f1 100644
  };
  
 -- 
-1.8.0
+1.8.1
 

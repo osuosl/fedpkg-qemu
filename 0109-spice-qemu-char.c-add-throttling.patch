@@ -1,7 +1,4 @@
-From bffc95c205b473df9bba81dbf676504d0981d392 Mon Sep 17 00:00:00 2001
-Message-Id: <bffc95c205b473df9bba81dbf676504d0981d392.1354903384.git.crobinso@redhat.com>
-In-Reply-To: <9f0944a25bc1094fa7a74ac9df14e184e2c5c82d.1354903384.git.crobinso@redhat.com>
-References: <9f0944a25bc1094fa7a74ac9df14e184e2c5c82d.1354903384.git.crobinso@redhat.com>
+From 283c20975f9fb16afbd1e8ce733f474f5a978939 Mon Sep 17 00:00:00 2001
 From: Alon Levy <alevy@redhat.com>
 Date: Tue, 22 Mar 2011 12:27:59 +0200
 Subject: [PATCH] spice-qemu-char.c: add throttling
@@ -134,5 +131,5 @@ index 09aa22d..fba2bfb 100644
  #if SPICE_SERVER_VERSION < 0x000901
      /* See comment in vmc_state() */
 -- 
-1.8.0
+1.8.1
 

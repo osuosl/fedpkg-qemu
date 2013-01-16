@@ -1,5 +1,4 @@
 From 94afb78477a5b078449e5d48b38e74aac3fa5ac4 Mon Sep 17 00:00:00 2001
-Message-Id: <94afb78477a5b078449e5d48b38e74aac3fa5ac4.1354903384.git.crobinso@redhat.com>
 From: Alon Levy <alevy@redhat.com>
 Date: Wed, 28 Nov 2012 16:38:43 +0200
 Subject: [PATCH] libcacard: fix missing symbols in libcacard.so
@@ -22,5 +21,5 @@ index c26aac6..49a9729 100644
  
  QEMU_CFLAGS+=-I../
 -- 
-1.8.0
+1.8.1
 
