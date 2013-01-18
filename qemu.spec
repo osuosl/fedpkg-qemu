@@ -109,7 +109,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.2.2
-Release: 2%{?dist}
+Release: 3%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -467,6 +467,7 @@ Patch0510: 0510-qxl-add-trace-event-for-QXL_IO_LOG.patch
 Patch0511: 0511-hw-qxl-support-client-monitor-configuration-via-devi.patch
 Patch0512: 0512-qxl-update_area_io-cleanup-invalid-parameters-handli.patch
 Patch0513: 0513-qxl-fix-range-check-for-rev3-io-commands.patch
+Patch0514: 0514-qxl-vnc-register-a-vm-state-handler-for-dummy-spice_.patch
 
 # usb-redir live-migration and misc bits from upstream master
 Patch0601: 0601-usb-redir-Convert-to-new-libusbredirparser-0.5-API.patch
@@ -1278,6 +1279,7 @@ CAC emulation development files.
 %patch0511 -p1
 %patch0512 -p1
 %patch0513 -p1
+%patch0514 -p1
 
 # usb-redir live-migration and misc bits from upstream master
 %patch0601 -p1
@@ -1935,6 +1937,9 @@ getent passwd qemu >/dev/null || \
 %{_libdir}/pkgconfig/libcacard.pc
 
 %changelog
+* Fri Jan 18 2013 Hans de Goede <hdegoede@redhat.com> - 2:1.2.2-3
+- Fix a crash when using -vga qxl without -spice (bz #892075)
+
 * Wed Jan 16 2013 Cole Robinson <crobinso@redhat.com> - 2:1.2.2-2
 - CVE-2012-6075: Buffer overflow in e1000 nic (bz #889301, bz #889304)
 - Use systemd spec macros (bz #850285)
