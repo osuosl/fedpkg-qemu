@@ -109,7 +109,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.2.2
-Release: 3%{?dist}
+Release: 4%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -468,6 +468,13 @@ Patch0511: 0511-hw-qxl-support-client-monitor-configuration-via-devi.patch
 Patch0512: 0512-qxl-update_area_io-cleanup-invalid-parameters-handli.patch
 Patch0513: 0513-qxl-fix-range-check-for-rev3-io-commands.patch
 Patch0514: 0514-qxl-vnc-register-a-vm-state-handler-for-dummy-spice_.patch
+Patch0515: 0515-hw-qxl-exit-on-failure-to-register-qxl-interface.patch
+Patch0516: 0516-hw-qxl-fix-condition-for-exiting-guest_bug.patch
+Patch0517: 0517-hw-qxl-qxl_send_events-nop-if-stopped.patch
+Patch0518: 0518-qxl-call-dpy_gfx_resize-when-entering-vga-mode.patch
+Patch0519: 0519-spice-fix-initialization-order.patch
+Patch0520: 0520-spice-add-new-spice-server-callbacks-to-ui-spice-dis.patch
+Patch0521: 0521-qxl-save-qemu_create_displaysurface_from-result.patch
 
 # usb-redir live-migration and misc bits from upstream master
 Patch0601: 0601-usb-redir-Convert-to-new-libusbredirparser-0.5-API.patch
@@ -516,8 +523,6 @@ Patch0702: 0702-configure-Add-disable-kvm-options.patch
 Patch0703: 0703-arm_boot-Change-initrd-load-address-to-halfway-throu.patch
 # Don't use reserved word 'function' in systemtap files (bz 870972)
 Patch0704: 0704-dtrace-backend-add-function-to-reserved-words.patch
-# Drop assertion that was triggering when pausing guests w/ qxl (bz 870972)
-Patch0705: 0705-wip-hw-qxl-inject-interrupts-in-any-state.patch
 # libcacard build fixes
 Patch0706: 0706-libcacard-fix-missing-symbols-in-libcacard.so.patch
 Patch0707: 0707-configure-move-vscclient-binary-under-libcacard.patch
@@ -1280,6 +1285,13 @@ CAC emulation development files.
 %patch0512 -p1
 %patch0513 -p1
 %patch0514 -p1
+%patch0515 -p1
+%patch0516 -p1
+%patch0517 -p1
+%patch0518 -p1
+%patch0519 -p1
+%patch0520 -p1
+%patch0521 -p1
 
 # usb-redir live-migration and misc bits from upstream master
 %patch0601 -p1
@@ -1323,7 +1335,6 @@ CAC emulation development files.
 %patch0702 -p1
 %patch0703 -p1
 %patch0704 -p1
-%patch0705 -p1
 %patch0706 -p1
 %patch0707 -p1
 %patch0708 -p1
@@ -1937,6 +1948,13 @@ getent passwd qemu >/dev/null || \
 %{_libdir}/pkgconfig/libcacard.pc
 
 %changelog
+* Mon Jan 21 2013 Hans de Goede <hdegoede@redhat.com> - 2:1.2.2-4
+- Add "qxl: call dpy_gfx_resize when entering vga mode" patch, fixing
+  an often reported use after free crash (rhbz#873845)
+- Replace "wip: hw/qxl: inject interrupts in any state" patch with the
+  official upstream fix
+- Add 5 other spice/qxl crash/bug fixes cherry-picked from upstream
+
 * Fri Jan 18 2013 Hans de Goede <hdegoede@redhat.com> - 2:1.2.2-3
 - Fix a crash when using -vga qxl without -spice (bz #892075)
 
