@@ -120,7 +120,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.3.0
-Release: 3%{?dist}
+Release: 4%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -1258,6 +1258,9 @@ getent passwd qemu >/dev/null || \
 %{_libdir}/pkgconfig/libcacard.pc
 
 %changelog
+* Mon Jan 21 2013 Adam Tkac <atkac redhat com> - 2:1.3.0-4
+- rebuild due to "jpeg8-ABI" feature drop
+
 * Tue Jan 15 2013 Cole Robinson <crobinso@redhat.com> - 2:1.3.0-3
 - Fix migration from qemu-kvm
 - Fix the test suite on i686
