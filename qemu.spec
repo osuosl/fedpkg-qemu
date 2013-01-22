@@ -120,7 +120,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.3.0
-Release: 4%{?dist}
+Release: 5%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -161,6 +161,7 @@ Patch0110: 0110-spice-qemu-char.c-remove-intermediate-buffer.patch
 Patch0111: 0111-usb-redir-Add-flow-control-support.patch
 Patch0112: 0112-char-Disable-write-callback-if-throttled-chardev-is-.patch
 Patch0113: 0113-hw-virtio-serial-bus-replay-guest-open-on-destinatio.patch
+Patch0114: 0114-libcacard-fix-missing-symbol-in-libcacard.so.patch
 
 
 Source1: qemu.binfmt
@@ -646,7 +647,7 @@ CAC emulation development files.
 %patch0112 -p1
 %patch0113 -p1
 
-
+%patch0114 -p1
 
 %build
 %if %{with kvmonly}
@@ -1258,6 +1259,9 @@ getent passwd qemu >/dev/null || \
 %{_libdir}/pkgconfig/libcacard.pc
 
 %changelog
+* Tue Jan 22 2013 Alon Levy <alevy redhat com> - 2:1.3.0-5
+- Fix missing error_set symbol in libcacard.so (bz #891552)
+
 * Mon Jan 21 2013 Adam Tkac <atkac redhat com> - 2:1.3.0-4
 - rebuild due to "jpeg8-ABI" feature drop
 
