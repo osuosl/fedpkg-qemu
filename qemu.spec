@@ -109,7 +109,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.2.2
-Release: 4%{?dist}
+Release: 5%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -530,6 +530,8 @@ Patch0707: 0707-configure-move-vscclient-binary-under-libcacard.patch
 Patch0708: 0708-seccomp-adding-new-syscalls-bugzilla-855162.patch
 # CVE-2012-6075: Buffer overflow in e1000 nic (bz 889301, bz 889304)
 Patch709: 0709-e1000-Discard-oversized-packets-based-on-SBP-LPE.patch
+
+Patch710: 0710-libcacard-fix-missing-symbols-in-libcacard.so.patch
 
 
 BuildRequires: SDL-devel
@@ -1339,6 +1341,7 @@ CAC emulation development files.
 %patch0707 -p1
 %patch0708 -p1
 %patch709 -p1
+%patch710 -p1
 
 
 %build
@@ -1948,6 +1951,9 @@ getent passwd qemu >/dev/null || \
 %{_libdir}/pkgconfig/libcacard.pc
 
 %changelog
+* Wed Jan 23 2013 Alon Levy <alevy@redhat.com> - 2:1.2.2-5
+- Add fix for missing error_set in libcacard.so picked from upstream.
+
 * Mon Jan 21 2013 Hans de Goede <hdegoede@redhat.com> - 2:1.2.2-4
 - Add "qxl: call dpy_gfx_resize when entering vga mode" patch, fixing
   an often reported use after free crash (rhbz#873845)
