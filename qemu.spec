@@ -120,7 +120,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.3.0
-Release: 5%{?dist}
+Release: 6%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -1259,6 +1259,9 @@ getent passwd qemu >/dev/null || \
 %{_libdir}/pkgconfig/libcacard.pc
 
 %changelog
+* Mon Jan 28 2013 Richard W.M. Jones <rjones@redhat.com> - 2:1.3.0-6
+- Bump and rebuild for updated libseccomp.
+
 * Tue Jan 22 2013 Alon Levy <alevy redhat com> - 2:1.3.0-5
 - Fix missing error_set symbol in libcacard.so (bz #891552)
 
