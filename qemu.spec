@@ -120,7 +120,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.3.0
-Release: 6%{?dist}
+Release: 7%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -399,6 +399,8 @@ Group: Development/Tools
 Requires: %{name}-common = %{epoch}:%{version}-%{release}
 Provides: kvm = 85
 Obsoletes: kvm < 85
+Provides: libcacard = 1.2.2-5
+Obsoletes: libcacard < 1.2.2-5
 Requires: vgabios >= 0.6c-2
 Requires: seabios-bin >= 0.6.0-2
 Requires: sgabios-bin
@@ -1259,6 +1261,9 @@ getent passwd qemu >/dev/null || \
 %{_libdir}/pkgconfig/libcacard.pc
 
 %changelog
+* Tue Jan 29 2013 Alon Levy <alevy@redhat.com> - 2:1.3.0-7
+- Bump and rebuild for updated Provides & Obsoletes of libcacard 1.2.2-4
+
 * Mon Jan 28 2013 Richard W.M. Jones <rjones@redhat.com> - 2:1.3.0-6
 - Bump and rebuild for updated libseccomp.
 
