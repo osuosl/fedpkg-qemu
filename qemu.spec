@@ -38,7 +38,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.0.1
-Release: 3%{?dist}
+Release: 4%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -126,6 +126,7 @@ Patch147: 0147-usb-ehci-Ensure-frindex-writes-leave-a-valid-frindex.patch
 
 # General bug fixes
 Patch202: qemu-virtio-9p-noatime.patch
+Patch203: 0203-pci-fix-corrupted-pci-conf-index-register-by-unaligned-write.patch
 
 # Feature patches, should be in 1.1 before release
 Patch301: enable_architectural_PMU_cpuid_leaf.patch
@@ -495,6 +496,7 @@ such as kvm_stat.
 %patch147 -p1
 
 %patch202 -p1
+%patch203 -p1
 
 %patch301 -p1
 %patch302 -p1
@@ -991,6 +993,10 @@ fi
 %{_mandir}/man1/qemu-img.1*
 
 %changelog
+* Wed Jan 30 2013 Kyle McMartin <kmcmarti@redhat.com> - 2:1.0.1-4
+- pci: fix unaligned writes to pci config index register (rhbz#830261)
+   (resulted in NetBSD being unable to boot in a VM.)
+
 * Wed Jan 16 2013 Cole Robinson <crobinso@redhat.com> - 2:1.0.1-3
 - CVE-2012-6075: Buffer overflow in e1000 nic (bz #889301, bz #889304)
 
