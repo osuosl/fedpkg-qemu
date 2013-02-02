@@ -120,7 +120,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.3.0
-Release: 8%{?dist}
+Release: 9%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -1259,6 +1259,9 @@ getent passwd qemu >/dev/null || \
 %{_libdir}/pkgconfig/libcacard.pc
 
 %changelog
+* Sat Feb  2 2013 Michael Schwendt <mschwendt@fedoraproject.org> - 2:1.3.0-9
+- fix "bogus date" entries in %%changelog to fix rebuild
+
 * Fri Feb 01 2013 Alon Levy <alevy@redhat.com> - 2:1.3.0-8
 - rebuilt, removing the two added Provides & Obsoletes lines, since
   the current EVR already does that by being 1.3.0 > 1.2.2 , and having
@@ -1656,7 +1659,7 @@ getent passwd qemu >/dev/null || \
 * Thu Apr 15 2010 Justin M. Forbes <jforbes@redhat.com> - 2:0.12.3-5
 - Update virtio console patches from upstream
 
-* Mon Mar 11 2010 Justin M. Forbes <jforbes@redhat.com> - 2:0.12.3-4
+* Thu Mar 11 2010 Justin M. Forbes <jforbes@redhat.com> - 2:0.12.3-4
 - Detect cdrom via ioctl (#473154)
 - re add increased buffer for USB control requests (#546483)
 
@@ -1693,7 +1696,7 @@ getent passwd qemu >/dev/null || \
 * Mon Jan 25 2010 Justin M. Forbes <jforbes@redhat.com> - 2:0.12.2-1
 - Update to 0.12.2 upstream
 
-* Fri Jan 10 2010 Justin M. Forbes <jforbes@redhat.com> - 2:0.12.1.2-3
+* Sun Jan 10 2010 Justin M. Forbes <jforbes@redhat.com> - 2:0.12.1.2-3
 - Point to seabios instead of bochs, and add a requires for seabios
 
 * Mon Jan  4 2010 Justin M. Forbes <jforbes@redhat.com> - 2:0.12.1.2-2
@@ -2141,7 +2144,7 @@ getent passwd qemu >/dev/null || \
 - Update to 0.7.0
 - Fix dyngen for PPC functions which end in unconditional branch
 
-* Fri Apr  7 2005 Michael Schwendt <mschwendt[AT]users.sf.net>
+* Thu Apr  7 2005 Michael Schwendt <mschwendt[AT]users.sf.net>
 - rebuilt
 
 * Sun Feb 13 2005 David Woodhouse <dwmw2@infradead.org> 0.6.1-2
@@ -2153,13 +2156,13 @@ getent passwd qemu >/dev/null || \
 * Tue Jul 20 2004 David Woodhouse <dwmw2@redhat.com> 0.6.0-2
 - Compile fix from qemu CVS, add x86_64 host support
 
-* Mon May 12 2004 David Woodhouse <dwmw2@redhat.com> 0.6.0-1
+* Wed May 12 2004 David Woodhouse <dwmw2@redhat.com> 0.6.0-1
 - Update to 0.6.0.
 
 * Sat May 8 2004 David Woodhouse <dwmw2@redhat.com> 0.5.5-1
 - Update to 0.5.5.
 
-* Thu May 2 2004 David Woodhouse <dwmw2@redhat.com> 0.5.4-1
+* Sun May 2 2004 David Woodhouse <dwmw2@redhat.com> 0.5.4-1
 - Update to 0.5.4.
 
 * Thu Apr 22 2004 David Woodhouse <dwmw2@redhat.com> 0.5.3-1
