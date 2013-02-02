@@ -199,6 +199,10 @@ BuildRequires: ncurses-devel
 BuildRequires: libattr-devel
 BuildRequires: usbredir-devel >= 0.5.2
 BuildRequires: texinfo
+# for /usr/bin/pod2man
+%if 0%{?fedora} > 18
+BuildRequires: perl-podlators
+%endif
 %if 0%{?have_spice:1}
 BuildRequires: spice-protocol >= 0.12.2
 BuildRequires: spice-server-devel >= 0.12.0
@@ -1260,6 +1264,7 @@ getent passwd qemu >/dev/null || \
 
 %changelog
 * Sat Feb  2 2013 Michael Schwendt <mschwendt@fedoraproject.org> - 2:1.3.0-9
+- add BR perl-podlators for pod2man (F19 development)
 - fix "bogus date" entries in %%changelog to fix rebuild
 
 * Fri Feb 01 2013 Alon Levy <alevy@redhat.com> - 2:1.3.0-8
