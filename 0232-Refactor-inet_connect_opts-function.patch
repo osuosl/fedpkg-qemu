@@ -202,6 +202,3 @@ index 037775b..22797bf 100644
  }
  
  int inet_dgram_opts(QemuOpts *opts)
--- 
-1.8.0.2
-

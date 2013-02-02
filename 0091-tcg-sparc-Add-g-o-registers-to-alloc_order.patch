@@ -39,6 +39,3 @@ index d401f8e..03c385a 100644
  };
  
  static const int tcg_target_call_iarg_regs[6] = {
--- 
-1.8.0.2
-

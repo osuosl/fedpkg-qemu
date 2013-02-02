@@ -1,4 +1,4 @@
-From 73b022067ca13e4f4c26ab2f31faa7ffa903b7a8 Mon Sep 17 00:00:00 2001
+From 2ed404cacc625272fb7017476634b77002ee880b Mon Sep 17 00:00:00 2001
 From: Gerd Hoffmann <kraxel@redhat.com>
 Date: Tue, 28 Aug 2012 13:38:01 +0200
 Subject: [PATCH] xhci: update port handling
@@ -347,6 +347,3 @@ index 11cb3bc..642e8e5 100644
      DEFINE_PROP_END_OF_LIST(),
  };
  
--- 
-1.8.0.2
-

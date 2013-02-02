@@ -26,6 +26,3 @@ index e7e9dd9..20e844f 100644
      }
  
      pci_set_byte(&config[PCI_REVISION_ID], pci_device_rev);
--- 
-1.8.0.2
-

@@ -31,6 +31,3 @@ index bfc94a5..67a6d73 100644
          handlers = &null_handlers;
      }
      s->chr_can_read = handlers->fd_can_read;
--- 
-1.8.0.2
-

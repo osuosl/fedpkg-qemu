@@ -39,6 +39,3 @@ index 27f3779..038a8bb 100644
          if (async == QXL_ASYNC) {
              cookie = qxl_cookie_new(QXL_COOKIE_TYPE_IO,
                                      QXL_IO_UPDATE_AREA_ASYNC);
--- 
-1.8.0.2
-

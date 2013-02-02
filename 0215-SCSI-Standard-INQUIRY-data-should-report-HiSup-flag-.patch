@@ -38,6 +38,3 @@ index d621852..7ed1bde 100644
  
      if (buflen > 36) {
          outbuf[4] = buflen - 5; /* Additional Length = (Len - 1) - 4 */
--- 
-1.8.0.2
-

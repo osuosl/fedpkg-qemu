@@ -364,6 +364,3 @@ index 80696aa..3e8aee9 100644
  int inet_dgram_opts(QemuOpts *opts);
  const char *inet_strfamily(int family);
  
--- 
-1.8.0.2
-

@@ -52,6 +52,3 @@ index b082bae..a1fdf88 100644
      } else if (size > 0) {
          if (s->do_telnetopt)
              tcp_chr_process_IAC_bytes(chr, s, buf, &size);
--- 
-1.8.0.2
-

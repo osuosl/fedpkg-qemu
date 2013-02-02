@@ -1,4 +1,4 @@
-From 1dc61f2996d6a211b690b43e9517baa31a786b6a Mon Sep 17 00:00:00 2001
+From 7f3022f4ee2f83aeb0a1eea265f4bf9b4401096e Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Tue, 4 Sep 2012 17:03:54 +0200
 Subject: [PATCH] usb-redir: Add an already_in_flight packet-id queue
@@ -114,6 +114,3 @@ index e2b8159..cdd705f 100644
      for (i = 0; i < MAX_ENDPOINTS; i++) {
          usbredir_free_bufpq(dev, I2EP(i));
      }
--- 
-1.8.0.2
-

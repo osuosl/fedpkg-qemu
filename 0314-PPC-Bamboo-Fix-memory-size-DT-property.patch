@@ -28,6 +28,3 @@ index c198071..9286438 100644
      char *filename;
      int fdt_size;
      void *fdt;
--- 
-1.8.0.2
-

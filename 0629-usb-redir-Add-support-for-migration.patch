@@ -1,4 +1,4 @@
-From 6ffcfd679cbf168f4260b9db28662a2a1367b8b2 Mon Sep 17 00:00:00 2001
+From 89d5a2bf3ecb98ba5bfaf1fd6c63924aeb1b6208 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Wed, 5 Sep 2012 09:21:44 +0200
 Subject: [PATCH] usb-redir: Add support for migration
@@ -424,6 +424,3 @@ index 6eb3c6d..b7387b6 100644
      dc->props          = usbredir_properties;
  }
  
--- 
-1.8.0.2
-

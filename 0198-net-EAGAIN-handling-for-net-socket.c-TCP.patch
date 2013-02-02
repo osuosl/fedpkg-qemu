@@ -92,6 +92,3 @@ index e5e4e8d..c3e55b8 100644
  }
  
  static ssize_t net_socket_receive_dgram(NetClientState *nc, const uint8_t *buf, size_t size)
--- 
-1.8.0.2
-

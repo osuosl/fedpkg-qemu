@@ -52,6 +52,3 @@ index 9c65474..63f970d 100644
          CASE_OP_32_64(or):
          CASE_OP_32_64(and):
              if (args[1] == args[2]) {
--- 
-1.8.0.2
-

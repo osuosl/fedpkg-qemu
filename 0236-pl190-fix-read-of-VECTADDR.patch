@@ -46,6 +46,3 @@ index cb50afb..7332f4d 100644
          /* Reading this value with no pending interrupts is undefined.
             We return the default address.  */
          if (i == PL190_NUM_PRIO)
--- 
-1.8.0.2
-

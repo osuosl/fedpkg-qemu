@@ -1,7 +1,7 @@
-From acbfa56143a6c8a4e0ceb2546612ae4caea907d3 Mon Sep 17 00:00:00 2001
+From 97ccbacab3e9cc19ebb54f1aacbe84118cbb3a29 Mon Sep 17 00:00:00 2001
 From: Gerd Hoffmann <kraxel@redhat.com>
 Date: Tue, 30 Oct 2012 14:55:12 +0100
-Subject: [PATCH 518/564] qxl: call dpy_gfx_resize when entering vga mode
+Subject: [PATCH] qxl: call dpy_gfx_resize when entering vga mode
 
 When entering vga mode the display size likely changes,
 notify all displaychangelisteners about this.
@@ -20,7 +20,7 @@ Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/hw/qxl.c b/hw/qxl.c
-index 8111bb9..3583d98 100644
+index 8111bb9..f88829c 100644
 --- a/hw/qxl.c
 +++ b/hw/qxl.c
 @@ -1084,7 +1084,7 @@ static void qxl_enter_vga_mode(PCIQXLDevice *d)
@@ -32,6 +32,3 @@ index 8111bb9..3583d98 100644
      vga_dirty_log_start(&d->vga);
  }
  
--- 
-1.8.1
-

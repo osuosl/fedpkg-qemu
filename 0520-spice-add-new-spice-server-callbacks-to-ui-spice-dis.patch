@@ -1,8 +1,7 @@
-From e4e6427ffc8a25e6eafdbf1a284319721891fb77 Mon Sep 17 00:00:00 2001
+From 12bf3d6ef0b57952276361b274dcb5704480b08e Mon Sep 17 00:00:00 2001
 From: Gerd Hoffmann <kraxel@redhat.com>
 Date: Wed, 21 Nov 2012 14:41:48 +0100
-Subject: [PATCH 520/564] spice: add new spice-server callbacks to
- ui/spice-display.c
+Subject: [PATCH] spice: add new spice-server callbacks to ui/spice-display.c
 
 Otherwise qemu crashes with non-qxl graphics cards.
 
@@ -64,6 +63,3 @@ index 4c24c32..85c055e 100644
  };
  
  static SimpleSpiceDisplay sdpy;
--- 
-1.8.1
-

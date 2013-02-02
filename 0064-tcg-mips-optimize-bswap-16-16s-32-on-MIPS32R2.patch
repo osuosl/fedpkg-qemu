@@ -156,6 +156,3 @@ index 9c68a32..c5c13f7 100644
  /* optional instructions automatically implemented */
  #define TCG_TARGET_HAS_neg_i32          0 /* sub  rd, zero, rt   */
  #define TCG_TARGET_HAS_ext8u_i32        0 /* andi rt, rs, 0xff   */
--- 
-1.8.0.2
-

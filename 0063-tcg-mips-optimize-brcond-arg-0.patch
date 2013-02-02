@@ -94,6 +94,3 @@ index c05169f..6aa4527 100644
          break;
      case TCG_COND_GTU:
          tcg_out_opc_reg(s, OPC_SLTU, TCG_REG_AT, arg2, arg1);
--- 
-1.8.0.2
-

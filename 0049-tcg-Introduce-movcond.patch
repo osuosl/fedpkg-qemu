@@ -328,6 +328,3 @@ index 30a0f21..6d89495 100644
  #endif /* TCG_TARGET_REG_BITS == 64 */
  
  /* Offset to user memory in user mode. */
--- 
-1.8.0.2
-

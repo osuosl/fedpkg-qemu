@@ -24,6 +24,3 @@ index 446d692..24b1f87 100644
  
      switch (reg) {
      case 0x20: /* IMAN */
--- 
-1.8.0.2
-

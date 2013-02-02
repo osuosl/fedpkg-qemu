@@ -41,6 +41,3 @@ index 10b4fbb..7f3719b 100644
      case usb_redir_babble:
          return USB_RET_BABBLE;
      case usb_redir_ioerror:
--- 
-1.8.0.2
-

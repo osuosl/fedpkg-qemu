@@ -132,6 +132,3 @@ index 177eea1..3259d89 100644
  
  #define TCG_AREG0 TCG_REG_R27
  
--- 
-1.8.0.2
-

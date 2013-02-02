@@ -27,6 +27,3 @@ index 79b75fb..2594c78 100644
      .bMaxPacketSize0               = 64,
      .bNumConfigurations            = 1,
      .confs = (USBDescConfig[]) {
--- 
-1.8.0.2
-

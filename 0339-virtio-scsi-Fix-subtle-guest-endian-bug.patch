@@ -41,6 +41,3 @@ index c6d5290..5fcbdd8 100644
      stl_raw(&scsiconf->max_lun, VIRTIO_SCSI_MAX_LUN);
  }
  
--- 
-1.8.0.2
-

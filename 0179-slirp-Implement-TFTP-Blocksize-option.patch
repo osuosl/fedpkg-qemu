@@ -118,6 +118,3 @@ index c6a5df2..37b0387 100644
    spt->block_nr = 0;
    tftp_send_next_block(spt, tp);
  }
--- 
-1.8.0.2
-

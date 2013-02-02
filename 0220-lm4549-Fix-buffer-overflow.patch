@@ -42,6 +42,3 @@ index 80b3ec4..e0137d5 100644
          DPRINTF("write_sample Buffer full\n");
          return 0;
      }
--- 
-1.8.0.2
-

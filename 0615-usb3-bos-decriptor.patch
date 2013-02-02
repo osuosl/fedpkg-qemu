@@ -1,4 +1,4 @@
-From dd9e0d2970d00917406acdd77add20e0a87012dc Mon Sep 17 00:00:00 2001
+From 56e4093206b136735942b1fa94fc9826b489fac1 Mon Sep 17 00:00:00 2001
 From: Gerd Hoffmann <kraxel@redhat.com>
 Date: Tue, 28 Aug 2012 17:46:29 +0200
 Subject: [PATCH] usb3: bos decriptor
@@ -199,7 +199,7 @@ index 4b5e88d..68bb570 100644
  } QEMU_PACKED USBDescriptor;
  
 diff --git a/trace-events b/trace-events
-index 2db1deb..d941e78 100644
+index 7b9cc9e..d978d42 100644
 --- a/trace-events
 +++ b/trace-events
 @@ -343,6 +343,7 @@ usb_desc_device_qualifier(int addr, int len, int ret) "dev %d query device quali
@@ -210,6 +210,3 @@ index 2db1deb..d941e78 100644
  usb_set_addr(int addr) "dev %d"
  usb_set_config(int addr, int config, int ret) "dev %d, config %d, ret %d"
  usb_set_interface(int addr, int iface, int alt, int ret) "dev %d, interface %d, altsetting %d, ret %d"
--- 
-1.8.0.2
-

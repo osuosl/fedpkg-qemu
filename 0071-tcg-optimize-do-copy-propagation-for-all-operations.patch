@@ -37,6 +37,3 @@ index 1904b39..aeb2225 100644
              for (i = def->nb_oargs; i < def->nb_oargs + def->nb_iargs; i++) {
                  if (temps[args[i]].state == TCG_TEMP_COPY) {
                      args[i] = find_better_copy(s, args[i]);
--- 
-1.8.0.2
-

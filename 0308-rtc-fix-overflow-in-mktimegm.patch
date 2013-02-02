@@ -95,6 +95,3 @@ index f23ac3a..2b9aa63 100644
      qtest_add_func("/rtc/fuzz-registers", fuzz_registers);
      ret = g_test_run();
  
--- 
-1.8.0.2
-

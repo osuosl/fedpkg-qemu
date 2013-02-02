@@ -1,4 +1,4 @@
-From 8d5e4be8a36f93cd97c426285a65d66b9ac64bd7 Mon Sep 17 00:00:00 2001
+From 92685f7fb2b97236018aa8aed9fc9fd8f5644346 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Thu, 6 Sep 2012 20:52:36 +0200
 Subject: [PATCH] usb-redir: Store max_packet_size in endp_data
@@ -33,6 +33,3 @@ index cdd705f..6eb3c6d 100644
          }
          if (ep_info->type[i] == usb_redir_type_bulk) {
              usb_ep->pipeline = true;
--- 
-1.8.0.2
-

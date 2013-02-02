@@ -88,6 +88,3 @@ index 973cd53..d062765 100644
      memset(&ssd->dirty, 0, sizeof(ssd->dirty));
  }
  
--- 
-1.8.0.2
-

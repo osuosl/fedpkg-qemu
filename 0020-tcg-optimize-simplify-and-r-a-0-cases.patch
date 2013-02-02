@@ -24,6 +24,3 @@ index 0db849e..c12cb2b 100644
          CASE_OP_32_64(mul):
              if ((temps[args[2]].state == TCG_TEMP_CONST
                  && temps[args[2]].val == 0)) {
--- 
-1.8.0.2
-

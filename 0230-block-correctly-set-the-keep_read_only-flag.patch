@@ -99,6 +99,3 @@ index 2e2be11..4d919c2 100644
  
  #define BDRV_O_CACHE_MASK  (BDRV_O_NOCACHE | BDRV_O_CACHE_WB | BDRV_O_NO_FLUSH)
  
--- 
-1.8.0.2
-

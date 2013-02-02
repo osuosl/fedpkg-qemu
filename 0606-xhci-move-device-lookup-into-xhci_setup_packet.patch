@@ -1,4 +1,4 @@
-From 33cc7c61049bfe2563828e3b865874c4b1b55b6f Mon Sep 17 00:00:00 2001
+From d2b51c117c29bd6c643b38dee8e1f49572711c13 Mon Sep 17 00:00:00 2001
 From: Gerd Hoffmann <kraxel@redhat.com>
 Date: Fri, 24 Aug 2012 14:21:39 +0200
 Subject: [PATCH] xhci: move device lookup into xhci_setup_packet
@@ -149,6 +149,3 @@ index 30cb0d5..1a65063 100644
          result = usb_handle_packet(xfer->packet.ep->dev, &xfer->packet);
          if (result == USB_RET_NAK) {
              return;
--- 
-1.8.0.2
-

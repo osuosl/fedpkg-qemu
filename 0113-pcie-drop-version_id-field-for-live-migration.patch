@@ -74,6 +74,3 @@ index b8ab0c7..4889194 100644
      .size       = sizeof(PCIDevice),                                 \
      .vmsd       = &vmstate_pcie_device,                              \
      .flags      = VMS_STRUCT,                                        \
--- 
-1.8.0.2
-

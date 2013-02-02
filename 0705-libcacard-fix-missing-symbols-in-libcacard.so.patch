@@ -1,4 +1,4 @@
-From a44468631dea81f4cdc4b3156d28d7e8b94ce037 Mon Sep 17 00:00:00 2001
+From 9fbc22fddb14b1e474807bc02ab31e35af25d3a3 Mon Sep 17 00:00:00 2001
 From: Alon Levy <alevy@redhat.com>
 Date: Wed, 28 Nov 2012 16:38:43 +0200
 Subject: [PATCH] libcacard: fix missing symbols in libcacard.so
@@ -20,6 +20,3 @@ index 63990b7..9ce3117 100644
  QEMU_OBJS_LIB=$(patsubst %.o,%.lo,$(QEMU_OBJS))
  
  QEMU_CFLAGS+=-I../
--- 
-1.8.0.2
-

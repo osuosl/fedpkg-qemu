@@ -89,6 +89,3 @@ index 59c5fd7..6f68f28 100644
  /*
   * Called from spice server thread context (via interface_release_ressource)
   * We do *not* hold the global qemu mutex here, so extra care is needed
--- 
-1.8.0.2
-

@@ -46,6 +46,3 @@ index 82073f5..18c2ed3 100644
          host_connected = qemu_get_byte(f);
          if (host_connected != port->host_connected) {
              /*
--- 
-1.8.0.2
-

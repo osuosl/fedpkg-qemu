@@ -36,6 +36,3 @@ index 59bf822..89e9ad9 100644
  
      /* dirty the off-screen surfaces */
      for (i = 0; i < NUM_SURFACES; i++) {
--- 
-1.8.0.2
-

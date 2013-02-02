@@ -93,6 +93,3 @@ index 3fcb6fe..dea41c1 100644
      void *buf;
      int bufsize;
      QXLWorker *worker;
--- 
-1.8.0.2
-

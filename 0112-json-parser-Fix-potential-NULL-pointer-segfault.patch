@@ -35,6 +35,3 @@ index d42386d..9124649 100644
  
  /* Initialize an object to default values */
  #define QOBJECT_INIT(obj, qtype_type)   \
--- 
-1.8.0.2
-

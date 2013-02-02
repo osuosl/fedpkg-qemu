@@ -32,6 +32,3 @@ index 4a5266e..9ba3503 100644
      dinfo->devaddr = devaddr;
      dinfo->type = type;
      dinfo->bus = bus_id;
--- 
-1.8.0.2
-

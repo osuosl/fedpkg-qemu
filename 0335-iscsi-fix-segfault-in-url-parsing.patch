@@ -29,6 +29,3 @@ index fb001b9..817196a 100644
          ret = -EINVAL;
          goto out;
      }
--- 
-1.8.0.2
-

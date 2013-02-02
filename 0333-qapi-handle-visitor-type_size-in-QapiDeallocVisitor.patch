@@ -52,6 +52,3 @@ index a154523..a07b171 100644
  
      QTAILQ_INIT(&v->stack);
  
--- 
-1.8.0.2
-

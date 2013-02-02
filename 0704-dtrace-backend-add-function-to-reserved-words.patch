@@ -1,4 +1,4 @@
-From 0a01742a34be0859b18fb2ebfd1191be4cf5a380 Mon Sep 17 00:00:00 2001
+From 63d0a6cd71a0e3b6ba1a9cb4e1ba880121840a7e Mon Sep 17 00:00:00 2001
 From: Alon Levy <alevy@redhat.com>
 Date: Sun, 2 Sep 2012 02:04:16 +0300
 Subject: [PATCH] dtrace backend: add function to reserved words
@@ -22,6 +22,3 @@ index 9cab75c..6be7047 100644
                      name += '_'
                  out('  %s = $arg%d;' % (name, i))
                  i += 1
--- 
-1.8.0.2
-

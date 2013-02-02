@@ -36,6 +36,3 @@ index ad23f26..9289a28 100644
  
      /* Load firmware in flash / BIOS. */
      dinfo = drive_get(IF_PFLASH, 0, fl_idx);
--- 
-1.8.0.2
-

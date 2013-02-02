@@ -77,6 +77,3 @@ index b46cc97..9f8608a 100644
  
      if (is_listen) {
          s->listen_fd = fd;
--- 
-1.8.0.2
-

@@ -1,4 +1,4 @@
-From 74544d87b480a3953b1f0b2b7cddd80d3b3c1bcb Mon Sep 17 00:00:00 2001
+From 9737abf4265d394434982e8f7db230084cf036cb Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Wed, 5 Sep 2012 15:56:57 +0200
 Subject: [PATCH] usb-redir: Add chardev open / close debug logging
@@ -49,6 +49,3 @@ index b7387b6..57e6289 100644
          usb_device_detach(&dev->dev);
          /*
           * Delay next usb device attach to give the guest a chance to see
--- 
-1.8.0.2
-

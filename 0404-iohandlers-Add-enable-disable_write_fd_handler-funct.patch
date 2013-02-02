@@ -72,6 +72,3 @@ index dce1cd9..eb31273 100644
  /**
   * qemu_set_fd_handler2: Register a file descriptor with the main loop
   *
--- 
-1.8.0.2
-

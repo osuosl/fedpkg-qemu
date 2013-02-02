@@ -30,6 +30,3 @@ index 1ad9ec7..ad31877 100644
  		for (i = 0; i < 16; i++) {
  			cpu_fprintf(f, "s%2.2d=%8.8x ",
  				    i, env->sregs[srs][i]);
--- 
-1.8.0.2
-

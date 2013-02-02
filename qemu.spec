@@ -109,7 +109,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.2.2
-Release: 5%{?dist}
+Release: 6%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -148,6 +148,8 @@ Source9: ksmtuned.conf
 Source10: qemu-guest-agent.service
 Source11: 99-qemu-guest-agent.rules
 Source12: bridge.conf
+
+
 # Stable 1.2.1 patches
 Patch0001: 0001-target-xtensa-convert-host-errno-values-to-guest.patch
 Patch0002: 0002-target-cris-Fix-buffer-overflow.patch
@@ -453,7 +455,7 @@ Patch0412: 0412-usb-redir-Add-flow-control-support.patch
 Patch0413: 0413-virtio-serial-bus-replay-guest_open-on-migration.patch
 Patch0414: 0414-char-Disable-write-callback-if-throttled-chardev-is-.patch
 
-# spice seamless migration & dynamic monitors from upstream master
+# spice seamless migration, dynamic monitors, spice/qxl bug fixes
 Patch0501: 0501-qxl-disallow-unknown-revisions.patch
 Patch0502: 0502-spice-make-number-of-surfaces-runtime-configurable.patch
 Patch0503: 0503-qxl-Add-set_client_capabilities-interface-to-QXLInte.patch
@@ -467,7 +469,7 @@ Patch0510: 0510-qxl-add-trace-event-for-QXL_IO_LOG.patch
 Patch0511: 0511-hw-qxl-support-client-monitor-configuration-via-devi.patch
 Patch0512: 0512-qxl-update_area_io-cleanup-invalid-parameters-handli.patch
 Patch0513: 0513-qxl-fix-range-check-for-rev3-io-commands.patch
-Patch0514: 0514-qxl-vnc-register-a-vm-state-handler-for-dummy-spice_.patch
+Patch0514: 0514-qxl-vnc-register-a-vm-state-change-handler-for-dummy.patch
 Patch0515: 0515-hw-qxl-exit-on-failure-to-register-qxl-interface.patch
 Patch0516: 0516-hw-qxl-fix-condition-for-exiting-guest_bug.patch
 Patch0517: 0517-hw-qxl-qxl_send_events-nop-if-stopped.patch
@@ -513,25 +515,25 @@ Patch0633: 0633-usb-redir-Adjust-pkg-config-check-for-usbredirparser.patch
 Patch0634: 0634-usb-redir-Change-usbredir_open_chardev-into-usbredir.patch
 Patch0635: 0635-usb-redir-Don-t-make-migration-fail-in-none-seamless.patch
 
-# misc bug fixes
 # Non upstream build fix, http://www.spinics.net/lists/kvm/msg80589.html
 Patch0701: 0701-mips-Fix-link-error-with-piix4_pm_init.patch
 # Add ./configure --disable-kvm-options
-# keep: Carrying locally until qemu-kvm is fully merged into qemu.git
 Patch0702: 0702-configure-Add-disable-kvm-options.patch
 # Fix loading arm initrd if kernel is very large (bz 862766)
 Patch0703: 0703-arm_boot-Change-initrd-load-address-to-halfway-throu.patch
-# Don't use reserved word 'function' in systemtap files (bz 870972)
-Patch0704: 0704-dtrace-backend-add-function-to-reserved-words.patch
 # libcacard build fixes
-Patch0706: 0706-libcacard-fix-missing-symbols-in-libcacard.so.patch
-Patch0707: 0707-configure-move-vscclient-binary-under-libcacard.patch
+Patch0704: 0704-dtrace-backend-add-function-to-reserved-words.patch
+Patch0705: 0705-libcacard-fix-missing-symbols-in-libcacard.so.patch
+Patch0706: 0706-configure-move-vscclient-binary-under-libcacard.patch
 # Fix libvirt + seccomp combo (bz 855162)
-Patch0708: 0708-seccomp-adding-new-syscalls-bugzilla-855162.patch
+Patch0707: 0707-libcacard-fix-missing-symbol-in-libcacard.so.patch
 # CVE-2012-6075: Buffer overflow in e1000 nic (bz 889301, bz 889304)
-Patch709: 0709-e1000-Discard-oversized-packets-based-on-SBP-LPE.patch
-
-Patch710: 0710-libcacard-fix-missing-symbols-in-libcacard.so.patch
+Patch0708: 0708-seccomp-adding-new-syscalls-bugzilla-855162.patch
+# Fix boot hang if console is not connected (bz 894451)
+Patch0709: 0709-e1000-Discard-oversized-packets-based-on-SBP-LPE.patch
+# Fix segfault with zero length virtio-scsi disk (bz 847549)
+Patch0710: 0710-Revert-serial-fix-retry-logic.patch
+Patch0711: 0711-scsi-fix-segfault-with-0-byte-disk.patch
 
 
 BuildRequires: SDL-devel
@@ -1272,7 +1274,7 @@ CAC emulation development files.
 %patch0413 -p1
 %patch0414 -p1
 
-# spice seamless migration & dynamic monitors from upstream master
+# spice seamless migration, dynamic monitors, spice/qxl bug fixes
 %patch0501 -p1
 %patch0502 -p1
 %patch0503 -p1
@@ -1332,16 +1334,25 @@ CAC emulation development files.
 %patch0634 -p1
 %patch0635 -p1
 
-# misc bug fixes
+# Non upstream build fix, http://www.spinics.net/lists/kvm/msg80589.html
 %patch0701 -p1
+# Add ./configure --disable-kvm-options
 %patch0702 -p1
+# Fix loading arm initrd if kernel is very large (bz 862766)
 %patch0703 -p1
+# libcacard build fixes
 %patch0704 -p1
+%patch0705 -p1
 %patch0706 -p1
+# Fix libvirt + seccomp combo (bz 855162)
 %patch0707 -p1
+# CVE-2012-6075: Buffer overflow in e1000 nic (bz 889301, bz 889304)
 %patch0708 -p1
-%patch709 -p1
-%patch710 -p1
+# Fix boot hang if console is not connected (bz 894451)
+%patch0709 -p1
+# Fix segfault with zero length virtio-scsi disk (bz 847549)
+%patch0710 -p1
+%patch0711 -p1
 
 
 %build
@@ -1951,6 +1962,10 @@ getent passwd qemu >/dev/null || \
 %{_libdir}/pkgconfig/libcacard.pc
 
 %changelog
+* Sat Feb 02 2013 Cole Robinson <crobinso@redhat.com> - 2:1.2.2-6
+- Fix boot hang if console is not connected (bz #894451)
+- Fix segfault with zero length virtio-scsi disk (bz #847549)
+
 * Wed Jan 23 2013 Alon Levy <alevy@redhat.com> - 2:1.2.2-5
 - Add fix for missing error_set in libcacard.so picked from upstream.
 

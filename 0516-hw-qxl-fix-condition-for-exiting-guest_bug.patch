@@ -1,7 +1,7 @@
-From 8ceaa64ed2f20a7af865eb9bac0bc6e54f5f7eea Mon Sep 17 00:00:00 2001
+From 35bc51bb66018c3b387c735070612cd81200a2f9 Mon Sep 17 00:00:00 2001
 From: Alon Levy <alevy@redhat.com>
 Date: Tue, 2 Oct 2012 11:39:14 +0200
-Subject: [PATCH 516/522] hw/qxl: fix condition for exiting guest_bug
+Subject: [PATCH] hw/qxl: fix condition for exiting guest_bug
 
 Reported and suggested by Paolo Bonzini, thanks.
 
@@ -24,6 +24,3 @@ index db6440e..445705e 100644
          return;
      }
  
--- 
-1.8.0.2
-

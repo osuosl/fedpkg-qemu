@@ -365,6 +365,3 @@ index c83d65e..cf05414 100644
  usb_ehci_usbsts(const char *sts, int state) "usbsts %s %d"
  usb_ehci_state(const char *schedule, const char *state) "%s schedule %s"
  usb_ehci_qh_ptrs(void *q, uint32_t addr, uint32_t nxt, uint32_t c_qtd, uint32_t n_qtd, uint32_t a_qtd) "q %p - QH @ %08x: next %08x qtds %08x,%08x,%08x"
--- 
-1.8.0.2
-

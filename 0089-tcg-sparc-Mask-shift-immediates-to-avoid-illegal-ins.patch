@@ -57,6 +57,3 @@ index e625aa3..be5c170 100644
      case INDEX_op_mul_i64:
          c = ARITH_MULX;
          goto gen_arith;
--- 
-1.8.0.2
-

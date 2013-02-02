@@ -28,6 +28,3 @@ index 423e009..cbc172e 100644
      int64_t value;
  
      visit_type_int(v, &value, name, errp);
--- 
-1.8.0.2
-

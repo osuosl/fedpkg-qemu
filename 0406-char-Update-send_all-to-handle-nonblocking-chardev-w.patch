@@ -168,6 +168,3 @@ index 3e8aee9..a537d86 100644
  
  /* callback function for nonblocking connect
   * valid fd on success, negative error code on failure
--- 
-1.8.0.2
-

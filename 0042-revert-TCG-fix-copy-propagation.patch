@@ -80,6 +80,3 @@ index d710694..8fbbc81 100644
  #if defined(CONFIG_DEBUG_TCG)
  /* If you call tcg_clear_temp_count() at the start of a section of
   * code which is not supposed to leak any TCG temporaries, then
--- 
-1.8.0.2
-

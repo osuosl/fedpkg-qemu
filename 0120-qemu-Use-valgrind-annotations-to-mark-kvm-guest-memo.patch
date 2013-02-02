@@ -79,6 +79,3 @@ index badf1d8..90c71f9 100644
      if (!kvm_has_sync_mmu()) {
          int ret = qemu_madvise(start, size, QEMU_MADV_DONTFORK);
  
--- 
-1.8.0.2
-

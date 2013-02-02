@@ -33,6 +33,3 @@ index 4d11fe3..9129433 100755
  }
  EOF
  if compile_prog "" "" ; then
--- 
-1.8.0.2
-

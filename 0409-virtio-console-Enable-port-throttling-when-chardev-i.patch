@@ -45,6 +45,3 @@ index 066590c..2b5e515 100644
  };
  
  static int virtconsole_initfn(VirtIOSerialPort *port)
--- 
-1.8.0.2
-

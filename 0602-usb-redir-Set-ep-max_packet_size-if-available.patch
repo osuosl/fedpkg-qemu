@@ -1,4 +1,4 @@
-From c065841b3604ac4f2b1c564db7c2fd180ac1c32d Mon Sep 17 00:00:00 2001
+From bbc0ef6979ccab369335839da645e68d15845fde Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Mon, 3 Sep 2012 11:49:07 +0200
 Subject: [PATCH] usb-redir: Set ep max_packet_size if available
@@ -34,6 +34,3 @@ index 321f5be..b9a3633 100644
      }
  }
  
--- 
-1.8.0.2
-

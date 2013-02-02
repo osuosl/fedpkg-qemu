@@ -65,6 +65,3 @@ index bc86460..6a5da84 100644
  
      memory_region_init(&s->mem, "ehci", MMIO_SIZE);
      memory_region_init_io(&s->mem_caps, &ehci_mmio_caps_ops, s,
--- 
-1.8.0.2
-

@@ -35,6 +35,3 @@ index 2de0900..4d11fe3 100755
  
  echo "ARCH=$ARCH" >> $config_host_mak
  if test "$debug_tcg" = "yes" ; then
--- 
-1.8.0.2
-

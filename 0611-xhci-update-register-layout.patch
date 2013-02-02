@@ -1,4 +1,4 @@
-From 81a651a566a37ab65dc0bf5a6a72453b0a0a7157 Mon Sep 17 00:00:00 2001
+From 297556441abec3823fcf362395f2af650e53a631 Mon Sep 17 00:00:00 2001
 From: Gerd Hoffmann <kraxel@redhat.com>
 Date: Thu, 23 Aug 2012 13:26:25 +0200
 Subject: [PATCH] xhci: update register layout
@@ -58,6 +58,3 @@ index a938ad3..11cb3bc 100644
  #if (OFF_DOORBELL + LEN_DOORBELL) > LEN_REGS
  # error Increase LEN_REGS
  #endif
--- 
-1.8.0.2
-

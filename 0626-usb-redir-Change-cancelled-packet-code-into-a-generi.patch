@@ -1,4 +1,4 @@
-From 7aec34d818d5e3f191e310ee0787e5844d3c6019 Mon Sep 17 00:00:00 2001
+From 3ee0b38d21a4ced7e7040666b523ab711bb4b20c Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Tue, 4 Sep 2012 14:18:34 +0200
 Subject: [PATCH] usb-redir: Change cancelled packet code into a generic
@@ -179,6 +179,3 @@ index f183263..e2b8159 100644
      for (i = 0; i < MAX_ENDPOINTS; i++) {
          usbredir_free_bufpq(dev, I2EP(i));
      }
--- 
-1.8.0.2
-

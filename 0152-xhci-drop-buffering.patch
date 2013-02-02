@@ -381,6 +381,3 @@ index 10bc04e..c83d65e 100644
  usb_xhci_xfer_async(void *xfer) "%p"
  usb_xhci_xfer_nak(void *xfer) "%p"
  usb_xhci_xfer_retry(void *xfer) "%p"
--- 
-1.8.0.2
-

@@ -72,6 +72,3 @@ index fbad716..83aa856 100644
              tcg_out_st16_8(s, COND_AL, TCG_REG_R0, addr_reg, 0);
          } else {
              tcg_out_st16_8(s, COND_AL, data_reg, addr_reg, 0);
--- 
-1.8.0.2
-

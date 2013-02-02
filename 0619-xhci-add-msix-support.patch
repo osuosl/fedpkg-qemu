@@ -1,4 +1,4 @@
-From 8e09078421d52a78081bbf35db75fa1d11b2f9a4 Mon Sep 17 00:00:00 2001
+From 30a07a691a444a4c9b7116d50ca1a6e8cf28db5c Mon Sep 17 00:00:00 2001
 From: Gerd Hoffmann <kraxel@redhat.com>
 Date: Thu, 30 Aug 2012 12:06:59 +0200
 Subject: [PATCH] xhci: add msix support
@@ -138,7 +138,7 @@ index 74a57fe..91c2fb1 100644
      DEFINE_PROP_UINT32("p3",  XHCIState, numports_3, 4),
      DEFINE_PROP_END_OF_LIST(),
 diff --git a/trace-events b/trace-events
-index d941e78..f86bbda 100644
+index d978d42..93b05ab 100644
 --- a/trace-events
 +++ b/trace-events
 @@ -316,6 +316,9 @@ usb_xhci_runtime_write(uint32_t off, uint32_t val) "off 0x%04x, val 0x%08x"
@@ -151,6 +151,3 @@ index d941e78..f86bbda 100644
  usb_xhci_queue_event(uint32_t idx, const char *trb, const char *evt, uint64_t param, uint32_t status, uint32_t control) "idx %d, %s, %s, p %016" PRIx64 ", s %08x, c 0x%08x"
  usb_xhci_fetch_trb(uint64_t addr, const char *name, uint64_t param, uint32_t status, uint32_t control) "addr %016" PRIx64 ", %s, p %016" PRIx64 ", s %08x, c 0x%08x"
  usb_xhci_slot_enable(uint32_t slotid) "slotid %d"
--- 
-1.8.0.2
-

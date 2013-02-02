@@ -115,6 +115,3 @@ index 5a88268..d87aca8 100644
              ehci_set_state(q->ehci, q->async, EST_HORIZONTALQH);
              break;
          case EHCI_ASYNC_FINISHED:
--- 
-1.8.0.2
-

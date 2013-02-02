@@ -37,6 +37,3 @@ index ad725b5..f305e21 100644
                                "musicpal.flash", flash_size,
                                dinfo->bdrv, 0x10000,
                                (flash_size + 0xffff) >> 16,
--- 
-1.8.0.2
-

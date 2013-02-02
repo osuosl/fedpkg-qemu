@@ -32,6 +32,3 @@ index 2534394..2f3e9c0 100644
              ehci_set_state(q->ehci, q->async, EST_EXECUTING);
              break;
          }
--- 
-1.8.0.2
-

@@ -42,6 +42,3 @@ index 519432a..16f7880 100644
      if (audio_bug (AUDIO_FUNC, audio_validate_settings (as))) {
          audio_print_settings (as);
          goto fail;
--- 
-1.8.0.2
-

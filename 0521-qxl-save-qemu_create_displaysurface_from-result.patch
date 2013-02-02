@@ -1,7 +1,7 @@
-From 39a4efbef72744cb09151954091710400c31f18d Mon Sep 17 00:00:00 2001
+From 67a3c5e0e9b7e2ae4444f374c698fc3fbf16a1ac Mon Sep 17 00:00:00 2001
 From: Gerd Hoffmann <kraxel@redhat.com>
 Date: Mon, 10 Dec 2012 07:41:07 +0100
-Subject: [PATCH 521/564] qxl: save qemu_create_displaysurface_from result
+Subject: [PATCH] qxl: save qemu_create_displaysurface_from result
 
 Spotted by Coverity.
 
@@ -36,6 +36,3 @@ index b66c168..e7d41ec 100644
          } else {
              qemu_resize_displaysurface(vga->ds,
                      qxl->guest_primary.surface.width,
--- 
-1.8.1
-

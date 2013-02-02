@@ -44,6 +44,3 @@ index 4d4ac32..b1d8508 100644
      if (!receive_filter(s, buf, size))
          return size;
  
--- 
-1.8.0.2
-

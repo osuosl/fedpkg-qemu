@@ -1,4 +1,4 @@
-From 0859f45be456731c7e900264f3f11f911717e121 Mon Sep 17 00:00:00 2001
+From b4457799e9610602d20382843c1d2bde4ce475dd Mon Sep 17 00:00:00 2001
 From: Gerd Hoffmann <kraxel@redhat.com>
 Date: Thu, 30 Aug 2012 17:15:12 +0200
 Subject: [PATCH] xhci: prepare xhci_runtime_{read,write} for multiple
@@ -154,6 +154,3 @@ index 76da7a9..df2ea22 100644
          break;
      default:
          fprintf(stderr, "xhci_oper_write: reg 0x%x unimplemented\n", reg);
--- 
-1.8.0.2
-

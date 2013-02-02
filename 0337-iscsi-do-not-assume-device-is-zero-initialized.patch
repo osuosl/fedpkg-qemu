@@ -39,6 +39,3 @@ index 1836c71..11fd37e 100644
  
  #ifdef __linux__
      .bdrv_ioctl       = iscsi_ioctl,
--- 
-1.8.0.2
-

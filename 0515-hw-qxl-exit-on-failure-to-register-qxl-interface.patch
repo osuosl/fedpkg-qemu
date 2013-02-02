@@ -1,7 +1,7 @@
-From 58891f4a215336182677e97c94198ba8cced19cd Mon Sep 17 00:00:00 2001
+From 8502c47123cbbb2f81b751780bdc8bc2fd3024ca Mon Sep 17 00:00:00 2001
 From: Alon Levy <alevy@redhat.com>
 Date: Wed, 3 Oct 2012 20:13:58 +0200
-Subject: [PATCH 515/522] hw/qxl: exit on failure to register qxl interface
+Subject: [PATCH] hw/qxl: exit on failure to register qxl interface
 
 This prevents a segfault later on when the device reset handler
 tries to access a NULL ssd.worker since interface_attach_worker has
@@ -30,6 +30,3 @@ index 8d33745..db6440e 100644
      qemu_add_vm_change_state_handler(qxl_vm_change_state_handler, qxl);
  
      init_pipe_signaling(qxl);
--- 
-1.8.0.2
-

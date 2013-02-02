@@ -47,6 +47,3 @@ index de21a87..244788c 100644
  /* Unit presece register */
  enum {
      UPR_UP = (1 << 0),
--- 
-1.8.0.2
-

@@ -1,4 +1,4 @@
-From 85be78ba5daa672ec27c23c371b30aa723dc73c3 Mon Sep 17 00:00:00 2001
+From ef91b4721df38d041867d43300583321119c92e0 Mon Sep 17 00:00:00 2001
 From: Gerd Hoffmann <kraxel@redhat.com>
 Date: Wed, 29 Aug 2012 12:54:59 +0200
 Subject: [PATCH] xhci: add trace_usb_xhci_ep_set_dequeue
@@ -23,7 +23,7 @@ index ad2226f..a938ad3 100644
  
      slot = &xhci->slots[slotid-1];
 diff --git a/trace-events b/trace-events
-index b38e32a..2db1deb 100644
+index 9fa7673..7b9cc9e 100644
 --- a/trace-events
 +++ b/trace-events
 @@ -326,6 +326,7 @@ usb_xhci_slot_evaluate(uint32_t slotid) "slotid %d"
@@ -34,6 +34,3 @@ index b38e32a..2db1deb 100644
  usb_xhci_ep_kick(uint32_t slotid, uint32_t epid) "slotid %d, epid %d"
  usb_xhci_ep_stop(uint32_t slotid, uint32_t epid) "slotid %d, epid %d"
  usb_xhci_ep_reset(uint32_t slotid, uint32_t epid) "slotid %d, epid %d"
--- 
-1.8.0.2
-

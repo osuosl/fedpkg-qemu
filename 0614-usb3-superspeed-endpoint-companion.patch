@@ -1,4 +1,4 @@
-From a76e4c47f9be219527561c074716972226b6c1c1 Mon Sep 17 00:00:00 2001
+From 28606fe9b5e3554fa65d7fd7aef449da74ec1363 Mon Sep 17 00:00:00 2001
 From: Gerd Hoffmann <kraxel@redhat.com>
 Date: Tue, 28 Aug 2012 17:28:03 +0200
 Subject: [PATCH] usb3: superspeed endpoint companion
@@ -243,6 +243,3 @@ index d89fa41..4b5e88d 100644
  int usb_desc_other(const USBDescOther *desc, uint8_t *dest, size_t len);
  
  /* control message emulation helpers */
--- 
-1.8.0.2
-

@@ -277,6 +277,3 @@ index 872a2ba..5f6dcba 100644
          dc->pc += 4;
          num_insns++;
  
--- 
-1.8.0.2
-

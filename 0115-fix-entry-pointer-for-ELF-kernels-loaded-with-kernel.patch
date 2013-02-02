@@ -37,6 +37,3 @@ index fa65ce2..731a983 100644
              snprintf(label, sizeof(label), "phdr #%d: %s", i, name);
              rom_add_blob_fixed(label, data, mem_size, addr);
  
--- 
-1.8.0.2
-

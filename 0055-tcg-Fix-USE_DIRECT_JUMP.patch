@@ -30,6 +30,3 @@ index f454107..609ed86 100644
      uint16_t *tb_next_offset;
      uint16_t *tb_jmp_offset; /* != NULL if USE_DIRECT_JUMP */
  
--- 
-1.8.0.2
-

@@ -43,6 +43,3 @@ index 1aac04b..6b9d5d0 100644
              break;
          }
          if (async == QXL_ASYNC) {
--- 
-1.8.0.2
-

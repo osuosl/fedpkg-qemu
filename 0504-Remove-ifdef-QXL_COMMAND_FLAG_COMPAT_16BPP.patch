@@ -27,6 +27,3 @@ index 552d208..d1d995c 100644
      d->shadow_rom.mode = cpu_to_le32(modenr);
      d->rom->mode = cpu_to_le32(modenr);
      qxl_rom_set_dirty(d);
--- 
-1.8.0.2
-

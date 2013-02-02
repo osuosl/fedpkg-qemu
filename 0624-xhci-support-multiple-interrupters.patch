@@ -1,4 +1,4 @@
-From 6b4ce88ab228e8ad167b10bf231126b7f266d8a9 Mon Sep 17 00:00:00 2001
+From bda96cc71d34d4c3163455c9ea570f62e9c745f4 Mon Sep 17 00:00:00 2001
 From: Gerd Hoffmann <kraxel@redhat.com>
 Date: Tue, 4 Sep 2012 12:56:55 +0200
 Subject: [PATCH] xhci: support multiple interrupters
@@ -35,6 +35,3 @@ index 9667c0d..874b545 100644
  /* bit definitions */
  #define USBCMD_RS       (1<<0)
  #define USBCMD_HCRST    (1<<1)
--- 
-1.8.0.2
-

@@ -35,6 +35,3 @@ index 8df9207..44f1a64 100644
  
      if (length > sizeof(dev->data_buf)) {
          fprintf(stderr, "husb: ctrl buffer too small (%d > %zu)\n",
--- 
-1.8.0.2
-

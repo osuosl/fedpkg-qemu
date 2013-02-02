@@ -57,6 +57,3 @@ index 206f75c..19f6cd8 100644
      TRACE("Negotiation ended");
  
      return 0;
--- 
-1.8.0.2
-

@@ -42,6 +42,3 @@ index e2e3fe2..b66c168 100644
          if (qxl->guest_primary.qxl_stride > 0) {
              qemu_free_displaysurface(vga->ds);
              qemu_create_displaysurface_from(qxl->guest_primary.surface.width,
--- 
-1.8.0.2
-

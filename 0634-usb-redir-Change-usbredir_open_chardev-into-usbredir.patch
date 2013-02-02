@@ -1,4 +1,4 @@
-From f9ba78b992979db8b3d1489b34ec83eba5f12c52 Mon Sep 17 00:00:00 2001
+From 0e80029894a26f26a6641de5074ff680d98a6ffa Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Thu, 27 Sep 2012 16:59:50 +0200
 Subject: [PATCH] usb-redir: Change usbredir_open_chardev into
@@ -44,6 +44,3 @@ index 78e93a7..5d16aff 100644
          break;
      case CHR_EVENT_CLOSED:
          DPRINTF("chardev close\n");
--- 
-1.8.0.2
-

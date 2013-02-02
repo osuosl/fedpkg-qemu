@@ -1,4 +1,4 @@
-From eebf51f3c5fce7fe55b12088fa62051f7ba60063 Mon Sep 17 00:00:00 2001
+From 8a139a56e82b6adec8dd6ea111f39d19367febfc Mon Sep 17 00:00:00 2001
 From: Peter Maydell <peter.maydell@linaro.org>
 Date: Fri, 26 Oct 2012 16:29:38 +0100
 Subject: [PATCH] arm_boot: Change initrd load address to "halfway through RAM"
@@ -132,6 +132,3 @@ index a6e9143..920c337 100644
              if (load_dtb(dtb_start, info)) {
                  exit(1);
              }
--- 
-1.8.0.2
-

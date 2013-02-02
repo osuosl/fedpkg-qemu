@@ -1,4 +1,4 @@
-From cf0259065ea0cc476449a9e1dbbd5a128d57464c Mon Sep 17 00:00:00 2001
+From 83df794bc330e0c71d2d2f1f6d51103b53393f9c Mon Sep 17 00:00:00 2001
 From: Eduardo Otubo <otubo@linux.vnet.ibm.com>
 Date: Thu, 29 Nov 2012 13:56:41 -0200
 Subject: [PATCH] seccomp: adding new syscalls (bugzilla 855162)
@@ -236,6 +236,3 @@ index 64329a3..2a71d6f 100644
  };
  
  int seccomp_start(void)
--- 
-1.8.0.2
-

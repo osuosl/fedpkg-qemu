@@ -57,6 +57,3 @@ index dfa8c2d..b5e23a4 100644
      QTAILQ_ENTRY(CharDriverState) next;
  };
  
--- 
-1.8.0.2
-

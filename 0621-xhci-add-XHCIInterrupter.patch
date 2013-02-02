@@ -1,4 +1,4 @@
-From 389e9b95abb9bd0eb42731351db615df6ded5f5d Mon Sep 17 00:00:00 2001
+From 0d297b79dc199a7670c867e035d20a1f1b4a02e0 Mon Sep 17 00:00:00 2001
 From: Gerd Hoffmann <kraxel@redhat.com>
 Date: Thu, 30 Aug 2012 15:49:03 +0200
 Subject: [PATCH] xhci: add XHCIInterrupter
@@ -625,7 +625,7 @@ index ae5620f..76da7a9 100644
  
  static void xhci_complete(USBPort *port, USBPacket *packet)
 diff --git a/trace-events b/trace-events
-index f86bbda..f5b5097 100644
+index 93b05ab..9d39d8d 100644
 --- a/trace-events
 +++ b/trace-events
 @@ -319,7 +319,7 @@ usb_xhci_irq_msi(uint32_t nr) "nr %d"
@@ -637,6 +637,3 @@ index f86bbda..f5b5097 100644
  usb_xhci_fetch_trb(uint64_t addr, const char *name, uint64_t param, uint32_t status, uint32_t control) "addr %016" PRIx64 ", %s, p %016" PRIx64 ", s %08x, c 0x%08x"
  usb_xhci_slot_enable(uint32_t slotid) "slotid %d"
  usb_xhci_slot_disable(uint32_t slotid) "slotid %d"
--- 
-1.8.0.2
-

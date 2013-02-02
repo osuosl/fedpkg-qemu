@@ -139,6 +139,3 @@ index 156e8d9..fba0ed9 100644
          case INDEX_op_call:
              nb_call_args = (args[0] >> 16) + (args[0] & 0xffff);
              if (!(args[nb_call_args + 1] & (TCG_CALL_CONST | TCG_CALL_PURE))) {
--- 
-1.8.0.2
-

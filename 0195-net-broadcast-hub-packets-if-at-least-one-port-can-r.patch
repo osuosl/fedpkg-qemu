@@ -46,6 +46,3 @@ index ac157e3..650a8b4 100644
  }
  
  static ssize_t net_hub_port_receive(NetClientState *nc,
--- 
-1.8.0.2
-

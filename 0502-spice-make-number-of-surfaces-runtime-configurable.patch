@@ -196,6 +196,3 @@ index bcff114..512ab78 100644
  
      QXLRect dirty;
      int notify;
--- 
-1.8.0.2
-

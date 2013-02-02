@@ -59,6 +59,3 @@ index c7b4e9a..552d208 100644
  };
  
  static void qxl_enter_vga_mode(PCIQXLDevice *d)
--- 
-1.8.0.2
-

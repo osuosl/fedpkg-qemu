@@ -82,6 +82,3 @@ index 539b391..27753e2 100644
          hw_error("Bad MBAR write offset 0x%x", (int)offset);
      }
      width = m5206_mbar_width[offset >> 2];
--- 
-1.8.0.2
-

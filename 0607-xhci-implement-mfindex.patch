@@ -1,4 +1,4 @@
-From b935a33743b54a9dd670c1245376a3903bab4801 Mon Sep 17 00:00:00 2001
+From 3529c46a54fcd3e1bc0bef97be254005177e5054 Mon Sep 17 00:00:00 2001
 From: Gerd Hoffmann <kraxel@redhat.com>
 Date: Tue, 21 Aug 2012 12:32:58 +0200
 Subject: [PATCH] xhci: implement mfindex
@@ -137,6 +137,3 @@ index 1a65063..88f71fc 100644
      xhci->irq = xhci->pci_dev.irq[0];
  
      memory_region_init_io(&xhci->mem, &xhci_mem_ops, xhci,
--- 
-1.8.0.2
-

@@ -1,4 +1,4 @@
-From 3cb58625501657f61001334dc6537ab473caacbe Mon Sep 17 00:00:00 2001
+From f9b8c1e3044cb4c221ea0c971630bf1f348af848 Mon Sep 17 00:00:00 2001
 From: Gerd Hoffmann <kraxel@redhat.com>
 Date: Tue, 4 Sep 2012 14:42:20 +0200
 Subject: [PATCH] xhci: kill xhci_mem_{read,write} dispatcher functions
@@ -275,6 +275,3 @@ index 874b545..2c799fb 100644
      pci_register_bar(&xhci->pci_dev, 0,
                       PCI_BASE_ADDRESS_SPACE_MEMORY|PCI_BASE_ADDRESS_MEM_TYPE_64,
                       &xhci->mem);
--- 
-1.8.0.2
-

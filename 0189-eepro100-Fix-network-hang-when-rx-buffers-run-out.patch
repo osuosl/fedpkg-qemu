@@ -67,6 +67,3 @@ index 50d117e..5b23116 100644
      }
      if (rfd_command & COMMAND_S) {
          /* S bit is set. */
--- 
-1.8.0.2
-

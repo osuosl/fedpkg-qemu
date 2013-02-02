@@ -51,6 +51,3 @@ index b615844..454c2bb 100644
      /* VE_NORFLASH1: not modelled */
  
      sram_size = 0x2000000;
--- 
-1.8.0.2
-

@@ -74,6 +74,3 @@ index ab069c5..ba0d0bd 100644
      if (0 != spice_server_init(spice_server, &core_interface)) {
          error_report("failed to initialize spice server");
          exit(1);
--- 
-1.8.0.2
-

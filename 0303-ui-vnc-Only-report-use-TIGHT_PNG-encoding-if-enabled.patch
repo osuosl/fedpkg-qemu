@@ -37,6 +37,3 @@ index 01b2daf..18ec101 100644
          case VNC_ENCODING_ZLIB:
              vs->features |= VNC_FEATURE_ZLIB_MASK;
              vs->vnc_encoding = enc;
--- 
-1.8.0.2
-

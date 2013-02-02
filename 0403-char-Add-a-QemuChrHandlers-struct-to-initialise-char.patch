@@ -957,6 +957,3 @@ index fbfab4e..4ab5b69 100644
      qemu_chr_fe_set_echo(chr, true);
  
      inbuf = g_string_new("");
--- 
-1.8.0.2
-

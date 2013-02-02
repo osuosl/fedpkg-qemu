@@ -164,6 +164,3 @@ index aed3b53..fbad716 100644
  
      switch (opc) {
      case 0:
--- 
-1.8.0.2
-

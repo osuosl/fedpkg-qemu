@@ -34,6 +34,3 @@ index a4f7b78..bb456d2 100644
      assert(label != 0);
      return label;
  }
--- 
-1.8.0.2
-

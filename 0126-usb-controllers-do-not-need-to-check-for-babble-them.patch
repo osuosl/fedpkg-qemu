@@ -53,6 +53,3 @@ index b0db921..c7c8786 100644
          if ((td->ctrl & TD_CTRL_SPD) && len < max_len) {
              *int_mask |= 0x02;
              /* short packet: do not update QH */
--- 
-1.8.0.2
-

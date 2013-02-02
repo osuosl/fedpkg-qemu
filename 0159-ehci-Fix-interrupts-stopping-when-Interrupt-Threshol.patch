@@ -33,6 +33,3 @@ index f5ba8e1..54273d7 100644
                  ehci->usbsts_frindex -= 0x00004000;
              } else {
                  ehci->usbsts_frindex = 0;
--- 
-1.8.0.2
-

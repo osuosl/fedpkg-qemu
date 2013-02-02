@@ -1,4 +1,4 @@
-From 894f086b6205b780a8dc97489f58ea324ecb9765 Mon Sep 17 00:00:00 2001
+From b296bb59f2c9e56bc2ba5fadc53ab53c54ccbc4b Mon Sep 17 00:00:00 2001
 From: Gerd Hoffmann <kraxel@redhat.com>
 Date: Thu, 30 Aug 2012 10:57:12 +0200
 Subject: [PATCH] xhci: fix & cleanup msi.
@@ -91,6 +91,3 @@ index 642e8e5..ff74ed9 100644
  }
  
  static TypeInfo xhci_info = {
--- 
-1.8.0.2
-

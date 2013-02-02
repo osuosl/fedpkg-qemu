@@ -42,6 +42,3 @@ index 0ea6a76..c05169f 100644
 -    tcg_set_frame(s, TCG_AREG0, offsetof(CPUArchState, temp_buf),
 -                  CPU_TEMP_BUF_NLONGS * sizeof(long));
  }
--- 
-1.8.0.2
-

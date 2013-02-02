@@ -31,6 +31,3 @@ index a8061c1..dcd8e7b 100755
      else
          if test "$usb_redir" = "yes"; then
              feature_not_found "usb-redir"
--- 
-1.8.0.2
-

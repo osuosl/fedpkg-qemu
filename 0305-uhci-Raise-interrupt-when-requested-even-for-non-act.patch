@@ -46,6 +46,3 @@ index cdc8bc3..c2f08e3 100644
  
      async = uhci_async_find_td(s, addr, td);
      if (async) {
--- 
-1.8.0.2
-

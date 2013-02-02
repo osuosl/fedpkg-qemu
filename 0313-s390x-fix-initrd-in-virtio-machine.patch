@@ -32,6 +32,3 @@ index 47eed35..12ae612 100644
      }
  
      if (rom_ptr(KERN_PARM_AREA)) {
--- 
-1.8.0.2
-

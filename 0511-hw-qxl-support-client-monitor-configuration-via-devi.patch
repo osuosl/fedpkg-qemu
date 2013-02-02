@@ -176,6 +176,3 @@ index 80a52d9..07b63f1 100644
  
  # hw/qxl-render.c
  qxl_render_blit_guest_primary_initialized(void) ""
--- 
-1.8.0.2
-

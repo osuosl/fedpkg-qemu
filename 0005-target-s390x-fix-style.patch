@@ -1598,6 +1598,3 @@ index abc35dd..195e93e 100644
      } else {
          env->regs[r1] = ret;
      }
--- 
-1.8.0.2
-

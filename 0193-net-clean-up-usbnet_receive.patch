@@ -75,6 +75,3 @@ index c84892c..0b5cb71 100644
      s->in_ptr = 0;
      return size;
  }
--- 
-1.8.0.2
-

@@ -1,4 +1,4 @@
-From eb7cba97b479dfd5814e2a1d24588a1543d50552 Mon Sep 17 00:00:00 2001
+From a272467564b3915d36b85523ad7c2abf04a164a3 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Mon, 10 Sep 2012 13:49:46 +0200
 Subject: [PATCH] usb-redir: Revert usb-redir part of commit 93bfef4c
@@ -30,6 +30,3 @@ index 57e6289..78e93a7 100644
      int flags = 0;
  
      /* Make sure any pending closes are handled (no-op if none pending) */
--- 
-1.8.0.2
-

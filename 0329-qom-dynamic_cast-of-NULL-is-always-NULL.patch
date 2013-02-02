@@ -39,6 +39,3 @@ index e3e9242..f33e84d 100644
          fprintf(stderr, "Object %p is not an instance of type %s\n",
                  obj, typename);
          abort();
--- 
-1.8.0.2
-

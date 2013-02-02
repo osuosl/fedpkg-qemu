@@ -41,6 +41,3 @@ index e7fb780..0ca5546 100644
  
      /*
       * drive_init() tries to find a default for dinfo->unit.  Doesn't
--- 
-1.8.0.2
-

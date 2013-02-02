@@ -1,4 +1,4 @@
-From 7f87b50fdd1519b431abe50173699fc6644d0eb6 Mon Sep 17 00:00:00 2001
+From 93e27ddf8c5e60eb932528cf1c560d81be108f96 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Tue, 25 Sep 2012 13:22:21 +0200
 Subject: [PATCH] usb-redir: Adjust pkg-config check for usbredirparser .pc
@@ -44,6 +44,3 @@ index d43d61a..8dac47b 100755
          QEMU_CFLAGS="$QEMU_CFLAGS $usb_redir_cflags"
          libs_softmmu="$libs_softmmu $usb_redir_libs"
      else
--- 
-1.8.0.2
-

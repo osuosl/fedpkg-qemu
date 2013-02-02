@@ -80,6 +80,3 @@ index ac915cc..3c49ca9 100644
                  target_ulong tmp = ctx->nip;
                  ctx->nip = dest;
                  gen_exception(ctx, POWERPC_EXCP_TRACE);
--- 
-1.8.0.2
-

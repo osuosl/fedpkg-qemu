@@ -1,4 +1,4 @@
-From eed215ccbf493e85d80fd51266c338e4ac86e7f9 Mon Sep 17 00:00:00 2001
+From f98ec7477ad72305a10d392a0b043df9192620ab Mon Sep 17 00:00:00 2001
 From: Gerd Hoffmann <kraxel@redhat.com>
 Date: Mon, 27 Aug 2012 16:09:20 +0200
 Subject: [PATCH] xhci: trace cc codes in cleartext
@@ -83,7 +83,7 @@ index f3f1d61..ad2226f 100644
      addr = xhci->er_start + TRB_SIZE*xhci->er_ep_idx;
      pci_dma_write(&xhci->pci_dev, addr, &ev_trb, TRB_SIZE);
 diff --git a/trace-events b/trace-events
-index 07b63f1..b38e32a 100644
+index 992aef1..9fa7673 100644
 --- a/trace-events
 +++ b/trace-events
 @@ -316,7 +316,7 @@ usb_xhci_runtime_write(uint32_t off, uint32_t val) "off 0x%04x, val 0x%08x"
@@ -95,6 +95,3 @@ index 07b63f1..b38e32a 100644
  usb_xhci_fetch_trb(uint64_t addr, const char *name, uint64_t param, uint32_t status, uint32_t control) "addr %016" PRIx64 ", %s, p %016" PRIx64 ", s %08x, c 0x%08x"
  usb_xhci_slot_enable(uint32_t slotid) "slotid %d"
  usb_xhci_slot_disable(uint32_t slotid) "slotid %d"
--- 
-1.8.0.2
-

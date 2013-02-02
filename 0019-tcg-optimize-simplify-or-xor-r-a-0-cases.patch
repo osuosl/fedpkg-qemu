@@ -25,6 +25,3 @@ index 63f970d..0db849e 100644
              if (temps[args[1]].state == TCG_TEMP_CONST) {
                  /* Proceed with possible constant folding. */
                  break;
--- 
-1.8.0.2
-

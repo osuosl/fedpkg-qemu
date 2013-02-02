@@ -36,6 +36,3 @@ index e4ef372..6593d50 100644
      aurb->packet = p;
      aurb->packet_id = dev->packet_id;
      QTAILQ_INSERT_TAIL(&dev->asyncq, aurb, next);
--- 
-1.8.0.2
-

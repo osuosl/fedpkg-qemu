@@ -36,6 +36,3 @@ index 743082d..8a86ffc 100644
      qxl->shadow_rom.client_present = client_present;
      memcpy(qxl->shadow_rom.client_capabilities, caps, sizeof(caps));
      qxl->rom->client_present = client_present;
--- 
-1.8.0.2
-

@@ -101,6 +101,3 @@ index 72e5e91..9c364ea 100644
  
      struct in_addr client_ip;
      uint16_t client_port;
--- 
-1.8.0.2
-

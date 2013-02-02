@@ -49,6 +49,3 @@ index 18ec101..66ae930 100644
          if (getsockname(vnc_display->lsock, (struct sockaddr *)&sa,
                          &salen) == -1) {
              error_set(errp, QERR_UNDEFINED_ERROR);
--- 
-1.8.0.2
-

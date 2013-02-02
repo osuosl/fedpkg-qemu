@@ -270,6 +270,3 @@ index be5c170..d401f8e 100644
      tcg_add_target_add_op_defs(sparc_op_defs);
  }
  
--- 
-1.8.0.2
-

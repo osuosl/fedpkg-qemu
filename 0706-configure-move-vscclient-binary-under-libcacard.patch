@@ -1,4 +1,4 @@
-From 9c773d62b68152114b4a5a63fa68162acc853d6e Mon Sep 17 00:00:00 2001
+From 5f3abf0f58996748f93daff1542d9bbd99789196 Mon Sep 17 00:00:00 2001
 From: Alon Levy <alevy@redhat.com>
 Date: Thu, 29 Nov 2012 14:11:19 +0200
 Subject: [PATCH] configure: move vscclient binary under libcacard
@@ -88,6 +88,3 @@ index 9ce3117..88ed064 100644
  	$(LIBTOOL) --mode=install $(INSTALL_DATA) libcacard.la "$(DESTDIR)$(libdir)"
  	$(LIBTOOL) --mode=install $(INSTALL_DATA) libcacard.pc "$(DESTDIR)$(libdir)/pkgconfig"
  	for inc in *.h; do \
--- 
-1.8.0.2
-

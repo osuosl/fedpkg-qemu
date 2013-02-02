@@ -1,4 +1,4 @@
-From b9d21224a0186b5b6664d28a06729e0a5dadb853 Mon Sep 17 00:00:00 2001
+From f1747cd3b2231a4d9d53ad5576f4e0a0cba50998 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Mon, 3 Sep 2012 11:53:28 +0200
 Subject: [PATCH] usb-redir: Add a usbredir_reject_device helper function
@@ -53,6 +53,3 @@ index b9a3633..a590cb2 100644
      return -1;
  }
  
--- 
-1.8.0.2
-

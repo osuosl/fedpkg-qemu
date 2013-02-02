@@ -432,6 +432,3 @@ index 188bf8c..b786a6b 100644
      s->pc += 4;
  
      /* UniCore instructions class:
--- 
-1.8.0.2
-

@@ -54,6 +54,3 @@ index 10d1504..7f0f895 100644
      qemu_chr_generic_open(chr);
  }
  
--- 
-1.8.0.2
-

@@ -31,6 +31,3 @@ index 89e9ad9..e7e9dd9 100644
          break;
      case QXL_MODE_VGA:
          qxl_create_memslots(d);
--- 
-1.8.0.2
-

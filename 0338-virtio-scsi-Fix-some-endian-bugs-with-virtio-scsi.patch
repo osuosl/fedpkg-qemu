@@ -52,6 +52,3 @@ index c1b47a8..c6d5290 100644
      }
      virtio_scsi_complete_req(req);
  }
--- 
-1.8.0.2
-

@@ -60,6 +60,3 @@ index ec3a7c4..4d4ac32 100644
      s->mac_reg[index] = val & 0xffff;
      if (e1000_has_rxbufs(s, 1)) {
          qemu_flush_queued_packets(&s->nic->nc);
--- 
-1.8.0.2
-

@@ -24,6 +24,3 @@ index 6b9d5d0..8d33745 100644
          qxl_set_guest_bug(d, "unsupported io %d for revision %d\n",
              io_port, d->revision);
          return;
--- 
-1.8.0.2
-

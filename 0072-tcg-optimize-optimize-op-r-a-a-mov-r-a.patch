@@ -26,6 +26,3 @@ index aeb2225..b9a7da9 100644
                  if (temps_are_copies(args[0], args[1])) {
                      gen_opc_buf[op_index] = INDEX_op_nop;
                  } else {
--- 
-1.8.0.2
-

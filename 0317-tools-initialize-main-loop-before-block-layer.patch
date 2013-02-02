@@ -52,6 +52,3 @@ index d0f4fb7..1ad7d3a 100644
  
      /* initialize commands */
      quit_init();
--- 
-1.8.0.2
-

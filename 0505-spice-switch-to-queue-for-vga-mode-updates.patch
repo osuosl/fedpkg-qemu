@@ -133,6 +133,3 @@ index 512ab78..3fcb6fe 100644
  };
  
  int qemu_spice_rect_is_empty(const QXLRect* r);
--- 
-1.8.0.2
-

@@ -38,6 +38,3 @@ index 11bcec3..44f138f 100644
      }
      s->i2c_data[s->i2c_len ++] = data;
      if (s->i2c_len != 2)
--- 
-1.8.0.2
-

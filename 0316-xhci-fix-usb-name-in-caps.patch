@@ -35,6 +35,3 @@ index 333df59..30cb0d5 100644
          break;
      case 0x38: /* Supported Protocol:08 */
          ret = 0x00000000 | (USB2_PORTS+1) | (USB3_PORTS<<8);
--- 
-1.8.0.2
-

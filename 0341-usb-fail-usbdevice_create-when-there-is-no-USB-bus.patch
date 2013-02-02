@@ -42,6 +42,3 @@ index b649360..1f73a52 100644
      if (!f->usbdevice_init) {
          if (*params) {
              error_report("usbdevice %s accepts no params", driver);
--- 
-1.8.0.2
-

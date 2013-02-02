@@ -34,6 +34,3 @@ index aa79836..80a52d9 100644
  qxl_io_read_unexpected(int qid) "%d"
  qxl_io_unexpected_vga_mode(int qid, uint64_t addr, uint64_t val, const char *desc) "%d 0x%"PRIx64"=%"PRIu64" (%s)"
  qxl_io_write(int qid, const char *mode, uint64_t addr, uint64_t val, unsigned size, int async) "%d %s addr=%"PRIu64 " val=%"PRIu64" size=%u async=%d"
--- 
-1.8.0.2
-

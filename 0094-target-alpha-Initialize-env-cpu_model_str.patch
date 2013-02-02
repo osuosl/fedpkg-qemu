@@ -28,6 +28,3 @@ index 4a9011a..3f9aee1 100644
  
      qemu_init_vcpu(env);
      return env;
--- 
-1.8.0.2
-

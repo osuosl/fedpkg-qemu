@@ -1,4 +1,4 @@
-From 755c1c8db0c6f23cc84aa31c0437f2ddd6048800 Mon Sep 17 00:00:00 2001
+From ebb89c9a420f2aa87796f377992ac403adcab309 Mon Sep 17 00:00:00 2001
 From: Gerd Hoffmann <kraxel@redhat.com>
 Date: Fri, 31 Aug 2012 15:30:51 +0200
 Subject: [PATCH] xhci: pick target interrupter
@@ -88,6 +88,3 @@ index df2ea22..9667c0d 100644
  }
  
  static void xhci_complete(USBPort *port, USBPacket *packet)
--- 
-1.8.0.2
-

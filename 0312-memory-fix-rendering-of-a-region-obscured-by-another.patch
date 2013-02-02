@@ -52,6 +52,3 @@ index d528d1f..7144020 100644
      }
      if (int128_nz(remain)) {
          fr.mr = mr;
--- 
-1.8.0.2
-

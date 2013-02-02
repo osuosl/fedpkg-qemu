@@ -68,6 +68,3 @@ index fba2bfb..ef44bc0 100644
          s->chr->write_blocked = true;
          /* We'll get passed in the unconsumed data with the next call */
          s->datalen = 0;
--- 
-1.8.0.2
-

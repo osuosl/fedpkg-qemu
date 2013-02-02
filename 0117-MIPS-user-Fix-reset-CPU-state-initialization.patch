@@ -191,6 +191,3 @@ index aba7935..4e04e97 100644
      env->exception_index = EXCP_NONE;
  }
  
--- 
-1.8.0.2
-

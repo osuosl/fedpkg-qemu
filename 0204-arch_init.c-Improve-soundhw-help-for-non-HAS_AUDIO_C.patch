@@ -38,6 +38,3 @@ index 47977de..f849f9b 100644
          exit(!is_help_option(optarg));
      }
      else {
--- 
-1.8.0.2
-

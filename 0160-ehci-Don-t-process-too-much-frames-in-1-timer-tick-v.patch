@@ -55,6 +55,3 @@ index 54273d7..017a01d 100644
              ehci_update_frindex(ehci, 1);
              ehci_advance_periodic_state(ehci);
              ehci->last_run_ns += FRAME_TIMER_NS;
--- 
-1.8.0.2
-

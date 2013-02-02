@@ -187,6 +187,3 @@ index 5d37dd9..a91709f 100644
      default: return 0;
      }
  
--- 
-1.8.0.2
-
