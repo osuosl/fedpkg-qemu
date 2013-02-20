@@ -38,7 +38,7 @@
 %bcond_with    separate_kvm     # disabled
 %endif
 
-%global SLOF_gittagdate 20120731
+%global SLOF_gittagdate 20121018
 
 %if %{without separate_kvm}
 %global kvm_archs %{ix86} x86_64 ppc64 s390x
@@ -159,6 +159,8 @@ Patch0103: 0103-i8254-Fix-migration-from-qemu-kvm-1.1.patch
 Patch0104: 0104-pc_piix-Add-compat-handling-for-qemu-kvm-VGA-mem-siz.patch
 # Fix migration w/ qxl from qemu-kvm 1.2 (solution pending upstream)
 Patch0105: 0105-qxl-Add-rom_size-compat-property-fix-migration-from-.patch
+# Fix generating docs with texinfo 5 (posted upstream)
+Patch0106: 0106-docs-Fix-generating-qemu-doc.html-with-texinfo-5.patch
 
 
 Source1: qemu.binfmt
@@ -641,6 +643,8 @@ CAC emulation development files.
 %patch0104 -p1
 # Fix migration w/ qxl from qemu-kvm 1.2 (solution pending upstream)
 %patch0105 -p1
+# Fix generating docs with texinfo 5 (posted upstream)
+%patch0106 -p1
 
 
 %build
@@ -713,8 +717,6 @@ dobuild() {
     echo "==="
 
     make V=1 %{?_smp_mflags} $buildldflags
-    #make V=1 %{?_smp_mflags} $buildldflags libcacard.la
-    #make V=1 %{?_smp_mflags} $buildldflags libcacard/vscclient
 }
 
 dobuild --target-list="$buildarch"
@@ -944,7 +946,7 @@ getent passwd qemu >/dev/null || \
 
 %if 0%{?need_qemu_kvm}
 %global qemu_kvm_files \
-%{_bindir}/qemu-kvm \
+%{_bindir}/qemu-kvm
 %endif
 
 %files

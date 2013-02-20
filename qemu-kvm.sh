@@ -1,3 +1,3 @@
 #!/bin/sh
 
-exec /usr/bin/qemu-system-x86 -machine accel=kvm "$@"
+exec /usr/bin/qemu-system-x86_64 -machine accel=kvm "$@"
