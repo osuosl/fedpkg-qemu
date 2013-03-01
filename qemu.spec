@@ -120,7 +120,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.4.0
-Release: 1%{?dist}
+Release: 2%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -137,30 +137,6 @@ ExclusiveArch: %{kvm_archs}
 %endif
 
 Source0: http://wiki.qemu-project.org/download/%{name}-%{version}.tar.bz2
-
-# Flow control series
-Patch0001: 0001-char-Split-out-tcp-socket-close-code-in-a-separate-f.patch
-Patch0002: 0002-char-Add-a-QemuChrHandlers-struct-to-initialise-char.patch
-Patch0003: 0003-iohandlers-Add-enable-disable_write_fd_handler-funct.patch
-Patch0004: 0004-char-Add-framework-for-a-write-unblocked-callback.patch
-Patch0005: 0005-char-Update-send_all-to-handle-nonblocking-chardev-w.patch
-Patch0006: 0006-char-Equip-the-unix-tcp-backend-to-handle-nonblockin.patch
-Patch0007: 0007-virtio-console-Enable-port-throttling-when-chardev-i.patch
-Patch0008: 0008-spice-qemu-char.c-add-throttling.patch
-Patch0009: 0009-spice-qemu-char.c-remove-intermediate-buffer.patch
-Patch0010: 0010-usb-redir-Add-flow-control-support.patch
-Patch0011: 0011-char-Disable-write-callback-if-throttled-chardev-is-.patch
-Patch0012: 0012-hw-virtio-serial-bus-replay-guest-open-on-destinatio.patch
-
-# qemu-kvm migration compat (posted upstream)
-Patch0101: 0101-configure-Add-enable-migration-from-qemu-kvm.patch
-Patch0102: 0102-acpi_piix4-Drop-minimum_version_id-to-handle-qemu-kv.patch
-Patch0103: 0103-i8254-Fix-migration-from-qemu-kvm-1.1.patch
-Patch0104: 0104-pc_piix-Add-compat-handling-for-qemu-kvm-VGA-mem-siz.patch
-# Fix migration w/ qxl from qemu-kvm 1.2 (solution pending upstream)
-Patch0105: 0105-qxl-Add-rom_size-compat-property-fix-migration-from-.patch
-# Fix generating docs with texinfo 5 (posted upstream)
-Patch0106: 0106-docs-Fix-generating-qemu-doc.html-with-texinfo-5.patch
 
 
 Source1: qemu.binfmt
@@ -185,6 +161,32 @@ Source12: bridge.conf
 
 # qemu-kvm back compat wrapper
 Source13: qemu-kvm.sh
+
+# Flow control series
+Patch0001: 0001-char-Split-out-tcp-socket-close-code-in-a-separate-f.patch
+Patch0002: 0002-char-Add-a-QemuChrHandlers-struct-to-initialise-char.patch
+Patch0003: 0003-iohandlers-Add-enable-disable_write_fd_handler-funct.patch
+Patch0004: 0004-char-Add-framework-for-a-write-unblocked-callback.patch
+Patch0005: 0005-char-Update-send_all-to-handle-nonblocking-chardev-w.patch
+Patch0006: 0006-char-Equip-the-unix-tcp-backend-to-handle-nonblockin.patch
+Patch0007: 0007-virtio-console-Enable-port-throttling-when-chardev-i.patch
+Patch0008: 0008-spice-qemu-char.c-add-throttling.patch
+Patch0009: 0009-spice-qemu-char.c-remove-intermediate-buffer.patch
+Patch0010: 0010-usb-redir-Add-flow-control-support.patch
+Patch0011: 0011-char-Disable-write-callback-if-throttled-chardev-is-.patch
+Patch0012: 0012-hw-virtio-serial-bus-replay-guest-open-on-destinatio.patch
+
+# qemu-kvm migration compat (posted upstream)
+Patch0101: 0101-configure-Add-enable-migration-from-qemu-kvm.patch
+Patch0102: 0102-acpi_piix4-Drop-minimum_version_id-to-handle-qemu-kv.patch
+Patch0103: 0103-i8254-Fix-migration-from-qemu-kvm-1.1.patch
+Patch0104: 0104-pc_piix-Add-compat-handling-for-qemu-kvm-VGA-mem-siz.patch
+# Fix migration w/ qxl from qemu-kvm 1.2 (solution pending upstream)
+Patch0105: 0105-qxl-Add-rom_size-compat-property-fix-migration-from-.patch
+# Fix generating docs with texinfo 5 (posted upstream)
+Patch0106: 0106-docs-Fix-generating-qemu-doc.html-with-texinfo-5.patch
+# Fix test ordering with latest glib
+Patch0107: 0107-rtc-test-Fix-test-failures-with-recent-glib.patch
 
 
 BuildRequires: SDL-devel
@@ -622,6 +624,7 @@ CAC emulation development files.
 
 %prep
 %setup -q
+
 # Flow control series
 %patch0001 -p1
 %patch0002 -p1
@@ -645,6 +648,8 @@ CAC emulation development files.
 %patch0105 -p1
 # Fix generating docs with texinfo 5 (posted upstream)
 %patch0106 -p1
+# Fix test ordering with latest glib
+%patch0107 -p1
 
 
 %build
@@ -895,10 +900,7 @@ find $RPM_BUILD_ROOT -name "libcacard.so*" -exec chmod +x \{\} \;
 
 
 %check
-# Tests broken, disable for now
-# ERROR:tests/rtc-test.c:178:check_time: assertion failed (ABS(t - s) <= wiggle): (1165704035 <= 2)
-# GTester: last random seed: R02S26d98fdd0198bd3231d1aafe4284ad8e
-#make check
+make check
 
 %ifarch %{kvm_archs}
 %post %{kvm_package}
@@ -1246,6 +1248,9 @@ getent passwd qemu >/dev/null || \
 %{_libdir}/pkgconfig/libcacard.pc
 
 %changelog
+* Fri Mar 01 2013 Cole Robinson <crobinso@redhat.com> - 2:1.4.0-2
+- Fix test ordering with latest glib
+
 * Tue Feb 19 2013 Cole Robinson <crobinso@redhat.com> - 2:1.4.0-1
 - Rebased to version 1.4.0
 - block: dataplane for virtio, potentially large performance improvment
