@@ -109,7 +109,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.2.2
-Release: 6%{?dist}
+Release: 7%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -534,6 +534,8 @@ Patch0709: 0709-e1000-Discard-oversized-packets-based-on-SBP-LPE.patch
 # Fix segfault with zero length virtio-scsi disk (bz 847549)
 Patch0710: 0710-Revert-serial-fix-retry-logic.patch
 Patch0711: 0711-scsi-fix-segfault-with-0-byte-disk.patch
+# Adapt to libiscsi packaging in Fedora (included upstream)
+Patch0712: 0712-iscsi-look-for-pkg-config-file-too.patch
 
 
 BuildRequires: SDL-devel
@@ -547,6 +549,7 @@ BuildRequires: libaio-devel
 BuildRequires: rsync
 BuildRequires: pciutils-devel
 BuildRequires: pulseaudio-libs-devel
+BuildRequires: libiscsi-devel
 BuildRequires: ncurses-devel
 BuildRequires: libattr-devel
 BuildRequires: usbredir-devel >= 0.5.2
@@ -1353,6 +1356,8 @@ CAC emulation development files.
 # Fix segfault with zero length virtio-scsi disk (bz 847549)
 %patch0710 -p1
 %patch0711 -p1
+# Adapt to libiscsi packaging in Fedora (included upstream)
+%patch0712 -p1
 
 
 %build
@@ -1962,6 +1967,10 @@ getent passwd qemu >/dev/null || \
 %{_libdir}/pkgconfig/libcacard.pc
 
 %changelog
+* Mon Mar 11 2013 Paolo Bonzini <pbonzini@redhat.com> - 2:1.2.2-7
+- Added libiscsi-devel BuildRequires
+- Use pkg-config to search for libiscsi
+
 * Sat Feb 02 2013 Cole Robinson <crobinso@redhat.com> - 2:1.2.2-6
 - Fix boot hang if console is not connected (bz #894451)
 - Fix segfault with zero length virtio-scsi disk (bz #847549)
