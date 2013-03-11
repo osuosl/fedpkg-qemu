@@ -120,7 +120,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.4.0
-Release: 3%{?dist}
+Release: 4%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -187,6 +187,8 @@ Patch0105: 0105-qxl-Add-rom_size-compat-property-fix-migration-from-.patch
 Patch0106: 0106-docs-Fix-generating-qemu-doc.html-with-texinfo-5.patch
 # Fix test ordering with latest glib
 Patch0107: 0107-rtc-test-Fix-test-failures-with-recent-glib.patch
+# Adapt to libiscsi packaging in Fedora (included upstream)
+Patch0108: 0108-iscsi-look-for-pkg-config-file-too.patch
 
 
 BuildRequires: SDL-devel
@@ -651,6 +653,8 @@ CAC emulation development files.
 %patch0106 -p1
 # Fix test ordering with latest glib
 %patch0107 -p1
+# Adapt to libiscsi packaging in Fedora (included upstream)
+%patch0108 -p1
 
 
 %build
@@ -1249,7 +1253,10 @@ getent passwd qemu >/dev/null || \
 %{_libdir}/pkgconfig/libcacard.pc
 
 %changelog
-* Mon Mar 11 2013 Paolo Bonzini <pbonzini@redhat.com> - 2:1.3.0-8
+* Mon Mar 11 2013 Paolo Bonzini <pbonzini@redhat.com> - 2:1.4.0-4
+- Use pkg-config to search for libiscsi
+
+* Mon Mar 11 2013 Paolo Bonzini <pbonzini@redhat.com> - 2:1.4.0-3
 - Added libiscsi-devel BuildRequires
 
 * Fri Mar 01 2013 Cole Robinson <crobinso@redhat.com> - 2:1.4.0-2
