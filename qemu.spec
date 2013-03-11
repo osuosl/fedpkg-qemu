@@ -120,7 +120,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.4.0
-Release: 2%{?dist}
+Release: 3%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -200,6 +200,7 @@ BuildRequires: libaio-devel
 BuildRequires: rsync
 BuildRequires: pciutils-devel
 BuildRequires: pulseaudio-libs-devel
+BuildRequires: libiscsi-devel
 BuildRequires: ncurses-devel
 BuildRequires: libattr-devel
 BuildRequires: usbredir-devel >= 0.5.2
@@ -1248,6 +1249,9 @@ getent passwd qemu >/dev/null || \
 %{_libdir}/pkgconfig/libcacard.pc
 
 %changelog
+* Mon Mar 11 2013 Paolo Bonzini <pbonzini@redhat.com> - 2:1.3.0-8
+- Added libiscsi-devel BuildRequires
+
 * Fri Mar 01 2013 Cole Robinson <crobinso@redhat.com> - 2:1.4.0-2
 - Fix test ordering with latest glib
 
