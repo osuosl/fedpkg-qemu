@@ -24,11 +24,6 @@
 #
 # Enable by default, except on RHEL.
 #
-# = systemd =
-# Install systemd unit files instead of sysvinit scripts.
-#
-# Enabled by default, except in EPEL6.
-#
 # = intree_roms =
 # Install non-pc (openbios and slof) firmware from QEMU tree instead of using
 # separately packaged images.
@@ -69,7 +64,6 @@
 %bcond_with    rbd              # disabled
 %bcond_with    spice            # disabled
 %bcond_with    seccomp          # disabled
-%bcond_with    systemd          # disabled
 %bcond_with    have_libfdt      # disabled
 %bcond_with    have_xfsprogs    # disabled
 %ifarch x86_64
@@ -94,7 +88,6 @@
 %bcond_with    rbd              # disabled
 %bcond_without spice            # enabled
 %bcond_without seccomp          # enabled
-%bcond_without systemd          # enabled
 %bcond_with    intree_roms      # disabled
 %bcond_with    intree_pc_roms   # disabled
 %bcond_without have_libfdt      # enabled
@@ -108,7 +101,6 @@
 %bcond_without rbd              # enabled
 %bcond_without spice            # enabled
 %bcond_without seccomp          # enabled
-%bcond_without systemd          # enabled
 %bcond_with    intree_roms      # disabled
 %bcond_with    intree_pc_roms   # disabled
 %bcond_without have_libfdt      # enabled
@@ -743,11 +735,6 @@ Group: Development/Tools
 Requires(post): /usr/bin/getent
 Requires(post): /usr/sbin/groupadd
 Requires(post): /usr/sbin/useradd
-%if %{with systemd}
-Requires(post): systemd-units
-Requires(preun): systemd-units
-Requires(postun): systemd-units
-%endif
 %description common
 QEMU is a generic and open source processor emulator which achieves a good
 emulation speed by using dynamic translation.
@@ -757,11 +744,6 @@ This package provides the common files needed by all QEMU targets
 %package guest-agent
 Summary: QEMU guest agent
 Group: System Environment/Daemons
-%if %{with systemd}
-Requires(post): systemd-units
-Requires(preun): systemd-units
-Requires(postun): systemd-units
-%endif
 
 %description guest-agent
 QEMU is a generic and open source processor emulator which achieves a good
@@ -775,34 +757,19 @@ This package does not need to be installed on the host OS.
 %post guest-agent
 if [ $1 -eq 1 ] ; then
     # Initial installation.
-%if %{with systemd}
-    /bin/systemctl daemon-reload >/dev/null 2>&1 || :
-%else
     /sbin/chkconfig --add qemu-ga
-%endif
 fi
 
 %preun guest-agent
 if [ $1 -eq 0 ] ; then
     # Package removal, not upgrade.
-%if %{with systemd}
-    /bin/systemctl stop qemu-guest-agent.service > /dev/null 2>&1 || :
-%else
     /sbin/chkconfig --del qemu-ga
-%endif
 fi
 
 %postun guest-agent
-%if %{with systemd}
-/bin/systemctl daemon-reload >/dev/null 2>&1 || :
-%endif
 if [ $1 -ge 1 ] ; then
     # Package upgrade, not uninstall.
-%if %{with systemd}
-    /bin/systemctl try-restart qemu-guest-agent.service >/dev/null 2>&1 || :
-%else
     /sbin/service qemu-ga condrestart &>/dev/null || :
-%endif
 fi
 
 
@@ -812,10 +779,6 @@ fi
 Summary: QEMU user mode emulation of qemu targets
 Group: Development/Tools
 Requires: %{name}-common = %{epoch}:%{version}-%{release}
-%if %{with systemd}
-Requires(post): systemd-units
-Requires(postun): systemd-units
-%endif
 %description %{user}
 QEMU is a generic and open source processor emulator which achieves a good
 emulation speed by using dynamic translation.
@@ -1469,21 +1432,10 @@ gcc %{SOURCE6} -O2 -g -o ksmctl
 
 %define _udevdir /lib/udev/rules.d
 
-%if %{with systemd}
-install -D -p -m 0755 %{SOURCE4} $RPM_BUILD_ROOT/lib/systemd/system/ksm.service
-%else
 install -D -p -m 0755 %{SOURCE6664} $RPM_BUILD_ROOT%{_initddir}/ksm
-%endif
 install -D -p -m 0644 %{SOURCE5} $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/ksm
-%if %{with systemd}
-install -D -p -m 0755 ksmctl $RPM_BUILD_ROOT/lib/systemd/ksmctl
-%endif
 
-%if %{with systemd}
-install -D -p -m 0755 %{SOURCE7} $RPM_BUILD_ROOT/lib/systemd/system/ksmtuned.service
-%else
 install -D -p -m 0755 %{SOURCE6667} $RPM_BUILD_ROOT%{_initddir}/ksmtuned
-%endif
 install -D -p -m 0755 %{SOURCE8} $RPM_BUILD_ROOT%{_sbindir}/ksmtuned
 install -D -p -m 0644 %{SOURCE9} $RPM_BUILD_ROOT%{_sysconfdir}/ksmtuned.conf
 
@@ -1513,9 +1465,7 @@ rm $RPM_BUILD_ROOT%{_datadir}/systemtap/tapset/qemu-system-%{kvm_target}.stp
 %endif
 
 chmod -x ${RPM_BUILD_ROOT}%{_mandir}/man1/*
-%if %{without systemd}
 install -D -p -m 0755 %{SOURCE6661} $RPM_BUILD_ROOT%{_initddir}/qemu
-%endif
 install -D -p -m 0644 -t ${RPM_BUILD_ROOT}%{qemudocdir} Changelog README TODO COPYING COPYING.LIB LICENSE
 
 install -D -p -m 0644 qemu.sasl $RPM_BUILD_ROOT%{_sysconfdir}/sasl2/qemu.conf
@@ -1588,60 +1538,9 @@ rom_link ../sgabios/sgabios.bin sgabios.bin
 %endif
 %endif
 
-%if %{with systemd}
-%if 0%{?user:1}
-mkdir -p $RPM_BUILD_ROOT%{_exec_prefix}/lib/binfmt.d
-for i in dummy \
-%ifnarch %{ix86} x86_64
-    qemu-i386 \
-%endif
-%ifnarch alpha
-    qemu-alpha \
-%endif
-%ifnarch arm
-    qemu-arm \
-%endif
-    qemu-armeb \
-%ifnarch mips
-    qemu-mips qemu-mipsn32 qemu-mips64 \
-%endif
-%ifnarch mipsel
-    qemu-mipsel qemu-mipsn32el qemu-mips64el \
-%endif
-%ifnarch m68k
-    qemu-m68k \
-%endif
-%ifnarch ppc ppc64
-    qemu-ppc \
-%endif
-%ifnarch sparc sparc64
-    qemu-sparc \
-%endif
-%ifnarch s390 s390x
-    qemu-s390x \
-%endif
-%ifnarch sh4
-    qemu-sh4 \
-%endif
-    qemu-sh4eb \
-; do
-  test $i = dummy && continue
-  grep /$i:\$ %{SOURCE1} > $RPM_BUILD_ROOT%{_exec_prefix}/lib/binfmt.d/$i.conf
-  chmod 644 $RPM_BUILD_ROOT%{_exec_prefix}/lib/binfmt.d/$i.conf
-done < %{SOURCE1}
-%endif
-
-# For the qemu-guest-agent subpackage install the systemd
-# service and udev rules.
-mkdir -p $RPM_BUILD_ROOT%{_unitdir}
-mkdir -p $RPM_BUILD_ROOT%{_udevdir}
-install -m 0644 %{SOURCE10} $RPM_BUILD_ROOT%{_unitdir}
-install -m 0644 %{SOURCE11} $RPM_BUILD_ROOT%{_udevdir}
-%else
 # For the qemu-guest-agent subpackage install the service
 mkdir -p $RPM_BUILD_ROOT%{_initddir}
 install -D -p -m 0755 %{SOURCE66610} $RPM_BUILD_ROOT%{_initddir}/qemu-ga
-%endif
 
 %if %{with separate_kvm}
 rm $RPM_BUILD_ROOT%{_bindir}/qemu-img
@@ -1650,12 +1549,7 @@ rm $RPM_BUILD_ROOT%{_bindir}/vscclient
 rm $RPM_BUILD_ROOT%{_mandir}/man1/qemu-img.1*
 
 rm $RPM_BUILD_ROOT%{_bindir}/qemu-ga
-%if %{with systemd}
-rm $RPM_BUILD_ROOT%{_unitdir}/qemu-guest-agent.service
-rm $RPM_BUILD_ROOT%{_udevdir}/99-qemu-guest-agent.rules
-%else
 rm $RPM_BUILD_ROOT%{_initddir}/qemu-ga
-%endif
 %endif
 
 # Install rules to use the bridge helper with libvirt's virbr0
@@ -1677,13 +1571,8 @@ udevadm trigger --sysname-match=kvm || :
 %post common
 if [ $1 -eq 1 ] ; then
     # Initial installation
-%if %{with systemd}
-    /bin/systemctl enable ksm.service >/dev/null 2>&1 || :
-    /bin/systemctl enable ksmtuned.service >/dev/null 2>&1 || :
-%else
     /sbin/chkconfig --add ksm
     /sbin/chkconfig --add ksmtuned
-%endif
 fi
 
 getent group kvm >/dev/null || groupadd -g 36 -r kvm
@@ -1695,60 +1584,35 @@ getent passwd qemu >/dev/null || \
 %preun common
 if [ $1 -eq 0 ] ; then
     # Package removal, not upgrade
-%if %{with systemd}
-    /bin/systemctl --no-reload disable ksmtuned.service > /dev/null 2>&1 || :
-    /bin/systemctl --no-reload disable ksm.service > /dev/null 2>&1 || :
-    /bin/systemctl stop ksmtuned.service > /dev/null 2>&1 || :
-    /bin/systemctl stop ksm.service > /dev/null 2>&1 || :
-%else
     /sbin/service ksmtuned stop &>/dev/null || :
     /sbin/chkconfig --del ksmtuned
     /sbin/service ksm stop &>/dev/null || :
     /sbin/chkconfig --del ksm
-%endif
 fi
 
 %postun common
-%if %{with systemd}
-/bin/systemctl daemon-reload >/dev/null 2>&1 || :
-%endif
 if [ $1 -ge 1 ] ; then
     # Package upgrade, not uninstall
-%if %{with systemd}
-    /bin/systemctl try-restart ksmtuned.service >/dev/null 2>&1 || :
-    /bin/systemctl try-restart ksm.service >/dev/null 2>&1 || :
-%else
     /sbin/service ksm condrestart &>/dev/null || :
     /sbin/service ksmtuned condrestart &>/dev/null || :
-%endif
 fi
 %endif
 
 
 %if 0%{?user:1}
 %post %{user}
-%if %{with systemd}
-/bin/systemctl --system try-restart systemd-binfmt.service &>/dev/null || :
-%else
 /sbin/chkconfig --add qemu
-%endif
 
 %preun user
 if [ $1 -eq 0 ]; then
-%if %{without systemd}
     /sbin/service qemu stop &>/dev/null || :
     /sbin/chkconfig --del qemu
-%endif
 fi
 
 %postun %{user}
-%if %{with systemd}
-/bin/systemctl --system try-restart systemd-binfmt.service &>/dev/null || :
-%else
 if [ $1 -ge 1 ]; then
     /sbin/service qemu condrestart &>/dev/null || :
 fi
-%endif
 %endif
 
 %global kvm_files \
@@ -1791,33 +1655,15 @@ fi
 %{_libexecdir}/qemu-bridge-helper
 %config(noreplace) %{_sysconfdir}/sasl2/qemu.conf
 %if %{without separate_kvm}
-%if %{with systemd}
-/lib/systemd/system/ksm.service
-/lib/systemd/ksmctl
-%else
 %{_initddir}/ksm
-%endif
 %config(noreplace) %{_sysconfdir}/sysconfig/ksm
-%if %{with systemd}
-/lib/systemd/system/ksmtuned.service
-%else
 %{_initddir}/ksmtuned
-%endif
 %{_sbindir}/ksmtuned
 %config(noreplace) %{_sysconfdir}/ksmtuned.conf
 %else
-%if %{with systemd}
-%exclude /lib/systemd/system/ksm.service
-%exclude /lib/systemd/ksmctl
-%else
 %exclude %{_initddir}/ksm
-%endif
 %config(noreplace) %{_sysconfdir}/sysconfig/ksm
-%if %{with systemd}
-%exclude /lib/systemd/system/ksmtuned.service
-%else
 %exclude %{_initddir}/ksmtuned
-%endif
 %exclude %{_sbindir}/ksmtuned
 %exclude %config(noreplace) %{_sysconfdir}/ksmtuned.conf
 %endif
@@ -1829,22 +1675,13 @@ fi
 %defattr(-,root,root,-)
 %doc COPYING README
 %{_bindir}/qemu-ga
-%if %{with systemd}
-%{_unitdir}/qemu-guest-agent.service
-%{_udevdir}/99-qemu-guest-agent.rules
-%else
 %{_initddir}/qemu-ga
-%endif
 %endif
 
 %if 0%{?user:1}
 %files %{user}
 %defattr(-,root,root)
-%if %{with systemd}
-%{_exec_prefix}/lib/binfmt.d/qemu-*.conf
-%else
 %{_initddir}/qemu
-%endif
 %{_bindir}/qemu-i386
 %{_bindir}/qemu-x86_64
 %{_bindir}/qemu-alpha
