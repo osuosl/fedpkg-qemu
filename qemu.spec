@@ -27,6 +27,7 @@
 %bcond_with    rbd              # disabled
 %bcond_without spice            # enabled
 %bcond_without seccomp          # enabled
+%bcond_with    xfsprogs         # disabled
 %bcond_with    separate_kvm     # disabled - for EPEL
 %else
 # General defaults:
@@ -35,6 +36,7 @@
 %bcond_without rbd              # enabled
 %bcond_without spice            # enabled
 %bcond_without seccomp          # enabled
+%bcond_without xfsprogs         # enabled
 %bcond_with    separate_kvm     # disabled
 %endif
 
@@ -50,12 +52,18 @@
 %endif
 
 
+%global have_usbredir 1
+
 %ifarch %{ix86} x86_64
 %if %{with seccomp}
 %global have_seccomp 1
 %endif
 %if %{with spice}
 %global have_spice   1
+%endif
+%else
+%if 0%{?rhel}
+%global have_usbredir 0
 %endif
 %endif
 
@@ -205,7 +213,9 @@ BuildRequires: pulseaudio-libs-devel
 BuildRequires: libiscsi-devel
 BuildRequires: ncurses-devel
 BuildRequires: libattr-devel
+%if 0%{?have_usbredir:1}
 BuildRequires: usbredir-devel >= 0.5.2
+%endif
 BuildRequires: texinfo
 # for /usr/bin/pod2man
 %if 0%{?fedora} > 18
@@ -230,7 +240,9 @@ BuildRequires: systemtap-sdt-devel
 # For smartcard NSS support
 BuildRequires: nss-devel
 # For XFS discard support in raw-posix.c
+%if %{with xfsprogs}
 BuildRequires: xfsprogs-devel
+%endif
 # For VNC JPEG support
 BuildRequires: libjpeg-devel
 # For VNC PNG support
@@ -1268,6 +1280,7 @@ getent passwd qemu >/dev/null || \
 %changelog
 * Thu Mar 14 2013 Paolo Bonzini <pbonzini@redhat.com> - 2:1.4.0-5
 - do not package libcacard in the separate_kvm case
+- backport xfsprogs and usbredir flags from el6
 
 * Mon Mar 11 2013 Paolo Bonzini <pbonzini@redhat.com> - 2:1.4.0-4
 - Use pkg-config to search for libiscsi
