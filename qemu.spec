@@ -120,7 +120,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.4.0
-Release: 4%{?dist}
+Release: 5%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -602,6 +602,7 @@ This package contains some diagnostics and debugging tools for KVM,
 such as kvm_stat.
 %endif
 
+%if %{without separate_kvm}
 %package -n libcacard
 Summary:        Common Access Card (CAC) Emulation
 Group:          Development/Libraries
@@ -624,6 +625,7 @@ Requires:       libcacard = %{epoch}:%{version}-%{release}
 
 %description -n libcacard-devel
 CAC emulation development files.
+%endif
 
 %prep
 %setup -q
@@ -888,21 +890,33 @@ install -m 0644 %{SOURCE11} $RPM_BUILD_ROOT%{_udevdir}
 install -m 0644 %{SOURCE12} $RPM_BUILD_ROOT%{_sysconfdir}/qemu
 chmod u+s $RPM_BUILD_ROOT%{_libexecdir}/qemu-bridge-helper
 
-%if %{with separate_kvm}
-rm $RPM_BUILD_ROOT%{_bindir}/qemu-img
-rm $RPM_BUILD_ROOT%{_bindir}/qemu-io
-rm $RPM_BUILD_ROOT%{_bindir}/qemu-nbd
-rm $RPM_BUILD_ROOT%{_mandir}/man1/qemu-img.1*
-rm $RPM_BUILD_ROOT%{_mandir}/man8/qemu-nbd.8*
-
-rm $RPM_BUILD_ROOT%{_bindir}/qemu-ga
-rm $RPM_BUILD_ROOT%{_unitdir}/qemu-guest-agent.service
-rm $RPM_BUILD_ROOT%{_udevdir}/99-qemu-guest-agent.rules
-%endif
-make %{?_smp_mflags} $buildldflags DESTDIR=$RPM_BUILD_ROOT install-libcacard
 find $RPM_BUILD_ROOT -name '*.la' -or -name '*.a' | xargs rm -f
 find $RPM_BUILD_ROOT -name "libcacard.so*" -exec chmod +x \{\} \;
 
+%if %{with separate_kvm}
+rm -f $RPM_BUILD_ROOT%{_bindir}/qemu-kvm
+rm -f $RPM_BUILD_ROOT%{_bindir}/qemu-img
+rm -f $RPM_BUILD_ROOT%{_bindir}/qemu-io
+rm -f $RPM_BUILD_ROOT%{_bindir}/qemu-nbd
+rm -f $RPM_BUILD_ROOT%{_mandir}/man1/qemu-img.1*
+rm -f $RPM_BUILD_ROOT%{_mandir}/man8/qemu-nbd.8*
+
+rm -f $RPM_BUILD_ROOT%{_sbindir}/ksmtuned
+rm -f $RPM_BUILD_ROOT%{_sysconfdir}/ksmtuned.conf
+rm -f $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/ksm
+rm -f $RPM_BUILD_ROOT/lib/systemd/ksmctl
+rm -f $RPM_BUILD_ROOT/lib/systemd/system/ksm.service
+rm -f $RPM_BUILD_ROOT/lib/systemd/system/ksmtuned.service
+
+rm -f $RPM_BUILD_ROOT%{_bindir}/qemu-ga
+rm -f $RPM_BUILD_ROOT%{_unitdir}/qemu-guest-agent.service
+rm -f $RPM_BUILD_ROOT%{_udevdir}/99-qemu-guest-agent.rules
+
+rm -f $RPM_BUILD_ROOT%{_bindir}/vscclient
+rm -f $RPM_BUILD_ROOT%{_libdir}/libcacard*
+rm -f $RPM_BUILD_ROOT%{_libdir}/pkgconfig/libcacard.pc
+rm -rf $RPM_BUILD_ROOT%{_includedir}/cacard
+%endif
 
 %check
 make check
@@ -914,7 +928,6 @@ make check
 sh %{_sysconfdir}/sysconfig/modules/kvm.modules || :
 udevadm trigger --sysname-match=kvm || :
 %endif
-
 
 %if %{without separate_kvm}
 %post common
@@ -1235,7 +1248,6 @@ getent passwd qemu >/dev/null || \
 %{_bindir}/qemu-nbd
 %{_mandir}/man1/qemu-img.1*
 %{_mandir}/man8/qemu-nbd.8*
-%endif
 
 
 %files -n libcacard
@@ -1251,8 +1263,12 @@ getent passwd qemu >/dev/null || \
 %{_includedir}/cacard
 %{_libdir}/libcacard.so
 %{_libdir}/pkgconfig/libcacard.pc
+%endif
 
 %changelog
+* Thu Mar 14 2013 Paolo Bonzini <pbonzini@redhat.com> - 2:1.4.0-5
+- do not package libcacard in the separate_kvm case
+
 * Mon Mar 11 2013 Paolo Bonzini <pbonzini@redhat.com> - 2:1.4.0-4
 - Use pkg-config to search for libiscsi
 
