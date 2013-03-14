@@ -61,10 +61,10 @@
 # EPEL for RHEL 6
 %bcond_with    kvmonly          # disabled
 %bcond_with    exclusive_x86_64 # disabled
-%bcond_with    rbd              # disabled
+%bcond_without rbd              # enabled
 %bcond_with    spice            # disabled
 %bcond_with    seccomp          # disabled
-%bcond_with    have_libfdt      # disabled
+%bcond_without have_libfdt      # enabled
 %bcond_with    have_xfsprogs    # disabled
 %ifarch x86_64
 %bcond_without intree_roms      # enabled
@@ -197,7 +197,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.2.2
-Release: 7%{?dist}
+Release: 8%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -2096,6 +2096,9 @@ fi
 %endif
 
 %changelog
+* Thu Mar 14 2013 Paolo Bonzini <pbonzini@redhat.com> - 2:1.2.2-8
+- Enable librbd and libfdt
+
 * Mon Mar 11 2013 Paolo Bonzini <pbonzini@redhat.com> - 2:1.2.2-7
 - Added libiscsi-devel BuildRequires
 - Use pkg-config to search for libiscsi
