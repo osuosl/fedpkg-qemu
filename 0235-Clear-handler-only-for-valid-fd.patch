@@ -27,6 +27,3 @@ index 1edeec5..22a05c4 100644
  
      if (s->file) {
          DPRINTF("closing file\n");
--- 
-1.7.12.1
-

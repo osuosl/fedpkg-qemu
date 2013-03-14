@@ -65,6 +65,3 @@ index 4937f6b..aba7935 100644
  
  /* General purpose registers moves. */
  static inline void gen_load_gpr (TCGv t, int reg)
--- 
-1.7.12.1
-

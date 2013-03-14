@@ -6331,6 +6331,3 @@ index b293419..7ab769f 100644
      } else {
          switch (ctx.bstate) {
          case BS_STOP:
--- 
-1.7.12.1
-

@@ -185,6 +185,3 @@ index 2a61e92..1d87272 100644
          tcg_temp_free_i64(tmp);
          tcg_temp_free_i64(tmp2);
          tcg_temp_free_i64(tmp3);
--- 
-1.7.12.1
-

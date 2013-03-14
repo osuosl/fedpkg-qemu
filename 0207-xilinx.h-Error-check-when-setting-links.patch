@@ -49,6 +49,3 @@ index df06a00..35d6681 100644
      qdev_init_nofail(dev);
  
      sysbus_mmio_map(sysbus_from_qdev(dev), 0, base);
--- 
-1.7.12.1
-

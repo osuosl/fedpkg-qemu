@@ -283,6 +283,3 @@ index c31f91c..4937f6b 100644
           break;
      case OPC_J ... OPC_JAL: /* Jump */
           offset = (int32_t)(ctx->opcode & 0x3FFFFFF) << 2;
--- 
-1.7.12.1
-

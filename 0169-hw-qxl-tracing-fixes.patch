@@ -94,6 +94,3 @@ index cf05414..aa79836 100644
  
  # hw/qxl-render.c
  qxl_render_blit_guest_primary_initialized(void) ""
--- 
-1.7.12.1
-

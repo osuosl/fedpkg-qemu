@@ -816,6 +816,3 @@ index 6f651d9..9ae3b26 100644
              rd = 16;
              break;
          case 0xc: /* orr */
--- 
-1.7.12.1
-

@@ -48,6 +48,3 @@ index 8386b70..c002a88 100644
          case INDEX_op_debug_insn_start:
              args -= def->nb_args;
              break;
--- 
-1.7.12.1
-

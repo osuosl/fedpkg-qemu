@@ -98,6 +98,3 @@ index 6e64091..254f280 100644
      }
  
      ret = qemu_net_queue_deliver_iov(queue, sender, flags, iov, iovcnt);
--- 
-1.7.12.1
-

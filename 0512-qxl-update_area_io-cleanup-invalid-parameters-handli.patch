@@ -1,4 +1,4 @@
-From 2bbe4bb8c12976312c9421489f7568a70e5ffae3 Mon Sep 17 00:00:00 2001
+From eaea06c56ee6569bbd6864a6f767160a74c9c65d Mon Sep 17 00:00:00 2001
 From: Michael Tokarev <mjt@tls.msk.ru>
 Date: Wed, 19 Sep 2012 17:41:26 +0400
 Subject: [PATCH] qxl/update_area_io: cleanup invalid parameters handling
@@ -16,7 +16,7 @@ Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
  1 file changed, 3 insertions(+), 10 deletions(-)
 
 diff --git a/hw/qxl.c b/hw/qxl.c
-index 0695872..720363f 100644
+index 1aac04b..6b9d5d0 100644
 --- a/hw/qxl.c
 +++ b/hw/qxl.c
 @@ -1547,20 +1547,13 @@ async_common:
@@ -43,6 +43,3 @@ index 0695872..720363f 100644
              break;
          }
          if (async == QXL_ASYNC) {
--- 
-1.7.12.1
-

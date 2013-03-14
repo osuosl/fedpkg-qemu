@@ -1153,6 +1153,3 @@ index 270bf14..eced890 100644
  /* invalidate pte */
  void HELPER(ipte)(uint64_t pte_addr, uint64_t vaddr)
  {
--- 
-1.7.12.1
-

@@ -104,6 +104,3 @@ index 2cae8c5..e4ef372 100644
          if (aurb->packet) {
              aurb->packet->result = usbredir_handle_status(dev,
                                                 interrupt_packet->status, len);
--- 
-1.7.12.1
-

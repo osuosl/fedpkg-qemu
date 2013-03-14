@@ -31,6 +31,3 @@ index 8b5e21d..314f5a5 100644
              }
          } else {
              if (s->nb_esc_params < MAX_ESC_PARAMS)
--- 
-1.7.12.1
-

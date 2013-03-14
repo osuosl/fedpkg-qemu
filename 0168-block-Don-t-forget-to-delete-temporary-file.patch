@@ -31,6 +31,3 @@ index c754353..e78039b 100644
          return -errno;
      }
      return 0;
--- 
-1.7.12.1
-

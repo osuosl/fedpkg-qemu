@@ -1,8 +1,8 @@
 From f4a5b8185d067430cd605a740af654cd1cd2e2aa Mon Sep 17 00:00:00 2001
 From: Meador Inge <meadori@codesourcery.com>
 Date: Wed, 26 Sep 2012 16:46:28 +0100
-Subject: [PATCH] hw/armv7m_nvic: Correctly register GIC region when setting
- up NVIC
+Subject: [PATCH] hw/armv7m_nvic: Correctly register GIC region when setting up
+ NVIC
 
 When setting up the NVIC memory regions the memory range
 0x100..0xcff is aliased to an IO memory region that belongs
@@ -35,6 +35,3 @@ index 6a0832e..5c09116 100644
      /* Map the whole thing into system memory at the location required
       * by the v7M architecture.
       */
--- 
-1.7.12.1
-

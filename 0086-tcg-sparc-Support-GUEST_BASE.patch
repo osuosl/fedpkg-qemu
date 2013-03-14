@@ -108,6 +108,3 @@ index adca1d2..99e9f57 100644
  #ifdef CONFIG_SOLARIS
  #define TCG_AREG0 TCG_REG_G2
  #elif HOST_LONG_BITS == 64
--- 
-1.7.12.1
-

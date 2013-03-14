@@ -135,6 +135,3 @@ index 897a737..d147e70 100644
  
  /* optional instructions only implemented on MIPS32R2 */
  #ifdef _MIPS_ARCH_MIPS32R2
--- 
-1.7.12.1
-

@@ -32,6 +32,3 @@ index 5890d7a..1542e43 100644
  			return;
  		tlen = 0;
  		m->m_data += IF_MAXLINKHDR;
--- 
-1.7.12.1
-

@@ -100,6 +100,3 @@ index 9d44a9b..fc02b33 100644
 +bool qemu_net_queue_flush(NetQueue *queue);
  
  #endif /* QEMU_NET_QUEUE_H */
--- 
-1.7.12.1
-

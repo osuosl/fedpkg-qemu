@@ -103,6 +103,3 @@ index 8b81b70..a76569d 100644
      }
  
      tcg_out_mov(s, TCG_TYPE_I32, ret, scratch);
--- 
-1.7.12.1
-

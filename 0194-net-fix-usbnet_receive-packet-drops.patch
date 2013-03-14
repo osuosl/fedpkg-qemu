@@ -76,6 +76,3 @@ index 0b5cb71..e4a4359 100644
      if (is_rndis(s)) {
          struct rndis_packet_msg_type *msg;
  
--- 
-1.7.12.1
-

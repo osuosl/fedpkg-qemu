@@ -59,6 +59,3 @@ index 04662c1..99b5339 100644
                      TCG_AREG0);
  #endif
          tgen_calli(s, (tcg_target_ulong)qemu_ld_helpers[s_bits]);
--- 
-1.7.12.1
-

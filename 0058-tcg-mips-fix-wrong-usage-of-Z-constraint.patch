@@ -60,6 +60,3 @@ index 74db83d..9293745 100644
      { INDEX_op_brcond2_i32, { "rZ", "rZ", "rZ", "rZ" } },
  
  #if TARGET_LONG_BITS == 32
--- 
-1.7.12.1
-

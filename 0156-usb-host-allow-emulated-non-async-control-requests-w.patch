@@ -1,8 +1,8 @@
 From e84037892a04dac64104b43d0a6342aee4c4e6f4 Mon Sep 17 00:00:00 2001
 From: Gerd Hoffmann <kraxel@redhat.com>
 Date: Thu, 6 Sep 2012 12:03:41 +0200
-Subject: [PATCH] usb-host: allow emulated (non-async) control requests
- without USBPacket
+Subject: [PATCH] usb-host: allow emulated (non-async) control requests without
+ USBPacket
 
 xhci needs this for USB_REQ_SET_ADDRESS due to the way
 usb addressing is handled by the xhci hardware.
@@ -35,6 +35,3 @@ index 8df9207..44f1a64 100644
  
      if (length > sizeof(dev->data_buf)) {
          fprintf(stderr, "husb: ctrl buffer too small (%d > %zu)\n",
--- 
-1.7.12.1
-

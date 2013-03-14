@@ -74,6 +74,3 @@ index 03c385a..1db0c9d 100644
 +    *ptr = CALL | (disp & 0x3fffffff);
 +    flush_icache_range(jmp_addr, jmp_addr + 4);
 +}
--- 
-1.7.12.1
-

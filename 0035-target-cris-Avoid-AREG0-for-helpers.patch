@@ -518,6 +518,3 @@ index 3629629..9a39c6a 100644
                             cpu_R[dc->src], cpu_PR[PR_CCS]);
                  break;
              case CRISV10_REG_DSTEP:
--- 
-1.7.12.1
-

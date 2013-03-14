@@ -51,6 +51,3 @@ index 053ba02..c02e6ca 100644
      xt->regs[R_TCSR] |= TCSR_TINT;
  
      if (xt->regs[R_TCSR] & TCSR_ARHT)
--- 
-1.7.12.1
-

@@ -59,6 +59,3 @@ index 5ea3cad..68671bc 100644
          ahci_reset_port(s, i);
      }
  }
--- 
-1.7.12.1
-

@@ -58,6 +58,3 @@ index ee75217..ab8d79a 100644
      usbredirparser_do_write(dev->parser);
  }
  
--- 
-1.7.12.1
-

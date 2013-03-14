@@ -1678,6 +1678,3 @@ index b9ea9dd..ef9b172 100644
  #if defined(DEBUG_SIGNAL)
      qemu_printf("qemu: SIGSEGV pc=0x%08lx address=%08lx w=%d oldset=0x%08lx\n",
                  pc, address, is_write, *(unsigned long *)old_set);
--- 
-1.7.12.1
-

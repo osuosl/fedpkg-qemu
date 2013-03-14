@@ -61,6 +61,3 @@ index abd847f..38098f7 100644
      if ((opcode <= MAX_HCALL_OPCODE)
          && ((opcode & 0x3) == 0)) {
          spapr_hcall_fn fn = papr_hypercall_table[opcode / 4];
--- 
-1.7.12.1
-

@@ -40,6 +40,3 @@ index 54e32f0..e5e4e8d 100644
  }
  
  static void net_socket_send(void *opaque)
--- 
-1.7.12.1
-

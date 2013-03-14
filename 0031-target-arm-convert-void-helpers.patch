@@ -176,6 +176,3 @@ index edef79a..6f651d9 100644
              break;
          case DISAS_SWI:
              gen_exception(EXCP_SWI);
--- 
-1.7.12.1
-

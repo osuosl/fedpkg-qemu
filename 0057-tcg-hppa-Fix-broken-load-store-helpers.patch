@@ -244,6 +244,3 @@ index a76569d..5385d45 100644
          addrlo_reg = TCG_REG_R31;
      }
      tcg_out_qemu_st_direct(s, datalo_reg, datahi_reg, addrlo_reg, opc);
--- 
-1.7.12.1
-

@@ -31,6 +31,3 @@ index 470bdcc..c754353 100644
      /*throttling disk I/O limits*/
      if (bs->io_limits_enabled) {
          bdrv_io_limits_disable(bs);
--- 
-1.7.12.1
-

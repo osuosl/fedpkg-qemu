@@ -54,6 +54,3 @@ index a1f256c..f528146 100755
  # see if system emulation was really requested
  case " $target_list " in
    *"-softmmu "*) softmmu=yes
--- 
-1.7.12.1
-

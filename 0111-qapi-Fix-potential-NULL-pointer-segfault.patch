@@ -33,6 +33,3 @@ index 04ef7c4..5b15ee3 100644
                  visit_type_%(name)sKind(m, &(*obj)->kind, "type", &err);
                  if (!err) {
                      switch ((*obj)->kind) {
--- 
-1.7.12.1
-

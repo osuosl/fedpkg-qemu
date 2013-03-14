@@ -187,6 +187,3 @@ index ceea644..abe016a 100644
                  if (temps_are_copies(args[0], args[4-tmp])) {
                      gen_opc_buf[op_index] = INDEX_op_nop;
                  } else if (temps[args[4-tmp]].state == TCG_TEMP_CONST) {
--- 
-1.7.12.1
-

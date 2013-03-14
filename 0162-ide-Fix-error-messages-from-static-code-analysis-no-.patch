@@ -62,6 +62,3 @@ index d65ef3d..d6fb69c 100644
  		    int i;
  		    for(i = 0; i < 11; i++) {
  			s->io_buffer[2+i+(n*12)] = smart_attributes[n][i];
--- 
-1.7.12.1
-

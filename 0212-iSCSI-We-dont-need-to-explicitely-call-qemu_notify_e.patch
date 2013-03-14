@@ -34,6 +34,3 @@ index ea16609..fb001b9 100644
      iscsilun->events = ev;
  }
  
--- 
-1.7.12.1
-

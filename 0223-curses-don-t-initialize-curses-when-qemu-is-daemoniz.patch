@@ -85,6 +85,3 @@ index c681c33..49d7a52 100644
          break;
  #endif
  #if defined(CONFIG_SDL)
--- 
-1.7.12.1
-

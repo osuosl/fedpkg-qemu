@@ -32,6 +32,3 @@ index 2da38e7..be6d936 100644
          }
      } else {
          ret = USB_RET_ASYNC;
--- 
-1.7.12.1
-

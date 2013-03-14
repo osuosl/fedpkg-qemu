@@ -46,6 +46,3 @@ index 5112a47..10bc04e 100644
  
  # hw/usb/hcd-uhci.c
  usb_uhci_reset(void) "=== RESET ==="
--- 
-1.7.12.1
-

@@ -179,6 +179,3 @@ index 7f3719b..5cc3334 100644
  
      qemu_del_timer(dev->attach_timer);
      qemu_free_timer(dev->attach_timer);
--- 
-1.7.12.1
-

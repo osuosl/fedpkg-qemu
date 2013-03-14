@@ -22,6 +22,3 @@ index 608fc46..0a19313 100644
  #define ARITH_SUBX (INSN_OP(2) | INSN_OP3(0x0c))
  #define ARITH_UMUL (INSN_OP(2) | INSN_OP3(0x0a))
  #define ARITH_UDIV (INSN_OP(2) | INSN_OP3(0x0e))
--- 
-1.7.12.1
-

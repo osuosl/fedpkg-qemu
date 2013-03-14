@@ -128,6 +128,3 @@ index 9c64ef8..f4b62a5 100644
              env->fsr |= FSR_FCC1 << FS;                                 \
              break;                                                      \
          default:                                                        \
--- 
-1.7.12.1
-

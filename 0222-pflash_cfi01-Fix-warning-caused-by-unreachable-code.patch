@@ -60,6 +60,3 @@ index d56b51a..ac503cf 100644
      default:
          /* Should never happen */
          DPRINTF("%s: invalid write state\n",  __func__);
--- 
-1.7.12.1
-

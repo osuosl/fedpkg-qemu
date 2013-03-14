@@ -77,6 +77,3 @@ index 1585683..3959603 100644
              goto illegal_lba;
          }
          r->sector = r->req.cmd.lba * (s->qdev.blocksize / 512);
--- 
-1.7.12.1
-

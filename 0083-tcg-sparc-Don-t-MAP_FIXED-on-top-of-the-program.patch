@@ -40,6 +40,3 @@ index 5834766..871a68a 100644
          if (code_gen_buffer_size > (512 * 1024 * 1024)) {
              code_gen_buffer_size = (512 * 1024 * 1024);
          }
--- 
-1.7.12.1
-

@@ -52,6 +52,3 @@ index b356d76..ace63ba 100644
  
  /* optional instructions */
  #define TCG_TARGET_HAS_div2_i32         1
--- 
-1.7.12.1
-

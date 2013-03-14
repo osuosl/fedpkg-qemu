@@ -42,6 +42,3 @@ index c7c8786..cdc8bc3 100644
                  uhci_fill_queue(s, &td);
              }
              link = curr_qh ? qh.link : td.link;
--- 
-1.7.12.1
-

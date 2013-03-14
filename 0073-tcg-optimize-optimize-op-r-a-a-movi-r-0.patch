@@ -41,6 +41,3 @@ index b9a7da9..ceea644 100644
          /* Propagate constants through copy operations and do constant
             folding.  Constants will be substituted to arguments by register
             allocator where needed and possible.  Also detect copies. */
--- 
-1.7.12.1
-

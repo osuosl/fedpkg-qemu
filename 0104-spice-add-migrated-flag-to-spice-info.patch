@@ -92,6 +92,3 @@ index 851e869..ab069c5 100644
  #else
          spice_server_migrate_end(spice_server, true);
      } else if (migration_has_failed(s)) {
--- 
-1.7.12.1
-

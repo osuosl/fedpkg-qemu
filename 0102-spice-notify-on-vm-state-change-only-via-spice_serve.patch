@@ -168,6 +168,3 @@ index 12e50b6..672d65e 100644
 +void qemu_spice_display_stop(void);
 +#endif
 +int qemu_spice_display_is_running(SimpleSpiceDisplay *ssd);
--- 
-1.7.12.1
-

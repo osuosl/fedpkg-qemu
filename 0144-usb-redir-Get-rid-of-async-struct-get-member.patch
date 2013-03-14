@@ -71,6 +71,3 @@ index 5cc3334..2cae8c5 100644
              dev->dev.data_buf[0] = alt_setting_status->alt;
              len = 1;
          }
--- 
-1.7.12.1
-

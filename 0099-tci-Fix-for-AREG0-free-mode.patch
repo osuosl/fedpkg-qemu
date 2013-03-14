@@ -114,6 +114,3 @@ index ce8a988..a4f7b78 100644
              tci_write_reg(TCG_REG_R0, tmp64);
  #endif
              break;
--- 
-1.7.12.1
-

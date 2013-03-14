@@ -59,6 +59,3 @@ index e745bef..52be07a 100644
      };
  
      if (host_errno == 0) {
--- 
-1.7.12.1
-

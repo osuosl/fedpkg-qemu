@@ -197,6 +197,3 @@ index b1f2071..2a61e92 100644
          set_cc_static(s);
          tcg_temp_free_i32(tmp32_1);
          tcg_temp_free_i32(tmp32_2);
--- 
-1.7.12.1
-

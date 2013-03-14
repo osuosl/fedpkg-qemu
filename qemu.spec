@@ -196,8 +196,8 @@
 
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
-Version: 1.2.0
-Release: 22%{?dist}
+Version: 1.2.2
+Release: 7%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -213,9 +213,8 @@ ExclusiveArch: %{kvm_archs}
 %define _smp_mflags %{nil}
 %endif
 
-# This is generated from the git qemu-kvm-1.2.0 tag, replace with proper
-# upstream tarbal once available
-Source0: qemu-kvm-%{version}.tar.gz
+# There aren't qemu-kvm 1.2 maint releases yet, so we are carrying patches
+Source0: http://downloads.sourceforge.net/sourceforge/kvm/qemu-kvm-1.2.0.tar.gz
 #Source0: http://downloads.sourceforge.net/sourceforge/kvm/qemu-kvm-%{version}.tar.gz
 
 Source1: qemu.binfmt
@@ -242,7 +241,8 @@ Source11: 99-qemu-guest-agent.rules
 Source66610: qemu-ga.init
 Source12: bridge.conf
 
-# Patches queued for 1.2.1 stable
+
+# Stable 1.2.1 patches
 Patch0001: 0001-target-xtensa-convert-host-errno-values-to-guest.patch
 Patch0002: 0002-target-cris-Fix-buffer-overflow.patch
 Patch0003: 0003-target-xtensa-fix-missing-errno-codes-for-mingw32.patch
@@ -486,93 +486,148 @@ Patch0240: 0240-fpu-softfloat.c-Return-correctly-signed-values-from-.patch
 Patch0241: 0241-pseries-Don-t-test-for-MSR_PR-for-hypercalls-under-K.patch
 Patch0242: 0242-update-VERSION-for-v1.2.1.patch
 
-# The infamous chardev flow control patches
-Patch0400: 0400-char-Split-out-tcp-socket-close-code-in-a-separate-f.patch
-Patch0401: 0401-char-Add-a-QemuChrHandlers-struct-to-initialise-char.patch
-Patch0402: 0402-iohandlers-Add-enable-disable_write_fd_handler-funct.patch
-Patch0403: 0403-char-Add-framework-for-a-write-unblocked-callback.patch
-Patch0404: 0404-char-Update-send_all-to-handle-nonblocking-chardev-w.patch
-Patch0405: 0405-char-Equip-the-unix-tcp-backend-to-handle-nonblockin.patch
-Patch0406: 0406-char-Throttle-when-host-connection-is-down.patch
-Patch0407: 0407-virtio-console-Enable-port-throttling-when-chardev-i.patch
-Patch0408: 0408-spice-qemu-char.c-add-throttling.patch
-Patch0409: 0409-spice-qemu-char.c-remove-intermediate-buffer.patch
-Patch0410: 0410-usb-redir-Add-flow-control-support.patch
-Patch0411: 0411-virtio-serial-bus-replay-guest_open-on-migration.patch
-Patch0412: 0412-char-Disable-write-callback-if-throttled-chardev-is-.patch
+# Stable 1.2.2 patches
+Patch0301: 0301-configure-Fix-CONFIG_QEMU_HELPERDIR-generation.patch
+Patch0302: 0302-fix-CONFIG_QEMU_HELPERDIR-generation-again.patch
+Patch0303: 0303-ui-vnc-Only-report-use-TIGHT_PNG-encoding-if-enabled.patch
+Patch0304: 0304-vnc-fix-info-vnc-with-vnc-.-reverse-on.patch
+Patch0305: 0305-uhci-Raise-interrupt-when-requested-even-for-non-act.patch
+Patch0306: 0306-hw-qxl-qxl_dirty_surfaces-use-uintptr_t.patch
+Patch0307: 0307-qxl-always-update-displaysurface-on-resize.patch
+Patch0308: 0308-rtc-fix-overflow-in-mktimegm.patch
+Patch0309: 0309-hw-Fix-return-value-check-for-bdrv_read-bdrv_write.patch
+Patch0310: 0310-target-i386-Allow-tsc-frequency-to-be-larger-then-2..patch
+Patch0311: 0311-e1000-drop-check_rxov-always-treat-RX-ring-with-RDH-.patch
+Patch0312: 0312-memory-fix-rendering-of-a-region-obscured-by-another.patch
+Patch0313: 0313-s390x-fix-initrd-in-virtio-machine.patch
+Patch0314: 0314-PPC-Bamboo-Fix-memory-size-DT-property.patch
+Patch0315: 0315-target-sparc64-disable-VGA-cirrus.patch
+Patch0316: 0316-xhci-fix-usb-name-in-caps.patch
+Patch0317: 0317-tools-initialize-main-loop-before-block-layer.patch
+Patch0318: 0318-m68k-Return-semihosting-errno-values-correctly.patch
+Patch0319: 0319-nbd-fixes-to-read-only-handling.patch
+Patch0320: 0320-mips-malta-fix-CBUS-UART-interrupt-pin.patch
+Patch0321: 0321-target-mips-fix-wrong-microMIPS-opcode-encoding.patch
+Patch0322: 0322-tcg-arm-fix-TLB-access-in-qemu-ld-st-ops.patch
+Patch0323: 0323-tcg-arm-fix-cross-endian-qemu_st16.patch
+Patch0324: 0324-target-openrisc-remove-conflicting-definitions-from-.patch
+Patch0325: 0325-configure-avoid-compiler-warning-in-pipe2-detection.patch
+Patch0326: 0326-qcow2-Fix-refcount-table-size-calculation.patch
+Patch0327: 0327-tci-Fix-type-of-tci_read_label.patch
+Patch0328: 0328-block-Fix-regression-for-MinGW-assertion-caused-by-s.patch
+Patch0329: 0329-qom-dynamic_cast-of-NULL-is-always-NULL.patch
+Patch0330: 0330-hmp-do-not-crash-on-invalid-SCSI-hotplug.patch
+Patch0331: 0331-PPC-Fix-missing-TRACE-exception.patch
+Patch0332: 0332-qom-fix-refcount-of-non-heap-allocated-objects.patch
+Patch0333: 0333-qapi-handle-visitor-type_size-in-QapiDeallocVisitor.patch
+Patch0334: 0334-qapi-fix-qapi_dealloc_type_size-parameter-type.patch
+Patch0335: 0335-iscsi-fix-segfault-in-url-parsing.patch
+Patch0336: 0336-iscsi-fix-deadlock-during-login.patch
+Patch0337: 0337-iscsi-do-not-assume-device-is-zero-initialized.patch
+Patch0338: 0338-virtio-scsi-Fix-some-endian-bugs-with-virtio-scsi.patch
+Patch0339: 0339-virtio-scsi-Fix-subtle-guest-endian-bug.patch
+Patch0340: 0340-qxl-reload-memslots-after-migration-when-qxl-is-in-U.patch
+Patch0341: 0341-usb-fail-usbdevice_create-when-there-is-no-USB-bus.patch
+Patch0342: 0342-stream-fix-ratelimit_set_speed.patch
+Patch0343: 0343-e1000-Discard-packets-that-are-too-long-if-SBP-and-L.patch
 
-# Spice features from upstream master: seamless migration & dynamic monitors
-Patch0500: 0500-qxl-disallow-unknown-revisions.patch
-Patch0501: 0501-spice-make-number-of-surfaces-runtime-configurable.patch
-Patch0502: 0502-qxl-Add-set_client_capabilities-interface-to-QXLInte.patch
-Patch0503: 0503-Remove-ifdef-QXL_COMMAND_FLAG_COMPAT_16BPP.patch
-Patch0504: 0504-spice-switch-to-queue-for-vga-mode-updates.patch
-Patch0505: 0505-spice-split-qemu_spice_create_update.patch
-Patch0506: 0506-spice-add-screen-mirror.patch
-Patch0507: 0507-spice-send-updates-only-for-changed-screen-content.patch
-Patch0508: 0508-qxl-Ignore-set_client_capabilities-pre-post-migrate.patch
-Patch0509: 0509-qxl-add-trace-event-for-QXL_IO_LOG.patch
-Patch0510: 0510-hw-qxl-support-client-monitor-configuration-via-devi.patch
-Patch0511: 0511-qxl-always-update-displaysurface-on-resize.patch
+# chardev flow control series
+Patch0401: 0401-update-VERSION-for-v1.2.2.patch
+Patch0402: 0402-char-Split-out-tcp-socket-close-code-in-a-separate-f.patch
+Patch0403: 0403-char-Add-a-QemuChrHandlers-struct-to-initialise-char.patch
+Patch0404: 0404-iohandlers-Add-enable-disable_write_fd_handler-funct.patch
+Patch0405: 0405-char-Add-framework-for-a-write-unblocked-callback.patch
+Patch0406: 0406-char-Update-send_all-to-handle-nonblocking-chardev-w.patch
+Patch0407: 0407-char-Equip-the-unix-tcp-backend-to-handle-nonblockin.patch
+Patch0408: 0408-char-Throttle-when-host-connection-is-down.patch
+Patch0409: 0409-virtio-console-Enable-port-throttling-when-chardev-i.patch
+Patch0410: 0410-spice-qemu-char.c-add-throttling.patch
+Patch0411: 0411-spice-qemu-char.c-remove-intermediate-buffer.patch
+Patch0412: 0412-usb-redir-Add-flow-control-support.patch
+Patch0413: 0413-virtio-serial-bus-replay-guest_open-on-migration.patch
+Patch0414: 0414-char-Disable-write-callback-if-throttled-chardev-is-.patch
+
+# spice seamless migration, dynamic monitors, spice/qxl bug fixes
+Patch0501: 0501-qxl-disallow-unknown-revisions.patch
+Patch0502: 0502-spice-make-number-of-surfaces-runtime-configurable.patch
+Patch0503: 0503-qxl-Add-set_client_capabilities-interface-to-QXLInte.patch
+Patch0504: 0504-Remove-ifdef-QXL_COMMAND_FLAG_COMPAT_16BPP.patch
+Patch0505: 0505-spice-switch-to-queue-for-vga-mode-updates.patch
+Patch0506: 0506-spice-split-qemu_spice_create_update.patch
+Patch0507: 0507-spice-add-screen-mirror.patch
+Patch0508: 0508-spice-send-updates-only-for-changed-screen-content.patch
+Patch0509: 0509-qxl-Ignore-set_client_capabilities-pre-post-migrate.patch
+Patch0510: 0510-qxl-add-trace-event-for-QXL_IO_LOG.patch
+Patch0511: 0511-hw-qxl-support-client-monitor-configuration-via-devi.patch
 Patch0512: 0512-qxl-update_area_io-cleanup-invalid-parameters-handli.patch
 Patch0513: 0513-qxl-fix-range-check-for-rev3-io-commands.patch
-Patch0514: 0514-hw-qxl-exit-on-failure-to-register-qxl-interface.patch
-Patch0515: 0515-hw-qxl-fix-condition-for-exiting-guest_bug.patch
-Patch0516: 0516-hw-qxl-qxl_dirty_surfaces-use-uintptr_t.patch
-Patch0517: 0517-spice-raise-requirement-to-0.12.patch
-Patch0518: 0518-qxl-set-default-revision-to-4.patch
+Patch0514: 0514-qxl-vnc-register-a-vm-state-change-handler-for-dummy.patch
+Patch0515: 0515-hw-qxl-exit-on-failure-to-register-qxl-interface.patch
+Patch0516: 0516-hw-qxl-fix-condition-for-exiting-guest_bug.patch
+Patch0517: 0517-hw-qxl-qxl_send_events-nop-if-stopped.patch
+Patch0518: 0518-qxl-call-dpy_gfx_resize-when-entering-vga-mode.patch
+Patch0519: 0519-spice-fix-initialization-order.patch
+Patch0520: 0520-spice-add-new-spice-server-callbacks-to-ui-spice-dis.patch
+Patch0521: 0521-qxl-save-qemu_create_displaysurface_from-result.patch
 
-# usb-redir live-migration and misc bits, will be in before 1.3.0
-Patch0600: 0600-usb-redir-Convert-to-new-libusbredirparser-0.5-API.patch
-Patch0601: 0601-usb-redir-Set-ep-max_packet_size-if-available.patch
-Patch0602: 0602-usb-redir-Add-a-usbredir_reject_device-helper-functi.patch
-Patch0603: 0603-usb-redir-Ensure-our-peer-has-the-necessary-caps-whe.patch
-Patch0604: 0604-usb-redir-Enable-pipelining-for-bulk-endpoints.patch
-Patch0605: 0605-xhci-move-device-lookup-into-xhci_setup_packet.patch
-Patch0606: 0606-xhci-implement-mfindex.patch
-Patch0607: 0607-xhci-iso-xfer-support.patch
-Patch0608: 0608-xhci-trace-cc-codes-in-cleartext.patch
-Patch0609: 0609-xhci-add-trace_usb_xhci_ep_set_dequeue.patch
-Patch0610: 0610-xhci-update-register-layout.patch
-Patch0611: 0611-xhci-update-port-handling.patch
-Patch0612: 0612-usb3-superspeed-descriptors.patch
-Patch0613: 0613-usb3-superspeed-endpoint-companion.patch
-Patch0614: 0614-usb3-bos-decriptor.patch
-Patch0615: 0615-usb-storage-usb3-support.patch
-Patch0616: 0616-xhci-fix-cleanup-msi.patch
-Patch0617: 0617-xhci-rework-interrupt-handling.patch
-Patch0618: 0618-xhci-add-msix-support.patch
-Patch0619: 0619-xhci-move-register-update-into-xhci_intr_raise.patch
-Patch0620: 0620-xhci-add-XHCIInterrupter.patch
-Patch0621: 0621-xhci-prepare-xhci_runtime_-read-write-for-multiple-i.patch
-Patch0622: 0622-xhci-pick-target-interrupter.patch
-Patch0623: 0623-xhci-support-multiple-interrupters.patch
-Patch0624: 0624-xhci-kill-xhci_mem_-read-write-dispatcher-functions.patch
-Patch0625: 0625-usb-redir-Change-cancelled-packet-code-into-a-generi.patch
-Patch0626: 0626-usb-redir-Add-an-already_in_flight-packet-id-queue.patch
-Patch0627: 0627-usb-redir-Store-max_packet_size-in-endp_data.patch
-Patch0628: 0628-usb-redir-Add-support-for-migration.patch
-Patch0629: 0629-usb-redir-Add-chardev-open-close-debug-logging.patch
-Patch0630: 0630-usb-redir-Revert-usb-redir-part-of-commit-93bfef4c.patch
-Patch0631: 0631-ehci-Fix-interrupt-packet-MULT-handling.patch
-Patch0632: 0632-usb-redir-Adjust-pkg-config-check-for-usbredirparser.patch
-Patch0633: 0633-usb-redir-Change-usbredir_open_chardev-into-usbredir.patch
-Patch0634: 0634-usb-redir-Don-t-make-migration-fail-in-none-seamless.patch
+# usb-redir live-migration and misc bits from upstream master
+Patch0601: 0601-usb-redir-Convert-to-new-libusbredirparser-0.5-API.patch
+Patch0602: 0602-usb-redir-Set-ep-max_packet_size-if-available.patch
+Patch0603: 0603-usb-redir-Add-a-usbredir_reject_device-helper-functi.patch
+Patch0604: 0604-usb-redir-Ensure-our-peer-has-the-necessary-caps-whe.patch
+Patch0605: 0605-usb-redir-Enable-pipelining-for-bulk-endpoints.patch
+Patch0606: 0606-xhci-move-device-lookup-into-xhci_setup_packet.patch
+Patch0607: 0607-xhci-implement-mfindex.patch
+Patch0608: 0608-xhci-iso-xfer-support.patch
+Patch0609: 0609-xhci-trace-cc-codes-in-cleartext.patch
+Patch0610: 0610-xhci-add-trace_usb_xhci_ep_set_dequeue.patch
+Patch0611: 0611-xhci-update-register-layout.patch
+Patch0612: 0612-xhci-update-port-handling.patch
+Patch0613: 0613-usb3-superspeed-descriptors.patch
+Patch0614: 0614-usb3-superspeed-endpoint-companion.patch
+Patch0615: 0615-usb3-bos-decriptor.patch
+Patch0616: 0616-usb-storage-usb3-support.patch
+Patch0617: 0617-xhci-fix-cleanup-msi.patch
+Patch0618: 0618-xhci-rework-interrupt-handling.patch
+Patch0619: 0619-xhci-add-msix-support.patch
+Patch0620: 0620-xhci-move-register-update-into-xhci_intr_raise.patch
+Patch0621: 0621-xhci-add-XHCIInterrupter.patch
+Patch0622: 0622-xhci-prepare-xhci_runtime_-read-write-for-multiple-i.patch
+Patch0623: 0623-xhci-pick-target-interrupter.patch
+Patch0624: 0624-xhci-support-multiple-interrupters.patch
+Patch0625: 0625-xhci-kill-xhci_mem_-read-write-dispatcher-functions.patch
+Patch0626: 0626-usb-redir-Change-cancelled-packet-code-into-a-generi.patch
+Patch0627: 0627-usb-redir-Add-an-already_in_flight-packet-id-queue.patch
+Patch0628: 0628-usb-redir-Store-max_packet_size-in-endp_data.patch
+Patch0629: 0629-usb-redir-Add-support-for-migration.patch
+Patch0630: 0630-usb-redir-Add-chardev-open-close-debug-logging.patch
+Patch0631: 0631-usb-redir-Revert-usb-redir-part-of-commit-93bfef4c.patch
+Patch0632: 0632-ehci-Fix-interrupt-packet-MULT-handling.patch
+Patch0633: 0633-usb-redir-Adjust-pkg-config-check-for-usbredirparser.patch
+Patch0634: 0634-usb-redir-Change-usbredir_open_chardev-into-usbredir.patch
+Patch0635: 0635-usb-redir-Don-t-make-migration-fail-in-none-seamless.patch
 
 # Non upstream build fix, http://www.spinics.net/lists/kvm/msg80589.html
-Patch0800: 0800-mips-Fix-link-error-with-piix4_pm_init.patch
+Patch0701: 0701-mips-Fix-link-error-with-piix4_pm_init.patch
 # Add ./configure --disable-kvm-options
-# keep: Carrying locally until qemu-kvm is fully merged into qemu.git
-Patch0801: 0801-configure-Add-disable-kvm-options.patch
+Patch0702: 0702-configure-Add-disable-kvm-options.patch
 # Fix loading arm initrd if kernel is very large (bz 862766)
-Patch802: 0802-arm_boot-Change-initrd-load-address-to-halfway-throu.patch
-# Don't use reserved word 'function' in systemtap files (bz 870972)
-Patch803: 0803-dtrace-backend-add-function-to-reserved-words.patch
-# Drop assertion that was triggering when pausing guests w/ qxl (bz
-# 870972)
-Patch804: 0804-wip-hw-qxl-inject-interrupts-in-any-state.patch
-# 38f419f (configure: Fix CONFIG_QEMU_HELPERDIR generation, 2012-10-17)
-Patch805: 0805-configure-Fix-CONFIG_QEMU_HELPERDIR-generation.patch
+Patch0703: 0703-arm_boot-Change-initrd-load-address-to-halfway-throu.patch
+# libcacard build fixes
+Patch0704: 0704-dtrace-backend-add-function-to-reserved-words.patch
+Patch0705: 0705-libcacard-fix-missing-symbols-in-libcacard.so.patch
+Patch0706: 0706-configure-move-vscclient-binary-under-libcacard.patch
+# Fix libvirt + seccomp combo (bz 855162)
+Patch0707: 0707-libcacard-fix-missing-symbol-in-libcacard.so.patch
+# CVE-2012-6075: Buffer overflow in e1000 nic (bz 889301, bz 889304)
+Patch0708: 0708-seccomp-adding-new-syscalls-bugzilla-855162.patch
+# Fix boot hang if console is not connected (bz 894451)
+Patch0709: 0709-e1000-Discard-oversized-packets-based-on-SBP-LPE.patch
+# Fix segfault with zero length virtio-scsi disk (bz 847549)
+Patch0710: 0710-Revert-serial-fix-retry-logic.patch
+Patch0711: 0711-scsi-fix-segfault-with-0-byte-disk.patch
+# Adapt to libiscsi packaging in Fedora (included upstream)
+Patch0712: 0712-iscsi-look-for-pkg-config-file-too.patch
 
 
 BuildRequires: SDL-devel
@@ -586,6 +641,7 @@ BuildRequires: libaio-devel
 BuildRequires: rsync
 BuildRequires: pciutils-devel
 BuildRequires: pulseaudio-libs-devel
+BuildRequires: libiscsi-devel
 BuildRequires: ncurses-devel
 BuildRequires: libattr-devel
 %if %{with have_usbredir}
@@ -771,7 +827,6 @@ if [ $1 -ge 1 ] ; then
     # Package upgrade, not uninstall.
     /sbin/service qemu-ga condrestart &>/dev/null || :
 fi
-
 
 
 %if 0%{?user:1}
@@ -1001,9 +1056,36 @@ This package contains some diagnostics and debugging tools for KVM,
 such as kvm_stat.
 %endif
 
-%prep
-%setup -q -n qemu-kvm-%{version}
+%if %{without separate_kvm}
+%package -n libcacard
+Summary:        Common Access Card (CAC) Emulation
+Group:          Development/Libraries
 
+%description -n libcacard
+Common Access Card (CAC) emulation library.
+
+%package -n libcacard-tools
+Summary:        CAC Emulation tools
+Group:          Development/Libraries
+Requires:       libcacard = %{epoch}:%{version}-%{release}
+
+%description -n libcacard-tools
+CAC emulation tools.
+
+%package -n libcacard-devel
+Summary:        CAC Emulation devel
+Group:          Development/Libraries
+Requires:       libcacard = %{epoch}:%{version}-%{release}
+
+%description -n libcacard-devel
+CAC emulation development files.
+%endif
+
+%prep
+#%setup -q -n qemu-kvm-%{version}
+%setup -q -n qemu-kvm-1.2.0
+
+# Stable 1.2.1 patches
 %patch0001 -p1
 %patch0002 -p1
 %patch0003 -p1
@@ -1247,7 +1329,52 @@ such as kvm_stat.
 %patch0241 -p1
 %patch0242 -p1
 
-%patch0400 -p1
+# Stable 1.2.2 patches
+%patch0301 -p1
+%patch0302 -p1
+%patch0303 -p1
+%patch0304 -p1
+%patch0305 -p1
+%patch0306 -p1
+%patch0307 -p1
+%patch0308 -p1
+%patch0309 -p1
+%patch0310 -p1
+%patch0311 -p1
+%patch0312 -p1
+%patch0313 -p1
+%patch0314 -p1
+%patch0315 -p1
+%patch0316 -p1
+%patch0317 -p1
+%patch0318 -p1
+%patch0319 -p1
+%patch0320 -p1
+%patch0321 -p1
+%patch0322 -p1
+%patch0323 -p1
+%patch0324 -p1
+%patch0325 -p1
+%patch0326 -p1
+%patch0327 -p1
+%patch0328 -p1
+%patch0329 -p1
+%patch0330 -p1
+%patch0331 -p1
+%patch0332 -p1
+%patch0333 -p1
+%patch0334 -p1
+%patch0335 -p1
+%patch0336 -p1
+%patch0337 -p1
+%patch0338 -p1
+%patch0339 -p1
+%patch0340 -p1
+%patch0341 -p1
+%patch0342 -p1
+%patch0343 -p1
+
+# chardev flow control series
 %patch0401 -p1
 %patch0402 -p1
 %patch0403 -p1
@@ -1260,8 +1387,10 @@ such as kvm_stat.
 %patch0410 -p1
 %patch0411 -p1
 %patch0412 -p1
+%patch0413 -p1
+%patch0414 -p1
 
-%patch0500 -p1
+# spice seamless migration, dynamic monitors, spice/qxl bug fixes
 %patch0501 -p1
 %patch0502 -p1
 %patch0503 -p1
@@ -1280,8 +1409,11 @@ such as kvm_stat.
 %patch0516 -p1
 %patch0517 -p1
 %patch0518 -p1
+%patch0519 -p1
+%patch0520 -p1
+%patch0521 -p1
 
-%patch0600 -p1
+# usb-redir live-migration and misc bits from upstream master
 %patch0601 -p1
 %patch0602 -p1
 %patch0603 -p1
@@ -1316,24 +1448,40 @@ such as kvm_stat.
 %patch0632 -p1
 %patch0633 -p1
 %patch0634 -p1
+%patch0635 -p1
 
-%patch0800 -p1
-%patch0801 -p1
-%patch802 -p1
-%patch803 -p1
-%patch804 -p1
-%patch805 -p1
+# Non upstream build fix, http://www.spinics.net/lists/kvm/msg80589.html
+%patch0701 -p1
+# Add ./configure --disable-kvm-options
+%patch0702 -p1
+# Fix loading arm initrd if kernel is very large (bz 862766)
+%patch0703 -p1
+# libcacard build fixes
+%patch0704 -p1
+%patch0705 -p1
+%patch0706 -p1
+# Fix libvirt + seccomp combo (bz 855162)
+%patch0707 -p1
+# CVE-2012-6075: Buffer overflow in e1000 nic (bz 889301, bz 889304)
+%patch0708 -p1
+# Fix boot hang if console is not connected (bz 894451)
+%patch0709 -p1
+# Fix segfault with zero length virtio-scsi disk (bz 847549)
+%patch0710 -p1
+%patch0711 -p1
+# Adapt to libiscsi packaging in Fedora (included upstream)
+%patch0712 -p1
 
 
 %build
 %if %{with kvmonly}
     buildarch="%{kvm_target}-softmmu"
 %else
-buildarch="i386-softmmu x86_64-softmmu alpha-softmmu arm-softmmu cris-softmmu \
-    lm32-softmmu m68k-softmmu microblaze-softmmu microblazeel-softmmu \
-    mips-softmmu mipsel-softmmu mips64-softmmu mips64el-softmmu \
-    or32-softmmu ppc-softmmu ppcemb-softmmu ppc64-softmmu s390x-softmmu \
-    sh4-softmmu sh4eb-softmmu sparc-softmmu sparc64-softmmu \
+    buildarch="i386-softmmu x86_64-softmmu alpha-softmmu arm-softmmu \
+    cris-softmmu lm32-softmmu m68k-softmmu microblaze-softmmu \
+    microblazeel-softmmu mips-softmmu mipsel-softmmu mips64-softmmu \
+    mips64el-softmmu or32-softmmu ppc-softmmu ppcemb-softmmu ppc64-softmmu \
+    s390x-softmmu sh4-softmmu sh4eb-softmmu sparc-softmmu sparc64-softmmu \
     xtensa-softmmu xtensaeb-softmmu unicore32-softmmu \
     i386-linux-user x86_64-linux-user alpha-linux-user arm-linux-user \
     armeb-linux-user cris-linux-user m68k-linux-user \
@@ -1358,6 +1506,7 @@ sed -i.debug 's/"-g $CFLAGS"/"$CFLAGS"/g' configure
 dobuild() {
     ./configure \
         --prefix=%{_prefix} \
+        --libdir=%{_libdir} \
         --sysconfdir=%{_sysconfdir} \
         --interp-prefix=%{_prefix}/qemu-%%M \
         --audio-drv-list=pa,sdl,alsa,oss \
@@ -1391,6 +1540,10 @@ dobuild() {
     echo "==="
 
     make V=1 %{?_smp_mflags} $buildldflags
+%if %{without separate_kvm}
+    make V=1 %{?_smp_mflags} $buildldflags libcacard.la
+    make V=1 %{?_smp_mflags} $buildldflags libcacard/vscclient
+%endif
 }
 
 # This is kind of confusing. We run ./configure + make twice here to
@@ -1544,9 +1697,11 @@ install -D -p -m 0755 %{SOURCE66610} $RPM_BUILD_ROOT%{_initddir}/qemu-ga
 
 %if %{with separate_kvm}
 rm $RPM_BUILD_ROOT%{_bindir}/qemu-img
+rm $RPM_BUILD_ROOT%{_bindir}/qemu-nbd
 rm $RPM_BUILD_ROOT%{_bindir}/qemu-io
 rm $RPM_BUILD_ROOT%{_bindir}/vscclient
 rm $RPM_BUILD_ROOT%{_mandir}/man1/qemu-img.1*
+rm $RPM_BUILD_ROOT%{_mandir}/man8/qemu-nbd.8*
 
 rm $RPM_BUILD_ROOT%{_bindir}/qemu-ga
 rm $RPM_BUILD_ROOT%{_initddir}/qemu-ga
@@ -1555,6 +1710,12 @@ rm $RPM_BUILD_ROOT%{_initddir}/qemu-ga
 # Install rules to use the bridge helper with libvirt's virbr0
 install -m 0644 %{SOURCE12} $RPM_BUILD_ROOT%{_sysconfdir}/qemu
 chmod u+s $RPM_BUILD_ROOT%{_libexecdir}/qemu-bridge-helper
+
+%if %{without separate_kvm}
+make %{?_smp_mflags} $buildldflags DESTDIR=$RPM_BUILD_ROOT install-libcacard
+find $RPM_BUILD_ROOT -name '*.la' -or -name '*.a' | xargs rm -f
+find $RPM_BUILD_ROOT -name "libcacard.so*" -exec chmod +x \{\} \;
+%endif
 
 %check
 make check
@@ -1581,6 +1742,7 @@ getent passwd qemu >/dev/null || \
   useradd -r -u 107 -g qemu -G kvm -d / -s /sbin/nologin \
     -c "qemu user" qemu
 
+
 %preun common
 if [ $1 -eq 0 ] ; then
     # Package removal, not upgrade
@@ -1597,6 +1759,7 @@ if [ $1 -ge 1 ] ; then
     /sbin/service ksmtuned condrestart &>/dev/null || :
 fi
 %endif
+
 
 
 %if 0%{?user:1}
@@ -1649,8 +1812,6 @@ fi
 %{_datadir}/%{name}/keymaps/
 %{_mandir}/man1/qemu.1*
 %{_mandir}/man1/virtfs-proxy-helper.1*
-%{_mandir}/man8/qemu-nbd.8*
-%{_bindir}/qemu-nbd
 %{_bindir}/virtfs-proxy-helper
 %{_libexecdir}/qemu-bridge-helper
 %config(noreplace) %{_sysconfdir}/sasl2/qemu.conf
@@ -1915,11 +2076,67 @@ fi
 %defattr(-,root,root)
 %{_bindir}/qemu-img
 %{_bindir}/qemu-io
-%{_bindir}/vscclient
+%{_bindir}/qemu-nbd
 %{_mandir}/man1/qemu-img.1*
+%{_mandir}/man8/qemu-nbd.8*
+
+%files -n libcacard
+%defattr(-,root,root,-)
+%{_libdir}/libcacard.so.*
+
+%files -n libcacard-tools
+%defattr(-,root,root,-)
+%{_bindir}/vscclient
+
+%files -n libcacard-devel
+%defattr(-,root,root,-)
+%{_includedir}/cacard
+%{_libdir}/libcacard.so
+%{_libdir}/pkgconfig/libcacard.pc
 %endif
 
 %changelog
+* Mon Mar 11 2013 Paolo Bonzini <pbonzini@redhat.com> - 2:1.2.2-7
+- Added libiscsi-devel BuildRequires
+- Use pkg-config to search for libiscsi
+
+* Sat Feb 02 2013 Cole Robinson <crobinso@redhat.com> - 2:1.2.2-6
+- Fix boot hang if console is not connected (bz #894451)
+- Fix segfault with zero length virtio-scsi disk (bz #847549)
+
+* Wed Jan 23 2013 Alon Levy <alevy@redhat.com> - 2:1.2.2-5
+- Add fix for missing error_set in libcacard.so picked from upstream.
+
+* Mon Jan 21 2013 Hans de Goede <hdegoede@redhat.com> - 2:1.2.2-4
+- Add "qxl: call dpy_gfx_resize when entering vga mode" patch, fixing
+  an often reported use after free crash (rhbz#873845)
+- Replace "wip: hw/qxl: inject interrupts in any state" patch with the
+  official upstream fix
+- Add 5 other spice/qxl crash/bug fixes cherry-picked from upstream
+
+* Fri Jan 18 2013 Hans de Goede <hdegoede@redhat.com> - 2:1.2.2-3
+- Fix a crash when using -vga qxl without -spice (bz #892075)
+
+* Wed Jan 16 2013 Cole Robinson <crobinso@redhat.com> - 2:1.2.2-2
+- CVE-2012-6075: Buffer overflow in e1000 nic (bz #889301, bz #889304)
+- Use systemd spec macros (bz #850285)
+
+* Sun Dec 16 2012 Cole Robinson <crobinso@redhat.com> - 2:1.2.2-1
+- Update to qemu 1.2.2 stable
+- Fix libvirt + seccomp combo (bz #855162)
+- Fix scsi hotplug crash (bz #879657)
+- Fix QOM refcount crash (bz #881486)
+
+* Wed Nov 28 2012 Alon Levy <alevy@redhat.com> - 2:1.2.0-25
+* Merge libcacard into qemu, since they both use the same sources now.
+
+* Thu Nov 22 2012 Paolo Bonzini <pbonzini@redhat.com> - 2:1.2.0-24
+- Move vscclient to qemu-common, qemu-nbd to qemu-img
+
+* Tue Nov 20 2012 Alon Levy <alevy@redhat.com> - 2:1.2.0-23
+- Rewrite fix for bz #725965 based on fix for bz #867366
+- Resolve bz #867366
+
 * Fri Nov 16 2012 Paolo Bonzini <pbonzini@redhat.com> - 2:1.2.0-22
 - Fix previous commit
 

@@ -32,6 +32,3 @@ index 025b374..5890d7a 100644
  	DEBUG_ARG("ack = %u", ack);
  	DEBUG_ARG("seq = %u", seq);
  	DEBUG_ARG("flags = %x", flags);
--- 
-1.7.12.1
-

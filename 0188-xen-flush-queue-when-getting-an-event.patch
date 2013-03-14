@@ -32,6 +32,3 @@ index 8b79bfb..cf7d559 100644
  }
  
  static int net_free(struct XenDevice *xendev)
--- 
-1.7.12.1
-

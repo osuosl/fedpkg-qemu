@@ -30,6 +30,3 @@ index fe431d0..b9f1f7a 100644
              if (ret != USB_RET_NAK) {
                  p->result = ret;
                  usb_packet_set_state(p, USB_PACKET_COMPLETE);
--- 
-1.7.12.1
-

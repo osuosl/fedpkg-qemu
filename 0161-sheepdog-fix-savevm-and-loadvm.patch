@@ -36,6 +36,3 @@ index df4f441..e0753ee 100644
          remaining -= data_len;
      }
      ret = size;
--- 
-1.7.12.1
-

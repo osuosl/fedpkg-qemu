@@ -58,6 +58,3 @@ index 3009bd5..5e0cad5 100644
  
  enum {
      SRP_RSP_FLAG_RSPVALID = 1 << 0,
--- 
-1.7.12.1
-

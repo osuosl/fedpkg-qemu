@@ -47,6 +47,3 @@ index ad175db..3fdbbde 100644
              qemu_put_ram_ptr(ptr);
          }
          len -= l;
--- 
-1.7.12.1
-

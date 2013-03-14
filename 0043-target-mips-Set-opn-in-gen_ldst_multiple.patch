@@ -50,6 +50,3 @@ index 7ab769f..c31f91c 100644
      MIPS_DEBUG("%s, %x, %d(%s)", opn, reglist, offset, regnames[base]);
      tcg_temp_free(t0);
      tcg_temp_free(t1);
--- 
-1.7.12.1
-

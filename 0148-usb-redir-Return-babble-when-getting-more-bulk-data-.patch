@@ -32,6 +32,3 @@ index fd1f8cc..ee75217 100644
              }
          }
          p->result = len;
--- 
-1.7.12.1
-

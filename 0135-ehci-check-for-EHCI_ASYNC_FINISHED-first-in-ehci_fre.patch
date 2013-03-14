@@ -1,8 +1,7 @@
 From b3950fe894e2b26f9dba0888af092cb43d01a466 Mon Sep 17 00:00:00 2001
 From: Gerd Hoffmann <kraxel@redhat.com>
 Date: Fri, 31 Aug 2012 10:31:54 +0200
-Subject: [PATCH] ehci: check for EHCI_ASYNC_FINISHED first in
- ehci_free_packet
+Subject: [PATCH] ehci: check for EHCI_ASYNC_FINISHED first in ehci_free_packet
 
 Otherwise we'll see the packet free twice in the trace log even though
 it actually happens only once.
@@ -45,6 +44,3 @@ index 0a6c9ef..23221d0 100644
      QTAILQ_REMOVE(&p->queue->packets, p, next);
      usb_packet_cleanup(&p->packet);
      g_free(p);
--- 
-1.7.12.1
-

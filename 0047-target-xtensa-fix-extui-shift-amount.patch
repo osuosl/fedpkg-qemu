@@ -52,6 +52,3 @@ index 1900bd5..7a1c528 100644
                  tcg_temp_free(tmp);
              }
              break;
--- 
-1.7.12.1
-
