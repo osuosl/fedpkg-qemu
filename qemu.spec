@@ -128,7 +128,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.4.0
-Release: 5%{?dist}
+Release: 6%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -197,7 +197,10 @@ Patch0106: 0106-docs-Fix-generating-qemu-doc.html-with-texinfo-5.patch
 Patch0107: 0107-rtc-test-Fix-test-failures-with-recent-glib.patch
 # Adapt to libiscsi packaging in Fedora (included upstream)
 Patch0108: 0108-iscsi-look-for-pkg-config-file-too.patch
-
+# Fix TCG ld/st optimization.
+# https://bugs.launchpad.net/bugs/1127369
+# Upstream commit 52ae646d4a3ebdcdcc973492c6a56f2c49b6578f.
+Patch0109: 0001-tcg-Fix-occasional-TCG-broken-problem-when-ldst-opti.patch
 
 BuildRequires: SDL-devel
 BuildRequires: zlib-devel
@@ -669,6 +672,10 @@ CAC emulation development files.
 %patch0107 -p1
 # Adapt to libiscsi packaging in Fedora (included upstream)
 %patch0108 -p1
+# Fix TCG ld/st optimization.
+# https://bugs.launchpad.net/bugs/1127369
+# Upstream commit 52ae646d4a3ebdcdcc973492c6a56f2c49b6578f.
+%patch0109 -p1
 
 
 %build
@@ -1278,6 +1285,9 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Sun Mar 31 2013 Richard W.M. Jones <rjones@redhat.com> - 2:1.4.0-6
+- Fix TCG ld/st optimization. https://bugs.launchpad.net/bugs/1127369
+
 * Thu Mar 14 2013 Paolo Bonzini <pbonzini@redhat.com> - 2:1.4.0-5
 - do not package libcacard in the separate_kvm case
 - backport xfsprogs and usbredir flags from el6

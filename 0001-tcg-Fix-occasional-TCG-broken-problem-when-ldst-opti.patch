@@ -1,0 +1,15 @@
+--- qemu-1.4.0.old/translate-all.c	2013-02-15 23:05:35.000000000 +0000
++++ qemu-1.4.0/translate-all.c	2013-03-31 21:04:19.836001728 +0100
+@@ -1310,10 +1310,10 @@
+ /* check whether the given addr is in TCG generated code buffer or not */
+ bool is_tcg_gen_code(uintptr_t tc_ptr)
+ {
+-    /* This can be called during code generation, code_gen_buffer_max_size
++    /* This can be called during code generation, code_gen_buffer_size
+        is used instead of code_gen_ptr for upper boundary checking */
+     return (tc_ptr >= (uintptr_t)code_gen_buffer &&
+-            tc_ptr < (uintptr_t)(code_gen_buffer + code_gen_buffer_max_size));
++            tc_ptr < (uintptr_t)(code_gen_buffer + code_gen_buffer_size));
+ }
+ #endif
+ 
