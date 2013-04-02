@@ -128,7 +128,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.4.0
-Release: 7%{?dist}
+Release: 8%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -419,7 +419,7 @@ Group: Development/Tools
 Requires: %{name}-common = %{epoch}:%{version}-%{release}
 Provides: kvm = 85
 Obsoletes: kvm < 85
-Requires: seavgabios
+Requires: seavgabios-bin
 Requires: seabios-bin >= 0.6.0-2
 Requires: sgabios-bin
 Requires: ipxe-roms-qemu
@@ -1285,6 +1285,9 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Tue Apr 02 2013 Cole Robinson <crobinso@redhat.com> - 2:1.4.0-8
+- Fix dep on seavgabios-bin
+
 * Mon Apr 01 2013 Cole Robinson <crobinso@redhat.com> - 2:1.4.0-7
 - Fixes for iscsi dep
 - Fix TCG ld/st optimization (lp 1127369)
