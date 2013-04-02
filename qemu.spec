@@ -128,7 +128,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.4.0
-Release: 6%{?dist}
+Release: 7%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -195,12 +195,12 @@ Patch0105: 0105-qxl-Add-rom_size-compat-property-fix-migration-from-.patch
 Patch0106: 0106-docs-Fix-generating-qemu-doc.html-with-texinfo-5.patch
 # Fix test ordering with latest glib
 Patch0107: 0107-rtc-test-Fix-test-failures-with-recent-glib.patch
-# Adapt to libiscsi packaging in Fedora (included upstream)
+# Fixes for iscsi dep
 Patch0108: 0108-iscsi-look-for-pkg-config-file-too.patch
-# Fix TCG ld/st optimization.
-# https://bugs.launchpad.net/bugs/1127369
-# Upstream commit 52ae646d4a3ebdcdcc973492c6a56f2c49b6578f.
-Patch0109: 0001-tcg-Fix-occasional-TCG-broken-problem-when-ldst-opti.patch
+# Fix TCG ld/st optimization (lp 1127369)
+Patch0109: 0109-tcg-Fix-occasional-TCG-broken-problem-when-ldst-opti.patch
+# Fix possible crash with VNC and qxl (bz #919777)
+Patch0110: 0110-qxl-better-vga-init-in-enter_vga_mode.patch
 
 BuildRequires: SDL-devel
 BuildRequires: zlib-devel
@@ -419,7 +419,7 @@ Group: Development/Tools
 Requires: %{name}-common = %{epoch}:%{version}-%{release}
 Provides: kvm = 85
 Obsoletes: kvm < 85
-Requires: vgabios >= 0.6c-2
+Requires: seavgabios
 Requires: seabios-bin >= 0.6.0-2
 Requires: sgabios-bin
 Requires: ipxe-roms-qemu
@@ -670,12 +670,12 @@ CAC emulation development files.
 %patch0106 -p1
 # Fix test ordering with latest glib
 %patch0107 -p1
-# Adapt to libiscsi packaging in Fedora (included upstream)
+# Fixes for iscsi dep
 %patch0108 -p1
-# Fix TCG ld/st optimization.
-# https://bugs.launchpad.net/bugs/1127369
-# Upstream commit 52ae646d4a3ebdcdcc973492c6a56f2c49b6578f.
+# Fix TCG ld/st optimization (lp 1127369)
 %patch0109 -p1
+# Fix possible crash with VNC and qxl (bz #919777)
+%patch0110 -p1
 
 
 %build
@@ -822,7 +822,7 @@ rm -rf ${RPM_BUILD_ROOT}%{_datadir}/%{name}/s390-zipl.rom
 
 # Provided by package ipxe
 rm -rf ${RPM_BUILD_ROOT}%{_datadir}/%{name}/pxe*rom
-# Provided by package vgabios
+# Provided by package seavgabios
 rm -rf ${RPM_BUILD_ROOT}%{_datadir}/%{name}/vgabios*bin
 # Provided by package seabios
 rm -rf ${RPM_BUILD_ROOT}%{_datadir}/%{name}/bios.bin
@@ -847,11 +847,11 @@ rom_link() {
     ln -s $1 %{buildroot}%{_datadir}/%{name}/$2
 }
 
-rom_link ../vgabios/VGABIOS-lgpl-latest.bin vgabios.bin
-rom_link ../vgabios/VGABIOS-lgpl-latest.cirrus.bin vgabios-cirrus.bin
-rom_link ../vgabios/VGABIOS-lgpl-latest.qxl.bin vgabios-qxl.bin
-rom_link ../vgabios/VGABIOS-lgpl-latest.stdvga.bin vgabios-stdvga.bin
-rom_link ../vgabios/VGABIOS-lgpl-latest.vmware.bin vgabios-vmware.bin
+rom_link ../seavgabios/vgabios-isavga.bin vgabios.bin
+rom_link ../seavgabios/vgabios-cirrus.bin vgabios-cirrus.bin
+rom_link ../seavgabios/vgabios-qxl.bin vgabios-qxl.bin
+rom_link ../seavgabios/vgabios-stdvga.bin vgabios-stdvga.bin
+rom_link ../seavgabios/vgabios-vmware.bin vgabios-vmware.bin
 rom_link ../seabios/bios.bin bios.bin
 rom_link ../sgabios/sgabios.bin sgabios.bin
 %endif
@@ -945,7 +945,7 @@ make check
 # load kvm modules now, so we can make sure no reboot is needed.
 # If there's already a kvm module installed, we don't mess with it
 sh %{_sysconfdir}/sysconfig/modules/kvm.modules || :
-udevadm trigger --sysname-match=kvm || :
+udevadm trigger --subsystem-match=misc --sysname-match=kvm --action=add || :
 %endif
 
 %if %{without separate_kvm}
@@ -1285,6 +1285,13 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Mon Apr 01 2013 Cole Robinson <crobinso@redhat.com> - 2:1.4.0-7
+- Fixes for iscsi dep
+- Fix TCG ld/st optimization (lp 1127369)
+- Fix possible crash with VNC and qxl (bz #919777)
+- Fix kvm module permissions after first install (bz #907215)
+- Switch to seavgabios by default
+
 * Sun Mar 31 2013 Richard W.M. Jones <rjones@redhat.com> - 2:1.4.0-6
 - Fix TCG ld/st optimization. https://bugs.launchpad.net/bugs/1127369
 
