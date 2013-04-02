@@ -1,0 +1,23 @@
+From 5b2531d6e6cbedfd1f2987680bded39ddcd4954c Mon Sep 17 00:00:00 2001
+From: malc <av1474@comtv.ru>
+Date: Mon, 16 Jul 2012 18:08:36 +0400
+Subject: [PATCH] audio: Unbreak capturing in mixemu case
+
+Signed-off-by: malc <av1474@comtv.ru>
+(cherry picked from commit 83617103984eb4d81cf46c94435f3da2c6f33b55)
+---
+ audio/audio.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/audio/audio.c b/audio/audio.c
+index 0fe95a7..5779f9a 100644
+--- a/audio/audio.c
++++ b/audio/audio.c
+@@ -815,6 +815,7 @@ static int audio_attach_capture (HWVoiceOut *hw)
+         sw->active = hw->enabled;
+         sw->conv = noop_conv;
+         sw->ratio = ((int64_t) hw_cap->info.freq << 32) / sw->info.freq;
++        sw->vol = nominal_volume;
+         sw->rate = st_rate_start (sw->info.freq, hw_cap->info.freq);
+         if (!sw->rate) {
+             dolog ("Could not start rate conversion for `%s'\n", SW_NAME (sw));

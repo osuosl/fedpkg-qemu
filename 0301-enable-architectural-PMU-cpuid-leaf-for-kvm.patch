@@ -1,0 +1,40 @@
+From e8b330acc45acd7e5a1d23a0a07a3caa73205be5 Mon Sep 17 00:00:00 2001
+From: Gleb Natapov <gleb@redhat.com>
+Date: Thu, 15 Dec 2011 12:44:05 +0200
+Subject: [PATCH] enable architectural PMU cpuid leaf for kvm
+
+Signed-off-by: Gleb Natapov <gleb@redhat.com>
+Signed-off-by: Marcelo Tosatti <mtosatti@redhat.com>
+(cherry picked from commit a0fa82085e175bf8ce6d69a3f83695f81af2a649)
+---
+ target-i386/cpuid.c | 17 +++++++++++++----
+ 1 file changed, 13 insertions(+), 4 deletions(-)
+
+diff --git a/target-i386/cpuid.c b/target-i386/cpuid.c
+index 0b3af90..91a104b 100644
+--- a/target-i386/cpuid.c
++++ b/target-i386/cpuid.c
+@@ -1180,10 +1180,19 @@ void cpu_x86_cpuid(CPUX86State *env, uint32_t index, uint32_t count,
+         break;
+     case 0xA:
+         /* Architectural Performance Monitoring Leaf */
+-        *eax = 0;
+-        *ebx = 0;
+-        *ecx = 0;
+-        *edx = 0;
++        if (kvm_enabled()) {
++            KVMState *s = env->kvm_state;
++
++            *eax = kvm_arch_get_supported_cpuid(s, 0xA, count, R_EAX);
++            *ebx = kvm_arch_get_supported_cpuid(s, 0xA, count, R_EBX);
++            *ecx = kvm_arch_get_supported_cpuid(s, 0xA, count, R_ECX);
++            *edx = kvm_arch_get_supported_cpuid(s, 0xA, count, R_EDX);
++        } else {
++            *eax = 0;
++            *ebx = 0;
++            *ecx = 0;
++            *edx = 0;
++        }
+         break;
+     case 0xD:
+         /* Processor Extended State */

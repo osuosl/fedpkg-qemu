@@ -38,7 +38,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.0.1
-Release: 4%{?dist}
+Release: 5%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -75,126 +75,131 @@ Source9: ksmtuned.conf
 Source10: qemu-guest-agent.service
 Source11: 99-qemu-guest-agent.rules
 
-# USB-redir patches all upstream for 1.1 except for the chardev flowcontrol set
-Patch101: 0101-usb-redir-Clear-iso-irq-error-when-stopping-the-stre.patch
-Patch102: 0102-usb-redir-Dynamically-adjust-iso-buffering-size-base.patch
-Patch103: 0103-usb-redir-Pre-fill-our-isoc-input-buffer-before-send.patch
-Patch104: 0104-usb-redir-Try-to-keep-our-buffer-size-near-the-targe.patch
-Patch105: 0105-usb-redir-Improve-some-debugging-messages.patch
-Patch106: 0106-char-Split-out-tcp-socket-close-code-in-a-separate-f.patch
-Patch107: 0107-char-Add-a-QemuChrHandlers-struct-to-initialise-char.patch
-Patch108: 0108-iohandlers-Add-enable-disable_write_fd_handler-funct.patch
-Patch109: 0109-char-Add-framework-for-a-write-unblocked-callback.patch
-Patch110: 0110-char-Update-send_all-to-handle-nonblocking-chardev-w.patch
-Patch111: 0111-char-Equip-the-unix-tcp-backend-to-handle-nonblockin.patch
-Patch112: 0112-char-Throttle-when-host-connection-is-down.patch
-Patch113: 0113-virtio-console-Enable-port-throttling-when-chardev-i.patch
-Patch114: 0114-spice-qemu-char.c-add-throttling.patch
-Patch115: 0115-spice-qemu-char.c-remove-intermediate-buffer.patch
-Patch116: 0116-usb-redir-Add-flow-control-support.patch
-Patch117: 0117-virtio-serial-bus-replay-guest_open-on-migration.patch
-Patch118: 0118-char-Disable-write-callback-if-throttled-chardev-is-.patch
-Patch119: 0119-usb-ehci-Clear-the-portstatus-powner-bit-on-device-d.patch
-Patch120: 0120-usb-redir-Add-the-posibility-to-filter-out-certain-d.patch
-Patch121: 0121-usb-redir-Fix-printing-of-device-version.patch
-Patch122: 0122-usb-redir-Always-clear-device-state-on-filter-reject.patch
-Patch123: 0123-usb-redir-Let-the-usb-host-know-about-our-device-fil.patch
-Patch124: 0124-usb-redir-Limit-return-values-returned-by-iso-packet.patch
-Patch125: 0125-usb-redir-Return-USB_RET_NAK-when-we-ve-no-data-for-.patch
-Patch126: 0126-usb-ehci-Handle-ISO-packets-failing-with-an-error-ot.patch
-Patch127: 0127-usb-ehci-Never-follow-table-entries-with-the-T-bit-s.patch
-Patch128: 0128-usb-ehci-split-our-qh-queue-into-async-and-periodic-.patch
-Patch129: 0129-usb-ehci-always-call-ehci_queues_rip_unused-for-peri.patch
-Patch130: 0130-usb-ehci-Drop-cached-qhs-when-the-doorbell-gets-rung.patch
-Patch131: 0131-usb-ehci-Rip-the-queues-when-the-async-or-period-sch.patch
-Patch132: 0132-usb-ehci-Any-packet-completion-except-for-NAK-should.patch
-Patch133: 0133-usb-ehci-Fix-cerr-tracking.patch
-Patch134: 0134-usb-ehci-Remove-dead-nakcnt-code.patch
-Patch135: 0135-usb-ehci-Fix-and-simplify-nakcnt-handling.patch
-Patch136: 0136-usb-ehci-Remove-dead-isoch_pause-code.patch
-Patch137: 0137-usb-return-BABBLE-rather-then-NAK-when-we-receive-to.patch
-Patch138: 0138-usb-add-USB_RET_IOERROR.patch
-Patch139: 0139-usb-ehci-fix-reset.patch
-Patch140: 0140-usb-ehci-sanity-check-iso-xfers.patch
-Patch141: 0141-usb-ehci-frindex-always-is-a-14-bits-counter.patch
-Patch142: 0142-usb-ehci-Drop-unused-sofv-value.patch
-Patch143: 0143-usb-redir-Notify-our-peer-when-we-reject-a-device-du.patch
-Patch144: 0144-usb-redir-An-interface-count-of-0-is-a-valid-value.patch
-Patch145: 0145-usb-redir-Reset-device-address-and-speed-on-disconne.patch
-Patch146: 0146-usb-redir-Not-finding-an-async-urb-id-is-not-an-erro.patch
-Patch147: 0147-usb-ehci-Ensure-frindex-writes-leave-a-valid-frindex.patch
+# Upstream USB bits and flow control series
+Patch0001: 0001-usb-redir-Clear-iso-irq-error-when-stopping-the-stre.patch
+Patch0002: 0002-usb-redir-Dynamically-adjust-iso-buffering-size-base.patch
+Patch0003: 0003-usb-redir-Pre-fill-our-isoc-input-buffer-before-send.patch
+Patch0004: 0004-usb-redir-Try-to-keep-our-buffer-size-near-the-targe.patch
+Patch0005: 0005-usb-redir-Improve-some-debugging-messages.patch
+Patch0006: 0006-char-Split-out-tcp-socket-close-code-in-a-separate-f.patch
+Patch0007: 0007-char-Add-a-QemuChrHandlers-struct-to-initialise-char.patch
+Patch0008: 0008-iohandlers-Add-enable-disable_write_fd_handler-funct.patch
+Patch0009: 0009-char-Add-framework-for-a-write-unblocked-callback.patch
+Patch0010: 0010-char-Update-send_all-to-handle-nonblocking-chardev-w.patch
+Patch0011: 0011-char-Equip-the-unix-tcp-backend-to-handle-nonblockin.patch
+Patch0012: 0012-char-Throttle-when-host-connection-is-down.patch
+Patch0013: 0013-virtio-console-Enable-port-throttling-when-chardev-i.patch
+Patch0014: 0014-spice-qemu-char.c-add-throttling.patch
+Patch0015: 0015-spice-qemu-char.c-remove-intermediate-buffer.patch
+Patch0016: 0016-usb-redir-Add-flow-control-support.patch
+Patch0017: 0017-virtio-serial-bus-replay-guest_open-on-migration.patch
+Patch0018: 0018-char-Disable-write-callback-if-throttled-chardev-is-.patch
+Patch0019: 0019-usb-ehci-Clear-the-portstatus-powner-bit-on-device-d.patch
+Patch0020: 0020-usb-redir-Add-the-posibility-to-filter-out-certain-d.patch
+Patch0021: 0021-usb-redir-Fix-printing-of-device-version.patch
+Patch0022: 0022-usb-redir-Always-clear-device-state-on-filter-reject.patch
+Patch0023: 0023-usb-redir-Let-the-usb-host-know-about-our-device-fil.patch
+Patch0024: 0024-usb-redir-Limit-return-values-returned-by-iso-packet.patch
+Patch0025: 0025-usb-redir-Return-USB_RET_NAK-when-we-ve-no-data-for-.patch
+Patch0026: 0026-usb-ehci-Handle-ISO-packets-failing-with-an-error-ot.patch
+Patch0027: 0027-usb-ehci-Never-follow-table-entries-with-the-T-bit-s.patch
+Patch0028: 0028-usb-ehci-split-our-qh-queue-into-async-and-periodic-.patch
+Patch0029: 0029-usb-ehci-always-call-ehci_queues_rip_unused-for-peri.patch
+Patch0030: 0030-usb-ehci-Drop-cached-qhs-when-the-doorbell-gets-rung.patch
+Patch0031: 0031-usb-ehci-Rip-the-queues-when-the-async-or-period-sch.patch
+Patch0032: 0032-usb-ehci-Any-packet-completion-except-for-NAK-should.patch
+Patch0033: 0033-usb-ehci-Fix-cerr-tracking.patch
+Patch0034: 0034-usb-ehci-Remove-dead-nakcnt-code.patch
+Patch0035: 0035-usb-ehci-Fix-and-simplify-nakcnt-handling.patch
+Patch0036: 0036-usb-ehci-Remove-dead-isoch_pause-code.patch
+Patch0037: 0037-usb-return-BABBLE-rather-then-NAK-when-we-receive-to.patch
+Patch0038: 0038-usb-add-USB_RET_IOERROR.patch
+Patch0039: 0039-usb-ehci-fix-reset.patch
+Patch0040: 0040-usb-ehci-sanity-check-iso-xfers.patch
+Patch0041: 0041-usb-ehci-frindex-always-is-a-14-bits-counter.patch
+Patch0042: 0042-usb-ehci-Drop-unused-sofv-value.patch
+Patch0043: 0043-usb-redir-Notify-our-peer-when-we-reject-a-device-du.patch
+Patch0044: 0044-usb-redir-An-interface-count-of-0-is-a-valid-value.patch
+Patch0045: 0045-usb-redir-Reset-device-address-and-speed-on-disconne.patch
+Patch0046: 0046-usb-redir-Not-finding-an-async-urb-id-is-not-an-erro.patch
+Patch0047: 0047-usb-ehci-Ensure-frindex-writes-leave-a-valid-frindex.patch
 
-# General bug fixes
-Patch202: qemu-virtio-9p-noatime.patch
-Patch203: 0203-pci-fix-corrupted-pci-conf-index-register-by-unaligned-write.patch
-
-# Feature patches, should be in 1.1 before release
-Patch301: enable_architectural_PMU_cpuid_leaf.patch
-Patch302: qemu_virtio-scsi_support.patch
-
-# QXL fixes backports, all are upstream for 1.1
-Patch401: 0401-qxl-Slot-sanity-check-in-qxl_phys2virt-is-off-by-one.patch
-Patch402: 0402-input-send-kbd-mouse-events-only-to-running-guests.patch
-Patch403: 0403-qxl-fix-warnings-on-32bit.patch
-Patch404: 0404-qxl-don-t-render-stuff-when-the-vm-is-stopped.patch
-Patch405: 0405-qxl-set-only-off-screen-surfaces-dirty-instead-of-th.patch
-Patch406: 0406-qxl-make-sure-primary-surface-is-saved-on-migration-.patch
-Patch407: 0407-Add-SPICE-support-to-add_client-monitor-command.patch
-Patch408: 0408-spice-support-ipv6-channel-address-in-monitor-events.patch
-Patch409: 0409-qxl-drop-vram-bar-minimum-size.patch
-Patch410: 0410-qxl-move-ram-size-init-to-new-function.patch
-Patch411: 0411-qxl-add-user-friendly-bar-size-properties.patch
-Patch412: 0412-qxl-fix-spice-sdl-no-cursor-regression.patch
-Patch413: 0413-sdl-remove-NULL-check-g_malloc0-can-t-fail.patch
-Patch414: 0414-qxl-drop-qxl_spice_update_area_async-definition.patch
-Patch415: 0415-qxl-require-spice-0.8.2.patch
-Patch416: 0416-qxl-remove-flipped.patch
-Patch417: 0417-qxl-introduce-QXLCookie.patch
-Patch418: 0418-qxl-make-qxl_render_update-async.patch
-Patch419: 0419-spice-use-error_report-to-report-errors.patch
-Patch420: 0420-Error-out-when-tls-channel-option-is-used-without-TL.patch
-Patch421: 0421-qxl-properly-handle-upright-and-non-shared-surfaces.patch
-Patch422: 0422-spice-set-spice-uuid-and-name.patch
-Patch423: 0423-monitor-fix-client_migrate_info-error-handling.patch
-Patch424: 0424-qxl-init_pipe_signaling-exit-on-failure.patch
-Patch425: 0425-qxl-switch-qxl.c-to-trace-events.patch
-Patch426: 0426-qxl-qxl_render.c-add-trace-events.patch
-Patch427: 0427-hw-qxl.c-Fix-compilation-failures-on-32-bit-hosts.patch
-Patch428: 0428-spice-fix-broken-initialization.patch
-Patch429: 0429-ui-spice-display.c-Fix-compilation-warnings-on-32-bi.patch
-Patch430: 0430-ui-spice-display-use-uintptr_t-when-casting-qxl-phys.patch
-Patch431: 0431-qxl-add-optinal-64bit-vram-bar.patch
-Patch432: 0432-qxl-set-default-values-of-vram-_size_mb-to-1.patch
-Patch433: 0433-qxl-render-fix-broken-vnc-spice-since-commit-f934493.patch
-Patch434: 0434-qxl-don-t-assert-on-guest-create_guest_primary.patch
+# QXL backports from 1.1
+Patch0101: 0101-qxl-Slot-sanity-check-in-qxl_phys2virt-is-off-by-one.patch
+Patch0102: 0102-input-send-kbd-mouse-events-only-to-running-guests.patch
+Patch0103: 0103-qxl-fix-warnings-on-32bit.patch
+Patch0104: 0104-qxl-don-t-render-stuff-when-the-vm-is-stopped.patch
+Patch0105: 0105-qxl-set-only-off-screen-surfaces-dirty-instead-of-th.patch
+Patch0106: 0106-qxl-make-sure-primary-surface-is-saved-on-migration-.patch
+Patch0107: 0107-Add-SPICE-support-to-add_client-monitor-command.patch
+Patch0108: 0108-spice-support-ipv6-channel-address-in-monitor-events.patch
+Patch0109: 0109-qxl-drop-vram-bar-minimum-size.patch
+Patch0110: 0110-qxl-move-ram-size-init-to-new-function.patch
+Patch0111: 0111-qxl-add-user-friendly-bar-size-properties.patch
+Patch0112: 0112-qxl-fix-spice-sdl-no-cursor-regression.patch
+Patch0113: 0113-sdl-remove-NULL-check-g_malloc0-can-t-fail.patch
+Patch0114: 0114-qxl-drop-qxl_spice_update_area_async-definition.patch
+Patch0115: 0115-qxl-require-spice-0.8.2.patch
+Patch0116: 0116-qxl-remove-flipped.patch
+Patch0117: 0117-qxl-introduce-QXLCookie.patch
+Patch0118: 0118-qxl-make-qxl_render_update-async.patch
+Patch0119: 0119-spice-use-error_report-to-report-errors.patch
+Patch0120: 0120-Error-out-when-tls-channel-option-is-used-without-TL.patch
+Patch0121: 0121-qxl-properly-handle-upright-and-non-shared-surfaces.patch
+Patch0122: 0122-spice-set-spice-uuid-and-name.patch
+Patch0123: 0123-monitor-fix-client_migrate_info-error-handling.patch
+Patch0124: 0124-qxl-init_pipe_signaling-exit-on-failure.patch
+Patch0125: 0125-qxl-switch-qxl.c-to-trace-events.patch
+Patch0126: 0126-qxl-qxl_render.c-add-trace-events.patch
+Patch0127: 0127-hw-qxl.c-Fix-compilation-failures-on-32-bit-hosts.patch
+Patch0128: 0128-spice-fix-broken-initialization.patch
+Patch0129: 0129-ui-spice-display.c-Fix-compilation-warnings-on-32-bi.patch
+Patch0130: 0130-ui-spice-display-use-uintptr_t-when-casting-qxl-phys.patch
+Patch0131: 0131-qxl-add-optinal-64bit-vram-bar.patch
+Patch0132: 0132-qxl-set-default-values-of-vram-_size_mb-to-1.patch
+Patch0133: 0133-qxl-render-fix-broken-vnc-spice-since-commit-f934493.patch
+Patch0134: 0134-qxl-don-t-assert-on-guest-create_guest_primary.patch
 
 # Spice volume control backports, all are upstream for 1.1
-Patch501: 0501-audio-add-VOICE_VOLUME-ctl.patch
-Patch502: 0502-audio-don-t-apply-volume-effect-if-backend-has-VOICE.patch
-Patch503: 0503-hw-ac97-remove-USE_MIXER-code.patch
-Patch504: 0504-hw-ac97-the-volume-mask-is-not-only-0x1f.patch
-Patch505: 0505-hw-ac97-add-support-for-volume-control.patch
-Patch506: 0506-audio-spice-add-support-for-volume-control.patch
-Patch507: 0507-Do-not-use-pa_simple-PulseAudio-API.patch
-Patch508: 0508-configure-pa_simple-is-not-needed-anymore.patch
-Patch509: 0509-Allow-controlling-volume-with-PulseAudio-backend.patch
-# Fix fedora guest hang with virtio console (bz 837925)
-Patch510: %{name}-virtio-console-unconnected-pty.patch
-# Fix VNC audio tunnelling (bz 840653)
-Patch511: %{name}-fix-vnc-audio.patch
-# CVE-2012-2652: Possible symlink attacks with -snapshot (bz 825697, bz
-# 824919)
-Patch512: %{name}-snapshot-symlink-attack.patch
-# Fix systemtap tapsets (bz 831763)
-Patch513: %{name}-fix-systemtap.patch
+Patch0201: 0201-audio-add-VOICE_VOLUME-ctl.patch
+Patch0202: 0202-audio-don-t-apply-volume-effect-if-backend-has-VOICE.patch
+Patch0203: 0203-hw-ac97-remove-USE_MIXER-code.patch
+Patch0204: 0204-hw-ac97-the-volume-mask-is-not-only-0x1f.patch
+Patch0205: 0205-hw-ac97-add-support-for-volume-control.patch
+Patch0206: 0206-audio-spice-add-support-for-volume-control.patch
+Patch0207: 0207-Do-not-use-pa_simple-PulseAudio-API.patch
+Patch0208: 0208-configure-pa_simple-is-not-needed-anymore.patch
+Patch0209: 0209-Allow-controlling-volume-with-PulseAudio-backend.patch
+
+# F17 feature backports
+Patch0301: 0301-enable-architectural-PMU-cpuid-leaf-for-kvm.patch
+Patch0302: 0302-virtio-scsi-backport.patch
+# Remove O_NOATIME for 9p filesystems
+Patch0303: 0303-hw-9pfs-Remove-O_NOATIME-flag-from-9pfs-open-calls-i.patch
+# Fix booting NetBSD VM (bz #830261)
+Patch0304: 0304-pci-fix-corrupted-pci-conf-index-register-by-unalign.patch
+# Fix fedora guest hang with virtio console (bz #837925)
+Patch0305: 0305-virtio-console-Fix-failure-on-unconnected-pty.patch
+# Fix VNC audio tunnelling (bz #840653)
+Patch0306: 0306-audio-Unbreak-capturing-in-mixemu-case.patch
+# CVE-2012-2652: Possible symlink attacks with -snapshot (bz #825697, bz
+# #824919)
+Patch0307: 0307-block-prevent-snapshot-mode-TMPDIR-symlink-attack.patch
+# Fix systemtap tapsets (bz #831763)
+Patch0308: 0308-Fix-systemtap-keyword-collisions.patch
 # Remove comma from 1.0.1 version number
-Patch514: 0001-qemu-1.0.1-VERSION.patch
-# CVE-2012-3515 VT100 emulation vulnerability (bz 854600, bz 851252)
-Patch515: 0002-console-bounds-check-whenever-changing-the-cursor-du.patch
-# Fix slirp crash (bz 845793)
-Patch516: 0003-slirp-Fix-requeuing-of-batchq-packets-in-if_start.patch
-# CVE-2012-6075: Buffer overflow in e1000 nic (bz 889301, bz 889304)
-Patch517: 0001-e1000-Discard-oversized-packets-based-on-SBP-LPE.patch
+Patch0309: 0309-qemu-1.0.1-VERSION.patch
+# CVE-2012-3515 VT100 emulation vulnerability (bz #854600, bz #851252)
+Patch0310: 0310-console-bounds-check-whenever-changing-the-cursor-du.patch
+# Fix slirp crash (bz #845793)
+Patch0311: 0311-slirp-Fix-requeuing-of-batchq-packets-in-if_start.patch
+# CVE-2012-6075: Buffer overflow in e1000 nic (bz #889301, bz #889304)
+Patch0312: 0312-e1000-Discard-packets-that-are-too-long-if-SBP-and-L.patch
+Patch0313: 0313-e1000-Discard-oversized-packets-based-on-SBP-LPE.patch
+# Fix -vga vmware crashes (bz #836260)
+Patch0314: 0314-vmware_vga-fix-out-of-bounds-and-invalid-rects-updat.patch
+# Fix vhost crash (bz #918272)
+Patch0315: 0315-vhost-Fix-size-of-dirty-log-sync-on-resize.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: SDL-devel zlib-devel which texi2html gnutls-devel cyrus-sasl-devel
@@ -447,112 +452,131 @@ such as kvm_stat.
 %prep
 %setup -q -n qemu-kvm-%{version}
 
-%patch101 -p1
-%patch102 -p1
-%patch103 -p1
-%patch104 -p1
-%patch105 -p1
-%patch106 -p1
-%patch107 -p1
-%patch108 -p1
-%patch109 -p1
-%patch110 -p1
-%patch111 -p1
-%patch112 -p1
-%patch113 -p1
-%patch114 -p1
-%patch115 -p1
-%patch116 -p1
-%patch117 -p1
-%patch118 -p1
-%patch119 -p1
-%patch120 -p1
-%patch121 -p1
-%patch122 -p1
-%patch123 -p1
-%patch124 -p1
-%patch125 -p1
-%patch126 -p1
-%patch127 -p1
-%patch128 -p1
-%patch129 -p1
-%patch130 -p1
-%patch131 -p1
-%patch132 -p1
-%patch133 -p1
-%patch134 -p1
-%patch135 -p1
-%patch136 -p1
-%patch137 -p1
-%patch138 -p1
-%patch139 -p1
-%patch140 -p1
-%patch141 -p1
-%patch142 -p1
-%patch143 -p1
-%patch144 -p1
-%patch145 -p1
-%patch146 -p1
-%patch147 -p1
+# Upstream USB bits and flow control series
+%patch0001 -p1
+%patch0002 -p1
+%patch0003 -p1
+%patch0004 -p1
+%patch0005 -p1
+%patch0006 -p1
+%patch0007 -p1
+%patch0008 -p1
+%patch0009 -p1
+%patch0010 -p1
+%patch0011 -p1
+%patch0012 -p1
+%patch0013 -p1
+%patch0014 -p1
+%patch0015 -p1
+%patch0016 -p1
+%patch0017 -p1
+%patch0018 -p1
+%patch0019 -p1
+%patch0020 -p1
+%patch0021 -p1
+%patch0022 -p1
+%patch0023 -p1
+%patch0024 -p1
+%patch0025 -p1
+%patch0026 -p1
+%patch0027 -p1
+%patch0028 -p1
+%patch0029 -p1
+%patch0030 -p1
+%patch0031 -p1
+%patch0032 -p1
+%patch0033 -p1
+%patch0034 -p1
+%patch0035 -p1
+%patch0036 -p1
+%patch0037 -p1
+%patch0038 -p1
+%patch0039 -p1
+%patch0040 -p1
+%patch0041 -p1
+%patch0042 -p1
+%patch0043 -p1
+%patch0044 -p1
+%patch0045 -p1
+%patch0046 -p1
+%patch0047 -p1
 
-%patch202 -p1
-%patch203 -p1
+# QXL backports from 1.1
+%patch0101 -p1
+%patch0102 -p1
+%patch0103 -p1
+%patch0104 -p1
+%patch0105 -p1
+%patch0106 -p1
+%patch0107 -p1
+%patch0108 -p1
+%patch0109 -p1
+%patch0110 -p1
+%patch0111 -p1
+%patch0112 -p1
+%patch0113 -p1
+%patch0114 -p1
+%patch0115 -p1
+%patch0116 -p1
+%patch0117 -p1
+%patch0118 -p1
+%patch0119 -p1
+%patch0120 -p1
+%patch0121 -p1
+%patch0122 -p1
+%patch0123 -p1
+%patch0124 -p1
+%patch0125 -p1
+%patch0126 -p1
+%patch0127 -p1
+%patch0128 -p1
+%patch0129 -p1
+%patch0130 -p1
+%patch0131 -p1
+%patch0132 -p1
+%patch0133 -p1
+%patch0134 -p1
 
-%patch301 -p1
-%patch302 -p1
+# Spice volume control backports, all are upstream for 1.1
+%patch0201 -p1
+%patch0202 -p1
+%patch0203 -p1
+%patch0204 -p1
+%patch0205 -p1
+%patch0206 -p1
+%patch0207 -p1
+%patch0208 -p1
+%patch0209 -p1
 
-%patch401 -p1
-%patch402 -p1
-%patch403 -p1
-%patch404 -p1
-%patch405 -p1
-%patch406 -p1
-%patch407 -p1
-%patch408 -p1
-%patch409 -p1
-%patch410 -p1
-%patch411 -p1
-%patch412 -p1
-%patch413 -p1
-%patch414 -p1
-%patch415 -p1
-%patch416 -p1
-%patch417 -p1
-%patch418 -p1
-%patch419 -p1
-%patch420 -p1
-%patch421 -p1
-%patch422 -p1
-%patch423 -p1
-%patch424 -p1
-%patch425 -p1
-%patch426 -p1
-%patch427 -p1
-%patch428 -p1
-%patch429 -p1
-%patch430 -p1
-%patch431 -p1
-%patch432 -p1
-%patch433 -p1
-%patch434 -p1
-
-%patch501 -p1
-%patch502 -p1
-%patch503 -p1
-%patch504 -p1
-%patch505 -p1
-%patch506 -p1
-%patch507 -p1
-%patch508 -p1
-%patch509 -p1
-%patch510 -p1
-%patch511 -p1
-%patch512 -p1
-%patch513 -p1
-%patch514 -p1
-%patch515 -p1
-%patch516 -p1
-%patch517 -p1
+# F17 feature backports
+%patch0301 -p1
+%patch0302 -p1
+# Remove O_NOATIME for 9p filesystems
+%patch0303 -p1
+# Fix booting NetBSD VM (bz #830261)
+%patch0304 -p1
+# Fix fedora guest hang with virtio console (bz #837925)
+%patch0305 -p1
+# Fix VNC audio tunnelling (bz #840653)
+%patch0306 -p1
+# CVE-2012-2652: Possible symlink attacks with -snapshot (bz #825697, bz
+# #824919)
+%patch0307 -p1
+# Fix systemtap tapsets (bz #831763)
+%patch0308 -p1
+# Remove comma from 1.0.1 version number
+%patch0309 -p1
+# CVE-2012-3515 VT100 emulation vulnerability (bz #854600, bz #851252)
+%patch0310 -p1
+# Fix slirp crash (bz #845793)
+%patch0311 -p1
+# CVE-2012-6075: Buffer overflow in e1000 nic (bz #889301, bz #889304)
+%patch0312 -p1
+%patch0313 -p1
+# Fix -vga vmware crashes (bz #836260)
+%patch0314 -p1
+# Fix vhost crash (bz #918272)
+%patch0315 -p1
 
 
 %build
@@ -789,7 +813,7 @@ rm -rf $RPM_BUILD_ROOT
 # load kvm modules now, so we can make sure no reboot is needed.
 # If there's already a kvm module installed, we don't mess with it
 sh %{_sysconfdir}/sysconfig/modules/kvm.modules || :
-udevadm trigger --sysname-match=kvm || :
+udevadm trigger --subsystem-match=misc --sysname-match=kvm --action=add || :
 %endif
 
 %post common
@@ -993,6 +1017,11 @@ fi
 %{_mandir}/man1/qemu-img.1*
 
 %changelog
+* Tue Apr 02 2013 Cole Robinson <crobinso@redhat.com> - 2:1.0.1-5
+- Fix -vga vmware crashes (bz #836260)
+- Fix vhost crash (bz #918272)
+- Fix kvm module permissions after first install (bz #907215)
+
 * Wed Jan 30 2013 Kyle McMartin <kmcmarti@redhat.com> - 2:1.0.1-4
 - pci: fix unaligned writes to pci config index register (rhbz#830261)
    (resulted in NetBSD being unable to boot in a VM.)

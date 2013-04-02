@@ -1,0 +1,30 @@
+From 7d065557153bd8fdcb6c97aed8554bb1f2c39496 Mon Sep 17 00:00:00 2001
+From: Cole Robinson <crobinso@redhat.com>
+Date: Wed, 6 Feb 2013 16:48:17 -0500
+Subject: [PATCH] Fix systemtap keyword collisions
+
+This is all upstream, this is just a manual backport
+---
+ scripts/tracetool | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/scripts/tracetool b/scripts/tracetool
+index 4c9951d..3b4e39b 100755
+--- a/scripts/tracetool
++++ b/scripts/tracetool
+@@ -500,6 +500,15 @@ EOF
+         if [ "$arg" = "limit" ]; then
+           arg="_limit"
+         fi
++        if [ "$arg" = "in" ]; then
++          arg="_in"
++        fi
++        if [ "$arg" = "next" ]; then
++          arg="_next"
++        fi
++        if [ "$arg" = "self" ]; then
++          arg="_self"
++        fi
+         cat <<EOF
+   $arg = \$arg$i;
+ EOF

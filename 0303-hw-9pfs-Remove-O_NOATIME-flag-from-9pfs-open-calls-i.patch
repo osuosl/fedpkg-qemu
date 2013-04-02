@@ -1,0 +1,44 @@
+From 9dfc18664eff3d85be4a7bcb7c503adc41099565 Mon Sep 17 00:00:00 2001
+From: "Daniel P. Berrange" <berrange@redhat.com>
+Date: Mon, 16 Jan 2012 18:11:40 +0000
+Subject: [PATCH] hw/9pfs: Remove O_NOATIME flag from 9pfs open() calls in
+ readonly mode
+
+When 2c74c2cb4bedddbfa67628fbd5f9273b4e0e9903 added support for
+the 'readonly' flag against 9p filesystems, it also made QEMU
+add the O_NOATIME flag as a side-effect.
+
+The O_NOATIME flag, however, may only be set by the file owner,
+or a user with CAP_FOWNER capability.  QEMU cannot assume that
+this is the case for filesytems exported to QEMU.
+
+eg, run QEMU as non-root, and attempt to pass the host OS
+filesystem through to the guest OS with readonly enable.
+The result is that the guest OS cannot open any files at
+all.
+
+If O_NOATIME is really required, it should be optionally
+enabled via a separate QEMU command line flag.
+
+ * hw/9pfs/virtio-9p.c: Remove O_NOATIME
+
+Acked-by: M. Mohan Kumar <mohan@in.ibm.com>
+Signed-off-by: Daniel P. Berrange <berrange@redhat.com>
+Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.vnet.ibm.com>
+(cherry picked from commit eed968607d656a218712df47a5e0432c21fd6994)
+---
+ hw/9pfs/virtio-9p.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/hw/9pfs/virtio-9p.c b/hw/9pfs/virtio-9p.c
+index b3fc3d0..2503e49 100644
+--- a/hw/9pfs/virtio-9p.c
++++ b/hw/9pfs/virtio-9p.c
+@@ -1560,7 +1560,6 @@ static void v9fs_open(void *opaque)
+                 err = -EROFS;
+                 goto out;
+             }
+-            flags |= O_NOATIME;
+         }
+         err = v9fs_co_open(pdu, fidp, flags);
+         if (err < 0) {

@@ -1,0 +1,30 @@
+From 3e69c5cc77c4e2e2b9c07d0d30e399705e3cbf09 Mon Sep 17 00:00:00 2001
+From: Hans de Goede <hdegoede@redhat.com>
+Date: Sun, 26 Feb 2012 15:51:50 +0100
+Subject: [PATCH] usb-redir: Return USB_RET_NAK when we've no data for an
+ interrupt endpoint
+
+We should return USB_RET_NAK, rather then a 0 sized packet, when we've no data
+for an interrupt IN endpoint.
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ usb-redir.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/usb-redir.c b/usb-redir.c
+index c0ac7be..d10be6f 100644
+--- a/usb-redir.c
++++ b/usb-redir.c
+@@ -557,7 +557,10 @@ static int usbredir_handle_interrupt_data(USBRedirDevice *dev,
+             /* Check interrupt_error for stream errors */
+             status = dev->endpoint[EP2I(ep)].interrupt_error;
+             dev->endpoint[EP2I(ep)].interrupt_error = 0;
+-            return usbredir_handle_status(dev, status, 0);
++            if (status) {
++                return usbredir_handle_status(dev, status, 0);
++            }
++            return USB_RET_NAK;
+         }
+         DPRINTF("interrupt-token-in ep %02X status %d len %d\n", ep,
+                 intp->status, intp->len);

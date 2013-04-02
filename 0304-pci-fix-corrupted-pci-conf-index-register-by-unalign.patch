@@ -1,0 +1,36 @@
+From 61c38140c3453b854502ed2eac2c7d844b844ad0 Mon Sep 17 00:00:00 2001
+From: Avi Kivity <avi@redhat.com>
+Date: Wed, 4 Jan 2012 16:28:42 +0200
+Subject: [PATCH] pci: fix corrupted pci conf index register by unaligned write
+
+Commit d0ed8076cbdc261 converted the PCI config access to the memory
+API, but also inadvertantly changed it to accept unaligned writes,
+and corrupt the index register in the process.  This causes a regression
+booting NetBSD.
+
+Fix by ignoring unaligned or non-dword writes.
+
+https://bugs.launchpad.net/qemu/+bug/897771
+
+Reported-by: Andreas Gustafsson <gson@gson.org>
+Signed-off-by: Avi Kivity <avi@redhat.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+(cherry picked from commit cdde6ffc27517bdf069734fbc5693ce2b14edc75)
+---
+ hw/pci_host.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/hw/pci_host.c b/hw/pci_host.c
+index 44c6c20..8041778 100644
+--- a/hw/pci_host.c
++++ b/hw/pci_host.c
+@@ -101,6 +101,9 @@ static void pci_host_config_write(void *opaque, target_phys_addr_t addr,
+ 
+     PCI_DPRINTF("%s addr " TARGET_FMT_plx " len %d val %"PRIx64"\n",
+                 __func__, addr, len, val);
++    if (addr != 0 || len != 4) {
++        return;
++    }
+     s->config_reg = val;
+ }
+ 

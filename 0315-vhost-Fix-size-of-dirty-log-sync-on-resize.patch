@@ -1,0 +1,60 @@
+From 7bf47a086242370adfabd65e38d28d7b3e36933d Mon Sep 17 00:00:00 2001
+From: Alex Williamson <alex.williamson@redhat.com>
+Date: Fri, 13 Aug 2010 09:54:52 -0400
+Subject: [PATCH] vhost: Fix size of dirty log sync on resize
+
+When the vhost log is resized, we want to sync up to
+the size of the old log.  With that end address in place,
+ignore regions that start after then end rather than
+hitting assert.
+
+This also addresses the following crash report:
+When migrating a vm using vhost-net we hit the following assertion:
+
+qemu-kvm: /usr/src/packages/BUILD/qemu-kvm-0.15.1/hw/vhost.c:30:
+vhost_dev_sync_region: Assertion `start / (0x1000 * (8 *
+sizeof(vhost_log_chunk_t))) < dev->log_size' failed.
+
+The cases which the end < start check is intended to catch, such as
+for vga video memory, will also likely trigger the assertion.
+Reorder the code to handle this correctly.
+
+Reported-by: Josh Durgin <josh.durgin@dreamhost.com>
+Signed-off-by: Bruce Rogers <brogers@suse.com>
+Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+(cherry picked from commit e314672a8a95f5dc98534f0682fce50fb83dbc5c)
+
+Conflicts:
+	hw/vhost.c
+---
+ hw/vhost.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/hw/vhost.c b/hw/vhost.c
+index 0870cb7..06daa7e 100644
+--- a/hw/vhost.c
++++ b/hw/vhost.c
+@@ -26,11 +26,11 @@ static void vhost_dev_sync_region(struct vhost_dev *dev,
+     vhost_log_chunk_t *to = dev->log + end / VHOST_LOG_CHUNK + 1;
+     uint64_t addr = (start / VHOST_LOG_CHUNK) * VHOST_LOG_CHUNK;
+ 
+-    assert(end / VHOST_LOG_CHUNK < dev->log_size);
+-    assert(start / VHOST_LOG_CHUNK < dev->log_size);
+     if (end < start) {
+         return;
+     }
++    assert(end / VHOST_LOG_CHUNK < dev->log_size);
++
+     for (;from < to; ++from) {
+         vhost_log_chunk_t log;
+         int bit;
+@@ -260,7 +260,7 @@ static inline void vhost_dev_log_resize(struct vhost_dev* dev, uint64_t size)
+     r = ioctl(dev->control, VHOST_SET_LOG_BASE, &log_base);
+     assert(r >= 0);
+     vhost_client_sync_dirty_bitmap(&dev->client, 0,
+-                                   (target_phys_addr_t)~0x0ull);
++                                   dev->log_size * VHOST_LOG_CHUNK - 1);
+     if (dev->log) {
+         g_free(dev->log);
+     }

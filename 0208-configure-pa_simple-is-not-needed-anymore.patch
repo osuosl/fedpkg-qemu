@@ -1,0 +1,28 @@
+From c0c2606fbf87ee34cca9545017471b185e7e4b46 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Marc-Andr=C3=A9=20Lureau?= <marcandre.lureau@gmail.com>
+Date: Tue, 17 Apr 2012 14:32:42 +0200
+Subject: [PATCH] configure: pa_simple is not needed anymore
+
+Signed-off-by: Marc-Andr? Lureau <marcandre.lureau@redhat.com>
+Signed-off-by: malc <av1474@comtv.ru>
+---
+ configure | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/configure b/configure
+index 9bdeea7..33bdf10 100755
+--- a/configure
++++ b/configure
+@@ -1791,9 +1791,9 @@ for drv in $audio_drv_list; do
+     ;;
+ 
+     pa)
+-    audio_drv_probe $drv pulse/simple.h "-lpulse-simple -lpulse" \
+-        "pa_simple *s = 0; pa_simple_free(s); return 0;"
+-    libs_softmmu="-lpulse -lpulse-simple $libs_softmmu"
++    audio_drv_probe $drv pulse/mainloop.h "-lpulse" \
++        "pa_mainloop *m = 0; pa_mainloop_free (m); return 0;"
++    libs_softmmu="-lpulse $libs_softmmu"
+     audio_pt_int="yes"
+     ;;
+ 

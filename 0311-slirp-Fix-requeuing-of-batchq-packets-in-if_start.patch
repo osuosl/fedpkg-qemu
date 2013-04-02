@@ -1,0 +1,89 @@
+From 67e7070899cdef35a94714569cd48b7ea0b5e572 Mon Sep 17 00:00:00 2001
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Date: Fri, 17 Feb 2012 16:26:38 +0100
+Subject: [PATCH] slirp: Fix requeuing of batchq packets in if_start
+
+In case we requeued a packet that was the head of a longer session
+queue, we failed to restore this ordering. Also, we did not properly
+deal with changes to Slirp::next_m.
+
+Instead of a cumbersome roll back, this fix simply avoids any changes
+until we know if the packet was actually sent. Both fixes crashes due
+to inconsistent queues and simplifies the logic.
+
+Thanks to Zhi Yong Wu who found the reason for these crashes.
+
+CC: Zhi Yong Wu <wuzhy@linux.vnet.ibm.com>
+CC: Fabien Chouteau <chouteau@adacore.com>
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+(cherry picked from commit b248ede2ef2792d364bd305e5e92e24921c924a8)
+Signed-off-by: Cole Robinson <crobinso@redhat.com>
+---
+ slirp/if.c | 35 +++++++++++++++++++----------------
+ 1 file changed, 19 insertions(+), 16 deletions(-)
+
+diff --git a/slirp/if.c b/slirp/if.c
+index 2852396..75a3c26 100644
+--- a/slirp/if.c
++++ b/slirp/if.c
+@@ -156,6 +156,7 @@ if_start(Slirp *slirp)
+ {
+     uint64_t now = qemu_get_clock_ns(rt_clock);
+     int requeued = 0;
++    bool from_batchq = false;
+ 	struct mbuf *ifm, *ifqt;
+ 
+ 	DEBUG_CALL("if_start");
+@@ -181,13 +182,26 @@ if_start(Slirp *slirp)
+ 		else
+ 		   ifm = slirp->if_batchq.ifq_next;
+ 
+-		/* Set which packet to send on next iteration */
+-		slirp->next_m = ifm->ifq_next;
++                from_batchq = true;
+ 	}
++
++        slirp->if_queued--;
++
++        /* Try to send packet unless it already expired */
++        if (ifm->expiration_date >= now && !if_encap(slirp, ifm)) {
++            /* Packet is delayed due to pending ARP resolution */
++            requeued++;
++            goto out;
++        }
++
++        if (from_batchq) {
++            /* Set which packet to send on next iteration */
++            slirp->next_m = ifm->ifq_next;
++        }
++
+ 	/* Remove it from the queue */
+ 	ifqt = ifm->ifq_prev;
+ 	remque(ifm);
+-	slirp->if_queued--;
+ 
+ 	/* If there are more packets for this session, re-queue them */
+ 	if (ifm->ifs_next != /* ifm->ifs_prev != */ ifm) {
+@@ -202,20 +216,9 @@ if_start(Slirp *slirp)
+ 		   ifm->ifq_so->so_nqueued = 0;
+ 	}
+ 
+-        if (ifm->expiration_date < now) {
+-            /* Expired */
+-            m_free(ifm);
+-        } else {
+-            /* Encapsulate the packet for sending */
+-            if (if_encap(slirp, ifm)) {
+-                m_free(ifm);
+-            } else {
+-                /* re-queue */
+-                insque(ifm, ifqt);
+-                requeued++;
+-            }
+-        }
++        m_free(ifm);
+ 
++ out:
+ 	if (slirp->if_queued)
+ 	   goto again;
+ 
