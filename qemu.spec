@@ -109,7 +109,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.2.2
-Release: 7%{?dist}
+Release: 8%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -148,7 +148,6 @@ Source9: ksmtuned.conf
 Source10: qemu-guest-agent.service
 Source11: 99-qemu-guest-agent.rules
 Source12: bridge.conf
-
 
 # Stable 1.2.1 patches
 Patch0001: 0001-target-xtensa-convert-host-errno-values-to-guest.patch
@@ -519,23 +518,33 @@ Patch0635: 0635-usb-redir-Don-t-make-migration-fail-in-none-seamless.patch
 Patch0701: 0701-mips-Fix-link-error-with-piix4_pm_init.patch
 # Add ./configure --disable-kvm-options
 Patch0702: 0702-configure-Add-disable-kvm-options.patch
-# Fix loading arm initrd if kernel is very large (bz 862766)
+# Fix loading arm initrd if kernel is very large (bz #862766)
 Patch0703: 0703-arm_boot-Change-initrd-load-address-to-halfway-throu.patch
-# libcacard build fixes
+# Don't use reserved word 'function' in systemtap files (bz #871286)
 Patch0704: 0704-dtrace-backend-add-function-to-reserved-words.patch
+# libcacard build fixes
 Patch0705: 0705-libcacard-fix-missing-symbols-in-libcacard.so.patch
 Patch0706: 0706-configure-move-vscclient-binary-under-libcacard.patch
-# Fix libvirt + seccomp combo (bz 855162)
 Patch0707: 0707-libcacard-fix-missing-symbol-in-libcacard.so.patch
-# CVE-2012-6075: Buffer overflow in e1000 nic (bz 889301, bz 889304)
+# Fix libvirt + seccomp combo (bz #855162)
 Patch0708: 0708-seccomp-adding-new-syscalls-bugzilla-855162.patch
-# Fix boot hang if console is not connected (bz 894451)
+# CVE-2012-6075: Buffer overflow in e1000 nic (bz #889301, bz #889304)
 Patch0709: 0709-e1000-Discard-oversized-packets-based-on-SBP-LPE.patch
-# Fix segfault with zero length virtio-scsi disk (bz 847549)
+# Fix boot hang if console is not connected (bz #894451)
 Patch0710: 0710-Revert-serial-fix-retry-logic.patch
+# Fix segfault with zero length virtio-scsi disk (bz #847549)
 Patch0711: 0711-scsi-fix-segfault-with-0-byte-disk.patch
-# Adapt to libiscsi packaging in Fedora (included upstream)
+# Fixes for iscsi dep
 Patch0712: 0712-iscsi-look-for-pkg-config-file-too.patch
+# Fix -vga vmware crashes (bz #836260)
+Patch0713: 0713-vmware_vga-fix-out-of-bounds-and-invalid-rects-updat.patch
+# Fix possible crash with VNC and qxl (bz #919777)
+Patch0714: 0714-qxl-better-vga-init-in-enter_vga_mode.patch
+# Fix mellanox card passthrough (bz #907996)
+Patch0715: 0715-pci-assign-Enable-MSIX-on-device-to-match-guest.patch
+# Fix QXL migration from F17 to F18 (bz #907916)
+Patch0716: 0716-qxl-change-rom-size-to-8192.patch
+Patch0717: 0717-qxl-Add-rom_size-compat-property-fix-migration-from-.patch
 
 
 BuildRequires: SDL-devel
@@ -1341,23 +1350,33 @@ CAC emulation development files.
 %patch0701 -p1
 # Add ./configure --disable-kvm-options
 %patch0702 -p1
-# Fix loading arm initrd if kernel is very large (bz 862766)
+# Fix loading arm initrd if kernel is very large (bz #862766)
 %patch0703 -p1
-# libcacard build fixes
+# Don't use reserved word 'function' in systemtap files (bz #871286)
 %patch0704 -p1
+# libcacard build fixes
 %patch0705 -p1
 %patch0706 -p1
-# Fix libvirt + seccomp combo (bz 855162)
 %patch0707 -p1
-# CVE-2012-6075: Buffer overflow in e1000 nic (bz 889301, bz 889304)
+# Fix libvirt + seccomp combo (bz #855162)
 %patch0708 -p1
-# Fix boot hang if console is not connected (bz 894451)
+# CVE-2012-6075: Buffer overflow in e1000 nic (bz #889301, bz #889304)
 %patch0709 -p1
-# Fix segfault with zero length virtio-scsi disk (bz 847549)
+# Fix boot hang if console is not connected (bz #894451)
 %patch0710 -p1
+# Fix segfault with zero length virtio-scsi disk (bz #847549)
 %patch0711 -p1
-# Adapt to libiscsi packaging in Fedora (included upstream)
+# Fixes for iscsi dep
 %patch0712 -p1
+# Fix -vga vmware crashes (bz #836260)
+%patch0713 -p1
+# Fix possible crash with VNC and qxl (bz #919777)
+%patch0714 -p1
+# Fix mellanox card passthrough (bz #907996)
+%patch0715 -p1
+# Fix QXL migration from F17 to F18 (bz #907916)
+%patch0716 -p1
+%patch0717 -p1
 
 
 %build
@@ -1636,7 +1655,7 @@ make check
 # load kvm modules now, so we can make sure no reboot is needed.
 # If there's already a kvm module installed, we don't mess with it
 sh %{_sysconfdir}/sysconfig/modules/kvm.modules || :
-udevadm trigger --sysname-match=kvm || :
+udevadm trigger --subsystem-match=misc --sysname-match=kvm --action=add || :
 %endif
 
 
@@ -1967,6 +1986,15 @@ getent passwd qemu >/dev/null || \
 %{_libdir}/pkgconfig/libcacard.pc
 
 %changelog
+* Mon Apr 01 2013 Cole Robinson <crobinso@redhat.com> - 2:1.2.2-8
+- Don't use reserved word 'function' in systemtap files (bz #871286)
+- Fixes for iscsi dep
+- Fix -vga vmware crashes (bz #836260)
+- Fix possible crash with VNC and qxl (bz #919777)
+- Fix mellanox card passthrough (bz #907996)
+- Fix QXL migration from F17 to F18 (bz #907916)
+- Fix kvm module permissions after first install (bz #907215)
+
 * Mon Mar 11 2013 Paolo Bonzini <pbonzini@redhat.com> - 2:1.2.2-7
 - Added libiscsi-devel BuildRequires
 - Use pkg-config to search for libiscsi
