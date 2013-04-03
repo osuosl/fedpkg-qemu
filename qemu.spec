@@ -109,7 +109,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.2.2
-Release: 8%{?dist}
+Release: 9%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -545,6 +545,9 @@ Patch0715: 0715-pci-assign-Enable-MSIX-on-device-to-match-guest.patch
 # Fix QXL migration from F17 to F18 (bz #907916)
 Patch0716: 0716-qxl-change-rom-size-to-8192.patch
 Patch0717: 0717-qxl-Add-rom_size-compat-property-fix-migration-from-.patch
+# Fix use after free + assert in ehci (bz #890320)
+Patch0718: 0718-ehci-Don-t-access-packet-after-freeing-it.patch
+Patch0719: 0719-ehci-Fixup-q-qtdaddr-after-cancelling-an-already-com.patch
 
 
 BuildRequires: SDL-devel
@@ -1377,6 +1380,9 @@ CAC emulation development files.
 # Fix QXL migration from F17 to F18 (bz #907916)
 %patch0716 -p1
 %patch0717 -p1
+# Fix use after free + assert in ehci (bz #890320)
+%patch0718 -p1
+%patch0719 -p1
 
 
 %build
@@ -1986,6 +1992,9 @@ getent passwd qemu >/dev/null || \
 %{_libdir}/pkgconfig/libcacard.pc
 
 %changelog
+* Wed Apr 03 2013 Hans de Goede <hdegoede@redhat.com> - 2:1.2.2-9
+- Fix use after free in ehci code (bz #890320)
+
 * Mon Apr 01 2013 Cole Robinson <crobinso@redhat.com> - 2:1.2.2-8
 - Don't use reserved word 'function' in systemtap files (bz #871286)
 - Fixes for iscsi dep
