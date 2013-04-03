@@ -128,7 +128,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.4.0
-Release: 8%{?dist}
+Release: 9%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -201,6 +201,8 @@ Patch0108: 0108-iscsi-look-for-pkg-config-file-too.patch
 Patch0109: 0109-tcg-Fix-occasional-TCG-broken-problem-when-ldst-opti.patch
 # Fix possible crash with VNC and qxl (bz #919777)
 Patch0110: 0110-qxl-better-vga-init-in-enter_vga_mode.patch
+# Fix USB-tablet not working with some Linux guests (bz #929068)
+Patch0111: 0111-usb-tablet-Don-t-claim-wakeup-capability-for-USB-2-v.patch
 
 BuildRequires: SDL-devel
 BuildRequires: zlib-devel
@@ -676,6 +678,8 @@ CAC emulation development files.
 %patch0109 -p1
 # Fix possible crash with VNC and qxl (bz #919777)
 %patch0110 -p1
+# Fix USB-tablet not working with some Linux guests (bz #929068)
+%patch0111 -p1
 
 
 %build
@@ -1285,6 +1289,9 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Wed Apr 03 2013 Hans de Goede <hdegoede@redhat.com> - 2:1.4.0-9
+- Fix USB-tablet not working with some Linux guests (bz #929068)
+
 * Tue Apr 02 2013 Cole Robinson <crobinso@redhat.com> - 2:1.4.0-8
 - Fix dep on seavgabios-bin
 
