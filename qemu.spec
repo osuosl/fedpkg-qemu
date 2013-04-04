@@ -128,7 +128,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.4.0
-Release: 10%{?dist}
+Release: 11%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -1291,6 +1291,9 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Thu Apr 04 2013 Richard W.M. Jones <rjones@redhat.com> - 2:1.4.0-11
+- Rebuild to attempt to fix broken dep on libbrlapi.so.0.5
+
 * Wed Apr 03 2013 Nathaniel McCallum <nathaniel@themccallums.org> - 2:1.4.0-10
 - Sorted qemu.binfmt
 - Remove mipsn32 / mipsn32el binfmt support (it is broken and can't be fixed)
