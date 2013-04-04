@@ -128,7 +128,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.4.0
-Release: 9%{?dist}
+Release: 10%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -873,20 +873,22 @@ for i in dummy \
     qemu-arm \
 %endif
     qemu-armeb \
+    qemu-cris \
+    qemu-microblaze qemu-microblazeel \
 %ifnarch mips
-    qemu-mips qemu-mipsn32 qemu-mips64 \
+    qemu-mips qemu-mips64 \
 %endif
 %ifnarch mipsel
-    qemu-mipsel qemu-mipsn32el qemu-mips64el \
+    qemu-mipsel qemu-mips64el \
 %endif
 %ifnarch m68k
     qemu-m68k \
 %endif
 %ifnarch ppc ppc64
-    qemu-ppc \
+    qemu-ppc qemu-ppc64abi32 qemu-ppc64 \
 %endif
 %ifnarch sparc sparc64
-    qemu-sparc \
+    qemu-sparc qemu-sparc32plus qemu-sparc64 \
 %endif
 %ifnarch s390 s390x
     qemu-s390x \
@@ -1289,6 +1291,15 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Wed Apr 03 2013 Nathaniel McCallum <nathaniel@themccallums.org> - 2:1.4.0-10
+- Sorted qemu.binfmt
+- Remove mipsn32 / mipsn32el binfmt support (it is broken and can't be fixed)
+- Fix binfmt support for mips / mipsel to match what qemu can do
+- Add binfmt support for cris
+- Add binfmt support for microblaze / microblazeel
+- Add binfmt support for sparc64 / sparc32plus
+- Add binfmt support for ppc64 / ppc64abi32
+
 * Wed Apr 03 2013 Hans de Goede <hdegoede@redhat.com> - 2:1.4.0-9
 - Fix USB-tablet not working with some Linux guests (bz #929068)
 
