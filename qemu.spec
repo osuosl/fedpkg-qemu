@@ -109,7 +109,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.2.2
-Release: 9%{?dist}
+Release: 10%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -548,6 +548,7 @@ Patch0717: 0717-qxl-Add-rom_size-compat-property-fix-migration-from-.patch
 # Fix use after free + assert in ehci (bz #890320)
 Patch0718: 0718-ehci-Don-t-access-packet-after-freeing-it.patch
 Patch0719: 0719-ehci-Fixup-q-qtdaddr-after-cancelling-an-already-com.patch
+Patch0720: 0720-ehci_free_packet-Discard-finished-packets-when-the-q.patch
 
 
 BuildRequires: SDL-devel
@@ -1383,6 +1384,7 @@ CAC emulation development files.
 # Fix use after free + assert in ehci (bz #890320)
 %patch0718 -p1
 %patch0719 -p1
+%patch0720 -p1
 
 
 %build
@@ -1992,6 +1994,9 @@ getent passwd qemu >/dev/null || \
 %{_libdir}/pkgconfig/libcacard.pc
 
 %changelog
+* Mon Apr 08 2013 Hans de Goede <hdegoede@redhat.com> - 2:1.2.2-10
+- Add an extra patch to really fix (bz #890320)
+
 * Wed Apr 03 2013 Hans de Goede <hdegoede@redhat.com> - 2:1.2.2-9
 - Fix use after free in ehci code (bz #890320)
 
@@ -2394,7 +2399,7 @@ getent passwd qemu >/dev/null || \
 * Thu Apr 15 2010 Justin M. Forbes <jforbes@redhat.com> - 2:0.12.3-5
 - Update virtio console patches from upstream
 
-* Mon Mar 11 2010 Justin M. Forbes <jforbes@redhat.com> - 2:0.12.3-4
+* Thu Mar 11 2010 Justin M. Forbes <jforbes@redhat.com> - 2:0.12.3-4
 - Detect cdrom via ioctl (#473154)
 - re add increased buffer for USB control requests (#546483)
 
@@ -2431,7 +2436,7 @@ getent passwd qemu >/dev/null || \
 * Mon Jan 25 2010 Justin M. Forbes <jforbes@redhat.com> - 2:0.12.2-1
 - Update to 0.12.2 upstream
 
-* Fri Jan 10 2010 Justin M. Forbes <jforbes@redhat.com> - 2:0.12.1.2-3
+* Sun Jan 10 2010 Justin M. Forbes <jforbes@redhat.com> - 2:0.12.1.2-3
 - Point to seabios instead of bochs, and add a requires for seabios
 
 * Mon Jan  4 2010 Justin M. Forbes <jforbes@redhat.com> - 2:0.12.1.2-2
@@ -2879,7 +2884,7 @@ getent passwd qemu >/dev/null || \
 - Update to 0.7.0
 - Fix dyngen for PPC functions which end in unconditional branch
 
-* Fri Apr  7 2005 Michael Schwendt <mschwendt[AT]users.sf.net>
+* Thu Apr  7 2005 Michael Schwendt <mschwendt[AT]users.sf.net>
 - rebuilt
 
 * Sun Feb 13 2005 David Woodhouse <dwmw2@infradead.org> 0.6.1-2
@@ -2891,13 +2896,13 @@ getent passwd qemu >/dev/null || \
 * Tue Jul 20 2004 David Woodhouse <dwmw2@redhat.com> 0.6.0-2
 - Compile fix from qemu CVS, add x86_64 host support
 
-* Mon May 12 2004 David Woodhouse <dwmw2@redhat.com> 0.6.0-1
+* Wed May 12 2004 David Woodhouse <dwmw2@redhat.com> 0.6.0-1
 - Update to 0.6.0.
 
 * Sat May 8 2004 David Woodhouse <dwmw2@redhat.com> 0.5.5-1
 - Update to 0.5.5.
 
-* Thu May 2 2004 David Woodhouse <dwmw2@redhat.com> 0.5.4-1
+* Sun May 2 2004 David Woodhouse <dwmw2@redhat.com> 0.5.4-1
 - Update to 0.5.4.
 
 * Thu Apr 22 2004 David Woodhouse <dwmw2@redhat.com> 0.5.3-1
