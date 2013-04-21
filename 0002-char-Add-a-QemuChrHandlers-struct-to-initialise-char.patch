@@ -1,4 +1,4 @@
-From 88f73511fce36aca2043b95476ad5aff95e75e07 Mon Sep 17 00:00:00 2001
+From de768f74c31d04063889c5dc588d55bc19cf7315 Mon Sep 17 00:00:00 2001
 From: Amit Shah <amit.shah@redhat.com>
 Date: Mon, 21 Mar 2011 20:31:45 +0100
 Subject: [PATCH] char: Add a QemuChrHandlers struct to initialise chardev
@@ -978,7 +978,7 @@ index 4df550f..2868229 100644
      return 0;
  
 diff --git a/qemu-char.c b/qemu-char.c
-index d7fa7e6..5abb8b9 100644
+index ac2abeb..0c97bdf 100644
 --- a/qemu-char.c
 +++ b/qemu-char.c
 @@ -192,19 +192,26 @@ void qemu_chr_fe_printf(CharDriverState *s, const char *fmt, ...)

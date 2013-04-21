@@ -127,8 +127,8 @@
 
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
-Version: 1.4.0
-Release: 11%{?dist}
+Version: 1.4.1
+Release: 1%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -193,16 +193,6 @@ Patch0104: 0104-pc_piix-Add-compat-handling-for-qemu-kvm-VGA-mem-siz.patch
 Patch0105: 0105-qxl-Add-rom_size-compat-property-fix-migration-from-.patch
 # Fix generating docs with texinfo 5 (posted upstream)
 Patch0106: 0106-docs-Fix-generating-qemu-doc.html-with-texinfo-5.patch
-# Fix test ordering with latest glib
-Patch0107: 0107-rtc-test-Fix-test-failures-with-recent-glib.patch
-# Fixes for iscsi dep
-Patch0108: 0108-iscsi-look-for-pkg-config-file-too.patch
-# Fix TCG ld/st optimization (lp 1127369)
-Patch0109: 0109-tcg-Fix-occasional-TCG-broken-problem-when-ldst-opti.patch
-# Fix possible crash with VNC and qxl (bz #919777)
-Patch0110: 0110-qxl-better-vga-init-in-enter_vga_mode.patch
-# Fix USB-tablet not working with some Linux guests (bz #929068)
-Patch0111: 0111-usb-tablet-Don-t-claim-wakeup-capability-for-USB-2-v.patch
 
 BuildRequires: SDL-devel
 BuildRequires: zlib-devel
@@ -670,16 +660,6 @@ CAC emulation development files.
 %patch0105 -p1
 # Fix generating docs with texinfo 5 (posted upstream)
 %patch0106 -p1
-# Fix test ordering with latest glib
-%patch0107 -p1
-# Fixes for iscsi dep
-%patch0108 -p1
-# Fix TCG ld/st optimization (lp 1127369)
-%patch0109 -p1
-# Fix possible crash with VNC and qxl (bz #919777)
-%patch0110 -p1
-# Fix USB-tablet not working with some Linux guests (bz #929068)
-%patch0111 -p1
 
 
 %build
@@ -1291,6 +1271,12 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Sat Apr 20 2013 Cole Robinson <crobinso@redhat.com> - 2:1.4.1-1
+- Rebased to version 1.4.1
+- qemu stable release 1.4.1 (bz 952599)
+- CVE-2013-1922: qemu-nbd block format auto-detection vulnerability (bz
+  952574, bz 923219)
+
 * Thu Apr 04 2013 Richard W.M. Jones <rjones@redhat.com> - 2:1.4.0-11
 - Rebuild to attempt to fix broken dep on libbrlapi.so.0.5
 

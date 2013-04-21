@@ -1,4 +1,4 @@
-From f6239f570a57ba6069ce1033b696365bdfed1b47 Mon Sep 17 00:00:00 2001
+From de979c48aa4b5e7f3f8658f9ac69030f3de3c99c Mon Sep 17 00:00:00 2001
 From: Alon Levy <alevy@redhat.com>
 Date: Tue, 22 Mar 2011 12:28:00 +0200
 Subject: [PATCH] spice-qemu-char.c: remove intermediate buffer

@@ -1,4 +1,4 @@
-From 1b852140f347cbebdceaca44e5ce3cb8e3db702d Mon Sep 17 00:00:00 2001
+From f76e7a03ac948a7649878d7ddbb02ace0f6e3625 Mon Sep 17 00:00:00 2001
 From: Cole Robinson <crobinso@redhat.com>
 Date: Wed, 20 Feb 2013 11:14:45 -0500
 Subject: [PATCH] docs: Fix generating qemu-doc.html with texinfo 5
@@ -15,10 +15,10 @@ Signed-off-by: Cole Robinson <crobinso@redhat.com>
  1 file changed, 7 insertions(+), 12 deletions(-)
 
 diff --git a/qemu-options.hx b/qemu-options.hx
-index 9d7131a..1000d49 100644
+index 15dc29e..470c2b4 100644
 --- a/qemu-options.hx
 +++ b/qemu-options.hx
-@@ -2075,18 +2075,13 @@ QEMU supports using either local sheepdog devices or remote networked
+@@ -2092,18 +2092,13 @@ QEMU supports using either local sheepdog devices or remote networked
  devices.
  
  Syntax for specifying a sheepdog device

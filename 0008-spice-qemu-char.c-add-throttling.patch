@@ -1,4 +1,4 @@
-From 57a83c6d83b53eb5baae9f006973e7faac52b36b Mon Sep 17 00:00:00 2001
+From aa0a2c94c70ae5ed0fb215328c8ecebbef10cbe9 Mon Sep 17 00:00:00 2001
 From: Alon Levy <alevy@redhat.com>
 Date: Tue, 22 Mar 2011 12:27:59 +0200
 Subject: [PATCH] spice-qemu-char.c: add throttling

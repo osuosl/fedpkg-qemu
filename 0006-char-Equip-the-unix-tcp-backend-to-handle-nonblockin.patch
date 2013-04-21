@@ -1,4 +1,4 @@
-From 9fd3a478a3823258516f06201fa681e07dce1781 Mon Sep 17 00:00:00 2001
+From 6540bebbaa749d405df91516e1ca5a075e354628 Mon Sep 17 00:00:00 2001
 From: Amit Shah <amit.shah@redhat.com>
 Date: Mon, 21 Mar 2011 22:02:47 +0100
 Subject: [PATCH] char: Equip the unix/tcp backend to handle nonblocking
@@ -19,7 +19,7 @@ Signed-off-by: Cole Robinson <crobinso@redhat.com>
  1 file changed, 27 insertions(+)
 
 diff --git a/qemu-char.c b/qemu-char.c
-index 3d6e2f8..18e980d 100644
+index 96fc54e..53d2c13 100644
 --- a/qemu-char.c
 +++ b/qemu-char.c
 @@ -105,6 +105,19 @@

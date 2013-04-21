@@ -1,4 +1,4 @@
-From 8b85c38edae20f5dddb82d7530ca33c2c64be0c4 Mon Sep 17 00:00:00 2001
+From c7e9b2a5b981209f4e77b26562758663cc060900 Mon Sep 17 00:00:00 2001
 From: Amit Shah <amit.shah@redhat.com>
 Date: Mon, 21 Mar 2011 22:00:27 +0100
 Subject: [PATCH] char: Update send_all() to handle nonblocking chardev write
@@ -22,7 +22,7 @@ Signed-off-by: Cole Robinson <crobinso@redhat.com>
  2 files changed, 65 insertions(+), 7 deletions(-)
 
 diff --git a/include/qemu/sockets.h b/include/qemu/sockets.h
-index 803ae17..8ee146c 100644
+index 0ccf32f..42ca690 100644
 --- a/include/qemu/sockets.h
 +++ b/include/qemu/sockets.h
 @@ -29,6 +29,7 @@ int inet_aton(const char *cp, struct in_addr *ia);
@@ -35,15 +35,15 @@ index 803ae17..8ee146c 100644
  int qemu_socket(int domain, int type, int protocol);
 @@ -36,7 +37,7 @@ int qemu_accept(int s, struct sockaddr *addr, socklen_t *addrlen);
  int socket_set_cork(int fd, int v);
- void socket_set_block(int fd);
- void socket_set_nonblock(int fd);
+ void qemu_set_block(int fd);
+ void qemu_set_nonblock(int fd);
 -int send_all(int fd, const void *buf, int len1);
 +int send_all(CharDriverState *chr, int fd, const void *buf, int len1);
  
  /* callback function for nonblocking connect
   * valid fd on success, negative error code on failure
 diff --git a/qemu-char.c b/qemu-char.c
-index ce2eba8..3d6e2f8 100644
+index ab0c552..96fc54e 100644
 --- a/qemu-char.c
 +++ b/qemu-char.c
 @@ -508,7 +508,7 @@ static CharDriverState *qemu_chr_open_mux(CharDriverState *drv)

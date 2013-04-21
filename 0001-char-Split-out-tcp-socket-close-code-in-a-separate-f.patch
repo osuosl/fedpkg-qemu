@@ -1,4 +1,4 @@
-From d9ba8b0f4597724179eab2d5c44c3c438bc40617 Mon Sep 17 00:00:00 2001
+From bed754a15e27a3630681959cf1d3161084f29fe9 Mon Sep 17 00:00:00 2001
 From: Amit Shah <amit.shah@redhat.com>
 Date: Mon, 21 Mar 2011 21:57:47 +0100
 Subject: [PATCH] char: Split out tcp socket close code in a separate function
@@ -10,7 +10,7 @@ Signed-off-by: Cole Robinson <crobinso@redhat.com>
  1 file changed, 16 insertions(+), 9 deletions(-)
 
 diff --git a/qemu-char.c b/qemu-char.c
-index e4b0f53..d7fa7e6 100644
+index f4a74ac..ac2abeb 100644
 --- a/qemu-char.c
 +++ b/qemu-char.c
 @@ -2155,6 +2155,21 @@ typedef struct {
@@ -35,7 +35,7 @@ index e4b0f53..d7fa7e6 100644
  static int tcp_chr_write(CharDriverState *chr, const uint8_t *buf, int len)
  {
      TCPCharDriver *s = chr->opaque;
-@@ -2313,15 +2328,7 @@ static void tcp_chr_read(void *opaque)
+@@ -2316,15 +2331,7 @@ static void tcp_chr_read(void *opaque)
          len = s->max_size;
      size = tcp_chr_recv(chr, (void *)buf, len);
      if (size == 0) {

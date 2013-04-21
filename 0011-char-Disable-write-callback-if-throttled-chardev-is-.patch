@@ -1,4 +1,4 @@
-From 6ad6a0becf4ef5934273175df5f8810d43266856 Mon Sep 17 00:00:00 2001
+From 42931bebb2856307dcdc9babc5dd9954b60c8094 Mon Sep 17 00:00:00 2001
 From: Amit Shah <amit.shah@redhat.com>
 Date: Fri, 2 Dec 2011 15:42:55 +0530
 Subject: [PATCH] char: Disable write callback if throttled chardev is detached
@@ -16,7 +16,7 @@ Signed-off-by: Cole Robinson <crobinso@redhat.com>
  1 file changed, 5 insertions(+)
 
 diff --git a/qemu-char.c b/qemu-char.c
-index 18e980d..04ae28c 100644
+index 53d2c13..fde72ff 100644
 --- a/qemu-char.c
 +++ b/qemu-char.c
 @@ -223,6 +223,11 @@ void qemu_chr_add_handlers(CharDriverState *s,

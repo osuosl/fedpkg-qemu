@@ -1,4 +1,4 @@
-From d83f40ffc3720fd564591ea6b00778d133b22edd Mon Sep 17 00:00:00 2001
+From 75e3acce2d9302a2344b3de381a49f6cd0fa04ad Mon Sep 17 00:00:00 2001
 From: Cole Robinson <crobinso@redhat.com>
 Date: Tue, 19 Feb 2013 14:44:49 -0500
 Subject: [PATCH] acpi_piix4: Drop minimum_version_id to handle qemu-kvm
@@ -22,7 +22,7 @@ Signed-off-by: Cole Robinson <crobinso@redhat.com>
  1 file changed, 9 insertions(+), 6 deletions(-)
 
 diff --git a/hw/acpi_piix4.c b/hw/acpi_piix4.c
-index 65b2601..e3d2e41 100644
+index 1beac21..2abcc9d 100644
 --- a/hw/acpi_piix4.c
 +++ b/hw/acpi_piix4.c
 @@ -257,16 +257,19 @@ static int acpi_load_old(QEMUFile *f, void *opaque, int version_id)

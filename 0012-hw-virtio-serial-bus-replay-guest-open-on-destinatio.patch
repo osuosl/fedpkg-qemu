@@ -1,4 +1,4 @@
-From 1183739a4da98952d93b9a3870ce5efea6eedb48 Mon Sep 17 00:00:00 2001
+From 81ab56732f4990c288c88a545925dc4431c313d2 Mon Sep 17 00:00:00 2001
 From: Alon Levy <alevy@redhat.com>
 Date: Fri, 16 Nov 2012 16:24:47 +0200
 Subject: [PATCH] hw/virtio-serial-bus: replay guest open on destination

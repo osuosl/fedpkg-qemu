@@ -1,4 +1,4 @@
-From 2de627bd1e2761e5caf02e975bc6d744e36adc87 Mon Sep 17 00:00:00 2001
+From 33f3874dc760f0960d408be2f916d04373de543b Mon Sep 17 00:00:00 2001
 From: Amit Shah <amit.shah@redhat.com>
 Date: Mon, 21 Mar 2011 22:06:41 +0100
 Subject: [PATCH] virtio-console: Enable port throttling when chardev is slow

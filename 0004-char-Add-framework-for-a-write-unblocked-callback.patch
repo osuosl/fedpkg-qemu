@@ -1,4 +1,4 @@
-From f4be4da263d4bad7c600d847e13e69cca4ab08b6 Mon Sep 17 00:00:00 2001
+From 84877040f31425a8fecdbee19cb24fcc5a8212df Mon Sep 17 00:00:00 2001
 From: Amit Shah <amit.shah@redhat.com>
 Date: Mon, 21 Mar 2011 21:41:42 +0100
 Subject: [PATCH] char: Add framework for a 'write unblocked' callback
@@ -39,7 +39,7 @@ index 3027cc1..2fee107 100644
  };
  
 diff --git a/qemu-char.c b/qemu-char.c
-index 5abb8b9..ce2eba8 100644
+index 0c97bdf..ab0c552 100644
 --- a/qemu-char.c
 +++ b/qemu-char.c
 @@ -211,11 +211,14 @@ void qemu_chr_add_handlers(CharDriverState *s,
