@@ -38,7 +38,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.0.1
-Release: 5%{?dist}
+Release: 6%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -200,6 +200,9 @@ Patch0313: 0313-e1000-Discard-oversized-packets-based-on-SBP-LPE.patch
 Patch0314: 0314-vmware_vga-fix-out-of-bounds-and-invalid-rects-updat.patch
 # Fix vhost crash (bz #918272)
 Patch0315: 0315-vhost-Fix-size-of-dirty-log-sync-on-resize.patch
+# CVE-2013-1922: qemu-nbd block format auto-detection vulnerability (bz
+# #952574, bz #923219)
+Patch0316: 0316-Add-f-FMT-format-FMT-arg-to-qemu-nbd.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: SDL-devel zlib-devel which texi2html gnutls-devel cyrus-sasl-devel
@@ -577,6 +580,9 @@ such as kvm_stat.
 %patch0314 -p1
 # Fix vhost crash (bz #918272)
 %patch0315 -p1
+# CVE-2013-1922: qemu-nbd block format auto-detection vulnerability (bz
+# #952574, bz #923219)
+%patch0316 -p1
 
 
 %build
@@ -1017,6 +1023,10 @@ fi
 %{_mandir}/man1/qemu-img.1*
 
 %changelog
+* Sat Apr 20 2013 Cole Robinson <crobinso@redhat.com> - 2:1.0.1-6
+- CVE-2013-1922: qemu-nbd block format auto-detection vulnerability (bz
+  #952574, bz #923219)
+
 * Tue Apr 02 2013 Cole Robinson <crobinso@redhat.com> - 2:1.0.1-5
 - Fix -vga vmware crashes (bz #836260)
 - Fix vhost crash (bz #918272)
