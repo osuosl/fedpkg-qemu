@@ -1,6 +1,7 @@
+From 868600d91f1c165cdd91f293870af0ca351c6025 Mon Sep 17 00:00:00 2001
 From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 3/6] iscsi: look for pkg-config file too
-Date: Tue,  5 Mar 2013 18:05:22 +0100
+Date: Fri, 22 Feb 2013 18:14:28 +0100
+Subject: [PATCH] iscsi: look for pkg-config file too
 
 Due to library conflicts, Fedora will have to put libiscsi in
 /usr/lib/iscsi.  Simplify configuration by using a pkg-config
@@ -9,15 +10,16 @@ to add it has been sent to upstream libiscsi as well.
 
 Cc: qemu-stable@nongnu.org
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+(cherry picked from commit 3c33ea9640758bb625e110a77673e5abfd184e54)
 ---
  configure | 8 +++++++-
  1 file changed, 7 insertions(+), 1 deletion(-)
 
 diff --git a/configure b/configure
-index 2f98c5a..a9a7c99 100755
+index 6af2806..12d506c 100755
 --- a/configure
 +++ b/configure
-@@ -2803,7 +2803,13 @@ if test "$libiscsi" != "no" ; then
+@@ -2632,7 +2632,13 @@ if test "$libiscsi" != "no" ; then
  #include <iscsi/iscsi.h>
  int main(void) { iscsi_unmap_sync(NULL,0,0,0,NULL,0); return 0; }
  EOF
@@ -32,5 +34,3 @@ index 2f98c5a..a9a7c99 100755
      libiscsi="yes"
      LIBS="$LIBS -liscsi"
    else
--- 
-1.8.1.2

@@ -1,8 +1,8 @@
-From f0a3e522543763cc5126283031309fdf6f8787c2 Mon Sep 17 00:00:00 2001
+From b4d71f364924655c47f7e54a9726e303c91978d1 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Wed, 14 Nov 2012 16:21:37 +0000
-Subject: [PATCH 719/719] ehci: Fixup q->qtdaddr after cancelling an already
- completed packet
+Subject: [PATCH] ehci: Fixup q->qtdaddr after cancelling an already completed
+ packet
 
 This avoids the q->qtdaddr == p->qtdaddr asserts we have triggering, when
 a queue contains multiple completed packages when we cancel the queue.
@@ -44,6 +44,3 @@ index 4229061..6be11c5 100644
          ehci_set_state(q->ehci, q->async, state);
          /* state_writeback recurses into us with async == EHCI_ASYNC_NONE!! */
          return;
--- 
-1.8.1.4
-

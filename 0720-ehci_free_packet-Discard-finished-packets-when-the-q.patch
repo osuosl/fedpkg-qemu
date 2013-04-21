@@ -1,4 +1,4 @@
-From 2d608503da16560546ed6c0f04cac87601856412 Mon Sep 17 00:00:00 2001
+From 22df2caa52abc0df20709de04791d49f83792fd7 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Fri, 5 Apr 2013 12:05:49 +0200
 Subject: [PATCH] ehci_free_packet: Discard finished packets when the queue is
@@ -75,6 +75,3 @@ index 6be11c5..6a787aa 100644
          usb_packet_unmap(&p->packet, &p->sgl);
          qemu_sglist_destroy(&p->sgl);
      }
--- 
-1.8.2
-

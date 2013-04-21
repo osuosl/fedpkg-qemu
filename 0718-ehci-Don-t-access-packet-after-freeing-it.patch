@@ -1,7 +1,7 @@
-From 9c8576aeca2d65e17748dc137f0e9abeb2959604 Mon Sep 17 00:00:00 2001
+From c6e419cb392d9e1cca5de66da2be7cb53277bf85 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Wed, 14 Nov 2012 16:21:36 +0000
-Subject: [PATCH 718/719] ehci: Don't access packet after freeing it
+Subject: [PATCH] ehci: Don't access packet after freeing it
 
 ehci_state_writeback() will free the packet, so we should not access
 the packet after calling ehci_state_writeback().
@@ -35,6 +35,3 @@ index 46f6d99..4229061 100644
          /* state_writeback recurses into us with async == EHCI_ASYNC_NONE!! */
          return;
      }
--- 
-1.8.1.4
-

@@ -109,7 +109,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.2.2
-Release: 10%{?dist}
+Release: 11%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -549,6 +549,13 @@ Patch0717: 0717-qxl-Add-rom_size-compat-property-fix-migration-from-.patch
 Patch0718: 0718-ehci-Don-t-access-packet-after-freeing-it.patch
 Patch0719: 0719-ehci-Fixup-q-qtdaddr-after-cancelling-an-already-com.patch
 Patch0720: 0720-ehci_free_packet-Discard-finished-packets-when-the-q.patch
+# Fix booting 3.8 kernels with qemu-system-arm (bz #922796)
+Patch0721: 0721-hw-arm_sysctl-Clear-sysctl-cfgctrl-start-bit.patch
+# Fix crash with -vga qxl, sdl, and F19 guest (bz #949126)
+Patch0722: 0722-console-remove-DisplayAllocator.patch
+# CVE-2013-1922: qemu-nbd block format auto-detection vulnerability (bz
+# #952574, bz #923219)
+Patch0723: 0723-Add-f-FMT-format-FMT-arg-to-qemu-nbd.patch
 
 
 BuildRequires: SDL-devel
@@ -1385,6 +1392,13 @@ CAC emulation development files.
 %patch0718 -p1
 %patch0719 -p1
 %patch0720 -p1
+# Fix booting 3.8 kernels with qemu-system-arm (bz #922796)
+%patch0721 -p1
+# Fix crash with -vga qxl, sdl, and F19 guest (bz #949126)
+%patch0722 -p1
+# CVE-2013-1922: qemu-nbd block format auto-detection vulnerability (bz
+# #952574, bz #923219)
+%patch0723 -p1
 
 
 %build
@@ -1994,6 +2008,12 @@ getent passwd qemu >/dev/null || \
 %{_libdir}/pkgconfig/libcacard.pc
 
 %changelog
+* Sat Apr 20 2013 Cole Robinson <crobinso@redhat.com> - 2:1.2.2-11
+- Fix booting 3.8 kernels with qemu-system-arm (bz #922796)
+- Fix crash with -vga qxl, sdl, and F19 guest (bz #949126)
+- CVE-2013-1922: qemu-nbd block format auto-detection vulnerability (bz
+  #952574, bz #923219)
+
 * Mon Apr 08 2013 Hans de Goede <hdegoede@redhat.com> - 2:1.2.2-10
 - Add an extra patch to really fix (bz #890320)
 
