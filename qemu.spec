@@ -68,6 +68,7 @@
 %endif
 
 %global need_qemu_kvm %{with kvmonly}
+%global need_kvm_modfile 0
 
 # These values for system_xyz are overridden below for non-kvmonly builds.
 # Instead, these values for kvm_package are overridden below for kvmonly builds.
@@ -89,11 +90,13 @@
 %global system_ppc    kvm
 %global kvm_package   system-ppc
 %global kvm_target    ppc64
+%global need_kvm_modfile 1
 %endif
 %ifarch s390x
 %global system_s390x  kvm
 %global kvm_package   system-s390x
 %global kvm_target    s390x
+%global need_kvm_modfile 1
 %endif
 
 %if %{with kvmonly}
@@ -128,7 +131,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.4.1
-Release: 1%{?dist}
+Release: 2%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -193,6 +196,8 @@ Patch0104: 0104-pc_piix-Add-compat-handling-for-qemu-kvm-VGA-mem-siz.patch
 Patch0105: 0105-qxl-Add-rom_size-compat-property-fix-migration-from-.patch
 # Fix generating docs with texinfo 5 (posted upstream)
 Patch0106: 0106-docs-Fix-generating-qemu-doc.html-with-texinfo-5.patch
+# Fix crash with usbredir (bz #962826)
+Patch0107: 0107-usb-redir-Fix-crash-on-migration-with-no-client-conn.patch
 
 BuildRequires: SDL-devel
 BuildRequires: zlib-devel
@@ -258,6 +263,11 @@ BuildRequires: check-devel
 BuildRequires: libcap-devel
 # Hard requirement for version >= 1.3
 BuildRequires: pixman-devel
+%if 0%{?fedora} > 18
+# For gluster support
+BuildRequires: glusterfs-devel >= 3.4.0
+BuildRequires: glusterfs-api-devel >= 3.4.0
+%endif
 
 %if 0%{?user:1}
 Requires: %{name}-%{user} = %{epoch}:%{version}-%{release}
@@ -660,6 +670,8 @@ CAC emulation development files.
 %patch0105 -p1
 # Fix generating docs with texinfo 5 (posted upstream)
 %patch0106 -p1
+# Fix crash with usbredir (bz #962826)
+%patch0107 -p1
 
 
 %build
@@ -752,11 +764,14 @@ install -D -p -m 0755 %{SOURCE8} $RPM_BUILD_ROOT%{_sbindir}/ksmtuned
 install -D -p -m 0644 %{SOURCE9} $RPM_BUILD_ROOT%{_sysconfdir}/ksmtuned.conf
 
 %ifarch %{kvm_archs}
+%if 0%{?need_kvm_modfile}
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/modules
+install -m 0755 %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/modules/kvm.modules
+%endif
+
 mkdir -p $RPM_BUILD_ROOT%{_bindir}/
 mkdir -p $RPM_BUILD_ROOT%{_udevdir}
 
-install -m 0755 %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/modules/kvm.modules
 install -m 0755 scripts/kvm/kvm_stat $RPM_BUILD_ROOT%{_bindir}/
 install -m 0644 %{SOURCE3} $RPM_BUILD_ROOT%{_udevdir}
 %endif
@@ -930,7 +945,7 @@ make check
 %post %{kvm_package}
 # load kvm modules now, so we can make sure no reboot is needed.
 # If there's already a kvm module installed, we don't mess with it
-sh %{_sysconfdir}/sysconfig/modules/kvm.modules || :
+sh %{_sysconfdir}/sysconfig/modules/kvm.modules &> /dev/null || :
 udevadm trigger --subsystem-match=misc --sysname-match=kvm --action=add || :
 %endif
 
@@ -966,7 +981,9 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %global kvm_files \
+%if 0%{?need_kvm_modfile} \
 %{_sysconfdir}/sysconfig/modules/kvm.modules \
+%endif \
 %{_udevdir}/80-kvm.rules
 
 %if 0%{?need_qemu_kvm}
@@ -1271,6 +1288,12 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Wed May 15 2013 Cole Robinson <crobinso@redhat.com> - 2:1.4.1-2
+- Fix crash with usbredir (bz #962826)
+- Drop unneeded kvm.modules on x86 (bz #963198)
+- Make ksmtuned handle set_progname usage (bz #955230)
+- Enable gluster support
+
 * Sat Apr 20 2013 Cole Robinson <crobinso@redhat.com> - 2:1.4.1-1
 - Rebased to version 1.4.1
 - qemu stable release 1.4.1 (bz 952599)
