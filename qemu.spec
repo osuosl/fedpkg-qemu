@@ -131,7 +131,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.4.1
-Release: 2%{?dist}
+Release: 3%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -1288,6 +1288,9 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Thu May 16 2013 Paolo Bonzini <pbonzini@redhat.com> - 2:1.4.1-3
+- Drop loading of vhost-net module (bz #963198)
+
 * Wed May 15 2013 Cole Robinson <crobinso@redhat.com> - 2:1.4.1-2
 - Fix crash with usbredir (bz #962826)
 - Drop unneeded kvm.modules on x86 (bz #963198)
