@@ -1,4 +1,4 @@
-From 66cc6383d6b1d934d22e9a16b432cacacd58c315 Mon Sep 17 00:00:00 2001
+From ae8d642477d87287b42b0b40c133637dd1cdd8b9 Mon Sep 17 00:00:00 2001
 From: Cole Robinson <crobinso@redhat.com>
 Date: Tue, 19 Feb 2013 16:19:02 -0500
 Subject: [PATCH] qxl: Add rom_size compat property, fix migration from 1.2
@@ -18,52 +18,16 @@ https://lists.gnu.org/archive/html/qemu-devel/2013-02/msg03154.html
 
 However these sizes match what native Fedora packages get, so it's
 good enough for now.
-
-Signed-off-by: Cole Robinson <crobinso@redhat.com>
 ---
- hw/pc_piix.c | 16 ++++++++++++++++
- hw/qxl.c     |  9 ++++-----
+ hw/display/qxl.c  |  9 ++++-----
+ hw/i386/pc_piix.c | 16 ++++++++++++++++
  2 files changed, 20 insertions(+), 5 deletions(-)
 
-diff --git a/hw/pc_piix.c b/hw/pc_piix.c
-index e3f8e96..a1a6794 100644
---- a/hw/pc_piix.c
-+++ b/hw/pc_piix.c
-@@ -317,6 +317,14 @@ static QEMUMachine pc_i440fx_machine_v1_4 = {
-             .driver   = "virtio-net-pci", \
-             .property = "mq", \
-             .value    = "off", \
-+        },{ \
-+            .driver   = "qxl", \
-+            .property = "rom_size", \
-+            .value    = stringify(16384), \
-+        },{\
-+            .driver   = "qxl-vga", \
-+            .property = "rom_size", \
-+            .value    = stringify(16384), \
-         }
- 
- static QEMUMachine pc_machine_v1_3 = {
-@@ -413,6 +421,14 @@ static QEMUMachine pc_machine_v1_2 = {
-             .driver   = "virtio-blk-pci",\
-             .property = "config-wce",\
-             .value    = "off",\
-+        },{ \
-+            .driver   = "qxl", \
-+            .property = "rom_size", \
-+            .value    = stringify(8192), \
-+        },{\
-+            .driver   = "qxl-vga", \
-+            .property = "rom_size", \
-+            .value    = stringify(8192), \
-         }
- 
- static QEMUMachine pc_machine_v1_1 = {
-diff --git a/hw/qxl.c b/hw/qxl.c
-index ca094e6..80bd92a 100644
---- a/hw/qxl.c
-+++ b/hw/qxl.c
-@@ -302,16 +302,14 @@ static inline uint32_t msb_mask(uint32_t val)
+diff --git a/hw/display/qxl.c b/hw/display/qxl.c
+index c475cb1..74f07c0 100644
+--- a/hw/display/qxl.c
++++ b/hw/display/qxl.c
+@@ -306,16 +306,14 @@ static inline uint32_t msb_mask(uint32_t val)
      return mask;
  }
  
@@ -91,7 +55,7 @@ index ca094e6..80bd92a 100644
      memory_region_init_ram(&qxl->rom_bar, "qxl.vrom", qxl->rom_size);
      vmstate_register_ram(&qxl->rom_bar, &qxl->pci.qdev);
      init_qxl_rom(qxl);
-@@ -2296,6 +2294,7 @@ static Property qxl_properties[] = {
+@@ -2302,6 +2300,7 @@ static Property qxl_properties[] = {
          DEFINE_PROP_UINT32("vram64_size_mb", PCIQXLDevice, vram_size_mb, -1),
          DEFINE_PROP_UINT32("vgamem_mb", PCIQXLDevice, vgamem_size_mb, 16),
          DEFINE_PROP_INT32("surfaces", PCIQXLDevice, ssd.num_surfaces, 1024),
@@ -99,3 +63,37 @@ index ca094e6..80bd92a 100644
          DEFINE_PROP_END_OF_LIST(),
  };
  
+diff --git a/hw/i386/pc_piix.c b/hw/i386/pc_piix.c
+index 48fb7b7..2307d26 100644
+--- a/hw/i386/pc_piix.c
++++ b/hw/i386/pc_piix.c
+@@ -369,6 +369,14 @@ static QEMUMachine pc_i440fx_machine_v1_4 = {
+             .driver   = "e1000",\
+             .property = "autonegotiation",\
+             .value    = "off",\
++        },{ \
++            .driver   = "qxl", \
++            .property = "rom_size", \
++            .value    = stringify(16384), \
++        },{\
++            .driver   = "qxl-vga", \
++            .property = "rom_size", \
++            .value    = stringify(16384), \
+         }
+ 
+ static QEMUMachine pc_machine_v1_3 = {
+@@ -465,6 +473,14 @@ static QEMUMachine pc_machine_v1_2 = {
+             .driver   = "virtio-blk-pci",\
+             .property = "config-wce",\
+             .value    = "off",\
++        },{ \
++            .driver   = "qxl", \
++            .property = "rom_size", \
++            .value    = stringify(8192), \
++        },{\
++            .driver   = "qxl-vga", \
++            .property = "rom_size", \
++            .value    = stringify(8192), \
+         }
+ 
+ static QEMUMachine pc_machine_v1_1 = {

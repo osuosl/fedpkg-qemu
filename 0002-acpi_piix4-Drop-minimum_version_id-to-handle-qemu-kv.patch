@@ -1,4 +1,4 @@
-From 75e3acce2d9302a2344b3de381a49f6cd0fa04ad Mon Sep 17 00:00:00 2001
+From 9df0fd5765377d32a0e9f2d855dc1d428c19f767 Mon Sep 17 00:00:00 2001
 From: Cole Robinson <crobinso@redhat.com>
 Date: Tue, 19 Feb 2013 14:44:49 -0500
 Subject: [PATCH] acpi_piix4: Drop minimum_version_id to handle qemu-kvm
@@ -15,17 +15,15 @@ qemu-kvm.
 If --enable-migration-from-qemu-kvm is enabled, drop minimum_version_id
 to 2. Migration from qemu-kvm version_id=2 and qemu 1.3+ version_id=3
 works, but migration from qemu < 1.3 is broken.
-
-Signed-off-by: Cole Robinson <crobinso@redhat.com>
 ---
- hw/acpi_piix4.c | 15 +++++++++------
+ hw/acpi/piix4.c | 15 +++++++++------
  1 file changed, 9 insertions(+), 6 deletions(-)
 
-diff --git a/hw/acpi_piix4.c b/hw/acpi_piix4.c
-index 1beac21..2abcc9d 100644
---- a/hw/acpi_piix4.c
-+++ b/hw/acpi_piix4.c
-@@ -257,16 +257,19 @@ static int acpi_load_old(QEMUFile *f, void *opaque, int version_id)
+diff --git a/hw/acpi/piix4.c b/hw/acpi/piix4.c
+index c4af1cc..95d227d 100644
+--- a/hw/acpi/piix4.c
++++ b/hw/acpi/piix4.c
+@@ -269,16 +269,19 @@ static int acpi_load_old(QEMUFile *f, void *opaque, int version_id)
      return ret;
  }
  

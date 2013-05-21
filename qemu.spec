@@ -29,6 +29,7 @@
 %bcond_without seccomp          # enabled
 %bcond_with    xfsprogs         # disabled
 %bcond_with    separate_kvm     # disabled - for EPEL
+%bcond_with    gtk              # disabled
 %else
 # General defaults:
 %bcond_with    kvmonly          # disabled
@@ -38,9 +39,10 @@
 %bcond_without seccomp          # enabled
 %bcond_without xfsprogs         # enabled
 %bcond_with    separate_kvm     # disabled
+%bcond_without gtk              # enabled
 %endif
 
-%global SLOF_gittagdate 20121018
+%global SLOF_gittagdate 20130430
 
 %if %{without separate_kvm}
 %global kvm_archs %{ix86} x86_64 ppc64 s390x
@@ -121,6 +123,7 @@
 %global system_x86    system-x86
 %global system_xtensa   system-xtensa
 %global system_unicore32   system-unicore32
+%global system_moxie   system-moxie
 %endif
 
 # libfdt is only needed to build ARM, Microblaze or PPC emulators
@@ -130,9 +133,8 @@
 
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
-Version: 1.4.1
-Release: 3%{?dist}
-# Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
+Version: 1.5.0
+Release: 1%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -173,31 +175,13 @@ Source12: bridge.conf
 # qemu-kvm back compat wrapper
 Source13: qemu-kvm.sh
 
-# Flow control series
-Patch0001: 0001-char-Split-out-tcp-socket-close-code-in-a-separate-f.patch
-Patch0002: 0002-char-Add-a-QemuChrHandlers-struct-to-initialise-char.patch
-Patch0003: 0003-iohandlers-Add-enable-disable_write_fd_handler-funct.patch
-Patch0004: 0004-char-Add-framework-for-a-write-unblocked-callback.patch
-Patch0005: 0005-char-Update-send_all-to-handle-nonblocking-chardev-w.patch
-Patch0006: 0006-char-Equip-the-unix-tcp-backend-to-handle-nonblockin.patch
-Patch0007: 0007-virtio-console-Enable-port-throttling-when-chardev-i.patch
-Patch0008: 0008-spice-qemu-char.c-add-throttling.patch
-Patch0009: 0009-spice-qemu-char.c-remove-intermediate-buffer.patch
-Patch0010: 0010-usb-redir-Add-flow-control-support.patch
-Patch0011: 0011-char-Disable-write-callback-if-throttled-chardev-is-.patch
-Patch0012: 0012-hw-virtio-serial-bus-replay-guest-open-on-destinatio.patch
-
 # qemu-kvm migration compat (posted upstream)
-Patch0101: 0101-configure-Add-enable-migration-from-qemu-kvm.patch
-Patch0102: 0102-acpi_piix4-Drop-minimum_version_id-to-handle-qemu-kv.patch
-Patch0103: 0103-i8254-Fix-migration-from-qemu-kvm-1.1.patch
-Patch0104: 0104-pc_piix-Add-compat-handling-for-qemu-kvm-VGA-mem-siz.patch
+Patch0001: 0001-configure-Add-enable-migration-from-qemu-kvm.patch
+Patch0002: 0002-acpi_piix4-Drop-minimum_version_id-to-handle-qemu-kv.patch
+Patch0003: 0003-i8254-Fix-migration-from-qemu-kvm-1.1.patch
+Patch0004: 0004-pc_piix-Add-compat-handling-for-qemu-kvm-VGA-mem-siz.patch
 # Fix migration w/ qxl from qemu-kvm 1.2 (solution pending upstream)
-Patch0105: 0105-qxl-Add-rom_size-compat-property-fix-migration-from-.patch
-# Fix generating docs with texinfo 5 (posted upstream)
-Patch0106: 0106-docs-Fix-generating-qemu-doc.html-with-texinfo-5.patch
-# Fix crash with usbredir (bz #962826)
-Patch0107: 0107-usb-redir-Fix-crash-on-migration-with-no-client-conn.patch
+Patch0005: 0005-qxl-Add-rom_size-compat-property-fix-migration-from-.patch
 
 BuildRequires: SDL-devel
 BuildRequires: zlib-devel
@@ -268,6 +252,16 @@ BuildRequires: pixman-devel
 BuildRequires: glusterfs-devel >= 3.4.0
 BuildRequires: glusterfs-api-devel >= 3.4.0
 %endif
+# Needed for usb passthrough for qemu >= 1.5
+BuildRequires: libusbx-devel
+# SSH block driver
+BuildRequires: libssh2-devel
+%if %{with gtk}
+# GTK frontend
+BuildRequires: gtk3-devel
+BuildRequires: vte3-devel
+%endif
+
 
 %if 0%{?user:1}
 Requires: %{name}-%{user} = %{epoch}:%{version}-%{release}
@@ -316,6 +310,9 @@ Requires: %{name}-%{system_x86} = %{epoch}:%{version}-%{release}
 %endif
 %if 0%{?system_xtensa:1}
 Requires: %{name}-%{system_xtensa} = %{epoch}:%{version}-%{release}
+%endif
+%if 0%{?system_moxie:1}
+Requires: %{name}-%{system_moxie} = %{epoch}:%{version}-%{release}
 %endif
 %if %{without separate_kvm}
 Requires: %{name}-img = %{epoch}:%{version}-%{release}
@@ -424,7 +421,7 @@ Obsoletes: kvm < 85
 Requires: seavgabios-bin
 Requires: seabios-bin >= 0.6.0-2
 Requires: sgabios-bin
-Requires: ipxe-roms-qemu
+Requires: ipxe-roms-qemu >= 20130517-2.gitc4bce43
 %if 0%{?have_seccomp:1}
 Requires: libseccomp >= 1.0.0
 %endif
@@ -577,7 +574,7 @@ Summary: QEMU system emulator for PPC
 Group: Development/Tools
 Requires: %{name}-common = %{epoch}:%{version}-%{release}
 Requires: openbios
-Requires: SLOF = 0.1.git%{SLOF_gittagdate}
+Requires: SLOF >= 0.1.git%{SLOF_gittagdate}
 %description %{system_ppc}
 QEMU is a generic and open source processor emulator which achieves a good
 emulation speed by using dynamic translation.
@@ -607,6 +604,18 @@ QEMU is a generic and open source processor emulator which achieves a good
 emulation speed by using dynamic translation.
 
 This package provides the system emulator for Unicore32 boards.
+%endif
+
+%if 0%{?system_moxie:1}
+%package %{system_moxie}
+Summary: QEMU system emulator for Moxie
+Group: Development/Tools
+Requires: %{name}-common = %{epoch}:%{version}-%{release}
+%description %{system_moxie}
+QEMU is a generic and open source processor emulator which achieves a good
+emulation speed by using dynamic translation.
+
+This package provides the system emulator for Moxie boards.
 %endif
 
 %ifarch %{kvm_archs}
@@ -647,31 +656,13 @@ CAC emulation development files.
 %prep
 %setup -q
 
-# Flow control series
+# qemu-kvm migration compat (posted upstream)
 %patch0001 -p1
 %patch0002 -p1
 %patch0003 -p1
 %patch0004 -p1
-%patch0005 -p1
-%patch0006 -p1
-%patch0007 -p1
-%patch0008 -p1
-%patch0009 -p1
-%patch0010 -p1
-%patch0011 -p1
-%patch0012 -p1
-
-# qemu-kvm migration compat (posted upstream)
-%patch0101 -p1
-%patch0102 -p1
-%patch0103 -p1
-%patch0104 -p1
 # Fix migration w/ qxl from qemu-kvm 1.2 (solution pending upstream)
-%patch0105 -p1
-# Fix generating docs with texinfo 5 (posted upstream)
-%patch0106 -p1
-# Fix crash with usbredir (bz #962826)
-%patch0107 -p1
+%patch0005 -p1
 
 
 %build
@@ -683,11 +674,13 @@ CAC emulation development files.
     microblazeel-softmmu mips-softmmu mipsel-softmmu mips64-softmmu \
     mips64el-softmmu or32-softmmu ppc-softmmu ppcemb-softmmu ppc64-softmmu \
     s390x-softmmu sh4-softmmu sh4eb-softmmu sparc-softmmu sparc64-softmmu \
-    xtensa-softmmu xtensaeb-softmmu unicore32-softmmu \
+    xtensa-softmmu xtensaeb-softmmu unicore32-softmmu moxie-softmmu \
     i386-linux-user x86_64-linux-user alpha-linux-user arm-linux-user \
     armeb-linux-user cris-linux-user m68k-linux-user \
     microblaze-linux-user microblazeel-linux-user mips-linux-user \
-    mipsel-linux-user or32-linux-user ppc-linux-user ppc64-linux-user \
+    mipsel-linux-user mips64-linux-user mips64el-linux-user \
+    mipsn32-linux-user mipsn32el-linux-user \
+    or32-linux-user ppc-linux-user ppc64-linux-user \
     ppc64abi32-linux-user s390x-linux-user sh4-linux-user sh4eb-linux-user \
     sparc-linux-user sparc64-linux-user sparc32plus-linux-user \
     unicore32-linux-user"
@@ -736,6 +729,10 @@ dobuild() {
 %else
         --disable-fdt \
 %endif
+%if %{with gtk}
+        --with-gtkabi="3.0" \
+%endif
+        --enable-tpm \
         "$@"
 
     echo "config-host.mak contents:"
@@ -778,6 +775,8 @@ install -m 0644 %{SOURCE3} $RPM_BUILD_ROOT%{_udevdir}
 
 make DESTDIR=$RPM_BUILD_ROOT install
 
+%find_lang %{name}
+
 %if 0%{?need_qemu_kvm}
 install -m 0755 %{SOURCE13} $RPM_BUILD_ROOT%{_bindir}/qemu-kvm
 %endif
@@ -788,7 +787,7 @@ rm $RPM_BUILD_ROOT%{_datadir}/systemtap/tapset/qemu-system-%{kvm_target}.stp
 %endif
 
 chmod -x ${RPM_BUILD_ROOT}%{_mandir}/man1/*
-install -D -p -m 0644 -t ${RPM_BUILD_ROOT}%{qemudocdir} Changelog README TODO COPYING COPYING.LIB LICENSE
+install -D -p -m 0644 -t ${RPM_BUILD_ROOT}%{qemudocdir} Changelog README COPYING COPYING.LIB LICENSE
 
 install -D -p -m 0644 qemu.sasl $RPM_BUILD_ROOT%{_sysconfdir}/sasl2/qemu.conf
 
@@ -817,10 +816,12 @@ rm -f ${RPM_BUILD_ROOT}%{_datadir}/%{name}/spapr-rtas.bin
 %endif
 %if 0%{!?system_s390x:1}
 rm -rf ${RPM_BUILD_ROOT}%{_datadir}/%{name}/s390-zipl.rom
+rm -rf ${RPM_BUILD_ROOT}%{_datadir}/%{name}/s390-ccw.img
 %endif
 
 # Provided by package ipxe
 rm -rf ${RPM_BUILD_ROOT}%{_datadir}/%{name}/pxe*rom
+rm -rf ${RPM_BUILD_ROOT}%{_datadir}/%{name}/efi*rom
 # Provided by package seavgabios
 rm -rf ${RPM_BUILD_ROOT}%{_datadir}/%{name}/vgabios*bin
 # Provided by package seabios
@@ -834,6 +835,7 @@ rm -rf ${RPM_BUILD_ROOT}%{_datadir}/%{name}/sgabios.bin
 # for other paths, yet.
 pxe_link() {
   ln -s ../ipxe/$2.rom %{buildroot}%{_datadir}/%{name}/pxe-$1.rom
+  ln -s ../ipxe.efi/$2.rom %{buildroot}%{_datadir}/%{name}/efi-$1.rom
 }
 
 pxe_link e1000 8086100e
@@ -999,12 +1001,11 @@ getent passwd qemu >/dev/null || \
 %defattr(-,root,root)
 %endif
 
-%files common
+%files common -f %{name}.lang
 %defattr(-,root,root)
 %dir %{qemudocdir}
 %doc %{qemudocdir}/Changelog
 %doc %{qemudocdir}/README
-%doc %{qemudocdir}/TODO
 %doc %{qemudocdir}/qemu-doc.html
 %doc %{qemudocdir}/qemu-tech.html
 %doc %{qemudocdir}/qmp-commands.txt
@@ -1012,6 +1013,7 @@ getent passwd qemu >/dev/null || \
 %doc %{qemudocdir}/COPYING.LIB
 %doc %{qemudocdir}/LICENSE
 %dir %{_datadir}/%{name}/
+%{_datadir}/%{name}/qemu-icon.bmp
 %{_datadir}/%{name}/keymaps/
 %{_mandir}/man1/qemu.1*
 %{_mandir}/man1/virtfs-proxy-helper.1*
@@ -1053,6 +1055,10 @@ getent passwd qemu >/dev/null || \
 %{_bindir}/qemu-microblazeel
 %{_bindir}/qemu-mips
 %{_bindir}/qemu-mipsel
+%{_bindir}/qemu-mips64
+%{_bindir}/qemu-mips64el
+%{_bindir}/qemu-mipsn32
+%{_bindir}/qemu-mipsn32el
 %{_bindir}/qemu-or32
 %{_bindir}/qemu-ppc
 %{_bindir}/qemu-ppc64
@@ -1075,6 +1081,10 @@ getent passwd qemu >/dev/null || \
 %{_datadir}/systemtap/tapset/qemu-microblazeel.stp
 %{_datadir}/systemtap/tapset/qemu-mips.stp
 %{_datadir}/systemtap/tapset/qemu-mipsel.stp
+%{_datadir}/systemtap/tapset/qemu-mips64.stp
+%{_datadir}/systemtap/tapset/qemu-mips64el.stp
+%{_datadir}/systemtap/tapset/qemu-mipsn32.stp
+%{_datadir}/systemtap/tapset/qemu-mipsn32el.stp
 %{_datadir}/systemtap/tapset/qemu-or32.stp
 %{_datadir}/systemtap/tapset/qemu-ppc.stp
 %{_datadir}/systemtap/tapset/qemu-ppc64.stp
@@ -1110,11 +1120,15 @@ getent passwd qemu >/dev/null || \
 %{_datadir}/%{name}/vgabios-stdvga.bin
 %{_datadir}/%{name}/vgabios-vmware.bin
 %{_datadir}/%{name}/pxe-e1000.rom
+%{_datadir}/%{name}/efi-e1000.rom
 %{_datadir}/%{name}/pxe-virtio.rom
+%{_datadir}/%{name}/efi-virtio.rom
 %{_datadir}/%{name}/pxe-pcnet.rom
+%{_datadir}/%{name}/efi-pcnet.rom
 %{_datadir}/%{name}/pxe-rtl8139.rom
+%{_datadir}/%{name}/efi-rtl8139.rom
 %{_datadir}/%{name}/pxe-ne2k_pci.rom
-%{_datadir}/%{name}/qemu-icon.bmp
+%{_datadir}/%{name}/efi-ne2k_pci.rom
 %config(noreplace) %{_sysconfdir}/qemu/target-x86_64.conf
 %if %{without separate_kvm}
 %ifarch %{ix86} x86_64
@@ -1202,6 +1216,7 @@ getent passwd qemu >/dev/null || \
 %{_bindir}/qemu-system-s390x
 %{_datadir}/systemtap/tapset/qemu-system-s390x.stp
 %{_datadir}/%{name}/s390-zipl.rom
+%{_datadir}/%{name}/s390-ccw.img
 %ifarch s390x
 %{?kvm_files:}
 %{?qemu_kvm_files:}
@@ -1262,6 +1277,13 @@ getent passwd qemu >/dev/null || \
 %{_datadir}/systemtap/tapset/qemu-system-xtensaeb.stp
 %endif
 
+%if 0%{?system_moxie:1}
+%files %{system_moxie}
+%defattr(-,root,root)
+%{_bindir}/qemu-system-moxie
+%{_datadir}/systemtap/tapset/qemu-system-moxie.stp
+%endif
+
 %if %{without separate_kvm}
 %files img
 %defattr(-,root,root)
@@ -1288,6 +1310,14 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Tue May 21 2013 Cole Robinson <crobinso@redhat.com> - 2:1.5.0-1
+- Update to qemu 1.5
+- KVM for ARM support
+- A native GTK+ UI with internationalization support
+- Experimental VFIO support for VGA passthrough
+- Support for VMware PVSCSI and VMXNET3 device emulation
+- CPU hot-add support
+
 * Thu May 16 2013 Paolo Bonzini <pbonzini@redhat.com> - 2:1.4.1-3
 - Drop loading of vhost-net module (bz #963198)
 
