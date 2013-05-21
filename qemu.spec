@@ -261,6 +261,8 @@ BuildRequires: libssh2-devel
 BuildRequires: gtk3-devel
 BuildRequires: vte3-devel
 %endif
+# GTK translations
+BuildRequires: gettext
 
 
 %if 0%{?user:1}
