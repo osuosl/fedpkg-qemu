@@ -248,6 +248,7 @@ Patch0243: 0243-migration-move-rate-limiting-to-QEMUFile.patch
 Patch0244: 0244-migration-move-contents-of-migration_close-to-migrat.patch
 Patch0245: 0245-migration-eliminate-s-migration_file.patch
 Patch0246: 0246-migration-inline-migrate_fd_close.patch
+Patch0247: 0247-Revert-migration-don-t-account-sleep-time-for-calcul.patch
 
 BuildRequires: SDL-devel
 BuildRequires: zlib-devel
@@ -771,6 +772,7 @@ CAC emulation development files.
 %patch0244 -p1
 %patch0245 -p1
 %patch0246 -p1
+%patch0247 -p1
 
 %build
 %if %{with kvmonly}
