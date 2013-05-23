@@ -1,0 +1,32 @@
+From 0c1da6466596bc25328f896161f06622899cce48 Mon Sep 17 00:00:00 2001
+From: Paolo Bonzini <pbonzini@redhat.com>
+Date: Fri, 22 Feb 2013 17:36:15 +0100
+Subject: [PATCH 213/246] migration: flush all data to fd when buffered_flush
+ is called
+
+Including data that resided in the QEMUFile's own buffer.
+
+Reviewed-by: Orit Wasserman <owasserm@redhat.com>
+Reviewed-by: Juan Quintela <quintela@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Juan Quintela <quintela@redhat.com>
+---
+ migration.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/migration.c b/migration.c
+index 739e38c..1027b40 100644
+--- a/migration.c
++++ b/migration.c
+@@ -525,6 +525,8 @@ static ssize_t buffered_flush(MigrationState *s)
+ 
+     DPRINTF("flushing %zu byte(s) of data\n", s->buffer_size);
+ 
++    qemu_fflush(s->file);
++
+     while (s->bytes_xfer < s->xfer_limit && offset < s->buffer_size) {
+         size_t to_send = MIN(s->buffer_size - offset, s->xfer_limit - s->bytes_xfer);
+         ret = migrate_fd_put_buffer(s, s->buffer + offset, to_send);
+-- 
+1.8.2.1
+

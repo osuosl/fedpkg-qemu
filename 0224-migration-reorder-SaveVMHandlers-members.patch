@@ -1,0 +1,42 @@
+From 3d91104155abc46db41f0588bdbcfbd34aa007af Mon Sep 17 00:00:00 2001
+From: Paolo Bonzini <pbonzini@redhat.com>
+Date: Fri, 22 Feb 2013 17:36:26 +0100
+Subject: [PATCH 224/246] migration: reorder SaveVMHandlers members
+
+This groups together the callbacks that later will have similar
+locking rules.
+
+Reviewed-by: Orit Wasserman <owasserm@redhat.com>
+Reviewed-by: Juan Quintela <quintela@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Juan Quintela <quintela@redhat.com>
+---
+ include/migration/vmstate.h | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
+
+diff --git a/include/migration/vmstate.h b/include/migration/vmstate.h
+index f27276c..6229569 100644
+--- a/include/migration/vmstate.h
++++ b/include/migration/vmstate.h
+@@ -32,13 +32,15 @@ typedef int LoadStateHandler(QEMUFile *f, void *opaque, int version_id);
+ typedef struct SaveVMHandlers {
+     void (*set_params)(const MigrationParams *params, void * opaque);
+     SaveStateHandler *save_state;
++
+     int (*save_live_setup)(QEMUFile *f, void *opaque);
+-    int (*save_live_iterate)(QEMUFile *f, void *opaque);
++    void (*cancel)(void *opaque);
+     int (*save_live_complete)(QEMUFile *f, void *opaque);
++    bool (*is_active)(void *opaque);
++    int (*save_live_iterate)(QEMUFile *f, void *opaque);
+     uint64_t (*save_live_pending)(QEMUFile *f, void *opaque, uint64_t max_size);
+-    void (*cancel)(void *opaque);
++
+     LoadStateHandler *load_state;
+-    bool (*is_active)(void *opaque);
+ } SaveVMHandlers;
+ 
+ int register_savevm(DeviceState *dev,
+-- 
+1.8.2.1
+

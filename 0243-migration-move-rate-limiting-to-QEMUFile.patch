@@ -1,0 +1,272 @@
+From 61af111810219339d4029bb9a35ff930feb3ec49 Mon Sep 17 00:00:00 2001
+From: Paolo Bonzini <pbonzini@redhat.com>
+Date: Fri, 22 Feb 2013 17:36:45 +0100
+Subject: [PATCH 243/246] migration: move rate limiting to QEMUFile
+
+Rate limiting is now simply a byte counter; client call
+qemu_file_rate_limit() manually to determine if they have to exit.
+So it is possible and simple to move the functionality to QEMUFile.
+
+This makes the remaining functionality of s->file redundant;
+in the next patch we can remove it and write directly to s->migration_file.
+
+Reviewed-by: Orit Wasserman <owasserm@redhat.com>
+Reviewed-by: Juan Quintela <quintela@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Juan Quintela <quintela@redhat.com>
+---
+ docs/migration.txt            | 20 +----------------
+ include/migration/qemu-file.h | 18 ++-------------
+ migration.c                   | 51 +------------------------------------------
+ savevm.c                      | 31 ++++++++++++++------------
+ 4 files changed, 21 insertions(+), 99 deletions(-)
+
+diff --git a/docs/migration.txt b/docs/migration.txt
+index f3ddd2f..0719a55 100644
+--- a/docs/migration.txt
++++ b/docs/migration.txt
+@@ -55,10 +55,7 @@ QEMUFile with:
+ QEMUFile *qemu_fopen_ops(void *opaque,
+                          QEMUFilePutBufferFunc *put_buffer,
+                          QEMUFileGetBufferFunc *get_buffer,
+-                         QEMUFileCloseFunc *close,
+-                         QEMUFileRateLimit *rate_limit,
+-                         QEMUFileSetRateLimit *set_rate_limit,
+-                         QEMUFileGetRateLimit *get_rate_limit);
++                         QEMUFileCloseFunc *close);
+ 
+ The functions have the following functionality:
+ 
+@@ -80,24 +77,9 @@ Close a file and return an error code.
+ 
+ typedef int (QEMUFileCloseFunc)(void *opaque);
+ 
+-Called to determine if the file has exceeded its bandwidth allocation.  The
+-bandwidth capping is a soft limit, not a hard limit.
+-
+-typedef int (QEMUFileRateLimit)(void *opaque);
+-
+-Called to change the current bandwidth allocation. This function must return
+-the new actual bandwidth. It should be new_rate if everything goes OK, and
+-the old rate otherwise.
+-
+-typedef size_t (QEMUFileSetRateLimit)(void *opaque, size_t new_rate);
+-typedef size_t (QEMUFileGetRateLimit)(void *opaque);
+-
+ You can use any internal state that you need using the opaque void *
+ pointer that is passed to all functions.
+ 
+-The rate limiting functions are used to limit the bandwidth used by
+-QEMU migration.
+-
+ The important functions for us are put_buffer()/get_buffer() that
+ allow to write/read a buffer into the QEMUFile.
+ 
+diff --git a/include/migration/qemu-file.h b/include/migration/qemu-file.h
+index 25e8461..df81261 100644
+--- a/include/migration/qemu-file.h
++++ b/include/migration/qemu-file.h
+@@ -51,26 +51,11 @@ typedef int (QEMUFileCloseFunc)(void *opaque);
+  */
+ typedef int (QEMUFileGetFD)(void *opaque);
+ 
+-/* Called to determine if the file has exceeded its bandwidth allocation.  The
+- * bandwidth capping is a soft limit, not a hard limit.
+- */
+-typedef int (QEMUFileRateLimit)(void *opaque);
+-
+-/* Called to change the current bandwidth allocation. This function must return
+- * the new actual bandwidth. It should be new_rate if everything goes ok, and
+- * the old rate otherwise
+- */
+-typedef int64_t (QEMUFileSetRateLimit)(void *opaque, int64_t new_rate);
+-typedef int64_t (QEMUFileGetRateLimit)(void *opaque);
+-
+ typedef struct QEMUFileOps {
+     QEMUFilePutBufferFunc *put_buffer;
+     QEMUFileGetBufferFunc *get_buffer;
+     QEMUFileCloseFunc *close;
+     QEMUFileGetFD *get_fd;
+-    QEMUFileRateLimit *rate_limit;
+-    QEMUFileSetRateLimit *set_rate_limit;
+-    QEMUFileGetRateLimit *get_rate_limit;
+ } QEMUFileOps;
+ 
+ QEMUFile *qemu_fopen_ops(void *opaque, const QEMUFileOps *ops);
+@@ -109,7 +94,8 @@ unsigned int qemu_get_be32(QEMUFile *f);
+ uint64_t qemu_get_be64(QEMUFile *f);
+ 
+ int qemu_file_rate_limit(QEMUFile *f);
+-int64_t qemu_file_set_rate_limit(QEMUFile *f, int64_t new_rate);
++void qemu_file_reset_rate_limit(QEMUFile *f);
++void qemu_file_set_rate_limit(QEMUFile *f, int64_t new_rate);
+ int64_t qemu_file_get_rate_limit(QEMUFile *f);
+ int qemu_file_get_error(QEMUFile *f);
+ 
+diff --git a/migration.c b/migration.c
+index 5c7d04f..ea84008 100644
+--- a/migration.c
++++ b/migration.c
+@@ -518,7 +518,6 @@ static int migration_put_buffer(void *opaque, const uint8_t *buf,
+         return ret;
+     }
+ 
+-    s->bytes_xfer += size;
+     return size;
+ }
+ 
+@@ -543,49 +542,6 @@ static int migration_get_fd(void *opaque)
+     return qemu_get_fd(s->migration_file);
+ }
+ 
+-/*
+- * The meaning of the return values is:
+- *   0: We can continue sending
+- *   1: Time to stop
+- *   negative: There has been an error
+- */
+-static int migration_rate_limit(void *opaque)
+-{
+-    MigrationState *s = opaque;
+-    int ret;
+-
+-    ret = qemu_file_get_error(s->file);
+-    if (ret) {
+-        return ret;
+-    }
+-
+-    if (s->bytes_xfer >= s->xfer_limit) {
+-        return 1;
+-    }
+-
+-    return 0;
+-}
+-
+-static int64_t migration_set_rate_limit(void *opaque, int64_t new_rate)
+-{
+-    MigrationState *s = opaque;
+-    if (qemu_file_get_error(s->file)) {
+-        goto out;
+-    }
+-
+-    s->xfer_limit = new_rate;
+-
+-out:
+-    return s->xfer_limit;
+-}
+-
+-static int64_t migration_get_rate_limit(void *opaque)
+-{
+-    MigrationState *s = opaque;
+-
+-    return s->xfer_limit;
+-}
+-
+ static void *migration_thread(void *opaque)
+ {
+     MigrationState *s = opaque;
+@@ -646,7 +602,7 @@ static void *migration_thread(void *opaque)
+                 s->expected_downtime = s->dirty_bytes_rate / bandwidth;
+             }
+ 
+-            s->bytes_xfer = 0;
++            qemu_file_reset_rate_limit(s->file);
+             sleep_time = 0;
+             initial_time = current_time;
+             initial_bytes = qemu_ftell(s->file);
+@@ -679,9 +635,6 @@ static const QEMUFileOps migration_file_ops = {
+     .get_fd =         migration_get_fd,
+     .put_buffer =     migration_put_buffer,
+     .close =          migration_close,
+-    .rate_limit =     migration_rate_limit,
+-    .get_rate_limit = migration_get_rate_limit,
+-    .set_rate_limit = migration_set_rate_limit,
+ };
+ 
+ void migrate_fd_connect(MigrationState *s)
+@@ -689,10 +642,8 @@ void migrate_fd_connect(MigrationState *s)
+     s->state = MIG_STATE_ACTIVE;
+     trace_migrate_set_state(MIG_STATE_ACTIVE);
+ 
+-    s->bytes_xfer = 0;
+     /* This is a best 1st approximation. ns to ms */
+     s->expected_downtime = max_downtime/1000000;
+-
+     s->cleanup_bh = qemu_bh_new(migrate_fd_cleanup, s);
+     s->file = qemu_fopen_ops(s, &migration_file_ops);
+ 
+diff --git a/savevm.c b/savevm.c
+index 43963ce..e9471a5 100644
+--- a/savevm.c
++++ b/savevm.c
+@@ -119,6 +119,9 @@ struct QEMUFile {
+     void *opaque;
+     int is_write;
+ 
++    int64_t bytes_xfer;
++    int64_t xfer_limit;
++
+     int64_t pos; /* start of buffer when writing, end of buffer
+                     when reading */
+     int buf_index;
+@@ -479,7 +482,6 @@ QEMUFile *qemu_fopen_ops(void *opaque, const QEMUFileOps *ops)
+     f->opaque = opaque;
+     f->ops = ops;
+     f->is_write = 0;
+-
+     return f;
+ }
+ 
+@@ -605,6 +607,7 @@ void qemu_put_buffer(QEMUFile *f, const uint8_t *buf, int size)
+         memcpy(f->buf + f->buf_index, buf, l);
+         f->is_write = 1;
+         f->buf_index += l;
++        f->bytes_xfer += l;
+         buf += l;
+         size -= l;
+         if (f->buf_index >= IO_BUF_SIZE) {
+@@ -725,28 +728,28 @@ int64_t qemu_ftell(QEMUFile *f)
+ 
+ int qemu_file_rate_limit(QEMUFile *f)
+ {
+-    if (f->ops->rate_limit)
+-        return f->ops->rate_limit(f->opaque);
+-
++    if (qemu_file_get_error(f)) {
++        return 1;
++    }
++    if (f->xfer_limit > 0 && f->bytes_xfer > f->xfer_limit) {
++        return 1;
++    }
+     return 0;
+ }
+ 
+ int64_t qemu_file_get_rate_limit(QEMUFile *f)
+ {
+-    if (f->ops->get_rate_limit)
+-        return f->ops->get_rate_limit(f->opaque);
+-
+-    return 0;
++    return f->xfer_limit;
+ }
+ 
+-int64_t qemu_file_set_rate_limit(QEMUFile *f, int64_t new_rate)
++void qemu_file_set_rate_limit(QEMUFile *f, int64_t limit)
+ {
+-    /* any failed or completed migration keeps its state to allow probing of
+-     * migration data, but has no associated file anymore */
+-    if (f && f->ops->set_rate_limit)
+-        return f->ops->set_rate_limit(f->opaque, new_rate);
++    f->xfer_limit = limit;
++}
+ 
+-    return 0;
++void qemu_file_reset_rate_limit(QEMUFile *f)
++{
++    f->bytes_xfer = 0;
+ }
+ 
+ void qemu_put_be16(QEMUFile *f, unsigned int v)
+-- 
+1.8.2.1
+

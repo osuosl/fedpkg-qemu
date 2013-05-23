@@ -1,0 +1,254 @@
+From 16a0242081586af3bfb38b0b710fc9fd3b681143 Mon Sep 17 00:00:00 2001
+From: Paolo Bonzini <pbonzini@redhat.com>
+Date: Fri, 22 Feb 2013 17:36:42 +0100
+Subject: [PATCH 240/246] migration: use QEMUFile for writing outgoing
+ migration data
+
+Second, drop the file descriptor indirection, and write directly to the
+QEMUFile.
+
+Reviewed-by: Orit Wasserman <owasserm@redhat.com>
+Reviewed-by: Juan Quintela <quintela@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Juan Quintela <quintela@redhat.com>
+---
+ include/migration/migration.h |  4 ----
+ migration-exec.c              | 12 -----------
+ migration-fd.c                | 12 -----------
+ migration-tcp.c               | 12 -----------
+ migration-unix.c              | 12 -----------
+ migration.c                   | 46 ++++++++-----------------------------------
+ 6 files changed, 8 insertions(+), 90 deletions(-)
+
+diff --git a/include/migration/migration.h b/include/migration/migration.h
+index 1f8f305..ae94706 100644
+--- a/include/migration/migration.h
++++ b/include/migration/migration.h
+@@ -40,10 +40,6 @@ struct MigrationState
+     QEMUFile *file;
+     QEMUFile *migration_file;
+ 
+-    int fd;
+-    int (*get_error)(MigrationState *s);
+-    int (*write)(MigrationState *s, const void *buff, size_t size);
+-
+     int state;
+     MigrationParams params;
+     int64_t total_time;
+diff --git a/migration-exec.c b/migration-exec.c
+index 8c3f720..1c539de 100644
+--- a/migration-exec.c
++++ b/migration-exec.c
+@@ -33,16 +33,6 @@
+     do { } while (0)
+ #endif
+ 
+-static int file_errno(MigrationState *s)
+-{
+-    return errno;
+-}
+-
+-static int file_write(MigrationState *s, const void * buf, size_t size)
+-{
+-    return write(s->fd, buf, size);
+-}
+-
+ void exec_start_outgoing_migration(MigrationState *s, const char *command, Error **errp)
+ {
+     s->migration_file = qemu_popen_cmd(command, "w");
+@@ -51,8 +41,6 @@ void exec_start_outgoing_migration(MigrationState *s, const char *command, Error
+         return;
+     }
+ 
+-    s->get_error = file_errno;
+-    s->write = file_write;
+     migrate_fd_connect(s);
+ }
+ 
+diff --git a/migration-fd.c b/migration-fd.c
+index 4636457..07c758a 100644
+--- a/migration-fd.c
++++ b/migration-fd.c
+@@ -30,16 +30,6 @@
+     do { } while (0)
+ #endif
+ 
+-static int fd_errno(MigrationState *s)
+-{
+-    return errno;
+-}
+-
+-static int fd_write(MigrationState *s, const void * buf, size_t size)
+-{
+-    return write(s->fd, buf, size);
+-}
+-
+ void fd_start_outgoing_migration(MigrationState *s, const char *fdname, Error **errp)
+ {
+     int fd = monitor_get_fd(cur_mon, fdname, errp);
+@@ -48,8 +38,6 @@ void fd_start_outgoing_migration(MigrationState *s, const char *fdname, Error **
+     }
+     s->migration_file = qemu_fdopen(fd, "wb");
+ 
+-    s->get_error = fd_errno;
+-    s->write = fd_write;
+     migrate_fd_connect(s);
+ }
+ 
+diff --git a/migration-tcp.c b/migration-tcp.c
+index 1e8e004..5ea4f3d 100644
+--- a/migration-tcp.c
++++ b/migration-tcp.c
+@@ -29,16 +29,6 @@
+     do { } while (0)
+ #endif
+ 
+-static int socket_errno(MigrationState *s)
+-{
+-    return socket_error();
+-}
+-
+-static int socket_write(MigrationState *s, const void * buf, size_t size)
+-{
+-    return send(s->fd, buf, size, 0);
+-}
+-
+ static void tcp_wait_for_connect(int fd, void *opaque)
+ {
+     MigrationState *s = opaque;
+@@ -56,8 +46,6 @@ static void tcp_wait_for_connect(int fd, void *opaque)
+ 
+ void tcp_start_outgoing_migration(MigrationState *s, const char *host_port, Error **errp)
+ {
+-    s->get_error = socket_errno;
+-    s->write = socket_write;
+     inet_nonblocking_connect(host_port, tcp_wait_for_connect, s, errp);
+ }
+ 
+diff --git a/migration-unix.c b/migration-unix.c
+index 11917f4..64bfa31 100644
+--- a/migration-unix.c
++++ b/migration-unix.c
+@@ -29,16 +29,6 @@
+     do { } while (0)
+ #endif
+ 
+-static int unix_errno(MigrationState *s)
+-{
+-    return errno;
+-}
+-
+-static int unix_write(MigrationState *s, const void * buf, size_t size)
+-{
+-    return write(s->fd, buf, size);
+-}
+-
+ static void unix_wait_for_connect(int fd, void *opaque)
+ {
+     MigrationState *s = opaque;
+@@ -56,8 +46,6 @@ static void unix_wait_for_connect(int fd, void *opaque)
+ 
+ void unix_start_outgoing_migration(MigrationState *s, const char *path, Error **errp)
+ {
+-    s->get_error = unix_errno;
+-    s->write = unix_write;
+     unix_nonblocking_connect(path, unix_wait_for_connect, s, errp);
+ }
+ 
+diff --git a/migration.c b/migration.c
+index fa630ed..26ba6c9 100644
+--- a/migration.c
++++ b/migration.c
+@@ -301,25 +301,6 @@ void migrate_fd_error(MigrationState *s)
+     notifier_list_notify(&migration_state_notifiers, s);
+ }
+ 
+-static ssize_t migrate_fd_put_buffer(MigrationState *s, const void *data,
+-                                     size_t size)
+-{
+-    ssize_t ret;
+-
+-    if (s->state != MIG_STATE_ACTIVE) {
+-        return -EIO;
+-    }
+-
+-    do {
+-        ret = s->write(s, data, size);
+-    } while (ret == -1 && ((s->get_error(s)) == EINTR));
+-
+-    if (ret == -1)
+-        ret = -(s->get_error(s));
+-
+-    return ret;
+-}
+-
+ static void migrate_fd_cancel(MigrationState *s)
+ {
+     DPRINTF("cancelling migration\n");
+@@ -333,7 +314,6 @@ int migrate_fd_close(MigrationState *s)
+     if (s->migration_file != NULL) {
+         rc = qemu_fclose(s->migration_file);
+         s->migration_file = NULL;
+-        s->fd = -1;
+     }
+     return rc;
+ }
+@@ -519,8 +499,7 @@ static int migration_put_buffer(void *opaque, const uint8_t *buf,
+                                int64_t pos, int size)
+ {
+     MigrationState *s = opaque;
+-    ssize_t ret;
+-    size_t sent;
++    int ret;
+ 
+     DPRINTF("putting %d bytes at %" PRId64 "\n", size, pos);
+ 
+@@ -528,22 +507,14 @@ static int migration_put_buffer(void *opaque, const uint8_t *buf,
+         return size;
+     }
+ 
+-    sent = 0;
+-    while (size) {
+-        ret = migrate_fd_put_buffer(s, buf, size);
+-        if (ret <= 0) {
+-            DPRINTF("error flushing data, %zd\n", ret);
+-            return ret;
+-        } else {
+-            DPRINTF("flushed %zd byte(s)\n", ret);
+-            sent += ret;
+-            buf += ret;
+-            size -= ret;
+-            s->bytes_xfer += ret;
+-        }
++    qemu_put_buffer(s->migration_file, buf, size);
++    ret = qemu_file_get_error(s->migration_file);
++    if (ret) {
++        return ret;
+     }
+ 
+-    return sent;
++    s->bytes_xfer += size;
++    return size;
+ }
+ 
+ static int migration_close(void *opaque)
+@@ -564,7 +535,7 @@ static int migration_get_fd(void *opaque)
+ {
+     MigrationState *s = opaque;
+ 
+-    return s->fd;
++    return qemu_get_fd(s->migration_file);
+ }
+ 
+ /*
+@@ -721,7 +692,6 @@ void migrate_fd_connect(MigrationState *s)
+     s->xfer_limit = s->bandwidth_limit / XFER_LIMIT_RATIO;
+ 
+     s->cleanup_bh = qemu_bh_new(migrate_fd_cleanup, s);
+-    s->fd = qemu_get_fd(s->migration_file);
+     s->file = qemu_fopen_ops(s, &migration_file_ops);
+ 
+     qemu_thread_create(&s->thread, migration_thread, s,
+-- 
+1.8.2.1
+

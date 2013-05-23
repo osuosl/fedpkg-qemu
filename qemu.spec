@@ -131,7 +131,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.4.1
-Release: 3%{?dist}
+Release: 4%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -198,6 +198,56 @@ Patch0105: 0105-qxl-Add-rom_size-compat-property-fix-migration-from-.patch
 Patch0106: 0106-docs-Fix-generating-qemu-doc.html-with-texinfo-5.patch
 # Fix crash with usbredir (bz #962826)
 Patch0107: 0107-usb-redir-Fix-crash-on-migration-with-no-client-conn.patch
+
+# qemu-km migration cleanup (bz #962954)
+# Moves migration notifiers to iothread, fixing spice assert
+Patch0200: 0200-ui-vnc-tls.c-fix-gnutls-warning.patch
+Patch0201: 0201-migration-change-initial-value-of-expected_downtime.patch
+Patch0202: 0202-migration-calculate-end-time-after-we-have-sent-the-.patch
+Patch0203: 0203-migration-don-t-account-sleep-time-for-calculating-b.patch
+Patch0204: 0204-migration-calculate-expected_downtime.patch
+Patch0205: 0205-migration-simplify-while-loop.patch
+Patch0206: 0206-migration-always-use-vm_stop_force_state.patch
+Patch0207: 0207-migration-move-more-error-handling-to-migrate_fd_cle.patch
+Patch0208: 0208-migration-push-qemu_savevm_state_cancel-out-of-qemu_.patch
+Patch0209: 0209-block-migration-remove-useless-calls-to-blk_mig_clea.patch
+Patch0210: 0210-qemu-file-pass-errno-from-qemu_fflush-via-f-last_err.patch
+Patch0211: 0211-migration-use-qemu_file_set_error-to-pass-error-code.patch
+Patch0212: 0212-qemu-file-temporarily-expose-qemu_file_set_error-and.patch
+Patch0213: 0213-migration-flush-all-data-to-fd-when-buffered_flush-i.patch
+Patch0214: 0214-migration-use-qemu_file_set_error.patch
+Patch0215: 0215-migration-simplify-error-handling.patch
+Patch0216: 0216-migration-do-not-nest-flushing-of-device-data.patch
+Patch0217: 0217-migration-add-migrate_set_state-tracepoint.patch
+Patch0218: 0218-migration-prepare-to-access-s-state-outside-critical.patch
+Patch0219: 0219-migration-cleanup-migration-including-thread-in-the-.patch
+Patch0220: 0220-block-migration-remove-variables-that-are-never-read.patch
+Patch0221: 0221-block-migration-small-preparatory-changes-for-lockin.patch
+Patch0222: 0222-block-migration-document-usage-of-state-across-threa.patch
+Patch0223: 0223-block-migration-add-lock.patch
+Patch0224: 0224-migration-reorder-SaveVMHandlers-members.patch
+Patch0225: 0225-migration-run-pending-iterate-callbacks-out-of-big-l.patch
+Patch0226: 0226-migration-run-setup-callbacks-out-of-big-lock.patch
+Patch0227: 0227-migration-yay-buffering-is-gone.patch
+Patch0228: 0228-Rename-buffered_-to-migration_.patch
+Patch0229: 0229-qemu-file-make-qemu_fflush-and-qemu_file_set_error-p.patch
+Patch0230: 0230-migration-eliminate-last_round.patch
+Patch0231: 0231-migration-detect-error-before-sleeping.patch
+Patch0232: 0232-migration-remove-useless-qemu_file_get_error-check.patch
+Patch0233: 0233-migration-use-qemu_file_rate_limit-consistently.patch
+Patch0234: 0234-migration-merge-qemu_popen_cmd-with-qemu_popen.patch
+Patch0235: 0235-qemu-file-fsync-a-writable-stdio-QEMUFile.patch
+Patch0236: 0236-qemu-file-check-exit-status-when-closing-a-pipe-QEMU.patch
+Patch0237: 0237-qemu-file-add-writable-socket-QEMUFile.patch
+Patch0238: 0238-qemu-file-simplify-and-export-qemu_ftell.patch
+Patch0239: 0239-migration-use-QEMUFile-for-migration-channel-lifetim.patch
+Patch0240: 0240-migration-use-QEMUFile-for-writing-outgoing-migratio.patch
+Patch0241: 0241-migration-use-qemu_ftell-to-compute-bandwidth.patch
+Patch0242: 0242-migration-small-changes-around-rate-limiting.patch
+Patch0243: 0243-migration-move-rate-limiting-to-QEMUFile.patch
+Patch0244: 0244-migration-move-contents-of-migration_close-to-migrat.patch
+Patch0245: 0245-migration-eliminate-s-migration_file.patch
+Patch0246: 0246-migration-inline-migrate_fd_close.patch
 
 BuildRequires: SDL-devel
 BuildRequires: zlib-devel
@@ -673,6 +723,54 @@ CAC emulation development files.
 # Fix crash with usbredir (bz #962826)
 %patch0107 -p1
 
+# qemu-km migration cleanup (bz #962954)
+%patch0200 -p1
+%patch0201 -p1
+%patch0202 -p1
+%patch0203 -p1
+%patch0204 -p1
+%patch0205 -p1
+%patch0206 -p1
+%patch0207 -p1
+%patch0208 -p1
+%patch0209 -p1
+%patch0210 -p1
+%patch0211 -p1
+%patch0212 -p1
+%patch0213 -p1
+%patch0214 -p1
+%patch0215 -p1
+%patch0216 -p1
+%patch0217 -p1
+%patch0218 -p1
+%patch0219 -p1
+%patch0220 -p1
+%patch0221 -p1
+%patch0222 -p1
+%patch0223 -p1
+%patch0224 -p1
+%patch0225 -p1
+%patch0226 -p1
+%patch0227 -p1
+%patch0228 -p1
+%patch0229 -p1
+%patch0230 -p1
+%patch0231 -p1
+%patch0232 -p1
+%patch0233 -p1
+%patch0234 -p1
+%patch0235 -p1
+%patch0236 -p1
+%patch0237 -p1
+%patch0238 -p1
+%patch0239 -p1
+%patch0240 -p1
+%patch0241 -p1
+%patch0242 -p1
+%patch0243 -p1
+%patch0244 -p1
+%patch0245 -p1
+%patch0246 -p1
 
 %build
 %if %{with kvmonly}
@@ -1288,6 +1386,9 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Wed May 22 2013 Alon Levy <alevy@redhat.com> - 2:1.4.1-4
+- Backport migration cleanup (bz #962954)
+
 * Thu May 16 2013 Paolo Bonzini <pbonzini@redhat.com> - 2:1.4.1-3
 - Drop loading of vhost-net module (bz #963198)
 
