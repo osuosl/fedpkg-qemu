@@ -1,0 +1,65 @@
+From ba58f61422bff38da15331a092adfd2cfaadc8d5 Mon Sep 17 00:00:00 2001
+From: Paolo Bonzini <pbonzini@redhat.com>
+Date: Fri, 22 Feb 2013 17:36:38 +0100
+Subject: [PATCH] qemu-file: check exit status when closing a pipe QEMUFile
+
+This is what exec_close does.  Move this to the underlying QEMUFile.
+
+Reviewed-by: Orit Wasserman <owasserm@redhat.com>
+Reviewed-by: Juan Quintela <quintela@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Juan Quintela <quintela@redhat.com>
+(cherry picked from commit 13c7b2da073ec83cb47f9582149c8d28bb038e73)
+---
+ include/qemu/osdep.h | 7 +++++++
+ migration-exec.c     | 4 ----
+ savevm.c             | 3 +++
+ 3 files changed, 10 insertions(+), 4 deletions(-)
+
+diff --git a/include/qemu/osdep.h b/include/qemu/osdep.h
+index 87d3b9c..df24400 100644
+--- a/include/qemu/osdep.h
++++ b/include/qemu/osdep.h
+@@ -9,6 +9,13 @@
+ #include <sys/signal.h>
+ #endif
+ 
++#ifndef _WIN32
++#include <sys/wait.h>
++#else
++#define WIFEXITED(x)   1
++#define WEXITSTATUS(x) (x)
++#endif
++
+ #include <sys/time.h>
+ 
+ #if defined(CONFIG_SOLARIS) && CONFIG_SOLARIS_VERSION < 10
+diff --git a/migration-exec.c b/migration-exec.c
+index 5dc7313..a2b5f8d 100644
+--- a/migration-exec.c
++++ b/migration-exec.c
+@@ -50,10 +50,6 @@ static int exec_close(MigrationState *s)
+     ret = qemu_fclose(s->opaque);
+     s->opaque = NULL;
+     s->fd = -1;
+-    if (ret >= 0 && !(WIFEXITED(ret) && WEXITSTATUS(ret) == 0)) {
+-        /* close succeeded, but non-zero exit code: */
+-        ret = -EIO; /* fake errno value */
+-    }
+     return ret;
+ }
+ 
+diff --git a/savevm.c b/savevm.c
+index 1d49fde..6d6f1f1 100644
+--- a/savevm.c
++++ b/savevm.c
+@@ -247,6 +247,9 @@ static int stdio_pclose(void *opaque)
+     ret = pclose(s->stdio_file);
+     if (ret == -1) {
+         ret = -errno;
++    } else if (!WIFEXITED(ret) || WEXITSTATUS(ret) != 0) {
++        /* close succeeded, but non-zero exit code: */
++        ret = -EIO; /* fake errno value */
+     }
+     g_free(s);
+     return ret;

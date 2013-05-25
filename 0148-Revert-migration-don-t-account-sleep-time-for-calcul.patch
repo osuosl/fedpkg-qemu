@@ -1,0 +1,91 @@
+From 45d723c48255328fbd5128c4c70c91103e420590 Mon Sep 17 00:00:00 2001
+From: Michael Roth <mdroth@linux.vnet.ibm.com>
+Date: Thu, 16 May 2013 16:25:44 -0500
+Subject: [PATCH] Revert "migration: don't account sleep time for calculating
+ bandwidth"
+
+This reverts commit 7161082c8d8cf167c508976887a0a63f4db92b51.
+
+Reverting this patch fixes a divide-by-zero error in qemu that can be
+fairly reliably triggered by doing block migration. In this case, the
+configuration/error was:
+
+source: temp/x86_64-softmmu/qemu-system-x86_64 -enable-kvm -L temp-bios
+-M pc-i440fx-1.4 -m 512M -kernel boot/vmlinuz-x86_64 -initrd
+boot/test-initramfs-x86_64.img.gz -vga std -append seed=1234 -drive
+file=disk1.img,if=virtio -drive file=disk2.img,if=virtio -device
+virtio-net-pci,netdev=net0 -netdev user,id=net0 -monitor
+unix:/tmp/vm-hmp.sock,server,nowait -qmp
+unix:/tmp/vm-qmp.sock,server,nowait -vnc :100
+
+16837 Floating point exception(core dumped)
+
+target: temp/x86_64-softmmu/qemu-system-x86_64 -enable-kvm -L temp-bios
+-M pc-i440fx-1.4 -m 512M -kernel boot/vmlinuz-x86_64 -initrd
+boot/test-initramfs-x86_64.img.gz -vga std -append seed=1234 -drive
+file=target_disk1.img,if=virtio -drive file=target_disk2.img,if=virtio
+-device virtio-net-pci,netdev=net0 -netdev user,id=net0 -incoming
+unix:/tmp/migrate.sock -monitor
+unix:/tmp/vm-hmp-incoming.sock,server,nowait -qmp
+unix:/tmp/vm-qmp-incoming.sock,server,nowait -vnc :101
+
+Receiving block device images
+20 %
+21 %
+load of migration failed
+
+This revert potentially re-introduces a bug that was present in 1.4,
+but fixes a prevalent issue with block migration so we should revert
+it for now and take an updated patch later.
+
+Conflicts:
+
+	migration.c
+
+* fixed up to remove logic introduced in 7161082c while leaving
+  changes in HEAD intact
+
+Signed-off-by: Michael Roth <mdroth@linux.vnet.ibm.com>
+Message-id: 1368739544-31021-1-git-send-email-mdroth@linux.vnet.ibm.com
+Signed-off-by: Anthony Liguori <aliguori@us.ibm.com>
+(cherry picked from commit 77417f10701d330c7005b0f0a2c0cef9e05d430d)
+---
+ migration.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
+
+diff --git a/migration.c b/migration.c
+index 0aff06d..cca6df6 100644
+--- a/migration.c
++++ b/migration.c
+@@ -497,7 +497,6 @@ static void *migration_thread(void *opaque)
+ {
+     MigrationState *s = opaque;
+     int64_t initial_time = qemu_get_clock_ms(rt_clock);
+-    int64_t sleep_time = 0;
+     int64_t initial_bytes = 0;
+     int64_t max_size = 0;
+     int64_t start_time = initial_time;
+@@ -540,7 +539,7 @@ static void *migration_thread(void *opaque)
+         current_time = qemu_get_clock_ms(rt_clock);
+         if (current_time >= initial_time + BUFFER_DELAY) {
+             uint64_t transferred_bytes = qemu_ftell(s->file) - initial_bytes;
+-            uint64_t time_spent = current_time - initial_time - sleep_time;
++            uint64_t time_spent = current_time - initial_time;
+             double bandwidth = transferred_bytes / time_spent;
+             max_size = bandwidth * migrate_max_downtime() / 1000000;
+ 
+@@ -554,14 +553,12 @@ static void *migration_thread(void *opaque)
+             }
+ 
+             qemu_file_reset_rate_limit(s->file);
+-            sleep_time = 0;
+             initial_time = current_time;
+             initial_bytes = qemu_ftell(s->file);
+         }
+         if (qemu_file_rate_limit(s->file)) {
+             /* usleep expects microseconds */
+             g_usleep((initial_time + BUFFER_DELAY - current_time)*1000);
+-            sleep_time += qemu_get_clock_ms(rt_clock) - current_time;
+         }
+     }
+ 

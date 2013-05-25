@@ -1,0 +1,80 @@
+From 7f2725d2a64c533129504a9c9ea610169abd72f8 Mon Sep 17 00:00:00 2001
+From: Paolo Bonzini <pbonzini@redhat.com>
+Date: Fri, 22 Feb 2013 17:36:16 +0100
+Subject: [PATCH] migration: use qemu_file_set_error
+
+Remove the return value of buffered_flush, pass it via the error code
+of s->file.  Once this is done, the error can be retrieved simply
+via migrate_fd_close's call to qemu_fclose.
+
+Reviewed-by: Orit Wasserman <owasserm@redhat.com>
+Reviewed-by: Juan Quintela <quintela@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Juan Quintela <quintela@redhat.com>
+(cherry picked from commit 63dfbd7ee03185c181a0791958ec9c8337089b55)
+---
+ migration.c | 22 ++++++----------------
+ 1 file changed, 6 insertions(+), 16 deletions(-)
+
+diff --git a/migration.c b/migration.c
+index 1027b40..da5f175 100644
+--- a/migration.c
++++ b/migration.c
+@@ -518,7 +518,7 @@ int64_t migrate_xbzrle_cache_size(void)
+ /* migration thread support */
+ 
+ 
+-static ssize_t buffered_flush(MigrationState *s)
++static void buffered_flush(MigrationState *s)
+ {
+     size_t offset = 0;
+     ssize_t ret = 0;
+@@ -545,9 +545,8 @@ static ssize_t buffered_flush(MigrationState *s)
+     s->buffer_size -= offset;
+ 
+     if (ret < 0) {
+-        return ret;
++        qemu_file_set_error(s->file, ret);
+     }
+-    return offset;
+ }
+ 
+ static int buffered_put_buffer(void *opaque, const uint8_t *buf,
+@@ -586,25 +585,15 @@ static int buffered_put_buffer(void *opaque, const uint8_t *buf,
+ static int buffered_close(void *opaque)
+ {
+     MigrationState *s = opaque;
+-    ssize_t ret = 0;
+-    int ret2;
+ 
+     DPRINTF("closing\n");
+ 
+     s->xfer_limit = INT_MAX;
+     while (!qemu_file_get_error(s->file) && s->buffer_size) {
+-        ret = buffered_flush(s);
+-        if (ret < 0) {
+-            break;
+-        }
+-    }
+-
+-    ret2 = migrate_fd_close(s);
+-    if (ret >= 0) {
+-        ret = ret2;
++        buffered_flush(s);
+     }
+     s->complete = true;
+-    return ret;
++    return migrate_fd_close(s);
+ }
+ 
+ static int buffered_get_fd(void *opaque)
+@@ -750,7 +739,8 @@ static void *buffered_file_thread(void *opaque)
+             g_usleep((initial_time + BUFFER_DELAY - current_time)*1000);
+             sleep_time += qemu_get_clock_ms(rt_clock) - current_time;
+         }
+-        ret = buffered_flush(s);
++        buffered_flush(s);
++        ret = qemu_file_get_error(s->file);
+     }
+ 
+     if (ret < 0) {

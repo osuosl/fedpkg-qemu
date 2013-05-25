@@ -130,8 +130,8 @@
 
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
-Version: 1.4.1
-Release: 4%{?dist}
+Version: 1.4.2
+Release: 1%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -187,68 +187,62 @@ Patch0010: 0010-usb-redir-Add-flow-control-support.patch
 Patch0011: 0011-char-Disable-write-callback-if-throttled-chardev-is-.patch
 Patch0012: 0012-hw-virtio-serial-bus-replay-guest-open-on-destinatio.patch
 
-# qemu-kvm migration compat (posted upstream)
-Patch0101: 0101-configure-Add-enable-migration-from-qemu-kvm.patch
-Patch0102: 0102-acpi_piix4-Drop-minimum_version_id-to-handle-qemu-kv.patch
-Patch0103: 0103-i8254-Fix-migration-from-qemu-kvm-1.1.patch
-Patch0104: 0104-pc_piix-Add-compat-handling-for-qemu-kvm-VGA-mem-siz.patch
-# Fix migration w/ qxl from qemu-kvm 1.2 (solution pending upstream)
-Patch0105: 0105-qxl-Add-rom_size-compat-property-fix-migration-from-.patch
-# Fix generating docs with texinfo 5 (posted upstream)
-Patch0106: 0106-docs-Fix-generating-qemu-doc.html-with-texinfo-5.patch
-# Fix crash with usbredir (bz #962826)
-Patch0107: 0107-usb-redir-Fix-crash-on-migration-with-no-client-conn.patch
+# Fix migration crash with spice (bz #962954)
+Patch0101: 0101-vnc-tls-Fix-compilation-with-newer-versions-of-GNU-T.patch
+Patch0102: 0102-migration-change-initial-value-of-expected_downtime.patch
+Patch0103: 0103-migration-calculate-end-time-after-we-have-sent-the-.patch
+Patch0104: 0104-migration-don-t-account-sleep-time-for-calculating-b.patch
+Patch0105: 0105-migration-calculate-expected_downtime.patch
+Patch0106: 0106-migration-simplify-while-loop.patch
+Patch0107: 0107-migration-always-use-vm_stop_force_state.patch
+Patch0108: 0108-migration-move-more-error-handling-to-migrate_fd_cle.patch
+Patch0109: 0109-migration-push-qemu_savevm_state_cancel-out-of-qemu_.patch
+Patch0110: 0110-block-migration-remove-useless-calls-to-blk_mig_clea.patch
+Patch0111: 0111-qemu-file-pass-errno-from-qemu_fflush-via-f-last_err.patch
+Patch0112: 0112-migration-use-qemu_file_set_error-to-pass-error-code.patch
+Patch0113: 0113-qemu-file-temporarily-expose-qemu_file_set_error-and.patch
+Patch0114: 0114-migration-flush-all-data-to-fd-when-buffered_flush-i.patch
+Patch0115: 0115-migration-use-qemu_file_set_error.patch
+Patch0116: 0116-migration-simplify-error-handling.patch
+Patch0117: 0117-migration-do-not-nest-flushing-of-device-data.patch
+Patch0118: 0118-migration-add-migrate_set_state-tracepoint.patch
+Patch0119: 0119-migration-prepare-to-access-s-state-outside-critical.patch
+Patch0120: 0120-migration-cleanup-migration-including-thread-in-the-.patch
+Patch0121: 0121-block-migration-remove-variables-that-are-never-read.patch
+Patch0122: 0122-block-migration-small-preparatory-changes-for-lockin.patch
+Patch0123: 0123-block-migration-document-usage-of-state-across-threa.patch
+Patch0124: 0124-block-migration-add-lock.patch
+Patch0125: 0125-migration-reorder-SaveVMHandlers-members.patch
+Patch0126: 0126-migration-run-pending-iterate-callbacks-out-of-big-l.patch
+Patch0127: 0127-migration-run-setup-callbacks-out-of-big-lock.patch
+Patch0128: 0128-migration-yay-buffering-is-gone.patch
+Patch0129: 0129-Rename-buffered_-to-migration_.patch
+Patch0130: 0130-qemu-file-make-qemu_fflush-and-qemu_file_set_error-p.patch
+Patch0131: 0131-migration-eliminate-last_round.patch
+Patch0132: 0132-migration-detect-error-before-sleeping.patch
+Patch0133: 0133-migration-remove-useless-qemu_file_get_error-check.patch
+Patch0134: 0134-migration-use-qemu_file_rate_limit-consistently.patch
+Patch0135: 0135-migration-merge-qemu_popen_cmd-with-qemu_popen.patch
+Patch0136: 0136-qemu-file-fsync-a-writable-stdio-QEMUFile.patch
+Patch0137: 0137-qemu-file-check-exit-status-when-closing-a-pipe-QEMU.patch
+Patch0138: 0138-qemu-file-add-writable-socket-QEMUFile.patch
+Patch0139: 0139-qemu-file-simplify-and-export-qemu_ftell.patch
+Patch0140: 0140-migration-use-QEMUFile-for-migration-channel-lifetim.patch
+Patch0141: 0141-migration-use-QEMUFile-for-writing-outgoing-migratio.patch
+Patch0142: 0142-migration-use-qemu_ftell-to-compute-bandwidth.patch
+Patch0143: 0143-migration-small-changes-around-rate-limiting.patch
+Patch0144: 0144-migration-move-rate-limiting-to-QEMUFile.patch
+Patch0145: 0145-migration-move-contents-of-migration_close-to-migrat.patch
+Patch0146: 0146-migration-eliminate-s-migration_file.patch
+Patch0147: 0147-migration-inline-migrate_fd_close.patch
+Patch0148: 0148-Revert-migration-don-t-account-sleep-time-for-calcul.patch
 
-# qemu-km migration cleanup (bz #962954)
-# Moves migration notifiers to iothread, fixing spice assert
-Patch0200: 0200-ui-vnc-tls.c-fix-gnutls-warning.patch
-Patch0201: 0201-migration-change-initial-value-of-expected_downtime.patch
-Patch0202: 0202-migration-calculate-end-time-after-we-have-sent-the-.patch
-Patch0203: 0203-migration-don-t-account-sleep-time-for-calculating-b.patch
-Patch0204: 0204-migration-calculate-expected_downtime.patch
-Patch0205: 0205-migration-simplify-while-loop.patch
-Patch0206: 0206-migration-always-use-vm_stop_force_state.patch
-Patch0207: 0207-migration-move-more-error-handling-to-migrate_fd_cle.patch
-Patch0208: 0208-migration-push-qemu_savevm_state_cancel-out-of-qemu_.patch
-Patch0209: 0209-block-migration-remove-useless-calls-to-blk_mig_clea.patch
-Patch0210: 0210-qemu-file-pass-errno-from-qemu_fflush-via-f-last_err.patch
-Patch0211: 0211-migration-use-qemu_file_set_error-to-pass-error-code.patch
-Patch0212: 0212-qemu-file-temporarily-expose-qemu_file_set_error-and.patch
-Patch0213: 0213-migration-flush-all-data-to-fd-when-buffered_flush-i.patch
-Patch0214: 0214-migration-use-qemu_file_set_error.patch
-Patch0215: 0215-migration-simplify-error-handling.patch
-Patch0216: 0216-migration-do-not-nest-flushing-of-device-data.patch
-Patch0217: 0217-migration-add-migrate_set_state-tracepoint.patch
-Patch0218: 0218-migration-prepare-to-access-s-state-outside-critical.patch
-Patch0219: 0219-migration-cleanup-migration-including-thread-in-the-.patch
-Patch0220: 0220-block-migration-remove-variables-that-are-never-read.patch
-Patch0221: 0221-block-migration-small-preparatory-changes-for-lockin.patch
-Patch0222: 0222-block-migration-document-usage-of-state-across-threa.patch
-Patch0223: 0223-block-migration-add-lock.patch
-Patch0224: 0224-migration-reorder-SaveVMHandlers-members.patch
-Patch0225: 0225-migration-run-pending-iterate-callbacks-out-of-big-l.patch
-Patch0226: 0226-migration-run-setup-callbacks-out-of-big-lock.patch
-Patch0227: 0227-migration-yay-buffering-is-gone.patch
-Patch0228: 0228-Rename-buffered_-to-migration_.patch
-Patch0229: 0229-qemu-file-make-qemu_fflush-and-qemu_file_set_error-p.patch
-Patch0230: 0230-migration-eliminate-last_round.patch
-Patch0231: 0231-migration-detect-error-before-sleeping.patch
-Patch0232: 0232-migration-remove-useless-qemu_file_get_error-check.patch
-Patch0233: 0233-migration-use-qemu_file_rate_limit-consistently.patch
-Patch0234: 0234-migration-merge-qemu_popen_cmd-with-qemu_popen.patch
-Patch0235: 0235-qemu-file-fsync-a-writable-stdio-QEMUFile.patch
-Patch0236: 0236-qemu-file-check-exit-status-when-closing-a-pipe-QEMU.patch
-Patch0237: 0237-qemu-file-add-writable-socket-QEMUFile.patch
-Patch0238: 0238-qemu-file-simplify-and-export-qemu_ftell.patch
-Patch0239: 0239-migration-use-QEMUFile-for-migration-channel-lifetim.patch
-Patch0240: 0240-migration-use-QEMUFile-for-writing-outgoing-migratio.patch
-Patch0241: 0241-migration-use-qemu_ftell-to-compute-bandwidth.patch
-Patch0242: 0242-migration-small-changes-around-rate-limiting.patch
-Patch0243: 0243-migration-move-rate-limiting-to-QEMUFile.patch
-Patch0244: 0244-migration-move-contents-of-migration_close-to-migrat.patch
-Patch0245: 0245-migration-eliminate-s-migration_file.patch
-Patch0246: 0246-migration-inline-migrate_fd_close.patch
-Patch0247: 0247-Revert-migration-don-t-account-sleep-time-for-calcul.patch
+# qemu-kvm migration compat (posted upstream)
+Patch0201: 0201-configure-Add-enable-migration-from-qemu-kvm.patch
+Patch0202: 0202-acpi_piix4-Drop-minimum_version_id-to-handle-qemu-kv.patch
+Patch0203: 0203-i8254-Fix-migration-from-qemu-kvm-1.1.patch
+Patch0204: 0204-pc_piix-Add-compat-handling-for-qemu-kvm-VGA-mem-siz.patch
+Patch0205: 0205-qxl-Add-rom_size-compat-property-fix-migration-from-.patch
 
 BuildRequires: SDL-devel
 BuildRequires: zlib-devel
@@ -449,6 +443,19 @@ This package does not need to be installed on the host OS.
 
 %postun guest-agent
 %systemd_postun_with_restart qemu-guest-agent.service
+
+
+%package -n ksm
+Summary: Kernel Samepage Merging services
+Group: Development/Tools
+Requires: %{name}-common = %{epoch}:%{version}-%{release}
+Requires(post): systemd-units
+Requires(postun): systemd-units
+%description -n ksm
+Kernel Samepage Merging (KSM) is a memory-saving de-duplication feature,
+that merges anonymous (private) pages (not pagecache ones).
+
+This package provides service files for disabling and tuning KSM.
 
 
 %if 0%{?user:1}
@@ -712,67 +719,62 @@ CAC emulation development files.
 %patch0011 -p1
 %patch0012 -p1
 
-# qemu-kvm migration compat (posted upstream)
+# Fix migration crash with spice (bz #962954)
 %patch0101 -p1
 %patch0102 -p1
 %patch0103 -p1
 %patch0104 -p1
-# Fix migration w/ qxl from qemu-kvm 1.2 (solution pending upstream)
 %patch0105 -p1
-# Fix generating docs with texinfo 5 (posted upstream)
 %patch0106 -p1
-# Fix crash with usbredir (bz #962826)
 %patch0107 -p1
+%patch0108 -p1
+%patch0109 -p1
+%patch0110 -p1
+%patch0111 -p1
+%patch0112 -p1
+%patch0113 -p1
+%patch0114 -p1
+%patch0115 -p1
+%patch0116 -p1
+%patch0117 -p1
+%patch0118 -p1
+%patch0119 -p1
+%patch0120 -p1
+%patch0121 -p1
+%patch0122 -p1
+%patch0123 -p1
+%patch0124 -p1
+%patch0125 -p1
+%patch0126 -p1
+%patch0127 -p1
+%patch0128 -p1
+%patch0129 -p1
+%patch0130 -p1
+%patch0131 -p1
+%patch0132 -p1
+%patch0133 -p1
+%patch0134 -p1
+%patch0135 -p1
+%patch0136 -p1
+%patch0137 -p1
+%patch0138 -p1
+%patch0139 -p1
+%patch0140 -p1
+%patch0141 -p1
+%patch0142 -p1
+%patch0143 -p1
+%patch0144 -p1
+%patch0145 -p1
+%patch0146 -p1
+%patch0147 -p1
+%patch0148 -p1
 
-# qemu-km migration cleanup (bz #962954)
-%patch0200 -p1
+# qemu-kvm migration compat (posted upstream)
 %patch0201 -p1
 %patch0202 -p1
 %patch0203 -p1
 %patch0204 -p1
 %patch0205 -p1
-%patch0206 -p1
-%patch0207 -p1
-%patch0208 -p1
-%patch0209 -p1
-%patch0210 -p1
-%patch0211 -p1
-%patch0212 -p1
-%patch0213 -p1
-%patch0214 -p1
-%patch0215 -p1
-%patch0216 -p1
-%patch0217 -p1
-%patch0218 -p1
-%patch0219 -p1
-%patch0220 -p1
-%patch0221 -p1
-%patch0222 -p1
-%patch0223 -p1
-%patch0224 -p1
-%patch0225 -p1
-%patch0226 -p1
-%patch0227 -p1
-%patch0228 -p1
-%patch0229 -p1
-%patch0230 -p1
-%patch0231 -p1
-%patch0232 -p1
-%patch0233 -p1
-%patch0234 -p1
-%patch0235 -p1
-%patch0236 -p1
-%patch0237 -p1
-%patch0238 -p1
-%patch0239 -p1
-%patch0240 -p1
-%patch0241 -p1
-%patch0242 -p1
-%patch0243 -p1
-%patch0244 -p1
-%patch0245 -p1
-%patch0246 -p1
-%patch0247 -p1
 
 %build
 %if %{with kvmonly}
@@ -855,11 +857,11 @@ gcc %{SOURCE6} -O2 -g -o ksmctl
 
 %define _udevdir /lib/udev/rules.d
 
-install -D -p -m 0755 %{SOURCE4} $RPM_BUILD_ROOT/lib/systemd/system/ksm.service
+install -D -p -m 0744 %{SOURCE4} $RPM_BUILD_ROOT/lib/systemd/system/ksm.service
 install -D -p -m 0644 %{SOURCE5} $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/ksm
 install -D -p -m 0755 ksmctl $RPM_BUILD_ROOT/lib/systemd/ksmctl
 
-install -D -p -m 0755 %{SOURCE7} $RPM_BUILD_ROOT/lib/systemd/system/ksmtuned.service
+install -D -p -m 0744 %{SOURCE7} $RPM_BUILD_ROOT/lib/systemd/system/ksmtuned.service
 install -D -p -m 0755 %{SOURCE8} $RPM_BUILD_ROOT%{_sbindir}/ksmtuned
 install -D -p -m 0644 %{SOURCE9} $RPM_BUILD_ROOT%{_sysconfdir}/ksmtuned.conf
 
@@ -889,6 +891,10 @@ rm $RPM_BUILD_ROOT%{_datadir}/systemtap/tapset/qemu-system-%{kvm_target}.stp
 
 chmod -x ${RPM_BUILD_ROOT}%{_mandir}/man1/*
 install -D -p -m 0644 -t ${RPM_BUILD_ROOT}%{qemudocdir} Changelog README TODO COPYING COPYING.LIB LICENSE
+for emu in $RPM_BUILD_ROOT%{_bindir}/qemu-system-*; do
+    ln -sf qemu.1.gz $RPM_BUILD_ROOT%{_mandir}/man1/$(basename $emu).1.gz
+done
+ln -sf qemu.1.gz $RPM_BUILD_ROOT%{_mandir}/man1/qemu-kvm.1.gz
 
 install -D -p -m 0644 qemu.sasl $RPM_BUILD_ROOT%{_sysconfdir}/sasl2/qemu.conf
 
@@ -1051,22 +1057,19 @@ udevadm trigger --subsystem-match=misc --sysname-match=kvm --action=add || :
 
 %if %{without separate_kvm}
 %post common
-%systemd_post ksm.service
-%systemd_post ksmtuned.service
-
 getent group kvm >/dev/null || groupadd -g 36 -r kvm
 getent group qemu >/dev/null || groupadd -g 107 -r qemu
 getent passwd qemu >/dev/null || \
   useradd -r -u 107 -g qemu -G kvm -d / -s /sbin/nologin \
     -c "qemu user" qemu
 
-
-%preun common
+%post -n ksm
+%systemd_post ksm.service
+%systemd_post ksmtuned.service
+%preun -n ksm
 %systemd_preun ksm.service
 %systemd_preun ksmtuned.service
-
-
-%postun common
+%postun -n ksm
 %systemd_postun_with_restart ksm.service
 %systemd_postun_with_restart ksmtuned.service
 %endif
@@ -1088,7 +1091,8 @@ getent passwd qemu >/dev/null || \
 
 %if 0%{?need_qemu_kvm}
 %global qemu_kvm_files \
-%{_bindir}/qemu-kvm
+%{_bindir}/qemu-kvm \
+%{_mandir}/man1/qemu-kvm.1*
 %endif
 
 %files
@@ -1118,7 +1122,11 @@ getent passwd qemu >/dev/null || \
 %{_bindir}/virtfs-proxy-helper
 %{_libexecdir}/qemu-bridge-helper
 %config(noreplace) %{_sysconfdir}/sasl2/qemu.conf
+%dir %{_sysconfdir}/qemu
+%config(noreplace) %{_sysconfdir}/qemu/bridge.conf
+
 %if %{without separate_kvm}
+%files -n ksm
 /lib/systemd/system/ksm.service
 /lib/systemd/ksmctl
 %config(noreplace) %{_sysconfdir}/sysconfig/ksm
@@ -1126,8 +1134,6 @@ getent passwd qemu >/dev/null || \
 %{_sbindir}/ksmtuned
 %config(noreplace) %{_sysconfdir}/ksmtuned.conf
 %endif
-%dir %{_sysconfdir}/qemu
-%config(noreplace) %{_sysconfdir}/qemu/bridge.conf
 
 %if %{without separate_kvm}
 %files guest-agent
@@ -1196,6 +1202,8 @@ getent passwd qemu >/dev/null || \
 %{_bindir}/qemu-system-x86_64
 %{_datadir}/systemtap/tapset/qemu-system-i386.stp
 %{_datadir}/systemtap/tapset/qemu-system-x86_64.stp
+%{_mandir}/man1/qemu-system-i386.1*
+%{_mandir}/man1/qemu-system-x86_64.1*
 %endif
 %{_datadir}/%{name}/acpi-dsdt.aml
 %{_datadir}/%{name}/q35-acpi-dsdt.aml
@@ -1235,6 +1243,7 @@ getent passwd qemu >/dev/null || \
 %defattr(-,root,root)
 %{_bindir}/qemu-system-alpha
 %{_datadir}/systemtap/tapset/qemu-system-alpha.stp
+%{_mandir}/man1/qemu-system-alpha.1*
 %{_datadir}/%{name}/palcode-clipper
 %endif
 
@@ -1243,6 +1252,7 @@ getent passwd qemu >/dev/null || \
 %defattr(-,root,root)
 %{_bindir}/qemu-system-arm
 %{_datadir}/systemtap/tapset/qemu-system-arm.stp
+%{_mandir}/man1/qemu-system-arm.1*
 %endif
 
 %if 0%{?system_mips:1}
@@ -1256,6 +1266,10 @@ getent passwd qemu >/dev/null || \
 %{_datadir}/systemtap/tapset/qemu-system-mipsel.stp
 %{_datadir}/systemtap/tapset/qemu-system-mips64el.stp
 %{_datadir}/systemtap/tapset/qemu-system-mips64.stp
+%{_mandir}/man1/qemu-system-mips.1*
+%{_mandir}/man1/qemu-system-mipsel.1*
+%{_mandir}/man1/qemu-system-mips64el.1*
+%{_mandir}/man1/qemu-system-mips64.1*
 %endif
 
 %if 0%{?system_cris:1}
@@ -1263,6 +1277,7 @@ getent passwd qemu >/dev/null || \
 %defattr(-,root,root)
 %{_bindir}/qemu-system-cris
 %{_datadir}/systemtap/tapset/qemu-system-cris.stp
+%{_mandir}/man1/qemu-system-cris.1*
 %endif
 
 %if 0%{?system_lm32:1}
@@ -1270,6 +1285,7 @@ getent passwd qemu >/dev/null || \
 %defattr(-,root,root)
 %{_bindir}/qemu-system-lm32
 %{_datadir}/systemtap/tapset/qemu-system-lm32.stp
+%{_mandir}/man1/qemu-system-lm32.1*
 %endif
 
 %if 0%{?system_m68k:1}
@@ -1277,6 +1293,7 @@ getent passwd qemu >/dev/null || \
 %defattr(-,root,root)
 %{_bindir}/qemu-system-m68k
 %{_datadir}/systemtap/tapset/qemu-system-m68k.stp
+%{_mandir}/man1/qemu-system-m68k.1*
 %endif
 
 %if 0%{?system_microblaze:1}
@@ -1286,6 +1303,8 @@ getent passwd qemu >/dev/null || \
 %{_bindir}/qemu-system-microblazeel
 %{_datadir}/systemtap/tapset/qemu-system-microblaze.stp
 %{_datadir}/systemtap/tapset/qemu-system-microblazeel.stp
+%{_mandir}/man1/qemu-system-microblaze.1*
+%{_mandir}/man1/qemu-system-microblazeel.1*
 %{_datadir}/%{name}/petalogix*.dtb
 %endif
 
@@ -1294,6 +1313,7 @@ getent passwd qemu >/dev/null || \
 %defattr(-,root,root)
 %{_bindir}/qemu-system-or32
 %{_datadir}/systemtap/tapset/qemu-system-or32.stp
+%{_mandir}/man1/qemu-system-or32.1*
 %endif
 
 %if 0%{?system_s390x:1}
@@ -1301,6 +1321,7 @@ getent passwd qemu >/dev/null || \
 %defattr(-,root,root)
 %{_bindir}/qemu-system-s390x
 %{_datadir}/systemtap/tapset/qemu-system-s390x.stp
+%{_mandir}/man1/qemu-system-s390x.1*
 %{_datadir}/%{name}/s390-zipl.rom
 %ifarch s390x
 %{?kvm_files:}
@@ -1315,6 +1336,8 @@ getent passwd qemu >/dev/null || \
 %{_bindir}/qemu-system-sh4eb
 %{_datadir}/systemtap/tapset/qemu-system-sh4.stp
 %{_datadir}/systemtap/tapset/qemu-system-sh4eb.stp
+%{_mandir}/man1/qemu-system-sh4.1*
+%{_mandir}/man1/qemu-system-sh4eb.1*
 %endif
 
 %if 0%{?system_sparc:1}
@@ -1324,6 +1347,8 @@ getent passwd qemu >/dev/null || \
 %{_bindir}/qemu-system-sparc64
 %{_datadir}/systemtap/tapset/qemu-system-sparc.stp
 %{_datadir}/systemtap/tapset/qemu-system-sparc64.stp
+%{_mandir}/man1/qemu-system-sparc.1*
+%{_mandir}/man1/qemu-system-sparc64.1*
 %endif
 
 %if 0%{?system_ppc:1}
@@ -1336,6 +1361,9 @@ getent passwd qemu >/dev/null || \
 %{_datadir}/systemtap/tapset/qemu-system-ppc.stp
 %{_datadir}/systemtap/tapset/qemu-system-ppc64.stp
 %{_datadir}/systemtap/tapset/qemu-system-ppcemb.stp
+%{_mandir}/man1/qemu-system-ppc.1*
+%{_mandir}/man1/qemu-system-ppc64.1*
+%{_mandir}/man1/qemu-system-ppcemb.1*
 %endif
 %{_datadir}/%{name}/bamboo.dtb
 %{_datadir}/%{name}/ppc_rom.bin
@@ -1351,6 +1379,7 @@ getent passwd qemu >/dev/null || \
 %defattr(-,root,root)
 %{_bindir}/qemu-system-unicore32
 %{_datadir}/systemtap/tapset/qemu-system-unicore32.stp
+%{_mandir}/man1/qemu-system-unicore32.1*
 %endif
 
 %if 0%{?system_xtensa:1}
@@ -1360,6 +1389,8 @@ getent passwd qemu >/dev/null || \
 %{_bindir}/qemu-system-xtensaeb
 %{_datadir}/systemtap/tapset/qemu-system-xtensa.stp
 %{_datadir}/systemtap/tapset/qemu-system-xtensaeb.stp
+%{_mandir}/man1/qemu-system-xtensa.1*
+%{_mandir}/man1/qemu-system-xtensaeb.1*
 %endif
 
 %if %{without separate_kvm}
@@ -1388,6 +1419,13 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Sat May 25 2013 Cole Robinson <crobinso@redhat.com> - 2:1.4.2-1
+- Update to qemu stable 1.4.2
+- Alias qemu-system-* man page to qemu.1 (bz #907746)
+- Drop execute bit on service files (bz #963917)
+- Conditionalize KSM service on host virt support (bz #963681)
+- Split out KSM package, make it not pulled in by default
+
 * Wed May 22 2013 Alon Levy <alevy@redhat.com> - 2:1.4.1-4
 - Backport migration cleanup (bz #962954)
 

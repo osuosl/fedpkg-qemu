@@ -1,4 +1,4 @@
-From bed754a15e27a3630681959cf1d3161084f29fe9 Mon Sep 17 00:00:00 2001
+From f85faeccdc2b98c4aab0d9781c9650a71a30c23b Mon Sep 17 00:00:00 2001
 From: Amit Shah <amit.shah@redhat.com>
 Date: Mon, 21 Mar 2011 21:57:47 +0100
 Subject: [PATCH] char: Split out tcp socket close code in a separate function

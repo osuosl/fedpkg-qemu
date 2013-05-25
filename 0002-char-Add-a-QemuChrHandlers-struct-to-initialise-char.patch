@@ -1,4 +1,4 @@
-From de768f74c31d04063889c5dc588d55bc19cf7315 Mon Sep 17 00:00:00 2001
+From 260acf7f716aa138138dc301b80a1bd10761b0bc Mon Sep 17 00:00:00 2001
 From: Amit Shah <amit.shah@redhat.com>
 Date: Mon, 21 Mar 2011 20:31:45 +0100
 Subject: [PATCH] char: Add a QemuChrHandlers struct to initialise chardev
@@ -764,7 +764,7 @@ index 47ac8c9..2f8757f 100644
  
      if (s->cs->opened && !dev->attached) {
 diff --git a/hw/usb/redirect.c b/hw/usb/redirect.c
-index 8c0ead0..bb07c62 100644
+index 1406e3f..2ee9ad1 100644
 --- a/hw/usb/redirect.c
 +++ b/hw/usb/redirect.c
 @@ -1227,6 +1227,12 @@ static void usbredir_chardev_event(void *opaque, int event)

@@ -1,0 +1,45 @@
+From 701731a81e40d7321f619020b9062a5d88f7466a Mon Sep 17 00:00:00 2001
+From: Paolo Bonzini <pbonzini@redhat.com>
+Date: Fri, 22 Feb 2013 17:36:37 +0100
+Subject: [PATCH] qemu-file: fsync a writable stdio QEMUFile
+
+This is what fd_close does.  Prepare for switching to a QEMUFile.
+
+Reviewed-by: Orit Wasserman <owasserm@redhat.com>
+Reviewed-by: Juan Quintela <quintela@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Juan Quintela <quintela@redhat.com>
+(cherry picked from commit ce39ee3184a02eca7f9529cc19b1582f6f704c70)
+---
+ savevm.c | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
+
+diff --git a/savevm.c b/savevm.c
+index 38699de..1d49fde 100644
+--- a/savevm.c
++++ b/savevm.c
+@@ -256,6 +256,24 @@ static int stdio_fclose(void *opaque)
+ {
+     QEMUFileStdio *s = opaque;
+     int ret = 0;
++
++    if (s->file->ops->put_buffer) {
++        int fd = fileno(s->stdio_file);
++        struct stat st;
++
++        ret = fstat(fd, &st);
++        if (ret == 0 && S_ISREG(st.st_mode)) {
++            /*
++             * If the file handle is a regular file make sure the
++             * data is flushed to disk before signaling success.
++             */
++            ret = fsync(fd);
++            if (ret != 0) {
++                ret = -errno;
++                return ret;
++            }
++        }
++    }
+     if (fclose(s->stdio_file) == EOF) {
+         ret = -errno;
+     }

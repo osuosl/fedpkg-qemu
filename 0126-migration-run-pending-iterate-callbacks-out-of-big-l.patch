@@ -1,0 +1,265 @@
+From efb8ea48a730325b4bb4cfd1b624e697b1522536 Mon Sep 17 00:00:00 2001
+From: Paolo Bonzini <pbonzini@redhat.com>
+Date: Fri, 22 Feb 2013 17:36:27 +0100
+Subject: [PATCH] migration: run pending/iterate callbacks out of big lock
+
+This makes it possible to do blocking writes directly to the socket,
+with no buffer in the middle.  For RAM, only the migration_bitmap_sync()
+call needs the iothread lock.  For block migration, it is needed by
+the block layer (including bdrv_drain_all and dirty bitmap access),
+but because some code is shared between iterate and complete, all of
+mig_save_device_dirty is run with the lock taken.
+
+In the savevm case, the iterate callback runs within the big lock.
+This is annoying because it complicates the rules.  Luckily we do not
+need to do anything about it: the RAM iterate callback does not need
+the iothread lock, and block migration never runs during savevm.
+
+Reviewed-by: Orit Wasserman <owasserm@redhat.com>
+Reviewed-by: Juan Quintela <quintela@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Juan Quintela <quintela@redhat.com>
+(cherry picked from commit 32c835ba3984728c22d4e73cdb595090a60f437e)
+---
+ arch_init.c                 |  4 ++++
+ block-migration.c           | 37 +++++++++++++++++++++++++++++++++++--
+ include/migration/vmstate.h | 11 +++++++++++
+ migration.c                 |  4 ++--
+ 4 files changed, 52 insertions(+), 4 deletions(-)
+
+diff --git a/arch_init.c b/arch_init.c
+index 8daeafa..32b4378 100644
+--- a/arch_init.c
++++ b/arch_init.c
+@@ -379,6 +379,8 @@ static inline bool migration_bitmap_set_dirty(MemoryRegion *mr,
+     return ret;
+ }
+ 
++/* Needs iothread lock! */
++
+ static void migration_bitmap_sync(void)
+ {
+     RAMBlock *block;
+@@ -690,7 +692,9 @@ static uint64_t ram_save_pending(QEMUFile *f, void *opaque, uint64_t max_size)
+     remaining_size = ram_save_remaining() * TARGET_PAGE_SIZE;
+ 
+     if (remaining_size < max_size) {
++        qemu_mutex_lock_iothread();
+         migration_bitmap_sync();
++        qemu_mutex_unlock_iothread();
+         remaining_size = ram_save_remaining() * TARGET_PAGE_SIZE;
+     }
+     return remaining_size;
+diff --git a/block-migration.c b/block-migration.c
+index b726c6c..8da5f86 100644
+--- a/block-migration.c
++++ b/block-migration.c
+@@ -107,6 +107,10 @@ static void blk_mig_unlock(void)
+     qemu_mutex_unlock(&block_mig_state.lock);
+ }
+ 
++/* Must run outside of the iothread lock during the bulk phase,
++ * or the VM will stall.
++ */
++
+ static void blk_send(QEMUFile *f, BlkMigBlock * blk)
+ {
+     int len;
+@@ -226,6 +230,8 @@ static void blk_mig_read_cb(void *opaque, int ret)
+     blk_mig_unlock();
+ }
+ 
++/* Called with no lock taken.  */
++
+ static int mig_save_device_bulk(QEMUFile *f, BlkMigDevState *bmds)
+ {
+     int64_t total_sectors = bmds->total_sectors;
+@@ -235,11 +241,13 @@ static int mig_save_device_bulk(QEMUFile *f, BlkMigDevState *bmds)
+     int nr_sectors;
+ 
+     if (bmds->shared_base) {
++        qemu_mutex_lock_iothread();
+         while (cur_sector < total_sectors &&
+                !bdrv_is_allocated(bs, cur_sector, MAX_IS_ALLOCATED_SEARCH,
+                                   &nr_sectors)) {
+             cur_sector += nr_sectors;
+         }
++        qemu_mutex_unlock_iothread();
+     }
+ 
+     if (cur_sector >= total_sectors) {
+@@ -272,15 +280,19 @@ static int mig_save_device_bulk(QEMUFile *f, BlkMigDevState *bmds)
+     block_mig_state.submitted++;
+     blk_mig_unlock();
+ 
++    qemu_mutex_lock_iothread();
+     blk->aiocb = bdrv_aio_readv(bs, cur_sector, &blk->qiov,
+                                 nr_sectors, blk_mig_read_cb, blk);
+ 
+     bdrv_reset_dirty(bs, cur_sector, nr_sectors);
+-    bmds->cur_sector = cur_sector + nr_sectors;
++    qemu_mutex_unlock_iothread();
+ 
++    bmds->cur_sector = cur_sector + nr_sectors;
+     return (bmds->cur_sector >= total_sectors);
+ }
+ 
++/* Called with iothread lock taken.  */
++
+ static void set_dirty_tracking(int enable)
+ {
+     BlkMigDevState *bmds;
+@@ -336,6 +348,8 @@ static void init_blk_migration(QEMUFile *f)
+     bdrv_iterate(init_blk_migration_it, NULL);
+ }
+ 
++/* Called with no lock taken.  */
++
+ static int blk_mig_save_bulked_block(QEMUFile *f)
+ {
+     int64_t completed_sector_sum = 0;
+@@ -382,6 +396,8 @@ static void blk_mig_reset_dirty_cursor(void)
+     }
+ }
+ 
++/* Called with iothread lock taken.  */
++
+ static int mig_save_device_dirty(QEMUFile *f, BlkMigDevState *bmds,
+                                  int is_async)
+ {
+@@ -451,7 +467,9 @@ error:
+     return ret;
+ }
+ 
+-/* return value:
++/* Called with iothread lock taken.
++ *
++ * return value:
+  * 0: too much data for max_downtime
+  * 1: few enough data for max_downtime
+ */
+@@ -470,6 +488,8 @@ static int blk_mig_save_dirty_block(QEMUFile *f, int is_async)
+     return ret;
+ }
+ 
++/* Called with no locks taken.  */
++
+ static int flush_blks(QEMUFile *f)
+ {
+     BlkMigBlock *blk;
+@@ -509,6 +529,8 @@ static int flush_blks(QEMUFile *f)
+     return ret;
+ }
+ 
++/* Called with iothread lock taken.  */
++
+ static int64_t get_remaining_dirty(void)
+ {
+     BlkMigDevState *bmds;
+@@ -521,6 +543,8 @@ static int64_t get_remaining_dirty(void)
+     return dirty << BDRV_SECTOR_BITS;
+ }
+ 
++/* Called with iothread lock taken.  */
++
+ static void blk_mig_cleanup(void)
+ {
+     BlkMigDevState *bmds;
+@@ -600,7 +624,12 @@ static int block_save_iterate(QEMUFile *f, void *opaque)
+             }
+             ret = 0;
+         } else {
++            /* Always called with iothread lock taken for
++             * simplicity, block_save_complete also calls it.
++             */
++            qemu_mutex_lock_iothread();
+             ret = blk_mig_save_dirty_block(f, 1);
++            qemu_mutex_unlock_iothread();
+         }
+         if (ret < 0) {
+             return ret;
+@@ -622,6 +651,8 @@ static int block_save_iterate(QEMUFile *f, void *opaque)
+     return qemu_ftell(f) - last_ftell;
+ }
+ 
++/* Called with iothread lock taken.  */
++
+ static int block_save_complete(QEMUFile *f, void *opaque)
+ {
+     int ret;
+@@ -665,6 +696,7 @@ static uint64_t block_save_pending(QEMUFile *f, void *opaque, uint64_t max_size)
+     /* Estimate pending number of bytes to send */
+     uint64_t pending;
+ 
++    qemu_mutex_lock_iothread();
+     blk_mig_lock();
+     pending = get_remaining_dirty() +
+                        block_mig_state.submitted * BLOCK_SIZE +
+@@ -675,6 +707,7 @@ static uint64_t block_save_pending(QEMUFile *f, void *opaque, uint64_t max_size)
+         pending = BLOCK_SIZE;
+     }
+     blk_mig_unlock();
++    qemu_mutex_unlock_iothread();
+ 
+     DPRINTF("Enter save live pending  %" PRIu64 "\n", pending);
+     return pending;
+diff --git a/include/migration/vmstate.h b/include/migration/vmstate.h
+index 6229569..5f803f5 100644
+--- a/include/migration/vmstate.h
++++ b/include/migration/vmstate.h
+@@ -30,14 +30,25 @@ typedef void SaveStateHandler(QEMUFile *f, void *opaque);
+ typedef int LoadStateHandler(QEMUFile *f, void *opaque, int version_id);
+ 
+ typedef struct SaveVMHandlers {
++    /* This runs inside the iothread lock.  */
+     void (*set_params)(const MigrationParams *params, void * opaque);
+     SaveStateHandler *save_state;
+ 
+     int (*save_live_setup)(QEMUFile *f, void *opaque);
+     void (*cancel)(void *opaque);
+     int (*save_live_complete)(QEMUFile *f, void *opaque);
++
++    /* This runs both outside and inside the iothread lock.  */
+     bool (*is_active)(void *opaque);
++
++    /* This runs outside the iothread lock in the migration case, and
++     * within the lock in the savevm case.  The callback had better only
++     * use data that is local to the migration thread or protected
++     * by other locks.
++     */
+     int (*save_live_iterate)(QEMUFile *f, void *opaque);
++
++    /* This runs outside the iothread lock!  */
+     uint64_t (*save_live_pending)(QEMUFile *f, void *opaque, uint64_t max_size);
+ 
+     LoadStateHandler *load_state;
+diff --git a/migration.c b/migration.c
+index 437475b..87b5009 100644
+--- a/migration.c
++++ b/migration.c
+@@ -670,7 +670,6 @@ static void *buffered_file_thread(void *opaque)
+         uint64_t pending_size;
+ 
+         if (s->bytes_xfer < s->xfer_limit) {
+-            qemu_mutex_lock_iothread();
+             DPRINTF("iterate\n");
+             pending_size = qemu_savevm_state_pending(s->file, max_size);
+             DPRINTF("pending size %lu max %lu\n", pending_size, max_size);
+@@ -678,6 +677,7 @@ static void *buffered_file_thread(void *opaque)
+                 qemu_savevm_state_iterate(s->file);
+             } else {
+                 DPRINTF("done iterating\n");
++                qemu_mutex_lock_iothread();
+                 start_time = qemu_get_clock_ms(rt_clock);
+                 qemu_system_wakeup_request(QEMU_WAKEUP_REASON_OTHER);
+                 old_vm_running = runstate_is_running();
+@@ -685,8 +685,8 @@ static void *buffered_file_thread(void *opaque)
+                 s->xfer_limit = INT_MAX;
+                 qemu_savevm_state_complete(s->file);
+                 last_round = true;
++                qemu_mutex_unlock_iothread();
+             }
+-            qemu_mutex_unlock_iothread();
+         }
+ 
+         current_time = qemu_get_clock_ms(rt_clock);

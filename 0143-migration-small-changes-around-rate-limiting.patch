@@ -1,0 +1,78 @@
+From 6709fac663d343a1f34178da389001d46df3cac9 Mon Sep 17 00:00:00 2001
+From: Paolo Bonzini <pbonzini@redhat.com>
+Date: Fri, 22 Feb 2013 17:36:44 +0100
+Subject: [PATCH] migration: small changes around rate-limiting
+
+This patch extracts a few small changes from the next patch, which
+are unrelated to adding generic rate-limiting functionality to
+QEMUFile.  Make migration_set_rate_limit a simple accessor, and
+use qemu_file_set_rate_limit consistently.  Also fix a typo where
+INT_MAX should have been SIZE_MAX.
+
+Reviewed-by: Orit Wasserman <owasserm@redhat.com>
+Reviewed-by: Juan Quintela <quintela@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Juan Quintela <quintela@redhat.com>
+(cherry picked from commit 442773cef15092b5927851237850760345d2cf16)
+---
+ migration.c | 19 +++++++++++--------
+ 1 file changed, 11 insertions(+), 8 deletions(-)
+
+diff --git a/migration.c b/migration.c
+index def1e9e..5c7d04f 100644
+--- a/migration.c
++++ b/migration.c
+@@ -462,10 +462,15 @@ void qmp_migrate_set_speed(int64_t value, Error **errp)
+     if (value < 0) {
+         value = 0;
+     }
++    if (value > SIZE_MAX) {
++        value = SIZE_MAX;
++    }
+ 
+     s = migrate_get_current();
+     s->bandwidth_limit = value;
+-    qemu_file_set_rate_limit(s->file, s->bandwidth_limit);
++    if (s->file) {
++        qemu_file_set_rate_limit(s->file, s->bandwidth_limit / XFER_LIMIT_RATIO);
++    }
+ }
+ 
+ void qmp_migrate_set_downtime(double value, Error **errp)
+@@ -567,11 +572,8 @@ static int64_t migration_set_rate_limit(void *opaque, int64_t new_rate)
+     if (qemu_file_get_error(s->file)) {
+         goto out;
+     }
+-    if (new_rate > SIZE_MAX) {
+-        new_rate = SIZE_MAX;
+-    }
+ 
+-    s->xfer_limit = new_rate / XFER_LIMIT_RATIO;
++    s->xfer_limit = new_rate;
+ 
+ out:
+     return s->xfer_limit;
+@@ -614,7 +616,7 @@ static void *migration_thread(void *opaque)
+                 qemu_system_wakeup_request(QEMU_WAKEUP_REASON_OTHER);
+                 old_vm_running = runstate_is_running();
+                 vm_stop_force_state(RUN_STATE_FINISH_MIGRATE);
+-                s->xfer_limit = INT_MAX;
++                qemu_file_set_rate_limit(s->file, INT_MAX);
+                 qemu_savevm_state_complete(s->file);
+                 qemu_mutex_unlock_iothread();
+                 if (!qemu_file_get_error(s->file)) {
+@@ -691,11 +693,12 @@ void migrate_fd_connect(MigrationState *s)
+     /* This is a best 1st approximation. ns to ms */
+     s->expected_downtime = max_downtime/1000000;
+ 
+-    s->xfer_limit = s->bandwidth_limit / XFER_LIMIT_RATIO;
+-
+     s->cleanup_bh = qemu_bh_new(migrate_fd_cleanup, s);
+     s->file = qemu_fopen_ops(s, &migration_file_ops);
+ 
++    qemu_file_set_rate_limit(s->file,
++                             s->bandwidth_limit / XFER_LIMIT_RATIO);
++
+     qemu_thread_create(&s->thread, migration_thread, s,
+                        QEMU_THREAD_JOINABLE);
+     notifier_list_notify(&migration_state_notifiers, s);

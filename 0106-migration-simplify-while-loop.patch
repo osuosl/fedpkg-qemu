@@ -1,0 +1,48 @@
+From 8dd1a13b6ce0a9d83080823c8bc9d82d09100576 Mon Sep 17 00:00:00 2001
+From: Paolo Bonzini <pbonzini@redhat.com>
+Date: Fri, 22 Feb 2013 17:36:07 +0100
+Subject: [PATCH] migration: simplify while loop
+
+Unify the goto around the loop, with the exit condition at the end of it.
+Both can be expressed as "while (ret >= 0)".
+
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Juan Quintela <quintela@redhat.com>
+(cherry picked from commit 5da5aad068def65b5e278a6380192d4bfe279585)
+---
+ migration.c | 11 +----------
+ 1 file changed, 1 insertion(+), 10 deletions(-)
+
+diff --git a/migration.c b/migration.c
+index 59e479d..71c0eec 100644
+--- a/migration.c
++++ b/migration.c
+@@ -666,14 +666,9 @@ static void *buffered_file_thread(void *opaque)
+     qemu_mutex_lock_iothread();
+     DPRINTF("beginning savevm\n");
+     ret = qemu_savevm_state_begin(s->file, &s->params);
+-    if (ret < 0) {
+-        DPRINTF("failed, %d\n", ret);
+-        qemu_mutex_unlock_iothread();
+-        goto out;
+-    }
+     qemu_mutex_unlock_iothread();
+ 
+-    while (true) {
++    while (ret >= 0) {
+         int64_t current_time;
+         uint64_t pending_size;
+ 
+@@ -754,12 +749,8 @@ static void *buffered_file_thread(void *opaque)
+             sleep_time += qemu_get_clock_ms(rt_clock) - current_time;
+         }
+         ret = buffered_flush(s);
+-        if (ret < 0) {
+-            break;
+-        }
+     }
+ 
+-out:
+     if (ret < 0) {
+         migrate_fd_error(s);
+     }

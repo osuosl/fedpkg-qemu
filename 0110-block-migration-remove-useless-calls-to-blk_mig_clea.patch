@@ -1,0 +1,103 @@
+From a52c9450418c1a03aebbd95216fbd177430e2fc7 Mon Sep 17 00:00:00 2001
+From: Paolo Bonzini <pbonzini@redhat.com>
+Date: Fri, 22 Feb 2013 17:36:11 +0100
+Subject: [PATCH] block-migration: remove useless calls to blk_mig_cleanup
+
+Now that the cancel callback is called consistently for all errors,
+we can avoid doing its work in the other callbacks.
+
+Reviewed-by: Orit Wasserman <owasserm@redhat.com>
+Reviewed-by: Juan Quintela <quintela@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Juan Quintela <quintela@redhat.com>
+(cherry picked from commit d418cf57a3e699746ef0bfa772bbe8c7e17cebb5)
+---
+ block-migration.c | 26 ++++++++------------------
+ 1 file changed, 8 insertions(+), 18 deletions(-)
+
+diff --git a/block-migration.c b/block-migration.c
+index 43ab202..e6c917d 100644
+--- a/block-migration.c
++++ b/block-migration.c
+@@ -524,16 +524,10 @@ static int block_save_setup(QEMUFile *f, void *opaque)
+     set_dirty_tracking(1);
+ 
+     ret = flush_blks(f);
+-    if (ret) {
+-        blk_mig_cleanup();
+-        return ret;
+-    }
+-
+     blk_mig_reset_dirty_cursor();
+-
+     qemu_put_be64(f, BLK_MIG_FLAG_EOS);
+ 
+-    return 0;
++    return ret;
+ }
+ 
+ static int block_save_iterate(QEMUFile *f, void *opaque)
+@@ -546,7 +540,6 @@ static int block_save_iterate(QEMUFile *f, void *opaque)
+ 
+     ret = flush_blks(f);
+     if (ret) {
+-        blk_mig_cleanup();
+         return ret;
+     }
+ 
+@@ -564,20 +557,18 @@ static int block_save_iterate(QEMUFile *f, void *opaque)
+             }
+         } else {
+             ret = blk_mig_save_dirty_block(f, 1);
++            if (ret < 0) {
++                return ret;
++            }
+             if (ret != 0) {
+                 /* no more dirty blocks */
+                 break;
+             }
+         }
+     }
+-    if (ret < 0) {
+-        blk_mig_cleanup();
+-        return ret;
+-    }
+ 
+     ret = flush_blks(f);
+     if (ret) {
+-        blk_mig_cleanup();
+         return ret;
+     }
+ 
+@@ -595,7 +586,6 @@ static int block_save_complete(QEMUFile *f, void *opaque)
+ 
+     ret = flush_blks(f);
+     if (ret) {
+-        blk_mig_cleanup();
+         return ret;
+     }
+ 
+@@ -607,12 +597,11 @@ static int block_save_complete(QEMUFile *f, void *opaque)
+ 
+     do {
+         ret = blk_mig_save_dirty_block(f, 0);
++        if (ret < 0) {
++            return ret;
++        }
+     } while (ret == 0);
+ 
+-    blk_mig_cleanup();
+-    if (ret < 0) {
+-        return ret;
+-    }
+     /* report completion */
+     qemu_put_be64(f, (100 << BDRV_SECTOR_BITS) | BLK_MIG_FLAG_PROGRESS);
+ 
+@@ -620,6 +609,7 @@ static int block_save_complete(QEMUFile *f, void *opaque)
+ 
+     qemu_put_be64(f, BLK_MIG_FLAG_EOS);
+ 
++    blk_mig_cleanup();
+     return 0;
+ }
+ 

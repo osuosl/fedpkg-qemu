@@ -1,0 +1,111 @@
+From b38aa57a296bd4fdc31a9ebf3f28ffb612ad6e32 Mon Sep 17 00:00:00 2001
+From: Paolo Bonzini <pbonzini@redhat.com>
+Date: Fri, 22 Feb 2013 17:36:39 +0100
+Subject: [PATCH] qemu-file: add writable socket QEMUFile
+
+Reviewed-by: Orit Wasserman <owasserm@redhat.com>
+Reviewed-by: Juan Quintela <quintela@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Juan Quintela <quintela@redhat.com>
+(cherry picked from commit 0cc3f3ccc9d29acc94b995430518bda1c7c01bef)
+---
+ include/migration/qemu-file.h |  2 +-
+ migration-tcp.c               |  2 +-
+ migration-unix.c              |  2 +-
+ savevm.c                      | 33 +++++++++++++++++++++++++++++++--
+ 4 files changed, 34 insertions(+), 5 deletions(-)
+
+diff --git a/include/migration/qemu-file.h b/include/migration/qemu-file.h
+index 987e719..25e8461 100644
+--- a/include/migration/qemu-file.h
++++ b/include/migration/qemu-file.h
+@@ -76,7 +76,7 @@ typedef struct QEMUFileOps {
+ QEMUFile *qemu_fopen_ops(void *opaque, const QEMUFileOps *ops);
+ QEMUFile *qemu_fopen(const char *filename, const char *mode);
+ QEMUFile *qemu_fdopen(int fd, const char *mode);
+-QEMUFile *qemu_fopen_socket(int fd);
++QEMUFile *qemu_fopen_socket(int fd, const char *mode);
+ QEMUFile *qemu_popen_cmd(const char *command, const char *mode);
+ int qemu_get_fd(QEMUFile *f);
+ int qemu_fclose(QEMUFile *f);
+diff --git a/migration-tcp.c b/migration-tcp.c
+index 59e3b7e..a748195 100644
+--- a/migration-tcp.c
++++ b/migration-tcp.c
+@@ -95,7 +95,7 @@ static void tcp_accept_incoming_migration(void *opaque)
+         goto out;
+     }
+ 
+-    f = qemu_fopen_socket(c);
++    f = qemu_fopen_socket(c, "rb");
+     if (f == NULL) {
+         fprintf(stderr, "could not qemu_fopen socket\n");
+         goto out;
+diff --git a/migration-unix.c b/migration-unix.c
+index 0ca2a21..d078f43 100644
+--- a/migration-unix.c
++++ b/migration-unix.c
+@@ -95,7 +95,7 @@ static void unix_accept_incoming_migration(void *opaque)
+         goto out;
+     }
+ 
+-    f = qemu_fopen_socket(c);
++    f = qemu_fopen_socket(c, "rb");
+     if (f == NULL) {
+         fprintf(stderr, "could not qemu_fopen socket\n");
+         goto out;
+diff --git a/savevm.c b/savevm.c
+index 6d6f1f1..76c88c7 100644
+--- a/savevm.c
++++ b/savevm.c
+@@ -198,6 +198,18 @@ static int socket_get_buffer(void *opaque, uint8_t *buf, int64_t pos, int size)
+     return len;
+ }
+ 
++static int socket_put_buffer(void *opaque, const uint8_t *buf, int64_t pos, int size)
++{
++    QEMUFileSocket *s = opaque;
++    ssize_t len;
++
++    len = qemu_send_full(s->fd, buf, size, 0);
++    if (len < size) {
++        len = -socket_error();
++    }
++    return len;
++}
++
+ static int socket_close(void *opaque)
+ {
+     QEMUFileSocket *s = opaque;
+@@ -369,12 +381,29 @@ static const QEMUFileOps socket_read_ops = {
+     .close =      socket_close
+ };
+ 
+-QEMUFile *qemu_fopen_socket(int fd)
++static const QEMUFileOps socket_write_ops = {
++    .get_fd =     socket_get_fd,
++    .put_buffer = socket_put_buffer,
++    .close =      socket_close
++};
++
++QEMUFile *qemu_fopen_socket(int fd, const char *mode)
+ {
+     QEMUFileSocket *s = g_malloc0(sizeof(QEMUFileSocket));
+ 
++    if (mode == NULL ||
++        (mode[0] != 'r' && mode[0] != 'w') ||
++        mode[1] != 'b' || mode[2] != 0) {
++        fprintf(stderr, "qemu_fopen: Argument validity check failed\n");
++        return NULL;
++    }
++
+     s->fd = fd;
+-    s->file = qemu_fopen_ops(s, &socket_read_ops);
++    if (mode[0] == 'w') {
++        s->file = qemu_fopen_ops(s, &socket_write_ops);
++    } else {
++        s->file = qemu_fopen_ops(s, &socket_read_ops);
++    }
+     return s->file;
+ }
+ 

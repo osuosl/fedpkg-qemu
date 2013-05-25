@@ -1,0 +1,34 @@
+From f34eeb6b65d36c31a0e412eefae1f735e48a3a69 Mon Sep 17 00:00:00 2001
+From: Juan Quintela <quintela@redhat.com>
+Date: Fri, 1 Feb 2013 12:39:08 +0100
+Subject: [PATCH] migration: calculate end time after we have sent the data
+
+Signed-off-by: Juan Quintela <quintela@redhat.com>
+
+Reviewed-by: Orit Wasserman <owasserm@redhat.com>
+(cherry picked from commit a3e879cd51c4f614f702117c4b1449f0218c00f3)
+---
+ migration.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/migration.c b/migration.c
+index 3584a24..0026f08 100644
+--- a/migration.c
++++ b/migration.c
+@@ -673,7 +673,7 @@ static void *buffered_file_thread(void *opaque)
+     qemu_mutex_unlock_iothread();
+ 
+     while (true) {
+-        int64_t current_time = qemu_get_clock_ms(rt_clock);
++        int64_t current_time;
+         uint64_t pending_size;
+ 
+         qemu_mutex_lock_iothread();
+@@ -727,6 +727,7 @@ static void *buffered_file_thread(void *opaque)
+             }
+         }
+         qemu_mutex_unlock_iothread();
++        current_time = qemu_get_clock_ms(rt_clock);
+         if (current_time >= initial_time + BUFFER_DELAY) {
+             uint64_t transferred_bytes = s->bytes_xfer;
+             uint64_t time_spent = current_time - initial_time;

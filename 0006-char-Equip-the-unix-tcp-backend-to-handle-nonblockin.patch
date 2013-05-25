@@ -1,4 +1,4 @@
-From 6540bebbaa749d405df91516e1ca5a075e354628 Mon Sep 17 00:00:00 2001
+From cf067f179258c741547a792eb7c38542d2574165 Mon Sep 17 00:00:00 2001
 From: Amit Shah <amit.shah@redhat.com>
 Date: Mon, 21 Mar 2011 22:02:47 +0100
 Subject: [PATCH] char: Equip the unix/tcp backend to handle nonblocking

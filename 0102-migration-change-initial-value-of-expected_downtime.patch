@@ -1,0 +1,29 @@
+From 60388b2884f904b408ec8650ab2af0a03ea7073e Mon Sep 17 00:00:00 2001
+From: Juan Quintela <quintela@redhat.com>
+Date: Fri, 1 Feb 2013 11:12:26 +0100
+Subject: [PATCH] migration: change initial value of expected_downtime
+
+0 is a very bad initial value, what we are trying to get is
+max_downtime, so that is a much better estimation.
+
+Signed-off-by: Juan Quintela <quintela@redhat.com>
+
+Reviewed-by: Orit Wasserman <owasserm@redhat.com>
+(cherry picked from commit cc283e3bf04d2f64eb6ec2ee5bcd36edd779fe89)
+---
+ migration.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/migration.c b/migration.c
+index 98c7696..3584a24 100644
+--- a/migration.c
++++ b/migration.c
+@@ -774,6 +774,8 @@ void migrate_fd_connect(MigrationState *s)
+     s->buffer = NULL;
+     s->buffer_size = 0;
+     s->buffer_capacity = 0;
++    /* This is a best 1st approximation. ns to ms */
++    s->expected_downtime = max_downtime/1000000;
+ 
+     s->xfer_limit = s->bandwidth_limit / XFER_LIMIT_RATIO;
+     s->complete = false;

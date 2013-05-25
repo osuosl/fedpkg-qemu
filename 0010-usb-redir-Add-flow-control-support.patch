@@ -1,4 +1,4 @@
-From 1e87b85766f9c18a2f9dffd289c0e56d640637c4 Mon Sep 17 00:00:00 2001
+From a0d12b6040efbe6aa8e6e74cef91cf613ff2bf55 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Tue, 19 Jul 2011 10:56:19 +0200
 Subject: [PATCH] usb-redir: Add flow control support
@@ -9,7 +9,7 @@ Signed-off-by: Hans de Goede <hdegoede@redhat.com>
  1 file changed, 20 insertions(+), 2 deletions(-)
 
 diff --git a/hw/usb/redirect.c b/hw/usb/redirect.c
-index bb07c62..4d23b66 100644
+index 2ee9ad1..bf6aaf0 100644
 --- a/hw/usb/redirect.c
 +++ b/hw/usb/redirect.c
 @@ -257,8 +257,9 @@ static int usbredir_read(void *priv, uint8_t *data, int count)

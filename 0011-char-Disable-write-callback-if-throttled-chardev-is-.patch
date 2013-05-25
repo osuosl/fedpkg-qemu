@@ -1,4 +1,4 @@
-From 42931bebb2856307dcdc9babc5dd9954b60c8094 Mon Sep 17 00:00:00 2001
+From 8dec49852492007b4e5afc599376a4d88623cba8 Mon Sep 17 00:00:00 2001
 From: Amit Shah <amit.shah@redhat.com>
 Date: Fri, 2 Dec 2011 15:42:55 +0530
 Subject: [PATCH] char: Disable write callback if throttled chardev is detached
