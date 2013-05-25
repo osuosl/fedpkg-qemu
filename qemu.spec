@@ -134,7 +134,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.5.0
-Release: 1%{?dist}
+Release: 2%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -397,6 +397,19 @@ This package does not need to be installed on the host OS.
 
 %postun guest-agent
 %systemd_postun_with_restart qemu-guest-agent.service
+
+
+%package -n ksm
+Summary: Kernel Samepage Merging services
+Group: Development/Tools
+Requires: %{name}-common = %{epoch}:%{version}-%{release}
+Requires(post): systemd-units
+Requires(postun): systemd-units
+%description -n ksm
+Kernel Samepage Merging (KSM) is a memory-saving de-duplication feature,
+that merges anonymous (private) pages (not pagecache ones).
+
+This package provides service files for disabling and tuning KSM.
 
 
 %if 0%{?user:1}
@@ -754,11 +767,11 @@ gcc %{SOURCE6} -O2 -g -o ksmctl
 
 %define _udevdir /lib/udev/rules.d
 
-install -D -p -m 0755 %{SOURCE4} $RPM_BUILD_ROOT/lib/systemd/system/ksm.service
+install -D -p -m 0744 %{SOURCE4} $RPM_BUILD_ROOT/lib/systemd/system/ksm.service
 install -D -p -m 0644 %{SOURCE5} $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/ksm
 install -D -p -m 0755 ksmctl $RPM_BUILD_ROOT/lib/systemd/ksmctl
 
-install -D -p -m 0755 %{SOURCE7} $RPM_BUILD_ROOT/lib/systemd/system/ksmtuned.service
+install -D -p -m 0744 %{SOURCE7} $RPM_BUILD_ROOT/lib/systemd/system/ksmtuned.service
 install -D -p -m 0755 %{SOURCE8} $RPM_BUILD_ROOT%{_sbindir}/ksmtuned
 install -D -p -m 0644 %{SOURCE9} $RPM_BUILD_ROOT%{_sysconfdir}/ksmtuned.conf
 
@@ -790,6 +803,10 @@ rm $RPM_BUILD_ROOT%{_datadir}/systemtap/tapset/qemu-system-%{kvm_target}.stp
 
 chmod -x ${RPM_BUILD_ROOT}%{_mandir}/man1/*
 install -D -p -m 0644 -t ${RPM_BUILD_ROOT}%{qemudocdir} Changelog README COPYING COPYING.LIB LICENSE
+for emu in $RPM_BUILD_ROOT%{_bindir}/qemu-system-*; do
+    ln -sf qemu.1.gz $RPM_BUILD_ROOT%{_mandir}/man1/$(basename $emu).1.gz
+done
+ln -sf qemu.1.gz $RPM_BUILD_ROOT%{_mandir}/man1/qemu-kvm.1.gz
 
 install -D -p -m 0644 qemu.sasl $RPM_BUILD_ROOT%{_sysconfdir}/sasl2/qemu.conf
 
@@ -955,22 +972,19 @@ udevadm trigger --subsystem-match=misc --sysname-match=kvm --action=add || :
 
 %if %{without separate_kvm}
 %post common
-%systemd_post ksm.service
-%systemd_post ksmtuned.service
-
 getent group kvm >/dev/null || groupadd -g 36 -r kvm
 getent group qemu >/dev/null || groupadd -g 107 -r qemu
 getent passwd qemu >/dev/null || \
   useradd -r -u 107 -g qemu -G kvm -d / -s /sbin/nologin \
     -c "qemu user" qemu
 
-
-%preun common
+%post -n ksm
+%systemd_post ksm.service
+%systemd_post ksmtuned.service
+%preun -n ksm
 %systemd_preun ksm.service
 %systemd_preun ksmtuned.service
-
-
-%postun common
+%postun -n ksm
 %systemd_postun_with_restart ksm.service
 %systemd_postun_with_restart ksmtuned.service
 %endif
@@ -992,7 +1006,8 @@ getent passwd qemu >/dev/null || \
 
 %if 0%{?need_qemu_kvm}
 %global qemu_kvm_files \
-%{_bindir}/qemu-kvm
+%{_bindir}/qemu-kvm \
+%{_mandir}/man1/qemu-kvm.1*
 %endif
 
 %files
@@ -1022,7 +1037,11 @@ getent passwd qemu >/dev/null || \
 %{_bindir}/virtfs-proxy-helper
 %{_libexecdir}/qemu-bridge-helper
 %config(noreplace) %{_sysconfdir}/sasl2/qemu.conf
+%dir %{_sysconfdir}/qemu
+%config(noreplace) %{_sysconfdir}/qemu/bridge.conf
+
 %if %{without separate_kvm}
+%files -n ksm
 /lib/systemd/system/ksm.service
 /lib/systemd/ksmctl
 %config(noreplace) %{_sysconfdir}/sysconfig/ksm
@@ -1030,8 +1049,6 @@ getent passwd qemu >/dev/null || \
 %{_sbindir}/ksmtuned
 %config(noreplace) %{_sysconfdir}/ksmtuned.conf
 %endif
-%dir %{_sysconfdir}/qemu
-%config(noreplace) %{_sysconfdir}/qemu/bridge.conf
 
 %if %{without separate_kvm}
 %files guest-agent
@@ -1108,6 +1125,8 @@ getent passwd qemu >/dev/null || \
 %{_bindir}/qemu-system-x86_64
 %{_datadir}/systemtap/tapset/qemu-system-i386.stp
 %{_datadir}/systemtap/tapset/qemu-system-x86_64.stp
+%{_mandir}/man1/qemu-system-i386.1*
+%{_mandir}/man1/qemu-system-x86_64.1*
 %endif
 %{_datadir}/%{name}/acpi-dsdt.aml
 %{_datadir}/%{name}/q35-acpi-dsdt.aml
@@ -1151,6 +1170,7 @@ getent passwd qemu >/dev/null || \
 %defattr(-,root,root)
 %{_bindir}/qemu-system-alpha
 %{_datadir}/systemtap/tapset/qemu-system-alpha.stp
+%{_mandir}/man1/qemu-system-alpha.1*
 %{_datadir}/%{name}/palcode-clipper
 %endif
 
@@ -1159,6 +1179,7 @@ getent passwd qemu >/dev/null || \
 %defattr(-,root,root)
 %{_bindir}/qemu-system-arm
 %{_datadir}/systemtap/tapset/qemu-system-arm.stp
+%{_mandir}/man1/qemu-system-arm.1*
 %endif
 
 %if 0%{?system_mips:1}
@@ -1172,6 +1193,10 @@ getent passwd qemu >/dev/null || \
 %{_datadir}/systemtap/tapset/qemu-system-mipsel.stp
 %{_datadir}/systemtap/tapset/qemu-system-mips64el.stp
 %{_datadir}/systemtap/tapset/qemu-system-mips64.stp
+%{_mandir}/man1/qemu-system-mips.1*
+%{_mandir}/man1/qemu-system-mipsel.1*
+%{_mandir}/man1/qemu-system-mips64el.1*
+%{_mandir}/man1/qemu-system-mips64.1*
 %endif
 
 %if 0%{?system_cris:1}
@@ -1179,6 +1204,7 @@ getent passwd qemu >/dev/null || \
 %defattr(-,root,root)
 %{_bindir}/qemu-system-cris
 %{_datadir}/systemtap/tapset/qemu-system-cris.stp
+%{_mandir}/man1/qemu-system-cris.1*
 %endif
 
 %if 0%{?system_lm32:1}
@@ -1186,6 +1212,7 @@ getent passwd qemu >/dev/null || \
 %defattr(-,root,root)
 %{_bindir}/qemu-system-lm32
 %{_datadir}/systemtap/tapset/qemu-system-lm32.stp
+%{_mandir}/man1/qemu-system-lm32.1*
 %endif
 
 %if 0%{?system_m68k:1}
@@ -1193,6 +1220,7 @@ getent passwd qemu >/dev/null || \
 %defattr(-,root,root)
 %{_bindir}/qemu-system-m68k
 %{_datadir}/systemtap/tapset/qemu-system-m68k.stp
+%{_mandir}/man1/qemu-system-m68k.1*
 %endif
 
 %if 0%{?system_microblaze:1}
@@ -1202,6 +1230,8 @@ getent passwd qemu >/dev/null || \
 %{_bindir}/qemu-system-microblazeel
 %{_datadir}/systemtap/tapset/qemu-system-microblaze.stp
 %{_datadir}/systemtap/tapset/qemu-system-microblazeel.stp
+%{_mandir}/man1/qemu-system-microblaze.1*
+%{_mandir}/man1/qemu-system-microblazeel.1*
 %{_datadir}/%{name}/petalogix*.dtb
 %endif
 
@@ -1210,6 +1240,7 @@ getent passwd qemu >/dev/null || \
 %defattr(-,root,root)
 %{_bindir}/qemu-system-or32
 %{_datadir}/systemtap/tapset/qemu-system-or32.stp
+%{_mandir}/man1/qemu-system-or32.1*
 %endif
 
 %if 0%{?system_s390x:1}
@@ -1217,6 +1248,7 @@ getent passwd qemu >/dev/null || \
 %defattr(-,root,root)
 %{_bindir}/qemu-system-s390x
 %{_datadir}/systemtap/tapset/qemu-system-s390x.stp
+%{_mandir}/man1/qemu-system-s390x.1*
 %{_datadir}/%{name}/s390-zipl.rom
 %{_datadir}/%{name}/s390-ccw.img
 %ifarch s390x
@@ -1232,6 +1264,8 @@ getent passwd qemu >/dev/null || \
 %{_bindir}/qemu-system-sh4eb
 %{_datadir}/systemtap/tapset/qemu-system-sh4.stp
 %{_datadir}/systemtap/tapset/qemu-system-sh4eb.stp
+%{_mandir}/man1/qemu-system-sh4.1*
+%{_mandir}/man1/qemu-system-sh4eb.1*
 %endif
 
 %if 0%{?system_sparc:1}
@@ -1241,6 +1275,8 @@ getent passwd qemu >/dev/null || \
 %{_bindir}/qemu-system-sparc64
 %{_datadir}/systemtap/tapset/qemu-system-sparc.stp
 %{_datadir}/systemtap/tapset/qemu-system-sparc64.stp
+%{_mandir}/man1/qemu-system-sparc.1*
+%{_mandir}/man1/qemu-system-sparc64.1*
 %endif
 
 %if 0%{?system_ppc:1}
@@ -1253,6 +1289,9 @@ getent passwd qemu >/dev/null || \
 %{_datadir}/systemtap/tapset/qemu-system-ppc.stp
 %{_datadir}/systemtap/tapset/qemu-system-ppc64.stp
 %{_datadir}/systemtap/tapset/qemu-system-ppcemb.stp
+%{_mandir}/man1/qemu-system-ppc.1*
+%{_mandir}/man1/qemu-system-ppc64.1*
+%{_mandir}/man1/qemu-system-ppcemb.1*
 %endif
 %{_datadir}/%{name}/bamboo.dtb
 %{_datadir}/%{name}/ppc_rom.bin
@@ -1268,6 +1307,7 @@ getent passwd qemu >/dev/null || \
 %defattr(-,root,root)
 %{_bindir}/qemu-system-unicore32
 %{_datadir}/systemtap/tapset/qemu-system-unicore32.stp
+%{_mandir}/man1/qemu-system-unicore32.1*
 %endif
 
 %if 0%{?system_xtensa:1}
@@ -1277,6 +1317,8 @@ getent passwd qemu >/dev/null || \
 %{_bindir}/qemu-system-xtensaeb
 %{_datadir}/systemtap/tapset/qemu-system-xtensa.stp
 %{_datadir}/systemtap/tapset/qemu-system-xtensaeb.stp
+%{_mandir}/man1/qemu-system-xtensa.1*
+%{_mandir}/man1/qemu-system-xtensaeb.1*
 %endif
 
 %if 0%{?system_moxie:1}
@@ -1284,6 +1326,7 @@ getent passwd qemu >/dev/null || \
 %defattr(-,root,root)
 %{_bindir}/qemu-system-moxie
 %{_datadir}/systemtap/tapset/qemu-system-moxie.stp
+%{_mandir}/man1/qemu-system-moxie.1*
 %endif
 
 %if %{without separate_kvm}
@@ -1312,6 +1355,12 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Sat May 25 2013 Cole Robinson <crobinso@redhat.com> - 2:1.5.0-2
+- Alias qemu-system-* man page to qemu.1 (bz #907746)
+- Drop execute bit on service files (bz #963917)
+- Conditionalize KSM service on host virt support (bz #963681)
+- Split out KSM package, make it not pulled in by default
+
 * Tue May 21 2013 Cole Robinson <crobinso@redhat.com> - 2:1.5.0-1
 - Update to qemu 1.5
 - KVM for ARM support
