@@ -134,7 +134,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.5.0
-Release: 2%{?dist}
+Release: 3%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -806,7 +806,9 @@ install -D -p -m 0644 -t ${RPM_BUILD_ROOT}%{qemudocdir} Changelog README COPYING
 for emu in $RPM_BUILD_ROOT%{_bindir}/qemu-system-*; do
     ln -sf qemu.1.gz $RPM_BUILD_ROOT%{_mandir}/man1/$(basename $emu).1.gz
 done
+%if 0%{?need_qemu_kvm}
 ln -sf qemu.1.gz $RPM_BUILD_ROOT%{_mandir}/man1/qemu-kvm.1.gz
+%endif
 
 install -D -p -m 0644 qemu.sasl $RPM_BUILD_ROOT%{_sysconfdir}/sasl2/qemu.conf
 
@@ -1355,6 +1357,9 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Mon May 27 2013 Dan Horák <dan[at]danny.cz> - 2:1.5.0-3
+- Install the qemu-kvm.1 man page only on arches with kvm
+
 * Sat May 25 2013 Cole Robinson <crobinso@redhat.com> - 2:1.5.0-2
 - Alias qemu-system-* man page to qemu.1 (bz #907746)
 - Drop execute bit on service files (bz #963917)
