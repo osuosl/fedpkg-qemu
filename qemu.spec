@@ -45,9 +45,9 @@
 %global SLOF_gittagdate 20130430
 
 %if %{without separate_kvm}
-%global kvm_archs %{ix86} x86_64 ppc64 s390x
+%global kvm_archs %{ix86} x86_64 ppc64 s390x armv7hl
 %else
-%global kvm_archs %{ix86} ppc64 s390x
+%global kvm_archs %{ix86} ppc64 s390x armv7hl
 %endif
 %if %{with exclusive_x86_64}
 %global kvm_archs x86_64
@@ -100,6 +100,12 @@
 %global kvm_target    s390x
 %global need_kvm_modfile 1
 %endif
+%ifarch armv7hl
+%global system_arm    kvm
+%global kvm_package   system-arm
+%global kvm_target    arm
+%global need_qemu_kvm 1
+%endif
 
 %if %{with kvmonly}
 # If kvmonly, put the qemu-kvm binary in the qemu-kvm package
@@ -134,7 +140,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.5.0
-Release: 3%{?dist}
+Release: 4%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -1154,7 +1160,7 @@ getent passwd qemu >/dev/null || \
 %{_datadir}/%{name}/efi-ne2k_pci.rom
 %config(noreplace) %{_sysconfdir}/qemu/target-x86_64.conf
 %if %{without separate_kvm}
-%ifarch %{ix86} x86_64
+%ifarch %{ix86} x86_64 %{arm}
 %{?kvm_files:}
 %{?qemu_kvm_files:}
 %endif
@@ -1182,6 +1188,7 @@ getent passwd qemu >/dev/null || \
 %{_bindir}/qemu-system-arm
 %{_datadir}/systemtap/tapset/qemu-system-arm.stp
 %{_mandir}/man1/qemu-system-arm.1*
+%{?kvm_files:}
 %endif
 
 %if 0%{?system_mips:1}
@@ -1357,6 +1364,9 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Sat Jun  1 2013 Peter Robinson <pbrobinson@fedoraproject.org> 2:1.5.0-4
+- build qemu-kvm on ARMv7
+
 * Mon May 27 2013 Dan Horák <dan[at]danny.cz> - 2:1.5.0-3
 - Install the qemu-kvm.1 man page only on arches with kvm
 
