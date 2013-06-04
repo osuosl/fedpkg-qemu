@@ -131,7 +131,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.4.2
-Release: 2%{?dist}
+Release: 3%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -243,6 +243,8 @@ Patch0202: 0202-acpi_piix4-Drop-minimum_version_id-to-handle-qemu-kv.patch
 Patch0203: 0203-i8254-Fix-migration-from-qemu-kvm-1.1.patch
 Patch0204: 0204-pc_piix-Add-compat-handling-for-qemu-kvm-VGA-mem-siz.patch
 Patch0205: 0205-qxl-Add-rom_size-compat-property-fix-migration-from-.patch
+
+Patch0999: fix-ipv6-brackets.patch
 
 BuildRequires: SDL-devel
 BuildRequires: zlib-devel
@@ -775,6 +777,9 @@ CAC emulation development files.
 %patch0203 -p1
 %patch0204 -p1
 %patch0205 -p1
+
+%patch0999 -p1
+
 
 %build
 %if %{with kvmonly}
@@ -1421,7 +1426,10 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
-* Mon May 27 2013 Dan Horák <dan[at]danny.cz> - 2:1.4.2-2
+* Tue Jun  4 2013 Paolo Bonzini <pbonzini@redhat.com> 2:1.5.0-5
+- add fix-ipv6-brackets.patch
+
+* Mon May 27 2013 Dan Horák <dan[at]danny.cz> - 2:1.5.0-3
 - Install the qemu-kvm.1 man page only on arches with kvm
 
 * Sat May 25 2013 Cole Robinson <crobinso@redhat.com> - 2:1.4.2-1
