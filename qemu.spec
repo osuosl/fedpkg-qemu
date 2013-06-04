@@ -189,6 +189,8 @@ Patch0004: 0004-pc_piix-Add-compat-handling-for-qemu-kvm-VGA-mem-siz.patch
 # Fix migration w/ qxl from qemu-kvm 1.2 (solution pending upstream)
 Patch0005: 0005-qxl-Add-rom_size-compat-property-fix-migration-from-.patch
 
+Patch0999: fix-ipv6-brackets.patch
+
 BuildRequires: SDL-devel
 BuildRequires: zlib-devel
 BuildRequires: which
@@ -684,6 +686,8 @@ CAC emulation development files.
 %patch0004 -p1
 # Fix migration w/ qxl from qemu-kvm 1.2 (solution pending upstream)
 %patch0005 -p1
+
+%patch0999 -p1
 
 
 %build
@@ -1364,6 +1368,9 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Tue Jun  4 2013 Paolo Bonzini <pbonzini@redhat.com> 2:1.5.0-5
+- add fix-ipv6-brackets.patch
+
 * Sat Jun  1 2013 Peter Robinson <pbrobinson@fedoraproject.org> 2:1.5.0-4
 - build qemu-kvm on ARMv7
 
