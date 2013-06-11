@@ -109,7 +109,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.2.2
-Release: 11%{?dist}
+Release: 12%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -556,6 +556,13 @@ Patch0722: 0722-console-remove-DisplayAllocator.patch
 # CVE-2013-1922: qemu-nbd block format auto-detection vulnerability (bz
 # #952574, bz #923219)
 Patch0723: 0723-Add-f-FMT-format-FMT-arg-to-qemu-nbd.patch
+# Fix building docs with f19 texinfo
+Patch0724: 0724-docs-Fix-generating-qemu-doc.html-with-texinfo-5.patch
+# CVE-2013-2007: Fix qemu-ga file creation permissions (bz #956082, bz
+# #969455)
+Patch0725: 0725-qga-set-umask-0077-when-daemonizing-CVE-2013-2007.patch
+# Fix rtl8139 + windows 7 + large transfers (bz #970240)
+Patch0726: 0726-rtl8139-flush-queued-packets-when-RxBufPtr-is-writte.patch
 
 
 BuildRequires: SDL-devel
@@ -1399,6 +1406,13 @@ CAC emulation development files.
 # CVE-2013-1922: qemu-nbd block format auto-detection vulnerability (bz
 # #952574, bz #923219)
 %patch0723 -p1
+# Fix building docs with f19 texinfo
+%patch0724 -p1
+# CVE-2013-2007: Fix qemu-ga file creation permissions (bz #956082, bz
+# #969455)
+%patch0725 -p1
+# Fix rtl8139 + windows 7 + large transfers (bz #970240)
+%patch0726 -p1
 
 
 %build
@@ -2008,6 +2022,12 @@ getent passwd qemu >/dev/null || \
 %{_libdir}/pkgconfig/libcacard.pc
 
 %changelog
+* Tue Jun 11 2013 Cole Robinson <crobinso@redhat.com> - 2:1.2.2-12
+- Fix building docs with f19 texinfo
+- CVE-2013-2007: Fix qemu-ga file creation permissions (bz #956082, bz
+  #969455)
+- Fix rtl8139 + windows 7 + large transfers (bz #970240)
+
 * Sat Apr 20 2013 Cole Robinson <crobinso@redhat.com> - 2:1.2.2-11
 - Fix booting 3.8 kernels with qemu-system-arm (bz #922796)
 - Fix crash with -vga qxl, sdl, and F19 guest (bz #949126)
