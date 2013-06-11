@@ -131,7 +131,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.4.2
-Release: 2%{?dist}
+Release: 3%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -243,6 +243,10 @@ Patch0202: 0202-acpi_piix4-Drop-minimum_version_id-to-handle-qemu-kv.patch
 Patch0203: 0203-i8254-Fix-migration-from-qemu-kvm-1.1.patch
 Patch0204: 0204-pc_piix-Add-compat-handling-for-qemu-kvm-VGA-mem-siz.patch
 Patch0205: 0205-qxl-Add-rom_size-compat-property-fix-migration-from-.patch
+# Fix rtl8139 + windows 7 + large transfers (bz #970240)
+Patch0206: 0206-rtl8139-flush-queued-packets-when-RxBufPtr-is-writte.patch
+# Fix crash on large drag and drop file transfer w/ spice (bz #969109)
+Patch0207: 0207-spice-qemu-char-vmc_write-Don-t-write-more-bytes-the.patch
 
 BuildRequires: SDL-devel
 BuildRequires: zlib-devel
@@ -775,6 +779,10 @@ CAC emulation development files.
 %patch0203 -p1
 %patch0204 -p1
 %patch0205 -p1
+# Fix rtl8139 + windows 7 + large transfers (bz #970240)
+%patch0206 -p1
+# Fix crash on large drag and drop file transfer w/ spice (bz #969109)
+%patch0207 -p1
 
 %build
 %if %{with kvmonly}
@@ -1421,6 +1429,10 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Tue Jun 11 2013 Cole Robinson <crobinso@redhat.com> - 2:1.4.2-3
+- Fix rtl8139 + windows 7 + large transfers (bz #970240)
+- Fix crash on large drag and drop file transfer w/ spice (bz #969109)
+
 * Mon May 27 2013 Dan Horák <dan[at]danny.cz> - 2:1.4.2-2
 - Install the qemu-kvm.1 man page only on arches with kvm
 
