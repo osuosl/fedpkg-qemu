@@ -140,7 +140,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.5.0
-Release: 6%{?dist}
+Release: 7%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -191,7 +191,7 @@ Patch0005: 0005-qxl-Add-rom_size-compat-property-fix-migration-from-.patch
 # Fix rtl8139 + windows 7 + large transfers (bz #970240)
 Patch0006: 0006-rtl8139-flush-queued-packets-when-RxBufPtr-is-writte.patch
 # Fix build with rawhide libfdt
-Patch0007: 0007-Remove-libfdt_env-use-system-version.patch
+Patch0007: 0007-fdt-update-embedded-header-file-from-upstream-to-fix.patch
 
 BuildRequires: SDL-devel
 BuildRequires: zlib-devel
@@ -1372,6 +1372,9 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Thu Jun 13 2013 Cole Robinson <crobinso@redhat.com> - 2:1.5.0-7
+- Fix build with both new and old fdt
+
 * Wed Jun 12 2013 Cole Robinson <crobinso@redhat.com> - 2:1.5.0-6
 - Fix build with rawhide libfdt
 
