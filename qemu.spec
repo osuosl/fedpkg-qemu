@@ -140,7 +140,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.5.0
-Release: 7%{?dist}
+Release: 8%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -1168,7 +1168,7 @@ getent passwd qemu >/dev/null || \
 %{_datadir}/%{name}/efi-ne2k_pci.rom
 %config(noreplace) %{_sysconfdir}/qemu/target-x86_64.conf
 %if %{without separate_kvm}
-%ifarch %{ix86} x86_64 %{arm}
+%ifarch %{ix86} x86_64
 %{?kvm_files:}
 %{?qemu_kvm_files:}
 %endif
@@ -1196,7 +1196,13 @@ getent passwd qemu >/dev/null || \
 %{_bindir}/qemu-system-arm
 %{_datadir}/systemtap/tapset/qemu-system-arm.stp
 %{_mandir}/man1/qemu-system-arm.1*
+%if %{without separate_kvm}
+%ifarch armv7hl
 %{?kvm_files:}
+%{?qemu_kvm_files:}
+%endif
+%endif
+
 %endif
 
 %if 0%{?system_mips:1}
@@ -1372,6 +1378,9 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Fri Jun 14 2013 Peter Robinson <pbrobinson@fedoraproject.org> 2:1.5.0-8
+- Put ARM kvm bits in right sub package
+
 * Thu Jun 13 2013 Cole Robinson <crobinso@redhat.com> - 2:1.5.0-7
 - Fix build with both new and old fdt
 
