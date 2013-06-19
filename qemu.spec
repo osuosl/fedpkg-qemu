@@ -140,7 +140,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.5.0
-Release: 8%{?dist}
+Release: 9%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -191,7 +191,7 @@ Patch0005: 0005-qxl-Add-rom_size-compat-property-fix-migration-from-.patch
 # Fix rtl8139 + windows 7 + large transfers (bz #970240)
 Patch0006: 0006-rtl8139-flush-queued-packets-when-RxBufPtr-is-writte.patch
 # Fix build with rawhide libfdt
-Patch0007: 0007-fdt-update-embedded-header-file-from-upstream-to-fix.patch
+Patch0007: 0007-configure-dtc-Probe-for-libfdt_env.h.patch
 
 BuildRequires: SDL-devel
 BuildRequires: zlib-devel
@@ -901,7 +901,7 @@ for i in dummy \
 %ifnarch alpha
     qemu-alpha \
 %endif
-%ifnarch arm
+%ifnarch %{arm}
     qemu-arm \
 %endif
     qemu-armeb \
@@ -1378,6 +1378,10 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Wed Jun 19 2013 Cole Robinson <crobinso@redhat.com> - 2:1.5.0-9
+- Don't install conflicting binfmt handler on arm (bz #974804)
+- Use upstream patch for libfdt build fix
+
 * Fri Jun 14 2013 Peter Robinson <pbrobinson@fedoraproject.org> 2:1.5.0-8
 - Put ARM kvm bits in right sub package
 
