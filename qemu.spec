@@ -109,7 +109,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.2.2
-Release: 12%{?dist}
+Release: 13%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -1635,7 +1635,7 @@ for i in dummy \
 %ifnarch alpha
     qemu-alpha \
 %endif
-%ifnarch arm
+%ifnarch %{arm}
     qemu-arm \
 %endif
     qemu-armeb \
@@ -2022,6 +2022,9 @@ getent passwd qemu >/dev/null || \
 %{_libdir}/pkgconfig/libcacard.pc
 
 %changelog
+* Wed Jun 19 2013 Cole Robinson <crobinso@redhat.com> - 2:1.2.2-13
+- Don't install conflicting binfmt handler on arm (bz #974804)
+
 * Tue Jun 11 2013 Cole Robinson <crobinso@redhat.com> - 2:1.2.2-12
 - Fix building docs with f19 texinfo
 - CVE-2013-2007: Fix qemu-ga file creation permissions (bz #956082, bz
