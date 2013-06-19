@@ -131,7 +131,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.4.2
-Release: 3%{?dist}
+Release: 4%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -247,6 +247,8 @@ Patch0205: 0205-qxl-Add-rom_size-compat-property-fix-migration-from-.patch
 Patch0206: 0206-rtl8139-flush-queued-packets-when-RxBufPtr-is-writte.patch
 # Fix crash on large drag and drop file transfer w/ spice (bz #969109)
 Patch0207: 0207-spice-qemu-char-vmc_write-Don-t-write-more-bytes-the.patch
+# Fix build with latest libfdt
+Patch0208: 0208-configure-dtc-Probe-for-libfdt_env.h.patch
 
 BuildRequires: SDL-devel
 BuildRequires: zlib-devel
@@ -783,6 +785,8 @@ CAC emulation development files.
 %patch0206 -p1
 # Fix crash on large drag and drop file transfer w/ spice (bz #969109)
 %patch0207 -p1
+# Fix build with latest libfdt
+%patch0208 -p1
 
 %build
 %if %{with kvmonly}
@@ -980,7 +984,7 @@ for i in dummy \
 %ifnarch alpha
     qemu-alpha \
 %endif
-%ifnarch arm
+%ifnarch %{arm}
     qemu-arm \
 %endif
     qemu-armeb \
@@ -1429,6 +1433,10 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Wed Jun 19 2013 Cole Robinson <crobinso@redhat.com> - 2:1.4.2-4
+- Fix build with latest libfdt
+- Don't install conflicting binfmt handler on arm (bz #974804)
+
 * Tue Jun 11 2013 Cole Robinson <crobinso@redhat.com> - 2:1.4.2-3
 - Fix rtl8139 + windows 7 + large transfers (bz #970240)
 - Fix crash on large drag and drop file transfer w/ spice (bz #969109)
