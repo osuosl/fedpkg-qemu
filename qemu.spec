@@ -139,8 +139,8 @@
 
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
-Version: 1.5.0
-Release: 9%{?dist}
+Version: 1.5.1
+Release: 1%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -188,10 +188,8 @@ Patch0003: 0003-i8254-Fix-migration-from-qemu-kvm-1.1.patch
 Patch0004: 0004-pc_piix-Add-compat-handling-for-qemu-kvm-VGA-mem-siz.patch
 # Fix migration w/ qxl from qemu-kvm 1.2 (solution pending upstream)
 Patch0005: 0005-qxl-Add-rom_size-compat-property-fix-migration-from-.patch
-# Fix rtl8139 + windows 7 + large transfers (bz #970240)
-Patch0006: 0006-rtl8139-flush-queued-packets-when-RxBufPtr-is-writte.patch
 # Fix build with rawhide libfdt
-Patch0007: 0007-configure-dtc-Probe-for-libfdt_env.h.patch
+Patch0006: 0006-configure-dtc-Probe-for-libfdt_env.h.patch
 
 BuildRequires: SDL-devel
 BuildRequires: zlib-devel
@@ -688,10 +686,8 @@ CAC emulation development files.
 %patch0004 -p1
 # Fix migration w/ qxl from qemu-kvm 1.2 (solution pending upstream)
 %patch0005 -p1
-# Fix rtl8139 + windows 7 + large transfers (bz #970240)
-%patch0006 -p1
 # Fix build with rawhide libfdt
-%patch0007 -p1
+%patch0006 -p1
 
 
 %build
@@ -1378,6 +1374,9 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Fri Jun 28 2013 Cole Robinson <crobinso@redhat.com> - 2:1.5.1-1
+- Rebased to version 1.5.1
+
 * Wed Jun 19 2013 Cole Robinson <crobinso@redhat.com> - 2:1.5.0-9
 - Don't install conflicting binfmt handler on arm (bz #974804)
 - Use upstream patch for libfdt build fix
