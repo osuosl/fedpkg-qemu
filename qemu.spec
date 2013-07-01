@@ -249,8 +249,6 @@ BuildRequires: brlapi-devel
 # For FDT device tree support
 BuildRequires: libfdt-devel
 %endif
-# For test suite
-BuildRequires: check-devel
 # For virtfs
 BuildRequires: libcap-devel
 # Hard requirement for version >= 1.3
