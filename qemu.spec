@@ -140,7 +140,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.5.1
-Release: 1%{?dist}
+Release: 2%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -440,7 +440,8 @@ Requires: %{name}-common = %{epoch}:%{version}-%{release}
 Provides: kvm = 85
 Obsoletes: kvm < 85
 Requires: seavgabios-bin
-Requires: seabios-bin >= 0.6.0-2
+# First version that ships aml files which we depend on
+Requires: seabios-bin >= 1.7.3-2
 Requires: sgabios-bin
 Requires: ipxe-roms-qemu >= 20130517-2.gitc4bce43
 %if 0%{?have_seccomp:1}
@@ -855,6 +856,8 @@ rm -rf ${RPM_BUILD_ROOT}%{_datadir}/%{name}/efi*rom
 rm -rf ${RPM_BUILD_ROOT}%{_datadir}/%{name}/vgabios*bin
 # Provided by package seabios
 rm -rf ${RPM_BUILD_ROOT}%{_datadir}/%{name}/bios.bin
+rm -rf ${RPM_BUILD_ROOT}%{_datadir}/%{name}/acpi-dsdt.aml
+rm -rf ${RPM_BUILD_ROOT}%{_datadir}/%{name}/q35-acpi-dsdt.aml
 # Provided by package sgabios
 rm -rf ${RPM_BUILD_ROOT}%{_datadir}/%{name}/sgabios.bin
 
@@ -883,6 +886,8 @@ rom_link ../seavgabios/vgabios-qxl.bin vgabios-qxl.bin
 rom_link ../seavgabios/vgabios-stdvga.bin vgabios-stdvga.bin
 rom_link ../seavgabios/vgabios-vmware.bin vgabios-vmware.bin
 rom_link ../seabios/bios.bin bios.bin
+rom_link ../seabios/acpi-dsdt.aml acpi-dsdt.aml
+rom_link ../seabios/q35-acpi-dsdt.aml q35-acpi-dsdt.aml
 rom_link ../sgabios/sgabios.bin sgabios.bin
 %endif
 
@@ -1372,6 +1377,9 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Tue Jul 09 2013 Cole Robinson <crobinso@redhat.com> - 2:1.5.1-2
+- Update to work with seabios 1.7.3
+
 * Fri Jun 28 2013 Cole Robinson <crobinso@redhat.com> - 2:1.5.1-1
 - Rebased to version 1.5.1
 
