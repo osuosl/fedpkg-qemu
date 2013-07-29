@@ -1,4 +1,4 @@
-From 9642978bbeba188570ec62fd989cad4da32589c3 Mon Sep 17 00:00:00 2001
+From dbeb3f1e3282bef66b459e3197b2078c24ad7daf Mon Sep 17 00:00:00 2001
 From: Cole Robinson <crobinso@redhat.com>
 Date: Tue, 19 Feb 2013 16:19:02 -0500
 Subject: [PATCH] qxl: Add rom_size compat property, fix migration from 1.2

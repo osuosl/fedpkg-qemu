@@ -1,4 +1,4 @@
-From 93178ab04a3dd129848e398838e14f22ba0ba23f Mon Sep 17 00:00:00 2001
+From 12f9c64a068d3c5e67886dde367ccacde48fbbbd Mon Sep 17 00:00:00 2001
 From: Peter Crosthwaite <peter.crosthwaite@xilinx.com>
 Date: Mon, 27 May 2013 14:20:57 +1000
 Subject: [PATCH] configure: dtc: Probe for libfdt_env.h

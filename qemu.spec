@@ -139,8 +139,8 @@
 
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
-Version: 1.5.1
-Release: 2%{?dist}
+Version: 1.5.2
+Release: 1%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -190,6 +190,9 @@ Patch0004: 0004-pc_piix-Add-compat-handling-for-qemu-kvm-VGA-mem-siz.patch
 Patch0005: 0005-qxl-Add-rom_size-compat-property-fix-migration-from-.patch
 # Fix build with rawhide libfdt
 Patch0006: 0006-configure-dtc-Probe-for-libfdt_env.h.patch
+# Fix mouse display with spice and latest libvirt (bz #981094)
+# (patch posted upstream but not applied yet)
+Patch0007: 0007-spice-fix-display-initialization.patch
 
 BuildRequires: SDL-devel
 BuildRequires: zlib-devel
@@ -687,6 +690,9 @@ CAC emulation development files.
 %patch0005 -p1
 # Fix build with rawhide libfdt
 %patch0006 -p1
+# Fix mouse display with spice and latest libvirt (bz #981094)
+# (patch posted upstream but not applied yet)
+%patch0007 -p1
 
 
 %build
@@ -1377,6 +1383,10 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Mon Jul 29 2013 Cole Robinson <crobinso@redhat.com> - 2:1.5.2-1
+- Rebased to version 1.5.2
+- Fix mouse display with spice and latest libvirt (bz #981094)
+
 * Tue Jul 09 2013 Cole Robinson <crobinso@redhat.com> - 2:1.5.1-2
 - Update to work with seabios 1.7.3
 

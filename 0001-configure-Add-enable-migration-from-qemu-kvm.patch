@@ -1,4 +1,4 @@
-From 0f8c8df923aea533c4b573a013b9a35c3581c2df Mon Sep 17 00:00:00 2001
+From e49e68d5b504f22919c6134e3a06d3838e872d2f Mon Sep 17 00:00:00 2001
 From: Cole Robinson <crobinso@redhat.com>
 Date: Tue, 19 Feb 2013 14:39:05 -0500
 Subject: [PATCH] configure: Add --enable-migration-from-qemu-kvm

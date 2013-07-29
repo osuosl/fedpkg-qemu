@@ -1,4 +1,4 @@
-From 437b8cb633fa6402546bf0f2e808a64ea447b55e Mon Sep 17 00:00:00 2001
+From 9def7a9ed113f7b40e868f663bfaa4f9717219ae Mon Sep 17 00:00:00 2001
 From: Cole Robinson <crobinso@redhat.com>
 Date: Tue, 19 Feb 2013 15:35:40 -0500
 Subject: [PATCH] pc_piix: Add compat handling for qemu-kvm VGA mem size
