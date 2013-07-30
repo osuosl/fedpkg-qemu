@@ -131,7 +131,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.4.2
-Release: 4%{?dist}
+Release: 5%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -249,6 +249,8 @@ Patch0206: 0206-rtl8139-flush-queued-packets-when-RxBufPtr-is-writte.patch
 Patch0207: 0207-spice-qemu-char-vmc_write-Don-t-write-more-bytes-the.patch
 # Fix build with latest libfdt
 Patch0208: 0208-configure-dtc-Probe-for-libfdt_env.h.patch
+# Fix usb_handle_packet assertions (bz #981459)
+Patch0209: 0209-Fix-usage-of-USB_DEV_FLAG_IS_HOST-flag.patch
 
 BuildRequires: SDL-devel
 BuildRequires: zlib-devel
@@ -787,6 +789,8 @@ CAC emulation development files.
 %patch0207 -p1
 # Fix build with latest libfdt
 %patch0208 -p1
+# Fix usb_handle_packet assertions (bz #981459)
+%patch0209 -p1
 
 %build
 %if %{with kvmonly}
@@ -1433,6 +1437,9 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Tue Jul 30 2013 Cole Robinson <crobinso@redhat.com> - 2:1.4.2-5
+- Fix usb_handle_packet assertions (bz #981459)
+
 * Wed Jun 19 2013 Cole Robinson <crobinso@redhat.com> - 2:1.4.2-4
 - Fix build with latest libfdt
 - Don't install conflicting binfmt handler on arm (bz #974804)
