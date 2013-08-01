@@ -131,7 +131,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.4.2
-Release: 5%{?dist}
+Release: 6%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -251,6 +251,8 @@ Patch0207: 0207-spice-qemu-char-vmc_write-Don-t-write-more-bytes-the.patch
 Patch0208: 0208-configure-dtc-Probe-for-libfdt_env.h.patch
 # Fix usb_handle_packet assertions (bz #981459)
 Patch0209: 0209-Fix-usage-of-USB_DEV_FLAG_IS_HOST-flag.patch
+# Fix crash when adding spice vdagent channel in the guest (bz #969084)
+Patch0210: 0210-qxl-Fix-QXLRam-initialisation.patch
 
 BuildRequires: SDL-devel
 BuildRequires: zlib-devel
@@ -791,6 +793,8 @@ CAC emulation development files.
 %patch0208 -p1
 # Fix usb_handle_packet assertions (bz #981459)
 %patch0209 -p1
+# Fix crash when adding spice vdagent channel in the guest (bz #969084)
+%patch0210 -p1
 
 %build
 %if %{with kvmonly}
@@ -1437,6 +1441,9 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Thu Aug 01 2013 Cole Robinson <crobinso@redhat.com> - 2:1.4.2-6
+- Fix crash when adding spice vdagent channel in the guest (bz #969084)
+
 * Tue Jul 30 2013 Cole Robinson <crobinso@redhat.com> - 2:1.4.2-5
 - Fix usb_handle_packet assertions (bz #981459)
 
