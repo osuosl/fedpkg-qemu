@@ -140,7 +140,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.5.2
-Release: 1%{?dist}
+Release: 2%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -1383,6 +1383,9 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Fri Aug 2 2013 Paolo Bonzini <pbonzini@redhat.com> - 2:1.5.2-2
+- Rebuild for libiscsi soname bump
+
 * Mon Jul 29 2013 Cole Robinson <crobinso@redhat.com> - 2:1.5.2-1
 - Rebased to version 1.5.2
 - Fix mouse display with spice and latest libvirt (bz #981094)
