@@ -25,7 +25,7 @@
 %bcond_without kvmonly          # enabled
 %bcond_without exclusive_x86_64 # enabled
 %bcond_with    rbd              # disabled
-%bcond_without spice            # enabled
+%bcond_with spice            # disabled
 %bcond_without seccomp          # enabled
 %bcond_with    xfsprogs         # disabled
 %bcond_with    separate_kvm     # disabled - for EPEL
@@ -35,7 +35,7 @@
 %bcond_with    kvmonly          # disabled
 %bcond_with    exclusive_x86_64 # disabled
 %bcond_without rbd              # enabled
-%bcond_without spice            # enabled
+%bcond_with spice            # disabled
 %bcond_without seccomp          # enabled
 %bcond_without xfsprogs         # enabled
 %bcond_with    separate_kvm     # disabled
@@ -61,7 +61,7 @@
 %global have_seccomp 1
 %endif
 %if %{with spice}
-%global have_spice   0
+%global have_spice   1
 %endif
 %else
 %if 0%{?rhel}
