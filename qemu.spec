@@ -61,7 +61,7 @@
 %global have_seccomp 1
 %endif
 %if %{with spice}
-%global have_spice   1
+%global have_spice   0
 %endif
 %else
 %if 0%{?rhel}
@@ -140,7 +140,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.5.2
-Release: 2%{?dist}
+Release: 3%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -1383,6 +1383,10 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Fri Aug 02 2013 Dennis Gilmore <dennis@ausil.us> - 2:1.5.2-3
+- build without spice support to build against new libiscsi
+- spice requires parts of qemu
+
 * Fri Aug 2 2013 Paolo Bonzini <pbonzini@redhat.com> - 2:1.5.2-2
 - Rebuild for libiscsi soname bump
 
