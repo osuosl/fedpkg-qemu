@@ -25,7 +25,7 @@
 %bcond_without kvmonly          # enabled
 %bcond_without exclusive_x86_64 # enabled
 %bcond_with    rbd              # disabled
-%bcond_with spice            # disabled
+%bcond_without spice            # enabled
 %bcond_without seccomp          # enabled
 %bcond_with    xfsprogs         # disabled
 %bcond_with    separate_kvm     # disabled - for EPEL
@@ -35,7 +35,7 @@
 %bcond_with    kvmonly          # disabled
 %bcond_with    exclusive_x86_64 # disabled
 %bcond_without rbd              # enabled
-%bcond_with spice            # disabled
+%bcond_without spice            # enabled
 %bcond_without seccomp          # enabled
 %bcond_without xfsprogs         # enabled
 %bcond_with    separate_kvm     # disabled
@@ -140,7 +140,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.5.2
-Release: 3%{?dist}
+Release: 4%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -1383,6 +1383,9 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Sun Aug 04 2013 Dennis Gilmore <dennis@ausil.us> - 2:1.5.2-4
+- re-enable spice support
+
 * Fri Aug 02 2013 Dennis Gilmore <dennis@ausil.us> - 2:1.5.2-3
 - build without spice support to build against new libiscsi
 - spice requires parts of qemu
