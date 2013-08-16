@@ -139,8 +139,8 @@
 
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
-Version: 1.5.2
-Release: 4%{?dist}
+Version: 1.6.0
+Release: 1%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -181,18 +181,8 @@ Source12: bridge.conf
 # qemu-kvm back compat wrapper
 Source13: qemu-kvm.sh
 
-# qemu-kvm migration compat (posted upstream)
-Patch0001: 0001-configure-Add-enable-migration-from-qemu-kvm.patch
-Patch0002: 0002-acpi_piix4-Drop-minimum_version_id-to-handle-qemu-kv.patch
-Patch0003: 0003-i8254-Fix-migration-from-qemu-kvm-1.1.patch
-Patch0004: 0004-pc_piix-Add-compat-handling-for-qemu-kvm-VGA-mem-siz.patch
-# Fix migration w/ qxl from qemu-kvm 1.2 (solution pending upstream)
-Patch0005: 0005-qxl-Add-rom_size-compat-property-fix-migration-from-.patch
-# Fix build with rawhide libfdt
-Patch0006: 0006-configure-dtc-Probe-for-libfdt_env.h.patch
-# Fix mouse display with spice and latest libvirt (bz #981094)
-# (patch posted upstream but not applied yet)
-Patch0007: 0007-spice-fix-display-initialization.patch
+# qemu-kvm migration compat (not for upstream, drop by Fedora 21?)
+Patch0001: 0001-Fix-migration-from-qemu-kvm.patch
 
 BuildRequires: SDL-devel
 BuildRequires: zlib-devel
@@ -221,7 +211,7 @@ BuildRequires: spice-protocol >= 0.12.2
 BuildRequires: spice-server-devel >= 0.12.0
 %endif
 %if 0%{?have_seccomp:1}
-BuildRequires: libseccomp-devel >= 1.0.0
+BuildRequires: libseccomp-devel >= 2.1.0
 %endif
 # For network block driver
 BuildRequires: libcurl-devel
@@ -272,7 +262,8 @@ BuildRequires: vte3-devel
 %endif
 # GTK translations
 BuildRequires: gettext
-
+# RDMA migration
+BuildRequires: librdmacm-devel
 
 %if 0%{?user:1}
 Requires: %{name}-%{user} = %{epoch}:%{version}-%{release}
@@ -681,18 +672,8 @@ CAC emulation development files.
 %prep
 %setup -q
 
-# qemu-kvm migration compat (posted upstream)
+# qemu-kvm migration compat (not for upstream, drop by Fedora 21?)
 %patch0001 -p1
-%patch0002 -p1
-%patch0003 -p1
-%patch0004 -p1
-# Fix migration w/ qxl from qemu-kvm 1.2 (solution pending upstream)
-%patch0005 -p1
-# Fix build with rawhide libfdt
-%patch0006 -p1
-# Fix mouse display with spice and latest libvirt (bz #981094)
-# (patch posted upstream but not applied yet)
-%patch0007 -p1
 
 
 %build
@@ -744,7 +725,6 @@ dobuild() {
         --disable-werror \
         --disable-xen \
         --enable-kvm \
-        --enable-migration-from-qemu-kvm \
 %if 0%{?have_spice:1}
         --enable-spice \
 %endif
@@ -1052,6 +1032,7 @@ getent passwd qemu >/dev/null || \
 %doc %{qemudocdir}/LICENSE
 %dir %{_datadir}/%{name}/
 %{_datadir}/%{name}/qemu-icon.bmp
+%{_datadir}/%{name}/qemu_logo_no_text.svg
 %{_datadir}/%{name}/keymaps/
 %{_mandir}/man1/qemu.1*
 %{_mandir}/man1/virtfs-proxy-helper.1*
@@ -1383,6 +1364,16 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Fri Aug 16 2013 Cole Robinson <crobinso@redhat.com> - 2:1.6.0-1
+- Rebased to version 1.6.0
+- Support for live migration over RDMA
+- TCG target for aarch64.
+- Support for auto-convergence in live migration ("CPU stunning")
+- The XHCI (USB 3.0) controller supports live migration.
+- New device "nvme" provides a PCI device that implements the NVMe
+  standard.
+- ACPI hotplug of devices behind a PCI bridge is supported
+
 * Sun Aug 04 2013 Dennis Gilmore <dennis@ausil.us> - 2:1.5.2-4
 - re-enable spice support
 
