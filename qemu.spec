@@ -131,7 +131,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.4.2
-Release: 6%{?dist}
+Release: 7%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -253,6 +253,39 @@ Patch0208: 0208-configure-dtc-Probe-for-libfdt_env.h.patch
 Patch0209: 0209-Fix-usage-of-USB_DEV_FLAG_IS_HOST-flag.patch
 # Fix crash when adding spice vdagent channel in the guest (bz #969084)
 Patch0210: 0210-qxl-Fix-QXLRam-initialisation.patch
+
+# 917860 related libcacard and qemu/hw/ccid windows 7 smartcard support.
+Patch0211: 0211-qemu-socket-Make-socket_optslist-public.patch
+Patch0212: 0212-libcacard-correct-T0-historical-bytes-size.patch
+Patch0213: 0213-ccid-card-emul-do-not-crash-if-backend-is-not-provid.patch
+Patch0214: 0214-ccid-make-backend_enum_table-static-const-and-adjust.patch
+Patch0215: 0215-ccid-declare-DEFAULT_ATR-table-to-be-static-const.patch
+Patch0216: 0216-libcacard-use-system-config-directory-for-nss-db-on-.patch
+Patch0217: 0217-util-move-socket_init-to-osdep.c.patch
+Patch0218: 0218-build-sys-must-link-with-fstack-protector.patch
+Patch0219: 0219-libcacard-fix-mingw64-cross-compilation.patch
+Patch0220: 0220-libcacard-split-vscclient-main-from-socket-reading.patch
+Patch0221: 0221-libcacard-vscclient-to-use-QemuThread-for-portabilit.patch
+Patch0222: 0222-libcacard-teach-vscclient-to-use-GMainLoop-for-porta.patch
+Patch0223: 0223-libcacard-remove-sql-prefix.patch
+Patch0224: 0224-libcacard-remove-default-libcoolkey-loading.patch
+Patch0225: 0225-dev-smartcard-reader-white-space-fixes.patch
+Patch0226: 0226-dev-smartcard-reader-nicer-debug-messages.patch
+Patch0227: 0227-dev-smartcard-reader-remove-aborts-never-triggered-b.patch
+Patch0228: 0228-dev-smartcard-reader-support-windows-guest.patch
+Patch0229: 0229-dev-smartcard-reader-reuse-usb.h-definitions.patch
+Patch0230: 0230-libcacard-change-default-ATR.patch
+Patch0231: 0231-ccid-card-passthru-add-atr-check.patch
+Patch0232: 0232-ccid-card-passthru-dev-smartcard-reader-add-debug-en.patch
+Patch0233: 0233-dev-smartcard-reader-define-structs-for-CCID_Paramet.patch
+Patch0234: 0234-dev-smartcard-reader-change-default-protocol-to-T-0.patch
+Patch0235: 0235-dev-smartcard-reader-copy-atr-protocol-to-ccid-param.patch
+Patch0236: 0236-libcacard-vreader-add-debugging-messages-for-apdu.patch
+Patch0237: 0237-libcacard-move-atr-setting-from-macro-to-function.patch
+Patch0238: 0238-dev-smartcard-reader-empty-implementation-for-Mechan.patch
+Patch0239: 0239-libcacard-cac-change-big-switch-functions-to-single-.patch
+Patch0240: 0240-libcacard-vscclient-fix-leakage-of-socket-on-error-p.patch
+Patch0241: 0241-libcacard-Fix-cppcheck-warning-and-remove-unneeded-c.patch
 
 BuildRequires: SDL-devel
 BuildRequires: zlib-devel
@@ -795,6 +828,39 @@ CAC emulation development files.
 %patch0209 -p1
 # Fix crash when adding spice vdagent channel in the guest (bz #969084)
 %patch0210 -p1
+
+# 917860 libcacard and qemu/hw/ccid windows 7 smartcard support.
+%patch0211 -p1
+%patch0212 -p1
+%patch0213 -p1
+%patch0214 -p1
+%patch0215 -p1
+%patch0216 -p1
+%patch0217 -p1
+%patch0218 -p1
+%patch0219 -p1
+%patch0220 -p1
+%patch0221 -p1
+%patch0222 -p1
+%patch0223 -p1
+%patch0224 -p1
+%patch0225 -p1
+%patch0226 -p1
+%patch0227 -p1
+%patch0228 -p1
+%patch0229 -p1
+%patch0230 -p1
+%patch0231 -p1
+%patch0232 -p1
+%patch0233 -p1
+%patch0234 -p1
+%patch0235 -p1
+%patch0236 -p1
+%patch0237 -p1
+%patch0238 -p1
+%patch0239 -p1
+%patch0240 -p1
+%patch0241 -p1
 
 %build
 %if %{with kvmonly}
@@ -1441,6 +1507,9 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Sun Aug 18 2013 Alon Levy <alevy@redhat.com> - 2:1.4.2-7
+- Support windows 7 smartcard using guests and clients - (bz #917860 rhel 6.5)
+
 * Thu Aug 01 2013 Cole Robinson <crobinso@redhat.com> - 2:1.4.2-6
 - Fix crash when adding spice vdagent channel in the guest (bz #969084)
 

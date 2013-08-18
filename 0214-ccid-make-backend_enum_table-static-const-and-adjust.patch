@@ -1,0 +1,50 @@
+From e72e97097d1c619774cb07326496e38c0de46ef0 Mon Sep 17 00:00:00 2001
+From: Jim Meyering <meyering@redhat.com>
+Date: Mon, 21 May 2012 21:56:20 +0200
+Subject: [PATCH 214/241] ccid: make backend_enum_table "static const" and
+ adjust users
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Jim Meyering <meyering@redhat.com>
+Reviewed-by: Alon Levy <alevy@redhat.com>
+Reviewed-by: Marc-André Lureau <mlureau@redhat.com>
+(cherry picked from commit d18c7117467aa5fae95a7c6eaffcf50618197e79)
+---
+ hw/ccid-card-emulated.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/hw/ccid-card-emulated.c b/hw/ccid-card-emulated.c
+index 210433e..cb9ef10 100644
+--- a/hw/ccid-card-emulated.c
++++ b/hw/ccid-card-emulated.c
+@@ -462,14 +462,14 @@ typedef struct EnumTable {
+     uint32_t value;
+ } EnumTable;
+ 
+-EnumTable backend_enum_table[] = {
++static const EnumTable backend_enum_table[] = {
+     {BACKEND_NSS_EMULATED_NAME, BACKEND_NSS_EMULATED},
+     {BACKEND_CERTIFICATES_NAME, BACKEND_CERTIFICATES},
+     {NULL, 0},
+ };
+ 
+ static uint32_t parse_enumeration(char *str,
+-    EnumTable *table, uint32_t not_found_value)
++    const EnumTable *table, uint32_t not_found_value)
+ {
+     uint32_t ret = not_found_value;
+ 
+@@ -490,7 +490,7 @@ static int emulated_initfn(CCIDCardState *base)
+ {
+     EmulatedState *card = DO_UPCAST(EmulatedState, base, base);
+     VCardEmulError ret;
+-    EnumTable *ptable;
++    const EnumTable *ptable;
+ 
+     QSIMPLEQ_INIT(&card->event_list);
+     QSIMPLEQ_INIT(&card->guest_apdu_list);
+-- 
+1.8.3.1
+

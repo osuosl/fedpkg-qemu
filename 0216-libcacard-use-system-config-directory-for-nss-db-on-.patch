@@ -1,0 +1,51 @@
+From 2b60d2a60e98747e46e6addb89bf9a7f923ae499 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Marc-Andr=C3=A9=20Lureau?= <mlureau@redhat.com>
+Date: Wed, 27 Feb 2013 21:08:06 +0100
+Subject: [PATCH 216/241] libcacard: use system config directory for nss db on
+ win32
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+It's a bit nicer to look for default database under
+CSIDL_COMMON_APPDATA\pki\nss rather that /etc/pki/nss.
+
+Signed-off-by: Marc-André Lureau <mlureau@redhat.com>
+Reviewed-by: Alon Levy <alevy@redhat.com>
+(cherry picked from commit e2d9c5e769d59f2bca649b8286892d49bdcfc2b1)
+---
+ libcacard/vcard_emul_nss.c | 18 +++++++++++++++++-
+ 1 file changed, 17 insertions(+), 1 deletion(-)
+
+diff --git a/libcacard/vcard_emul_nss.c b/libcacard/vcard_emul_nss.c
+index df79476..21d4689 100644
+--- a/libcacard/vcard_emul_nss.c
++++ b/libcacard/vcard_emul_nss.c
+@@ -893,7 +893,23 @@ vcard_emul_init(const VCardEmulOptions *options)
+     if (options->nss_db) {
+         rv = NSS_Init(options->nss_db);
+     } else {
+-        rv = NSS_Init("sql:/etc/pki/nssdb");
++        gchar *path, *db;
++#ifndef _WIN32
++        path = g_strdup("/etc/pki/nssdb");
++#else
++        if (g_get_system_config_dirs() == NULL ||
++            g_get_system_config_dirs()[0] == NULL) {
++            return VCARD_EMUL_FAIL;
++        }
++
++        path = g_build_filename(
++            g_get_system_config_dirs()[0], "pki", "nssdb", NULL);
++#endif
++        db = g_strdup_printf("sql:%s", path);
++
++        rv = NSS_Init(db);
++        g_free(db);
++        g_free(path);
+     }
+     if (rv != SECSuccess) {
+         return VCARD_EMUL_FAIL;
+-- 
+1.8.3.1
+

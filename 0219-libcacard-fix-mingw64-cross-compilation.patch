@@ -1,0 +1,57 @@
+From cc5a2202bc5484aba302a684fb75106da506b1f0 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Marc-Andr=C3=A9=20Lureau?= <mlureau@redhat.com>
+Date: Mon, 25 Feb 2013 23:31:13 +0100
+Subject: [PATCH 219/241] libcacard: fix mingw64 cross-compilation
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Compile and link with version.lo
+
+Signed-off-by: Marc-André Lureau <mlureau@redhat.com>
+Reviewed-by: Alon Levy <alevy@redhat.com>
+(cherry picked from commit 5354e4d242175e067bb70732f694ae9322a81351)
+---
+ Makefile  | 8 ++++++--
+ rules.mak | 3 ++-
+ 2 files changed, 8 insertions(+), 3 deletions(-)
+
+diff --git a/Makefile b/Makefile
+index 0d9099a..751cf1d 100644
+--- a/Makefile
++++ b/Makefile
+@@ -148,11 +148,15 @@ recurse-all: $(SUBDIR_RULES) $(ROMSUBDIR_RULES)
+ 
+ bt-host.o: QEMU_CFLAGS += $(BLUEZ_CFLAGS)
+ 
+-version.o: $(SRC_PATH)/version.rc config-host.h
++version.o: $(SRC_PATH)/version.rc config-host.h | version.lo
+ 	$(call quiet-command,$(WINDRES) -I. -o $@ $<,"  RC    $(TARGET_DIR)$@")
++version.lo: $(SRC_PATH)/version.rc config-host.h
++	$(call quiet-command,$(LIBTOOL) --mode=compile --tag=RC $(WINDRES) -I. -o $@ $<,"lt RC   $(TARGET_DIR)$@")
+ 
+ version-obj-$(CONFIG_WIN32) += version.o
+-Makefile: $(version-obj-y)
++version-lobj-$(CONFIG_WIN32) += $(if $(LIBTOOL),version.lo)
++Makefile: $(version-obj-y) $(version-lobj-y)
++
+ 
+ ######################################################################
+ # Build libraries
+diff --git a/rules.mak b/rules.mak
+index 36aba2d..292a422 100644
+--- a/rules.mak
++++ b/rules.mak
+@@ -35,7 +35,8 @@ LIBTOOL += $(if $(V),,--quiet)
+ LINK = $(call quiet-command,\
+        $(if $(filter %.lo %.la,$^),$(LIBTOOL) --mode=link --tag=CC \
+        )$(CC) $(QEMU_CFLAGS) $(CFLAGS) $(LDFLAGS) -o $@ \
+-       $(sort $(filter %.o, $1)) $(filter-out %.o, $1) $(version-obj-y) \
++       $(sort $(filter %.o, $1)) $(filter-out %.o, $1) \
++       $(if $(filter %.lo %.la,$^),$(version-lobj-y),$(version-obj-y)) \
+        $(if $(filter %.lo %.la,$^),$(LIBTOOLFLAGS)) \
+        $(LIBS),$(if $(filter %.lo %.la,$^),"lt LINK ", "  LINK  ")"$(TARGET_DIR)$@")
+ endif
+-- 
+1.8.3.1
+

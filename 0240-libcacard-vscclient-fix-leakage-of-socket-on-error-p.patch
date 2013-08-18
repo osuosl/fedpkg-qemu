@@ -1,0 +1,55 @@
+From aae98aa5aa23dbddf3a6e8c8c0399948f0d43480 Mon Sep 17 00:00:00 2001
+From: Alon Levy <alevy@redhat.com>
+Date: Tue, 4 Jun 2013 16:23:37 -0400
+Subject: [PATCH 240/241] libcacard/vscclient: fix leakage of socket on error
+ paths
+
+Spotted by Coverity.
+
+Signed-off-by: Alon Levy <alevy@redhat.com>
+Reviewed-by: Peter Maydell <peter.maydell@linaro.org>
+Signed-off-by: Michael Tokarev <mjt@tls.msk.ru>
+(cherry picked from commit 581fe784c3adf85dc167a47a4a60fd1245a98217)
+---
+ libcacard/vscclient.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
+
+diff --git a/libcacard/vscclient.c b/libcacard/vscclient.c
+index ac23647..5180d29 100644
+--- a/libcacard/vscclient.c
++++ b/libcacard/vscclient.c
+@@ -618,18 +618,22 @@ connect_to_qemu(
+     if (ret != 0) {
+         /* Error */
+         fprintf(stderr, "getaddrinfo failed\n");
+-        return -1;
++        goto cleanup_socket;
+     }
+ 
+     if (connect(sock, server->ai_addr, server->ai_addrlen) < 0) {
+         /* Error */
+         fprintf(stderr, "Could not connect\n");
+-        return -1;
++        goto cleanup_socket;
+     }
+     if (verbose) {
+         printf("Connected (sizeof Header=%zd)!\n", sizeof(VSCMsgHeader));
+     }
+     return sock;
++
++cleanup_socket:
++    closesocket(sock);
++    return -1;
+ }
+ 
+ int
+@@ -759,5 +763,6 @@ main(
+     g_io_channel_unref(channel_socket);
+     g_byte_array_unref(socket_to_send);
+ 
++    closesocket(sock);
+     return 0;
+ }
+-- 
+1.8.3.1
+

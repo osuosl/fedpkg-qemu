@@ -1,0 +1,32 @@
+From 0a8bbcf1c62e0cf12188eaad871b23633a336f73 Mon Sep 17 00:00:00 2001
+From: Jim Meyering <meyering@redhat.com>
+Date: Mon, 21 May 2012 21:51:33 +0200
+Subject: [PATCH 215/241] ccid: declare DEFAULT_ATR table to be "static const"
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Jim Meyering <meyering@redhat.com>
+Reviewed-by: Alon Levy <alevy@redhat.com>
+Reviewed-by: Marc-André Lureau <mlureau@redhat.com>
+(cherry picked from commit da000a4867749434e03896a5072321771736352a)
+---
+ hw/ccid-card-passthru.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/hw/ccid-card-passthru.c b/hw/ccid-card-passthru.c
+index 0dde761..62070db 100644
+--- a/hw/ccid-card-passthru.c
++++ b/hw/ccid-card-passthru.c
+@@ -27,7 +27,7 @@ do {                                                    \
+ #define D_VERBOSE 4
+ 
+ /* TODO: do we still need this? */
+-uint8_t DEFAULT_ATR[] = {
++static const uint8_t DEFAULT_ATR[] = {
+ /*
+  * From some example somewhere
+  * 0x3B, 0xB0, 0x18, 0x00, 0xD1, 0x81, 0x05, 0xB1, 0x40, 0x38, 0x1F, 0x03, 0x28
+-- 
+1.8.3.1
+
