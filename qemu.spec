@@ -140,7 +140,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.6.0
-Release: 1%{?dist}
+Release: 2%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -757,6 +757,12 @@ dobuild --target-list="$buildarch"
 
 gcc %{SOURCE6} -O2 -g -o ksmctl
 
+# Check the binary runs (see eg RHBZ#998722).
+%ifarch %{kvm_archs}
+b="./x86_64-softmmu/qemu-system-x86_64"
+if [ -x "$b" ]; then "$b" -help; fi
+%endif
+
 
 %install
 
@@ -1364,6 +1370,10 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Tue Aug 20 2013 Richard W.M. Jones <rjones@redhat.com> - 2:1.6.0-2
+- Try to rebuild since previous i686 build was broken (RHBZ#998722).
+- In build, qemu -help just to check the binary is not broken.
+
 * Fri Aug 16 2013 Cole Robinson <crobinso@redhat.com> - 2:1.6.0-1
 - Rebased to version 1.6.0
 - Support for live migration over RDMA
