@@ -140,7 +140,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.6.0
-Release: 2%{?dist}
+Release: 3%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -217,7 +217,7 @@ BuildRequires: libseccomp-devel >= 2.1.0
 BuildRequires: libcurl-devel
 %if %{with rbd}
 # For rbd block driver
-BuildRequires: ceph-devel
+BuildRequires: ceph-devel >= 0.61
 %endif
 # We need both because the 'stap' binary is probed for by configure
 BuildRequires: systemtap
@@ -367,6 +367,14 @@ Requires(post): /usr/sbin/useradd
 Requires(post): systemd-units
 Requires(preun): systemd-units
 Requires(postun): systemd-units
+
+# ceph added new symbol rbd_aio_flush which qemu wants to use, but ceph
+# lacks symbol versioning so RPM doesn't pick up the dependency.
+# Can probably be dropped after Fedora 20 beta
+%if %{with rbd}
+Requires: ceph-libs >= 0.61
+%endif
+
 %description common
 QEMU is a generic and open source processor emulator which achieves a good
 emulation speed by using dynamic translation.
@@ -1370,6 +1378,9 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Tue Aug 20 2013 Cole Robinson <crobinso@redhat.com> - 2:1.6.0-3
+- Require newer ceph-libs to fix symbol error (bz #995883)
+
 * Tue Aug 20 2013 Richard W.M. Jones <rjones@redhat.com> - 2:1.6.0-2
 - Try to rebuild since previous i686 build was broken (RHBZ#998722).
 - In build, qemu -help just to check the binary is not broken.
