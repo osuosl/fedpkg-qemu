@@ -140,7 +140,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.6.0
-Release: 3%{?dist}
+Release: 4%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -374,6 +374,10 @@ Requires(postun): systemd-units
 %if %{with rbd}
 Requires: ceph-libs >= 0.61
 %endif
+
+# New symbol libssh2_sftp_fsync.
+# Can probably be dropped after Fedora 20 beta.
+Requires: libssh2 >= 1.4.3-5
 
 %description common
 QEMU is a generic and open source processor emulator which achieves a good
@@ -1378,6 +1382,9 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Wed Aug 21 2013 Richard W.M. Jones <rjones@redhat.com> - 2:1.6.0-4
+- Require newer libssh2 to fix missing libssh2_sftp_fsync (bz #999161)
+
 * Tue Aug 20 2013 Cole Robinson <crobinso@redhat.com> - 2:1.6.0-3
 - Require newer ceph-libs to fix symbol error (bz #995883)
 
