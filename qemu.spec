@@ -140,7 +140,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.6.0
-Release: 4%{?dist}
+Release: 5%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -266,6 +266,9 @@ BuildRequires: vte3-devel
 BuildRequires: gettext
 # RDMA migration
 BuildRequires: librdmacm-devel
+# For sanity test
+BuildRequires: qemu-sanity-check-nodeps
+BuildRequires: kernel
 
 %if 0%{?user:1}
 Requires: %{name}-%{user} = %{epoch}:%{version}-%{release}
@@ -985,6 +988,12 @@ rm -rf $RPM_BUILD_ROOT%{_includedir}/cacard
 %check
 make check
 
+# Sanity-check current kernel can boot on this qemu.
+# The results are advisory only.
+%ifarch x86_64
+qemu-sanity-check --qemu=x86_64-softmmu/qemu-system-x86_64 || :
+%endif
+
 %ifarch %{kvm_archs}
 %post %{kvm_package}
 # load kvm modules now, so we can make sure no reboot is needed.
@@ -1386,6 +1395,9 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Wed Aug 28 2013 Richard W.M. Jones <rjones@redhat.com> - 2:1.6.0-5
+- Enable qemu-sanity-check, however do not fail the build if it fails.
+
 * Wed Aug 21 2013 Richard W.M. Jones <rjones@redhat.com> - 2:1.6.0-4
 - Require newer libssh2 to fix missing libssh2_sftp_fsync (bz #999161)
 
