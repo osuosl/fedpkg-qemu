@@ -254,7 +254,9 @@ BuildRequires: glusterfs-api-devel >= 3.4.0
 # Needed for usb passthrough for qemu >= 1.5
 BuildRequires: libusbx-devel
 # SSH block driver
+%if 0%{?fedora} >= 20
 BuildRequires: libssh2-devel
+%endif
 %if %{with gtk}
 # GTK frontend
 BuildRequires: gtk3-devel
@@ -377,7 +379,9 @@ Requires: ceph-libs >= 0.61
 
 # New symbol libssh2_sftp_fsync.
 # Can probably be dropped after Fedora 20 beta.
+%if 0%{?fedora} >= 20
 Requires: libssh2 >= 1.4.3-5
+%endif
 
 %description common
 QEMU is a generic and open source processor emulator which achieves a good
