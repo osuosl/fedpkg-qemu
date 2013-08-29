@@ -267,8 +267,10 @@ BuildRequires: gettext
 # RDMA migration
 BuildRequires: librdmacm-devel
 # For sanity test
+%if 0%{?fedora} >= 20
 BuildRequires: qemu-sanity-check-nodeps
 BuildRequires: kernel
+%endif
 
 %if 0%{?user:1}
 Requires: %{name}-%{user} = %{epoch}:%{version}-%{release}
@@ -990,8 +992,10 @@ make check
 
 # Sanity-check current kernel can boot on this qemu.
 # The results are advisory only.
+%if 0%{?fedora} >= 20
 %ifarch x86_64
 qemu-sanity-check --qemu=x86_64-softmmu/qemu-system-x86_64 || :
+%endif
 %endif
 
 %ifarch %{kvm_archs}
