@@ -140,7 +140,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.6.0
-Release: 5%{?dist}
+Release: 6%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -183,6 +183,16 @@ Source13: qemu-kvm.sh
 
 # qemu-kvm migration compat (not for upstream, drop by Fedora 21?)
 Patch0001: 0001-Fix-migration-from-qemu-kvm.patch
+# Fix qmp capabilities calls on i686 (bz #1003162)
+# Patch posted upstream
+Patch0002: 0002-qapi-types.py-Fix-enum-struct-sizes-on-i686.patch
+# Fix crash with -M isapc -cpu Haswell (bz #986790)
+Patch0003: 0003-isapc-disable-kvmvapic.patch
+# Fix crash in lsi_soft_reset (bz #1000947)
+# Patches posted upstream
+Patch0004: 0004-pci-do-not-export-pci_bus_reset.patch
+Patch0005: 0005-qdev-allow-both-pre-and-post-order-vists-in-qdev-wal.patch
+Patch0006: 0006-qdev-switch-reset-to-post-order.patch
 
 BuildRequires: SDL-devel
 BuildRequires: zlib-devel
@@ -695,6 +705,16 @@ CAC emulation development files.
 
 # qemu-kvm migration compat (not for upstream, drop by Fedora 21?)
 %patch0001 -p1
+# Fix qmp capabilities calls on i686 (bz #1003162)
+# Patch posted upstream
+%patch0002 -p1
+# Fix crash with -M isapc -cpu Haswell (bz #986790)
+%patch0003 -p1
+# Fix crash in lsi_soft_reset (bz #1000947)
+# Patches posted upstream
+%patch0004 -p1
+%patch0005 -p1
+%patch0006 -p1
 
 
 %build
@@ -1003,6 +1023,7 @@ qemu-sanity-check --qemu=x86_64-softmmu/qemu-system-x86_64 || :
 # load kvm modules now, so we can make sure no reboot is needed.
 # If there's already a kvm module installed, we don't mess with it
 sh %{_sysconfdir}/sysconfig/modules/kvm.modules &> /dev/null || :
+setfacl --remove-all /dev/kvm &> /dev/null || :
 udevadm trigger --subsystem-match=misc --sysname-match=kvm --action=add || :
 %endif
 
@@ -1399,6 +1420,12 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Tue Sep 03 2013 Cole Robinson <crobinso@redhat.com> - 2:1.6.0-6
+- Fix qmp capabilities calls on i686 (bz #1003162)
+- Fix crash with -M isapc -cpu Haswell (bz #986790)
+- Fix crash in lsi_soft_reset (bz #1000947)
+- Fix initial /dev/kvm permissions (bz #993491)
+
 * Wed Aug 28 2013 Richard W.M. Jones <rjones@redhat.com> - 2:1.6.0-5
 - Enable qemu-sanity-check, however do not fail the build if it fails.
 

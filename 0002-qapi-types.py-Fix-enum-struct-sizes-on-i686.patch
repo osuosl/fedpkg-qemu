@@ -1,0 +1,38 @@
+From f3e59ce7c471d3f0f1f293ecd0ef3e1797ce411f Mon Sep 17 00:00:00 2001
+From: Cole Robinson <crobinso@redhat.com>
+Date: Sat, 31 Aug 2013 18:25:01 -0400
+Subject: [PATCH] qapi-types.py: Fix enum struct sizes on i686
+
+Unlike other list types, enum wasn't adding any padding, which caused
+a mismatch between the generated struct size and GenericList struct
+size. More details in a678e26cbe89f7a27cbce794c2c2784571ee9d21
+
+This crashed qemu if calling qmp query-tpm-types for example, which
+upsets libvirt capabilities probing. Reproducer on i686:
+
+(sleep 5; printf '{"execute":"qmp_capabilities"}\n{"execute":"query-tpm-types"}\n') | ./i386-softmmu/qemu-system-i386 -S -nodefaults -nographic -M none -qmp stdio
+
+https://bugs.launchpad.net/qemu/+bug/1219207
+
+Cc: qemu-stable@nongnu.org
+(cherry picked from commit a9d960fb0b1bc104294ab965116a2d53038b4692)
+---
+ scripts/qapi-types.py | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/scripts/qapi-types.py b/scripts/qapi-types.py
+index 5ee46ea..5d31b06 100644
+--- a/scripts/qapi-types.py
++++ b/scripts/qapi-types.py
+@@ -51,7 +51,10 @@ def generate_fwd_enum_struct(name, members):
+     return mcgen('''
+ typedef struct %(name)sList
+ {
+-    %(name)s value;
++    union {
++        %(name)s value;
++        uint64_t padding;
++    };
+     struct %(name)sList *next;
+ } %(name)sList;
+ ''',
