@@ -1,4 +1,4 @@
-From 4d172af076079d753cb666af31d93ed9a7b452ff Mon Sep 17 00:00:00 2001
+From 6c060fe5be4a95215632f355d7b946333974396a Mon Sep 17 00:00:00 2001
 From: Avi Kivity <avi@redhat.com>
 Date: Mon, 29 Oct 2012 18:22:36 +0200
 Subject: [PATCH] memory: fix rendering of a region obscured by another

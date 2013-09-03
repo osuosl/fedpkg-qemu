@@ -1,4 +1,4 @@
-From e4a803d8ebd69719f4d997052e5bc3a5a7d91124 Mon Sep 17 00:00:00 2001
+From 0b33695e4ddd028a6153464bdb0047dc3170d733 Mon Sep 17 00:00:00 2001
 From: Alon Levy <alevy@redhat.com>
 Date: Wed, 12 Sep 2012 16:13:26 +0300
 Subject: [PATCH] hw/qxl: tracing fixes

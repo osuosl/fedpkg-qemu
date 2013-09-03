@@ -1,4 +1,4 @@
-From 12e60f780a097837840ab1e7bb7d54b8c15112e8 Mon Sep 17 00:00:00 2001
+From 3a750594f73232c5e47ca0f57d53594208d64033 Mon Sep 17 00:00:00 2001
 From: Richard Henderson <rth@twiddle.net>
 Date: Sun, 25 Mar 2012 21:36:28 +0200
 Subject: [PATCH] tcg-sparc: Mask shift immediates to avoid illegal insns.

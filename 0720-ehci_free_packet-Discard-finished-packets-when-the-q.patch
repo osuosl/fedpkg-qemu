@@ -1,4 +1,4 @@
-From 22df2caa52abc0df20709de04791d49f83792fd7 Mon Sep 17 00:00:00 2001
+From 1db8ec7f2caf255b94d1516e521768f553e01972 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Fri, 5 Apr 2013 12:05:49 +0200
 Subject: [PATCH] ehci_free_packet: Discard finished packets when the queue is

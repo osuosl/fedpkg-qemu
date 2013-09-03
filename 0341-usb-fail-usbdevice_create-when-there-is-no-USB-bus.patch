@@ -1,4 +1,4 @@
-From cf0ad23ce4dc68d0617b01cc5eefdd133f87cafc Mon Sep 17 00:00:00 2001
+From 46ed9b957184e935f219a718a252cffafb06a803 Mon Sep 17 00:00:00 2001
 From: Stefan Hajnoczi <stefanha@redhat.com>
 Date: Sun, 25 Nov 2012 16:49:15 +0100
 Subject: [PATCH] usb: fail usbdevice_create() when there is no USB bus

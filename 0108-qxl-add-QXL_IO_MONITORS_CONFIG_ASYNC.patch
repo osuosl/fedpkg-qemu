@@ -1,4 +1,4 @@
-From e9062966428416da41ec5f9ace3d2ef58b3265b1 Mon Sep 17 00:00:00 2001
+From c46d1bea08ddd40bd719404bae4b646d974698ab Mon Sep 17 00:00:00 2001
 From: Alon Levy <alevy@redhat.com>
 Date: Wed, 22 Aug 2012 11:16:25 +0300
 Subject: [PATCH] qxl: add QXL_IO_MONITORS_CONFIG_ASYNC

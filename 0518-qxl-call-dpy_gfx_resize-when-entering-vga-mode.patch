@@ -1,4 +1,4 @@
-From 97ccbacab3e9cc19ebb54f1aacbe84118cbb3a29 Mon Sep 17 00:00:00 2001
+From baa050fd1479327b7735e5ae8ada37bc77514a02 Mon Sep 17 00:00:00 2001
 From: Gerd Hoffmann <kraxel@redhat.com>
 Date: Tue, 30 Oct 2012 14:55:12 +0100
 Subject: [PATCH] qxl: call dpy_gfx_resize when entering vga mode

@@ -1,4 +1,4 @@
-From b3db72271ead92daae43b1534fdfdbe750555b0a Mon Sep 17 00:00:00 2001
+From afaa6cc0896c3b0e32f7e18b17fef5349f578848 Mon Sep 17 00:00:00 2001
 From: Orit Wasserman <owasserm@redhat.com>
 Date: Mon, 24 Sep 2012 13:11:09 +0200
 Subject: [PATCH] Fix address handling in inet_nonblocking_connect

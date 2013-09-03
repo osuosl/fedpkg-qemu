@@ -1,4 +1,4 @@
-From 67a3c5e0e9b7e2ae4444f374c698fc3fbf16a1ac Mon Sep 17 00:00:00 2001
+From 6bf8b9134cd108964151d7fc2517432853d4863e Mon Sep 17 00:00:00 2001
 From: Gerd Hoffmann <kraxel@redhat.com>
 Date: Mon, 10 Dec 2012 07:41:07 +0100
 Subject: [PATCH] qxl: save qemu_create_displaysurface_from result

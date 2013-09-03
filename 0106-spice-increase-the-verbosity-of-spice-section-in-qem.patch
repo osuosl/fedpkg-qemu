@@ -1,4 +1,4 @@
-From 589cb6a669e11e1ce4b077e8ba0fbb9fc8d5bd40 Mon Sep 17 00:00:00 2001
+From 25fa765b2e637d3f0b52296b6ed6edc54c6a2537 Mon Sep 17 00:00:00 2001
 From: Yonit Halperin <yhalperi@redhat.com>
 Date: Tue, 21 Aug 2012 13:54:20 +0300
 Subject: [PATCH] spice: increase the verbosity of spice section in "qemu

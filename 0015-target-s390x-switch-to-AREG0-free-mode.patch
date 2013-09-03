@@ -1,4 +1,4 @@
-From 77fb132a1dc3780a57d8a1e889b366f0492963a5 Mon Sep 17 00:00:00 2001
+From a43797bb116b4945100bc95897afc91c79bcaf5a Mon Sep 17 00:00:00 2001
 From: Blue Swirl <blauwirbel@gmail.com>
 Date: Sun, 2 Sep 2012 07:33:40 +0000
 Subject: [PATCH] target-s390x: switch to AREG0 free mode

@@ -1,4 +1,4 @@
-From a53ed08e1f8ee2a235213e802f3d5bb3342adaf3 Mon Sep 17 00:00:00 2001
+From b4f1ea1393ed81bf530ba4502d79039487085321 Mon Sep 17 00:00:00 2001
 From: Aurelien Jarno <aurelien@aurel32.net>
 Date: Mon, 3 Sep 2012 22:47:03 +0200
 Subject: [PATCH] pflash_cfi01: fix vendor specific extended query

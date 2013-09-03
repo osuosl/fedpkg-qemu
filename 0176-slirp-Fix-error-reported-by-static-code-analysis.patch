@@ -1,4 +1,4 @@
-From b88c1cb2b263de9ffc3dcaa2822ef7b1fbd8575a Mon Sep 17 00:00:00 2001
+From 4aff755e039d12dfc8f6dde6a04bdb9548c18d66 Mon Sep 17 00:00:00 2001
 From: Stefan Weil <sw@weilnetz.de>
 Date: Tue, 4 Sep 2012 23:20:36 +0200
 Subject: [PATCH] slirp: Fix error reported by static code analysis

@@ -1,4 +1,4 @@
-From abb7dc3467f809d3d3dfc0aef70fce7ee542c550 Mon Sep 17 00:00:00 2001
+From 5a04f399e59e72a323987ae2affaac622d6c2b40 Mon Sep 17 00:00:00 2001
 From: Stefan Weil <sw@weilnetz.de>
 Date: Sat, 1 Sep 2012 12:56:03 +0200
 Subject: [PATCH] ioh3420: Remove unreachable code

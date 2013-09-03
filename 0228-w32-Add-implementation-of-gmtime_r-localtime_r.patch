@@ -1,4 +1,4 @@
-From 27ca56812d2140c774f9d2b67a2919ef47c69758 Mon Sep 17 00:00:00 2001
+From 97ea9ca4b49f2be9e687186c79dd682792f4161f Mon Sep 17 00:00:00 2001
 From: Stefan Weil <sw@weilnetz.de>
 Date: Sat, 22 Sep 2012 22:26:19 +0200
 Subject: [PATCH] w32: Add implementation of gmtime_r, localtime_r

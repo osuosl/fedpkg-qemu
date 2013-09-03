@@ -1,4 +1,4 @@
-From 093374b8c759db877691fde602912a7cafd72a2e Mon Sep 17 00:00:00 2001
+From ce3b4eec2723ac8095f186a47eced5708ab0e7da Mon Sep 17 00:00:00 2001
 From: Gerd Hoffmann <kraxel@redhat.com>
 Date: Thu, 6 Sep 2012 11:24:51 +0200
 Subject: [PATCH] ehci: switch to new-style memory ops

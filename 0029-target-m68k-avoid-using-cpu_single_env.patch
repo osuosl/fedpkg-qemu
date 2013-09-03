@@ -1,4 +1,4 @@
-From 5560cd783146734a60c446f43227044cbb580edd Mon Sep 17 00:00:00 2001
+From c6969b702235fabad86d637b0b058da477f660fe Mon Sep 17 00:00:00 2001
 From: Blue Swirl <blauwirbel@gmail.com>
 Date: Sat, 8 Sep 2012 10:48:20 +0000
 Subject: [PATCH] target-m68k: avoid using cpu_single_env

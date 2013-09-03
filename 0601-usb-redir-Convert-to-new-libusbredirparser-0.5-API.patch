@@ -1,4 +1,4 @@
-From 3fe6c1a36c08f282402f4487013d7e15a1c79095 Mon Sep 17 00:00:00 2001
+From fa85d662b57f3e8ed692e35f3699e1e82c8043e7 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Fri, 31 Aug 2012 13:41:38 +0200
 Subject: [PATCH] usb-redir: Convert to new libusbredirparser 0.5 API

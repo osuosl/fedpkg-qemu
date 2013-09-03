@@ -1,4 +1,4 @@
-From 297556441abec3823fcf362395f2af650e53a631 Mon Sep 17 00:00:00 2001
+From c37308c76f78310a36cc1725121b86ad00d698ae Mon Sep 17 00:00:00 2001
 From: Gerd Hoffmann <kraxel@redhat.com>
 Date: Thu, 23 Aug 2012 13:26:25 +0200
 Subject: [PATCH] xhci: update register layout

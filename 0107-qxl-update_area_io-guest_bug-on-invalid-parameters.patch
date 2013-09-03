@@ -1,4 +1,4 @@
-From 8a3d428e1e0f3e4793b1a1353c638e155a3a8a86 Mon Sep 17 00:00:00 2001
+From 23dae2df759eed12a5a976c6c23ad2e7bb135abb Mon Sep 17 00:00:00 2001
 From: Alon Levy <alevy@redhat.com>
 Date: Tue, 21 Aug 2012 13:51:31 +0300
 Subject: [PATCH] qxl/update_area_io: guest_bug on invalid parameters

@@ -1,4 +1,4 @@
-From 8444d4c996120a2fc21547a784c258e639f1e8fb Mon Sep 17 00:00:00 2001
+From 05216f432a152d6c08d55c8ff0053998043ccf7f Mon Sep 17 00:00:00 2001
 From: Ronnie Sahlberg <ronniesahlberg@gmail.com>
 Date: Fri, 14 Sep 2012 18:13:29 -0700
 Subject: [PATCH] SCSI: Standard INQUIRY data should report HiSup flag as set.

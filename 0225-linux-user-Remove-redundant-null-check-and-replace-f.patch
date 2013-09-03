@@ -1,4 +1,4 @@
-From 755055c908ccda2dd9410bb1bde1f3621017fb0c Mon Sep 17 00:00:00 2001
+From c8cd687674033a2a0c362171821f2f6b33dd59ff Mon Sep 17 00:00:00 2001
 From: Stefan Weil <sw@weilnetz.de>
 Date: Tue, 4 Sep 2012 22:14:19 +0200
 Subject: [PATCH] linux-user: Remove redundant null check and replace free by

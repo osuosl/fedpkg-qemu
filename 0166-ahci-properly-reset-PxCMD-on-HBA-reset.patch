@@ -1,4 +1,4 @@
-From 3248d5fbbf9c0fbfd8d42af08aa81fe1e3fe2841 Mon Sep 17 00:00:00 2001
+From 10d5ce98cc29e06928b24891cf6fd75438b95604 Mon Sep 17 00:00:00 2001
 From: Jason Baron <jbaron@redhat.com>
 Date: Tue, 4 Sep 2012 16:08:08 -0400
 Subject: [PATCH] ahci: properly reset PxCMD on HBA reset

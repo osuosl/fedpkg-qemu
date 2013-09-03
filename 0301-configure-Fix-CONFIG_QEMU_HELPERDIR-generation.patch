@@ -1,4 +1,4 @@
-From abd9b89fe95879eb73ff4728397de6a390464de3 Mon Sep 17 00:00:00 2001
+From 7428ce6007fd0ac5c930409157f97105267567a6 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Wed, 17 Oct 2012 19:09:25 +0200
 Subject: [PATCH] configure: Fix CONFIG_QEMU_HELPERDIR generation

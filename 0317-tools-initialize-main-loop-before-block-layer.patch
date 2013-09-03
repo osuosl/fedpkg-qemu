@@ -1,4 +1,4 @@
-From cea4225aa439953117384764cb5c0b3c3fc325d4 Mon Sep 17 00:00:00 2001
+From 907c03e5f2c053df7bb3756b2a2200af10a42577 Mon Sep 17 00:00:00 2001
 From: Paolo Bonzini <pbonzini@redhat.com>
 Date: Sat, 3 Nov 2012 18:10:17 +0100
 Subject: [PATCH] tools: initialize main loop before block layer

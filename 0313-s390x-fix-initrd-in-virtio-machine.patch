@@ -1,4 +1,4 @@
-From a89b91d1d8a0bf914c44deaca4f743de6971bdc7 Mon Sep 17 00:00:00 2001
+From 444f8f04b433d73c17d0a4bc785a50eeaf72499e Mon Sep 17 00:00:00 2001
 From: Alexander Graf <agraf@suse.de>
 Date: Wed, 19 Sep 2012 17:24:46 +0200
 Subject: [PATCH] s390x: fix -initrd in virtio machine

@@ -1,4 +1,4 @@
-From d02ed657b7ad55f2111a049c3e175ed78c63e5b1 Mon Sep 17 00:00:00 2001
+From 9ed1f324d076f6f615f12bf39db4ba160d29bc46 Mon Sep 17 00:00:00 2001
 From: Gerd Hoffmann <kraxel@redhat.com>
 Date: Wed, 5 Sep 2012 09:35:57 +0200
 Subject: [PATCH] spice: add screen mirror

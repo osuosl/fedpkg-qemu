@@ -1,4 +1,4 @@
-From b15c26620bb765e25c96163383d79c1c56df7901 Mon Sep 17 00:00:00 2001
+From a8f8691a29dec378971a28f517aca3aae2d38c96 Mon Sep 17 00:00:00 2001
 From: Yonit Halperin <yhalperi@redhat.com>
 Date: Tue, 21 Aug 2012 11:51:59 +0300
 Subject: [PATCH] spice: adding seamless-migration option to the command line

@@ -1,4 +1,4 @@
-From fc9726f880dea515a2cf98456c5f03a1388e4e14 Mon Sep 17 00:00:00 2001
+From 7933c1ad712ff592b78f75c67df47d83435ea44b Mon Sep 17 00:00:00 2001
 From: Richard Henderson <rth@twiddle.net>
 Date: Sun, 25 Mar 2012 22:04:59 +0200
 Subject: [PATCH] tcg-sparc: Use defines for temporaries.

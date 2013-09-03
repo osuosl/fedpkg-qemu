@@ -1,4 +1,4 @@
-From 0811633a396481e1cf1614362afd57c179fcf3de Mon Sep 17 00:00:00 2001
+From 351c0c1e5ecb752bd9eb165180402313a90f9068 Mon Sep 17 00:00:00 2001
 From: Alon Levy <alevy@redhat.com>
 Date: Thu, 28 Jul 2011 15:08:48 +0300
 Subject: [PATCH] virtio-serial-bus: replay guest_open on migration

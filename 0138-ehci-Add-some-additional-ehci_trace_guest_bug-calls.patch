@@ -1,4 +1,4 @@
-From 9dc252544b41a626bbdf436a3e6f229fa0014143 Mon Sep 17 00:00:00 2001
+From 943606089ed996862e191024bdd496d0e3600e87 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Mon, 3 Sep 2012 10:22:16 +0200
 Subject: [PATCH] ehci: Add some additional ehci_trace_guest_bug() calls

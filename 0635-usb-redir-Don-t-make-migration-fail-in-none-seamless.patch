@@ -1,4 +1,4 @@
-From 11da0c283915f9e3d3da42451d218c26efef4671 Mon Sep 17 00:00:00 2001
+From 30b7466e12a541a486dae5a022055fe63269bc79 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Thu, 27 Sep 2012 16:57:41 +0200
 Subject: [PATCH] usb-redir: Don't make migration fail in none seamless case

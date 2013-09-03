@@ -1,4 +1,4 @@
-From 25e9a95d0571c40738daa479467d757eb477739e Mon Sep 17 00:00:00 2001
+From 8d2c36442129f5b9f2d6f11b296bce31aa7466f0 Mon Sep 17 00:00:00 2001
 From: Blue Swirl <blauwirbel@gmail.com>
 Date: Sun, 2 Sep 2012 06:57:17 +0000
 Subject: [PATCH] target-lm32: switch to AREG0 free mode

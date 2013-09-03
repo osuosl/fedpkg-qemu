@@ -1,4 +1,4 @@
-From 3c762eeef7dc242a00552bb9b3f05e0208765f84 Mon Sep 17 00:00:00 2001
+From e121ccf06255d4b3b67dd42037a748e573cdb3d8 Mon Sep 17 00:00:00 2001
 From: Gerd Hoffmann <kraxel@redhat.com>
 Date: Tue, 28 Aug 2012 17:29:15 +0200
 Subject: [PATCH] usb-storage: usb3 support

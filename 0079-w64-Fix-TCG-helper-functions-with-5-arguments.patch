@@ -1,4 +1,4 @@
-From e35e8b9bb446ff2693962151b8c80c5c88294959 Mon Sep 17 00:00:00 2001
+From 11ab09ddb7d4d33e7c3f7d366119f367e0d2f04d Mon Sep 17 00:00:00 2001
 From: Stefan Weil <sw@weilnetz.de>
 Date: Thu, 13 Sep 2012 19:37:43 +0200
 Subject: [PATCH] w64: Fix TCG helper functions with 5 arguments

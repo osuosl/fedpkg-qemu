@@ -1,4 +1,4 @@
-From 00338325c4a2c5b0010462b21a4373cbb4341c9d Mon Sep 17 00:00:00 2001
+From 0a3313062b30332c750fa5ac69ad85d6d12fda3c Mon Sep 17 00:00:00 2001
 From: Stefan Weil <sw@weilnetz.de>
 Date: Sat, 1 Sep 2012 12:43:41 +0200
 Subject: [PATCH] lm4549: Fix buffer overflow

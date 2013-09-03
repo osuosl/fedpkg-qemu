@@ -1,4 +1,4 @@
-From 3c2f94fdc5e776ee66bccc704884f3b1b090b4c6 Mon Sep 17 00:00:00 2001
+From 6d0e15637937d86b5d1fc1f8b53b56aac5cd9508 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Tue, 28 Aug 2012 09:43:18 +0200
 Subject: [PATCH] usb-core: Add a usb_ep_find_packet_by_id() helper function

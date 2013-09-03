@@ -1,4 +1,4 @@
-From b7b94b6016b89bf698d661ce4fd22139e771a835 Mon Sep 17 00:00:00 2001
+From 10fe5df0584aed056c3b07477df41053b1a5d6be Mon Sep 17 00:00:00 2001
 From: Orit Wasserman <owasserm@redhat.com>
 Date: Mon, 24 Sep 2012 13:11:10 +0200
 Subject: [PATCH] Clear handler only for valid fd

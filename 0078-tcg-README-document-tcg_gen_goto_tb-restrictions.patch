@@ -1,4 +1,4 @@
-From 08de143bdd34e906c3e89443cb6b24665f7c088d Mon Sep 17 00:00:00 2001
+From 13529cc74ba53fb032172a58dfb04ea4d6e64891 Mon Sep 17 00:00:00 2001
 From: Max Filippov <jcmvbkbc@gmail.com>
 Date: Fri, 21 Sep 2012 04:18:07 +0400
 Subject: [PATCH] tcg/README: document tcg_gen_goto_tb restrictions

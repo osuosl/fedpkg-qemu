@@ -1,4 +1,4 @@
-From ebb89c9a420f2aa87796f377992ac403adcab309 Mon Sep 17 00:00:00 2001
+From 3689f522b1db7ef339869ae7ed3716c32ca789e1 Mon Sep 17 00:00:00 2001
 From: Gerd Hoffmann <kraxel@redhat.com>
 Date: Fri, 31 Aug 2012 15:30:51 +0200
 Subject: [PATCH] xhci: pick target interrupter

@@ -1,4 +1,4 @@
-From 23d25cd58aa7da678cad0ad98d52efe37d0be4e6 Mon Sep 17 00:00:00 2001
+From 3873affda62f39a112adc726968fd05ebd3bbc77 Mon Sep 17 00:00:00 2001
 From: Samuel Thibault <samuel.thibault@ens-lyon.org>
 Date: Thu, 23 Aug 2012 09:59:27 +0200
 Subject: [PATCH] Better name usb braille device

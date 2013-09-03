@@ -1,4 +1,4 @@
-From 5399dd7756a093453751dea34212ba19db328eb4 Mon Sep 17 00:00:00 2001
+From 106fbe8152a3985bfeb98669879bf7c07040c9a4 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Tue, 19 Jul 2011 10:56:19 +0200
 Subject: [PATCH] usb-redir: Add flow control support

@@ -1,4 +1,4 @@
-From 593883a749b0659ab4a2f2d96e65c34a3bd0fcca Mon Sep 17 00:00:00 2001
+From a3549ec06eddb918df91ac1fb420d63a4e185f55 Mon Sep 17 00:00:00 2001
 From: Chris Wulff <crwulff@gmail.com>
 Date: Sun, 9 Sep 2012 20:20:07 -0400
 Subject: [PATCH] xilinx_timer: Fix a compile error if debug enabled

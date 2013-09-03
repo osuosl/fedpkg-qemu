@@ -1,4 +1,4 @@
-From 56018228deac6e704a7ec8befd9e9dc69f2fe73f Mon Sep 17 00:00:00 2001
+From fccbde6caa50942bad6442529d00b894dd3fa6e6 Mon Sep 17 00:00:00 2001
 From: Blue Swirl <blauwirbel@gmail.com>
 Date: Sun, 2 Sep 2012 07:33:35 +0000
 Subject: [PATCH] target-s390x: rename op_helper.c to misc_helper.c

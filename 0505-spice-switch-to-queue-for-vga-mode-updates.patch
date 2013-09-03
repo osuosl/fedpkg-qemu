@@ -1,4 +1,4 @@
-From 5d125d9e030ea1ab3c1568d7a88e2b2b1a265363 Mon Sep 17 00:00:00 2001
+From 5bf6b77c4c0a2458ac36adb33defacc19ad22d1b Mon Sep 17 00:00:00 2001
 From: Gerd Hoffmann <kraxel@redhat.com>
 Date: Wed, 5 Sep 2012 08:25:08 +0200
 Subject: [PATCH] spice: switch to queue for vga mode updates

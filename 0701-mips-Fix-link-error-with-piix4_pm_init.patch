@@ -1,4 +1,4 @@
-From a1cbcc0757b08e07a49fe9c8ba003ae47cf72614 Mon Sep 17 00:00:00 2001
+From c1c704ab4a9f62367d044eaafcab555d1a15f85a Mon Sep 17 00:00:00 2001
 From: Cole Robinson <crobinso@redhat.com>
 Date: Mon, 6 Aug 2012 17:12:40 -0400
 Subject: [PATCH] mips: Fix link error with 'piix4_pm_init'

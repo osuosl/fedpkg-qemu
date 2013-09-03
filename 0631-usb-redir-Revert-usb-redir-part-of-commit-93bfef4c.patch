@@ -1,4 +1,4 @@
-From a272467564b3915d36b85523ad7c2abf04a164a3 Mon Sep 17 00:00:00 2001
+From dbf39b3e858410f349893c4cd69d3c8a774d1109 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Mon, 10 Sep 2012 13:49:46 +0200
 Subject: [PATCH] usb-redir: Revert usb-redir part of commit 93bfef4c

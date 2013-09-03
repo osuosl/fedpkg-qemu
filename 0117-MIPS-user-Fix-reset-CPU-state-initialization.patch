@@ -1,4 +1,4 @@
-From 608a36df28b4db83124d06081029023e01901fc9 Mon Sep 17 00:00:00 2001
+From d18b56657f8a22c1c174dfb6a603cd28b605fa6f Mon Sep 17 00:00:00 2001
 From: "Maciej W. Rozycki" <macro@codesourcery.com>
 Date: Fri, 8 Jun 2012 02:04:40 +0100
 Subject: [PATCH] MIPS/user: Fix reset CPU state initialization

@@ -1,4 +1,4 @@
-From 111194442fa38ba6dc26bc695ba0d3b76584663b Mon Sep 17 00:00:00 2001
+From 0f7208e610ab8d1242bf9f2900d02809791894c8 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Tue, 28 Aug 2012 11:30:13 +0200
 Subject: [PATCH] usb-redir: Move to core packet id and queue handling

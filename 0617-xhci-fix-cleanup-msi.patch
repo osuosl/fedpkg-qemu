@@ -1,4 +1,4 @@
-From b296bb59f2c9e56bc2ba5fadc53ab53c54ccbc4b Mon Sep 17 00:00:00 2001
+From a8c3df86dcb85aac11c1dd21e583fee5a2c2f8ff Mon Sep 17 00:00:00 2001
 From: Gerd Hoffmann <kraxel@redhat.com>
 Date: Thu, 30 Aug 2012 10:57:12 +0200
 Subject: [PATCH] xhci: fix & cleanup msi.

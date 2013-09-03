@@ -1,4 +1,4 @@
-From 46afee90f84ed7f03a6c1e086cb7a3894451682d Mon Sep 17 00:00:00 2001
+From c7315f27ada69adffcfca0549cf5fa9d508c4215 Mon Sep 17 00:00:00 2001
 From: Alon Levy <alevy@redhat.com>
 Date: Thu, 1 Nov 2012 14:56:00 +0200
 Subject: [PATCH] hw/qxl: qxl_send_events: nop if stopped

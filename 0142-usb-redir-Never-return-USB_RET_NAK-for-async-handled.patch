@@ -1,4 +1,4 @@
-From 262c9bb1e59c2cd561dad1cf9d47c50f07af0e0f Mon Sep 17 00:00:00 2001
+From d50b26d29f4d80d748085a386d9c99155c568909 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Fri, 17 Aug 2012 17:27:08 +0200
 Subject: [PATCH] usb-redir: Never return USB_RET_NAK for async handled packets

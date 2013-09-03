@@ -1,4 +1,4 @@
-From 71f0bcf065ddd00d5659e846ddfdffb9a06ee896 Mon Sep 17 00:00:00 2001
+From 6a2e2cec5504f331c49b60c70e2a31f8d39a3215 Mon Sep 17 00:00:00 2001
 From: Aurelien Jarno <aurelien@aurel32.net>
 Date: Tue, 11 Sep 2012 12:26:23 +0200
 Subject: [PATCH] tcg/optimize: check types in copy propagation

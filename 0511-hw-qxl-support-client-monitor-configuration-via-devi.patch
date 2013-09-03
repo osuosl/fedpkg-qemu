@@ -1,4 +1,4 @@
-From 6477aff05e661c5fb7d73d7c10e1a8a0af175e92 Mon Sep 17 00:00:00 2001
+From c1e65209fcb3585eb7141fed3f45868bdf3af7b1 Mon Sep 17 00:00:00 2001
 From: Alon Levy <alevy@redhat.com>
 Date: Wed, 12 Sep 2012 16:13:28 +0300
 Subject: [PATCH] hw/qxl: support client monitor configuration via device

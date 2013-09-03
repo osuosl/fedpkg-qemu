@@ -1,4 +1,4 @@
-From 449d4f2cfbdd2b5fd00e3e82c78bf580bd81551d Mon Sep 17 00:00:00 2001
+From a28b2838b7797bddd649ebabb54655c893b3369d Mon Sep 17 00:00:00 2001
 From: Blue Swirl <blauwirbel@gmail.com>
 Date: Sun, 2 Sep 2012 08:39:22 +0000
 Subject: [PATCH] target-microblaze: switch to AREG0 free mode

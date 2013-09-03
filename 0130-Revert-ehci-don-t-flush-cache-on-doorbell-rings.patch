@@ -1,4 +1,4 @@
-From 4547897358a12c0f31d688da9922236984742242 Mon Sep 17 00:00:00 2001
+From 8449b3f3687831fe50e29c1e6c0f946cd0d765d1 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Wed, 29 Aug 2012 10:12:52 +0200
 Subject: [PATCH] Revert "ehci: don't flush cache on doorbell rings."

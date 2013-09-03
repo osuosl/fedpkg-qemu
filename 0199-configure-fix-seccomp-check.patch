@@ -1,4 +1,4 @@
-From 4a151cbe99766a8da4582234a93d4292f064108f Mon Sep 17 00:00:00 2001
+From 349beca15e6a3284c5d44d81be48277dbbca4ae1 Mon Sep 17 00:00:00 2001
 From: "Yann E. MORIN" <yann.morin.1998@free.fr>
 Date: Thu, 6 Sep 2012 22:40:30 +0200
 Subject: [PATCH] configure: fix seccomp check

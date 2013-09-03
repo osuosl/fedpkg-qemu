@@ -1,4 +1,4 @@
-From d06d51e96773ab8295e31f666466fb2edb093aa0 Mon Sep 17 00:00:00 2001
+From 96226fe21047c2910414efedf9bd47ef12bc2dd0 Mon Sep 17 00:00:00 2001
 From: Amit Shah <amit.shah@redhat.com>
 Date: Mon, 21 Mar 2011 22:05:10 +0100
 Subject: [PATCH] char: Throttle when host connection is down#

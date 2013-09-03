@@ -1,4 +1,4 @@
-From 48dbbecb0b010ff1c6a64a3a18a7272cce314bf8 Mon Sep 17 00:00:00 2001
+From 149d2abb8c6d29c7ebb9cd75b209747d53fad00b Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Wed, 12 Sep 2012 15:08:40 +0200
 Subject: [PATCH] uhci: Don't queue up packets after one with the SPD flag set

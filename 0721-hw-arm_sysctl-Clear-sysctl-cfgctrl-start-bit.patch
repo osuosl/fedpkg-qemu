@@ -1,4 +1,4 @@
-From 3783ae2a82198962b1770b12db2dd3d67f400d7e Mon Sep 17 00:00:00 2001
+From 8a6240daff8338a63dd7ce676578d2f467bb4eb7 Mon Sep 17 00:00:00 2001
 From: Christoffer Dall <c.dall@virtualopensystems.com>
 Date: Wed, 30 Jan 2013 15:39:01 +0000
 Subject: [PATCH] hw/arm_sysctl: Clear sysctl cfgctrl start bit

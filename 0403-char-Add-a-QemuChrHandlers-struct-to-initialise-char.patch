@@ -1,4 +1,4 @@
-From 064e087beb96eb5b9716c9058f1d1e461421233e Mon Sep 17 00:00:00 2001
+From 08af52dcdd14472ed7a4ff76b7caa07ae503ee2b Mon Sep 17 00:00:00 2001
 From: Amit Shah <amit.shah@redhat.com>
 Date: Mon, 21 Mar 2011 20:31:45 +0100
 Subject: [PATCH] char: Add a QemuChrHandlers struct to initialise chardev

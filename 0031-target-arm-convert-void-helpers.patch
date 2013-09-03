@@ -1,4 +1,4 @@
-From 140048c58e4ceb4f3bac87d7154d2731bb2bcd5d Mon Sep 17 00:00:00 2001
+From 1a2ac85a3f356719ae7b7577f855ce3eafc33b9a Mon Sep 17 00:00:00 2001
 From: Blue Swirl <blauwirbel@gmail.com>
 Date: Tue, 4 Sep 2012 20:08:34 +0000
 Subject: [PATCH] target-arm: convert void helpers

@@ -1,4 +1,4 @@
-From 3306981d5631182fb1384b05d66be26918521511 Mon Sep 17 00:00:00 2001
+From 97ee81082948397e1200712887e9305ed0193954 Mon Sep 17 00:00:00 2001
 From: Dunrong Huang <riegamaths@gmail.com>
 Date: Wed, 5 Sep 2012 21:26:22 +0800
 Subject: [PATCH] block: Don't forget to delete temporary file

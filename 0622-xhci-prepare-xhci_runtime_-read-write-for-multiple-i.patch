@@ -1,4 +1,4 @@
-From b4457799e9610602d20382843c1d2bde4ce475dd Mon Sep 17 00:00:00 2001
+From cba8c1e06124ecaebe579694c8f6725a446b90c5 Mon Sep 17 00:00:00 2001
 From: Gerd Hoffmann <kraxel@redhat.com>
 Date: Thu, 30 Aug 2012 17:15:12 +0200
 Subject: [PATCH] xhci: prepare xhci_runtime_{read,write} for multiple

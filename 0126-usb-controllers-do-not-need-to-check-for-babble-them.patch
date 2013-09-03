@@ -1,4 +1,4 @@
-From 074f49c02e7f2fd50533a246b4060051f95f8b09 Mon Sep 17 00:00:00 2001
+From 49b98c0d2dba189cd0c0dc133bbf0d636678eeea Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Fri, 17 Aug 2012 11:39:16 +0200
 Subject: [PATCH] usb: controllers do not need to check for babble themselves

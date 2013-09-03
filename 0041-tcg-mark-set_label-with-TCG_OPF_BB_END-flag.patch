@@ -1,4 +1,4 @@
-From 1610a0e56c0be3e4bfd3034e5323188b1d05badd Mon Sep 17 00:00:00 2001
+From 6b755c1518101434d9fe736c8de7df18052111a1 Mon Sep 17 00:00:00 2001
 From: Aurelien Jarno <aurelien@aurel32.net>
 Date: Mon, 10 Sep 2012 14:23:49 +0200
 Subject: [PATCH] tcg: mark set_label with TCG_OPF_BB_END flag

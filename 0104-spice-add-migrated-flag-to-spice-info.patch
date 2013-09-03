@@ -1,4 +1,4 @@
-From a4155f1a9fac362bfc1558790de9ea4cdb0a3c8a Mon Sep 17 00:00:00 2001
+From b690ef3c391e5d8b6a2116f0df201fe8adcf6501 Mon Sep 17 00:00:00 2001
 From: Yonit Halperin <yhalperi@redhat.com>
 Date: Tue, 21 Aug 2012 11:51:58 +0300
 Subject: [PATCH] spice: add 'migrated' flag to spice info

@@ -1,4 +1,4 @@
-From 208547c7afbe6ee8a9a1f81095e67a6cbe4a37ec Mon Sep 17 00:00:00 2001
+From f3b32fc553bc248c4c33716c568445e7be8c5afe Mon Sep 17 00:00:00 2001
 From: Blue Swirl <blauwirbel@gmail.com>
 Date: Sun, 2 Sep 2012 07:33:39 +0000
 Subject: [PATCH] target-s390x: avoid AREG0 for misc helpers

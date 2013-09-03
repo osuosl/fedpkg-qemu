@@ -1,4 +1,4 @@
-From c03bf619fe8eb416aaea1f8b75b313a4b314ffeb Mon Sep 17 00:00:00 2001
+From 3b956f642d805a8848970a7031e37c6ff7c69aac Mon Sep 17 00:00:00 2001
 From: "Peter A. G. Crosthwaite" <peter.crosthwaite@petalogix.com>
 Date: Thu, 28 Jun 2012 16:28:03 +1000
 Subject: [PATCH] xilinx_timer: Send dbg msgs to stderr not stdout

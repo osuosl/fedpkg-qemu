@@ -1,4 +1,4 @@
-From e598e28401bb25d4d639b29f297a549badbf0cfa Mon Sep 17 00:00:00 2001
+From 36cdee8966226efacb4455db25ab61ca3bb71826 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Mon, 3 Sep 2012 12:17:48 +0200
 Subject: [PATCH] ehci: Correct a comment in fetchqtd packet processing

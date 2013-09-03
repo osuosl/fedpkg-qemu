@@ -1,4 +1,4 @@
-From 7f3022f4ee2f83aeb0a1eea265f4bf9b4401096e Mon Sep 17 00:00:00 2001
+From 31147f113641cae45eae5efbe5fa5a78073bd1e1 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Tue, 4 Sep 2012 17:03:54 +0200
 Subject: [PATCH] usb-redir: Add an already_in_flight packet-id queue

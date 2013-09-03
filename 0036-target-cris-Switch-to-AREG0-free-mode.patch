@@ -1,4 +1,4 @@
-From 327937b3765d53776e42ffd3990e0b551c98b0e6 Mon Sep 17 00:00:00 2001
+From ea9fdb224e11a377f733c98286a4b4af341f716b Mon Sep 17 00:00:00 2001
 From: Aurelien Jarno <aurelien@aurel32.net>
 Date: Fri, 7 Sep 2012 16:13:27 +0200
 Subject: [PATCH] target-cris: Switch to AREG0 free mode

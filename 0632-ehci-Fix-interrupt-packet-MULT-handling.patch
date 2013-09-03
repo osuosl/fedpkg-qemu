@@ -1,4 +1,4 @@
-From dc9b6b076e03412e67597c207f2202493e37db06 Mon Sep 17 00:00:00 2001
+From d8c404a31660eb60da9530e383d3670c12799bd6 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Thu, 20 Sep 2012 16:55:02 +0200
 Subject: [PATCH] ehci: Fix interrupt packet MULT handling

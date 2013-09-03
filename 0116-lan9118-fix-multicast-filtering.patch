@@ -1,4 +1,4 @@
-From 0ea96930bcd85734da46de0cd44d1d0408cbb9be Mon Sep 17 00:00:00 2001
+From 640c4fd6869a7a9cd7e410b727f32524204d55c4 Mon Sep 17 00:00:00 2001
 From: Aurelien Jarno <aurelien@aurel32.net>
 Date: Sun, 10 Jun 2012 23:18:44 +0200
 Subject: [PATCH] lan9118: fix multicast filtering

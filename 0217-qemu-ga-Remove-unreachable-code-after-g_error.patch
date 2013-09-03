@@ -1,4 +1,4 @@
-From 631ea4153ed0e1dc8688c463e0924b0dd8dc7ea5 Mon Sep 17 00:00:00 2001
+From 09c41847f33e1d0386def3381f36bf961f4bfb32 Mon Sep 17 00:00:00 2001
 From: Stefan Weil <sw@weilnetz.de>
 Date: Sat, 1 Sep 2012 09:34:15 +0200
 Subject: [PATCH] qemu-ga: Remove unreachable code after g_error

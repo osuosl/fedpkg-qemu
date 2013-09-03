@@ -1,4 +1,4 @@
-From 85c9ce8e19f0a652e121144f6b6c21d618325363 Mon Sep 17 00:00:00 2001
+From 27abe87223e9b2111f4953b680077b936429ada4 Mon Sep 17 00:00:00 2001
 From: Meador Inge <meadori@codesourcery.com>
 Date: Mon, 29 Oct 2012 12:05:09 +0000
 Subject: [PATCH] m68k: Return semihosting errno values correctly

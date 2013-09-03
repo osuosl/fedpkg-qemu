@@ -1,4 +1,4 @@
-From b61abbc18c7ba7cfb58a0d3a51fb377f4a5af5e4 Mon Sep 17 00:00:00 2001
+From 83c2e816b7f8d7c84b57fb959e1a822206f2f041 Mon Sep 17 00:00:00 2001
 From: Bruce Rogers <brogers@suse.com>
 Date: Mon, 20 Aug 2012 12:45:08 -0600
 Subject: [PATCH] configure: avoid compiler warning in pipe2 detection

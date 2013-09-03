@@ -1,4 +1,4 @@
-From a2c90b264762d3ddcc9a830653315a6fe9107055 Mon Sep 17 00:00:00 2001
+From ee5d0e1355c3d0abd62d314007e83058b62d1a5f Mon Sep 17 00:00:00 2001
 From: Richard Henderson <rth@twiddle.net>
 Date: Fri, 21 Sep 2012 17:18:09 -0700
 Subject: [PATCH] tcg: Adjust descriptions of *cond opcodes

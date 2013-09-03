@@ -1,4 +1,4 @@
-From f3f975860db11101ccef2f75238032328de00ce0 Mon Sep 17 00:00:00 2001
+From 034eae7eddbab60f78503ffca6fd1c8bce680c1e Mon Sep 17 00:00:00 2001
 From: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
 Date: Fri, 24 Aug 2012 13:32:16 +0100
 Subject: [PATCH] net: clean up usbnet_receive()

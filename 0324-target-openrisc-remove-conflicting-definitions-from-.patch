@@ -1,4 +1,4 @@
-From 1a51e9b66a61238e56668d647a74a6ceeeeaa727 Mon Sep 17 00:00:00 2001
+From 4ba9cd81d6758d2759cd0549092ad6573ce57874 Mon Sep 17 00:00:00 2001
 From: Aurelien Jarno <aurelien@aurel32.net>
 Date: Tue, 9 Oct 2012 21:53:12 +0200
 Subject: [PATCH] target-openrisc: remove conflicting definitions from cpu.h

@@ -1,4 +1,4 @@
-From b3950fe894e2b26f9dba0888af092cb43d01a466 Mon Sep 17 00:00:00 2001
+From 4530483ace08a10e87f709b67001972e55854cb3 Mon Sep 17 00:00:00 2001
 From: Gerd Hoffmann <kraxel@redhat.com>
 Date: Fri, 31 Aug 2012 10:31:54 +0200
 Subject: [PATCH] ehci: check for EHCI_ASYNC_FINISHED first in ehci_free_packet

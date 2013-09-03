@@ -1,4 +1,4 @@
-From 76fcbe46a52b467cd2cd96a671bfccd26871153e Mon Sep 17 00:00:00 2001
+From 9904b973b4dcb96dbffc4cf85d2c47f7484a6811 Mon Sep 17 00:00:00 2001
 From: Ronnie Sahlberg <ronniesahlberg@gmail.com>
 Date: Thu, 30 Aug 2012 17:28:40 -0700
 Subject: [PATCH] iSCSI: We need to support SG_IO also from iscsi_ioctl()

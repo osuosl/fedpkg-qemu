@@ -1,4 +1,4 @@
-From 879794c3d3974b1206bbc52011c8f2525709f396 Mon Sep 17 00:00:00 2001
+From cf8d505e41f49e2c568cd98b36b3ab9a06d30119 Mon Sep 17 00:00:00 2001
 From: Aurelien Jarno <aurelien@aurel32.net>
 Date: Fri, 21 Sep 2012 18:20:26 +0200
 Subject: [PATCH] tcg/mips: optimize bswap{16,16s,32} on MIPS32R2

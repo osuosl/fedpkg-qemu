@@ -1,4 +1,4 @@
-From 9fbc22fddb14b1e474807bc02ab31e35af25d3a3 Mon Sep 17 00:00:00 2001
+From 9ebec25b2cdba386271e4c43353e3225c1a4e003 Mon Sep 17 00:00:00 2001
 From: Alon Levy <alevy@redhat.com>
 Date: Wed, 28 Nov 2012 16:38:43 +0200
 Subject: [PATCH] libcacard: fix missing symbols in libcacard.so

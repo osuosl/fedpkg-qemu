@@ -1,4 +1,4 @@
-From a003aac48bda87a443bb312f478fb651e34998e5 Mon Sep 17 00:00:00 2001
+From e510581c7dc3af5e009355e6fe1f98d7e33c13aa Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Andreas=20F=C3=A4rber?= <afaerber@suse.de>
 Date: Mon, 17 Sep 2012 19:10:32 +0200
 Subject: [PATCH] MAINTAINERS: Add entry for QOM CPU

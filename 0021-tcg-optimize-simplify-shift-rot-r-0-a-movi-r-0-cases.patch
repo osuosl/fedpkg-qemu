@@ -1,4 +1,4 @@
-From bbed332c7ad12e9885d3f457f366fa0b29445dcd Mon Sep 17 00:00:00 2001
+From 3bb8a381b43404d4cdb535da11cdf7195db3f9b2 Mon Sep 17 00:00:00 2001
 From: Aurelien Jarno <aurelien@aurel32.net>
 Date: Thu, 6 Sep 2012 16:47:14 +0200
 Subject: [PATCH] tcg/optimize: simplify shift/rot r, 0, a => movi r, 0 cases

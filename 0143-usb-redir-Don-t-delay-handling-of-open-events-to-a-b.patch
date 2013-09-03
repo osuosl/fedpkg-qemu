@@ -1,4 +1,4 @@
-From b89a0cc1ec9dbe30cbe002f12d487a52950da166 Mon Sep 17 00:00:00 2001
+From 1efbc808141a8476eb6abfb13b4976b5844e8538 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Thu, 23 Aug 2012 16:37:19 +0200
 Subject: [PATCH] usb-redir: Don't delay handling of open events to a bottom

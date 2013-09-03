@@ -1,4 +1,4 @@
-From f98ec7477ad72305a10d392a0b043df9192620ab Mon Sep 17 00:00:00 2001
+From 0b7b97bbf155c3411c59a4c7af1f6130c01fb894 Mon Sep 17 00:00:00 2001
 From: Gerd Hoffmann <kraxel@redhat.com>
 Date: Mon, 27 Aug 2012 16:09:20 +0200
 Subject: [PATCH] xhci: trace cc codes in cleartext

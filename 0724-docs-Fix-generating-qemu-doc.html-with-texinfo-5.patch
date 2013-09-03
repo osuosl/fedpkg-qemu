@@ -1,4 +1,4 @@
-From b5f2618ac3459fbd31f503933df6d47db0a55286 Mon Sep 17 00:00:00 2001
+From a7d94849343ddbf1730b6b3a6da8e9bd12d02903 Mon Sep 17 00:00:00 2001
 From: Cole Robinson <crobinso@redhat.com>
 Date: Wed, 15 May 2013 17:56:22 -0400
 Subject: [PATCH] docs: Fix generating qemu-doc.html with texinfo 5

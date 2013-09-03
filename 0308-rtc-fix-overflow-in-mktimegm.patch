@@ -1,4 +1,4 @@
-From 6dfc8874df8648e37f19f099cb8c2efee19bcee3 Mon Sep 17 00:00:00 2001
+From 753ff5558ed06c3e4afd947c284f91fe1ddd4a28 Mon Sep 17 00:00:00 2001
 From: Paolo Bonzini <pbonzini@redhat.com>
 Date: Mon, 1 Oct 2012 14:22:06 +0200
 Subject: [PATCH] rtc: fix overflow in mktimegm

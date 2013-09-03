@@ -1,4 +1,4 @@
-From 8057ac10e8cba3acb89c11c94f04967306e55a9f Mon Sep 17 00:00:00 2001
+From 787514a7c1b9a3a23eebe70c76d76ed4e45031c3 Mon Sep 17 00:00:00 2001
 From: Stefan Weil <sw@weilnetz.de>
 Date: Fri, 7 Sep 2012 22:36:08 +0200
 Subject: [PATCH] target-cris: Fix buffer overflow

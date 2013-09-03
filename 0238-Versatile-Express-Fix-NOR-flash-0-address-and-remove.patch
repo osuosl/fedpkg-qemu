@@ -1,4 +1,4 @@
-From cb97f34eca351d150574c724047709b76d00d08a Mon Sep 17 00:00:00 2001
+From 546d9a410baf651c2bdcc5319e4cf6b78c6ffdab Mon Sep 17 00:00:00 2001
 From: Francesco Lavra <francescolavra.fl@gmail.com>
 Date: Wed, 19 Sep 2012 05:51:58 +0000
 Subject: [PATCH] Versatile Express: Fix NOR flash 0 address and remove flash

@@ -1,4 +1,4 @@
-From 12bf3d6ef0b57952276361b274dcb5704480b08e Mon Sep 17 00:00:00 2001
+From 8a63a49a37481b7e9294d5637e2c16a7065b05e0 Mon Sep 17 00:00:00 2001
 From: Gerd Hoffmann <kraxel@redhat.com>
 Date: Wed, 21 Nov 2012 14:41:48 +0100
 Subject: [PATCH] spice: add new spice-server callbacks to ui/spice-display.c

@@ -1,4 +1,4 @@
-From cf873edf4227be439a9ffa5abb3da61ff1fd6527 Mon Sep 17 00:00:00 2001
+From 764010fd034a93bd1d266e443097d5e8f4d11b09 Mon Sep 17 00:00:00 2001
 From: Richard Henderson <rth@twiddle.net>
 Date: Fri, 21 Sep 2012 10:34:21 -0700
 Subject: [PATCH] tcg-sparc: Assume v9 cpu always, i.e. force v8plus in 32-bit

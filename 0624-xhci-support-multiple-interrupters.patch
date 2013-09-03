@@ -1,4 +1,4 @@
-From bda96cc71d34d4c3163455c9ea570f62e9c745f4 Mon Sep 17 00:00:00 2001
+From eb92c7e92a4f98a3d0f2e0036d89d79ee35cf2b3 Mon Sep 17 00:00:00 2001
 From: Gerd Hoffmann <kraxel@redhat.com>
 Date: Tue, 4 Sep 2012 12:56:55 +0200
 Subject: [PATCH] xhci: support multiple interrupters

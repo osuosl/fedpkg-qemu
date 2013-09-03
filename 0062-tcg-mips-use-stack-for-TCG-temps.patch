@@ -1,4 +1,4 @@
-From c914ae50df4dc2f2ab589c87c0cd2ce2f14d9639 Mon Sep 17 00:00:00 2001
+From 66ffd70bdc4f758aaef51fb066d73866e92f593c Mon Sep 17 00:00:00 2001
 From: Aurelien Jarno <aurelien@aurel32.net>
 Date: Fri, 21 Sep 2012 18:20:26 +0200
 Subject: [PATCH] tcg/mips: use stack for TCG temps

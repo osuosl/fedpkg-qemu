@@ -1,4 +1,4 @@
-From ef07a05e357649d52058bcd980924b107a85fb56 Mon Sep 17 00:00:00 2001
+From ee33c50be7b814d6a4130e059de06a7e7ce40f22 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Mon, 3 Sep 2012 12:04:49 +0200
 Subject: [PATCH] usb-redir: Ensure our peer has the necessary caps when

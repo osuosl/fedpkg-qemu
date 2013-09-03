@@ -109,7 +109,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.2.2
-Release: 13%{?dist}
+Release: 14%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -563,6 +563,8 @@ Patch0724: 0724-docs-Fix-generating-qemu-doc.html-with-texinfo-5.patch
 Patch0725: 0725-qga-set-umask-0077-when-daemonizing-CVE-2013-2007.patch
 # Fix rtl8139 + windows 7 + large transfers (bz #970240)
 Patch0726: 0726-rtl8139-flush-queued-packets-when-RxBufPtr-is-writte.patch
+# Fix build with latest dtc (bz #1003187)
+Patch0727: 0727-configure-dtc-Probe-for-libfdt_env.h.patch
 
 
 BuildRequires: SDL-devel
@@ -1413,6 +1415,8 @@ CAC emulation development files.
 %patch0725 -p1
 # Fix rtl8139 + windows 7 + large transfers (bz #970240)
 %patch0726 -p1
+# Fix build with latest dtc (bz #1003187)
+%patch0727 -p1
 
 
 %build
@@ -1691,6 +1695,7 @@ make check
 # load kvm modules now, so we can make sure no reboot is needed.
 # If there's already a kvm module installed, we don't mess with it
 sh %{_sysconfdir}/sysconfig/modules/kvm.modules || :
+setfacl --remove-all /dev/kvm &> /dev/null || :
 udevadm trigger --subsystem-match=misc --sysname-match=kvm --action=add || :
 %endif
 
@@ -2022,6 +2027,10 @@ getent passwd qemu >/dev/null || \
 %{_libdir}/pkgconfig/libcacard.pc
 
 %changelog
+* Tue Sep 03 2013 Cole Robinson <crobinso@redhat.com> - 2:1.2.2-14
+- Fix build with latest dtc (bz #1003187)
+- Fix initial /dev/kvm permissions (bz #993491)
+
 * Wed Jun 19 2013 Cole Robinson <crobinso@redhat.com> - 2:1.2.2-13
 - Don't install conflicting binfmt handler on arm (bz #974804)
 

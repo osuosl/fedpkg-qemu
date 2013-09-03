@@ -1,4 +1,4 @@
-From 0ac82308def3b77162f0d9cecb11e6ffd2bd7939 Mon Sep 17 00:00:00 2001
+From 801d538f3969bf0f2775b300881e0ca42743cbeb Mon Sep 17 00:00:00 2001
 From: Lei Li <lilei@linux.vnet.ibm.com>
 Date: Thu, 23 Aug 2012 13:14:25 +0800
 Subject: [PATCH] qapi: Fix enumeration typo error

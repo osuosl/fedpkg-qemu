@@ -1,4 +1,4 @@
-From cd7309e7fdd000a9b595ab24e6b03d66100c6fde Mon Sep 17 00:00:00 2001
+From 1898718cb27b5dbed14283e353de362bc1e76a4d Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Tue, 28 Aug 2012 16:21:12 +0200
 Subject: [PATCH] ehci: Update copyright headers to reflect recent work

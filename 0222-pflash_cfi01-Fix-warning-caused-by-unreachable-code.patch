@@ -1,4 +1,4 @@
-From 4377b521568c8dca87cfb8fad5629b3203c08032 Mon Sep 17 00:00:00 2001
+From e2c56a8c8019f712be87bd20ce82eed275d9c174 Mon Sep 17 00:00:00 2001
 From: Stefan Weil <sw@weilnetz.de>
 Date: Sat, 1 Sep 2012 13:00:48 +0200
 Subject: [PATCH] pflash_cfi01: Fix warning caused by unreachable code

@@ -1,4 +1,4 @@
-From 848750a4acf9ea5c473be596d41720e702d770f0 Mon Sep 17 00:00:00 2001
+From 9b6076100dff3544167cde8a28de17f31e3db05b Mon Sep 17 00:00:00 2001
 From: Aurelien Jarno <aurelien@aurel32.net>
 Date: Mon, 10 Sep 2012 23:51:42 +0200
 Subject: [PATCH] tcg/optimize: remove TCG_TEMP_ANY

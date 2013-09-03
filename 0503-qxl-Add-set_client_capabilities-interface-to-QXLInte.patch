@@ -1,4 +1,4 @@
-From 6e338ef1256bd8672e9a03f6a57a76191d8538e7 Mon Sep 17 00:00:00 2001
+From f556930d53b6068d42baaa188d8116b16fd84a36 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?S=C3=B8ren=20Sandmann=20Pedersen?= <ssp@redhat.com>
 Date: Tue, 4 Sep 2012 10:14:48 -0400
 Subject: [PATCH] qxl: Add set_client_capabilities() interface to QXLInterface

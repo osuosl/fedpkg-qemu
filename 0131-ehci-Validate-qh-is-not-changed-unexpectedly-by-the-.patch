@@ -1,4 +1,4 @@
-From 46bfd14f89404e4a0eb93c3d9c5b9745724cee2d Mon Sep 17 00:00:00 2001
+From 724e396c771095873209d131a369cb3fee2449ed Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Wed, 29 Aug 2012 10:37:37 +0200
 Subject: [PATCH] ehci: Validate qh is not changed unexpectedly by the guest

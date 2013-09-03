@@ -1,4 +1,4 @@
-From d2b51c117c29bd6c643b38dee8e1f49572711c13 Mon Sep 17 00:00:00 2001
+From b4bb5e9d4003ae15d286dbcfdf74d47d42a36381 Mon Sep 17 00:00:00 2001
 From: Gerd Hoffmann <kraxel@redhat.com>
 Date: Fri, 24 Aug 2012 14:21:39 +0200
 Subject: [PATCH] xhci: move device lookup into xhci_setup_packet

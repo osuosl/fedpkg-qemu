@@ -1,4 +1,4 @@
-From 3d24d0452bb11e371c710a68b88f09c3accee51f Mon Sep 17 00:00:00 2001
+From a03da8089447d25511921d57d174d4d687bb3bf8 Mon Sep 17 00:00:00 2001
 From: Henning Schild <henning@hennsch.de>
 Date: Wed, 5 Sep 2012 14:56:39 +0200
 Subject: [PATCH] fix entry pointer for ELF kernels loaded with -kernel option

@@ -1,4 +1,4 @@
-From 98dc31743b94d5719c02c589e7cd652e95570b25 Mon Sep 17 00:00:00 2001
+From 4c199af6e9f2bc6242d971ed5d3052be6c18a98c Mon Sep 17 00:00:00 2001
 From: Aurelien Jarno <aurelien@aurel32.net>
 Date: Thu, 6 Sep 2012 16:47:14 +0200
 Subject: [PATCH] tcg/optimize: add constant folding for brcond

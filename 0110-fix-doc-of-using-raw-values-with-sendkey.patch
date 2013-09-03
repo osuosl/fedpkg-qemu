@@ -1,4 +1,4 @@
-From 211b2548bfbdab72051a7ef1e9982ff4ec0fd98f Mon Sep 17 00:00:00 2001
+From 4263264dbf1fafb49c3de1d77835b0aa5e5d0b6c Mon Sep 17 00:00:00 2001
 From: Amos Kong <akong@redhat.com>
 Date: Fri, 31 Aug 2012 10:56:20 +0800
 Subject: [PATCH] fix doc of using raw values with sendkey

@@ -1,4 +1,4 @@
-From 1687a813ebbb6915be5c103ba99221d11db5647f Mon Sep 17 00:00:00 2001
+From 8fc8e4f23a5de51034c9c39c54aee98ea6eb70d1 Mon Sep 17 00:00:00 2001
 From: Kevin Wolf <kwolf@redhat.com>
 Date: Fri, 26 Oct 2012 16:33:32 +0200
 Subject: [PATCH] qcow2: Fix refcount table size calculation

@@ -1,4 +1,4 @@
-From e84037892a04dac64104b43d0a6342aee4c4e6f4 Mon Sep 17 00:00:00 2001
+From 712f9b682d90378fb190f991642951a37cc19d73 Mon Sep 17 00:00:00 2001
 From: Gerd Hoffmann <kraxel@redhat.com>
 Date: Thu, 6 Sep 2012 12:03:41 +0200
 Subject: [PATCH] usb-host: allow emulated (non-async) control requests without

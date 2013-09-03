@@ -1,4 +1,4 @@
-From a5022829821b27e00790f8fe2fd9cd8090a47e36 Mon Sep 17 00:00:00 2001
+From e76df4508731e0e12c41a85890527adfa73f3309 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Mon, 10 Sep 2012 12:44:11 +0200
 Subject: [PATCH] ehci: Don't process too much frames in 1 timer tick (v2)

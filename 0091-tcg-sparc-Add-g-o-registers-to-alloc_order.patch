@@ -1,4 +1,4 @@
-From ca72cdf648b56d851c4bc9145a1abfcbeeec0579 Mon Sep 17 00:00:00 2001
+From 94073142a960c8933cc44f172d6ec64381c5b6c9 Mon Sep 17 00:00:00 2001
 From: Richard Henderson <rth@twiddle.net>
 Date: Sun, 25 Mar 2012 22:43:17 +0200
 Subject: [PATCH] tcg-sparc: Add %g/%o registers to alloc_order

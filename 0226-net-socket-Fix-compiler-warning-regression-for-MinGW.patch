@@ -1,4 +1,4 @@
-From 96f47b0d2c307173e0a545ea230e21f1ce8d3fa2 Mon Sep 17 00:00:00 2001
+From 649fc9f8faa6a2122b92fabebb8ee2b3e5a3b3cc Mon Sep 17 00:00:00 2001
 From: Stefan Weil <sw@weilnetz.de>
 Date: Sat, 22 Sep 2012 21:13:28 +0200
 Subject: [PATCH] net/socket: Fix compiler warning (regression for MinGW)

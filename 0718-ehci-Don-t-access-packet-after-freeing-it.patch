@@ -1,4 +1,4 @@
-From c6e419cb392d9e1cca5de66da2be7cb53277bf85 Mon Sep 17 00:00:00 2001
+From a45514e1d05579e7a718f95263bf10c0a58d3562 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Wed, 14 Nov 2012 16:21:36 +0000
 Subject: [PATCH] ehci: Don't access packet after freeing it

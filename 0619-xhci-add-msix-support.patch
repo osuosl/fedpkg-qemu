@@ -1,4 +1,4 @@
-From 30a07a691a444a4c9b7116d50ca1a6e8cf28db5c Mon Sep 17 00:00:00 2001
+From 907a573b9cacd0d22165aa0b34d3aea04b5d0bf9 Mon Sep 17 00:00:00 2001
 From: Gerd Hoffmann <kraxel@redhat.com>
 Date: Thu, 30 Aug 2012 12:06:59 +0200
 Subject: [PATCH] xhci: add msix support

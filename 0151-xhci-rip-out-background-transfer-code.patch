@@ -1,4 +1,4 @@
-From f9416f401c9eac3f69b4705a999c6ea1ff457016 Mon Sep 17 00:00:00 2001
+From 86d86813c7b6721666ae79762ada6c26f48c5c11 Mon Sep 17 00:00:00 2001
 From: Gerd Hoffmann <kraxel@redhat.com>
 Date: Fri, 17 Aug 2012 14:05:21 +0200
 Subject: [PATCH] xhci: rip out background transfer code

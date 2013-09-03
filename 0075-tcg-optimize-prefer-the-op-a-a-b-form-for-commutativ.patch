@@ -1,4 +1,4 @@
-From a0b71ad6a3f8aeb8b5ea6d112a7afeadc7c004a4 Mon Sep 17 00:00:00 2001
+From 229e24c570a934074df2ad1f7df991dc0ae6ad25 Mon Sep 17 00:00:00 2001
 From: Aurelien Jarno <aurelien@aurel32.net>
 Date: Wed, 19 Sep 2012 22:00:22 +0200
 Subject: [PATCH] tcg/optimize: prefer the "op a, a, b" form for commutative

@@ -1,4 +1,4 @@
-From 6dacb38ce3cb2ffe8c6e3a3a1bc86eee49d1e07c Mon Sep 17 00:00:00 2001
+From fe4cc3a63f3fcd9ded8e31028eb9b1f2afcf52e7 Mon Sep 17 00:00:00 2001
 From: Gerd Hoffmann <kraxel@redhat.com>
 Date: Thu, 30 Aug 2012 12:42:32 +0200
 Subject: [PATCH] xhci: fix runtime write tracepoint

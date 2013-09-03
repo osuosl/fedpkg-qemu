@@ -1,4 +1,4 @@
-From 9737abf4265d394434982e8f7db230084cf036cb Mon Sep 17 00:00:00 2001
+From 93ad80db8b7c356c6833012a7cf97eb216a1c20b Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Wed, 5 Sep 2012 15:56:57 +0200
 Subject: [PATCH] usb-redir: Add chardev open / close debug logging

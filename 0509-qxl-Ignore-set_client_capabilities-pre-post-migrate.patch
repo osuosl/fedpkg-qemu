@@ -1,4 +1,4 @@
-From a075bce1994a52556beada7d81195e1bfeafe609 Mon Sep 17 00:00:00 2001
+From ca4fed79d88ae1da90ed8cd6c4bd7e8ad2ff3020 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Fri, 7 Sep 2012 21:29:22 +0200
 Subject: [PATCH] qxl: Ignore set_client_capabilities pre/post migrate

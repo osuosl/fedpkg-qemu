@@ -1,4 +1,4 @@
-From e0b3fabbb6833242803f0b02848083e95aeaca6c Mon Sep 17 00:00:00 2001
+From 2f1c6ad70e01856863f7a69182237bf06e41bb71 Mon Sep 17 00:00:00 2001
 From: Gerd Hoffmann <kraxel@redhat.com>
 Date: Thu, 28 Feb 2013 11:08:50 +0100
 Subject: [PATCH] qxl: better vga init in enter_vga_mode

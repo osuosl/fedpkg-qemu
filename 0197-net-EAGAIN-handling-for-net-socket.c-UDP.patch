@@ -1,4 +1,4 @@
-From a2374b78f298d5755e96468bb97e4d7b660ff9d6 Mon Sep 17 00:00:00 2001
+From 9ac0b154ffa07fa3b5c059b03d9c5be2103d854e Mon Sep 17 00:00:00 2001
 From: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
 Date: Mon, 20 Aug 2012 10:28:53 +0100
 Subject: [PATCH] net: EAGAIN handling for net/socket.c UDP

@@ -1,4 +1,4 @@
-From 008e2fcbeea527c3aff3078ed5a178d59757bc28 Mon Sep 17 00:00:00 2001
+From 8bd760b469a799bd022fee131a19cd6b4b71c19a Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Tue, 28 Aug 2012 09:08:45 +0200
 Subject: [PATCH] usb-redir: Get rid of unused async-struct dev member

@@ -1,4 +1,4 @@
-From 2afae8c7d44a043e36038d5f6f600034ad2b2aca Mon Sep 17 00:00:00 2001
+From ae365d28c76b08f84456b6ff186db5b7ea8a3bb0 Mon Sep 17 00:00:00 2001
 From: Kevin Shanahan <kmshanah@disenchant.net>
 Date: Fri, 21 Sep 2012 08:50:22 +0930
 Subject: [PATCH] blockdev: preserve readonly and snapshot states across media

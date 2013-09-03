@@ -1,4 +1,4 @@
-From 0d67ff8e7dee8babc61c939946836cc8c74b05b1 Mon Sep 17 00:00:00 2001
+From 4444050b9c63fa41fdf38ac450905ad633fc1bcd Mon Sep 17 00:00:00 2001
 From: Gerd Hoffmann <kraxel@redhat.com>
 Date: Tue, 4 Sep 2012 11:39:41 +0200
 Subject: [PATCH] spice: make number of surfaces runtime-configurable.

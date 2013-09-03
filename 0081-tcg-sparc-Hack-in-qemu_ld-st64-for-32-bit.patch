@@ -1,4 +1,4 @@
-From da65fa6c51ef1c999ffc75a162e95285d4cb915b Mon Sep 17 00:00:00 2001
+From bdd02f4c48394d0753e765132f7e15ee1136c75f Mon Sep 17 00:00:00 2001
 From: Richard Henderson <rth@twiddle.net>
 Date: Sat, 24 Mar 2012 21:30:20 +0100
 Subject: [PATCH] tcg-sparc: Hack in qemu_ld/st64 for 32-bit.

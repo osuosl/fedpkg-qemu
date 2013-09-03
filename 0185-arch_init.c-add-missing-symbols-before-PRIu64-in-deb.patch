@@ -1,4 +1,4 @@
-From df075bd97f2d88969e3178ec9cb302f955d31737 Mon Sep 17 00:00:00 2001
+From f5fd54bfb540c6ac51c85ca93d8abd13b3c2bd21 Mon Sep 17 00:00:00 2001
 From: Igor Mitsyanko <i.mitsyanko@samsung.com>
 Date: Wed, 5 Sep 2012 13:04:56 +0400
 Subject: [PATCH] arch_init.c: add missing '%' symbols before PRIu64 in debug

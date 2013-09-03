@@ -1,4 +1,4 @@
-From 176b159d70cb26b24ce928497ae269b294e503d8 Mon Sep 17 00:00:00 2001
+From de789465376acdd1ea3ed038c2d5817e56c88114 Mon Sep 17 00:00:00 2001
 From: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
 Date: Mon, 20 Aug 2012 10:21:54 +0100
 Subject: [PATCH] net: asynchronous send/receive infrastructure for

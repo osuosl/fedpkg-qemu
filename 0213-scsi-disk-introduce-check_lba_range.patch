@@ -1,4 +1,4 @@
-From dd43bce420668dcde639c55bc792cedb1bb8c950 Mon Sep 17 00:00:00 2001
+From 84aaae5de632a6326e736a9fe55fcd84fde80bfd Mon Sep 17 00:00:00 2001
 From: Paolo Bonzini <pbonzini@redhat.com>
 Date: Wed, 5 Sep 2012 17:46:18 +0200
 Subject: [PATCH] scsi-disk: introduce check_lba_range

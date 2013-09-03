@@ -1,4 +1,4 @@
-From ade9c6dfbbf573c22800d7ff6df7f0de933e7c96 Mon Sep 17 00:00:00 2001
+From 6a6b9cc2d5e400b058bca0da3d6462ebed0b0648 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Wed, 12 Sep 2012 15:08:32 +0200
 Subject: [PATCH] ehci: Don't set seen to 0 when removing unseen queue-heads

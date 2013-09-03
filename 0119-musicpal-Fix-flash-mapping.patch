@@ -1,4 +1,4 @@
-From 2182aa5c2ca5a5a6bf9c2d06d18b3e2db3aa3c7a Mon Sep 17 00:00:00 2001
+From 6c8c0ad29914f84654267ec147e4223a28ac8ea3 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@web.de>
 Date: Sat, 8 Sep 2012 11:52:39 +0200
 Subject: [PATCH] musicpal: Fix flash mapping

@@ -1,4 +1,4 @@
-From 5f3abf0f58996748f93daff1542d9bbd99789196 Mon Sep 17 00:00:00 2001
+From 6fe4869a4e65422bd863f4648300b9bf842f0d09 Mon Sep 17 00:00:00 2001
 From: Alon Levy <alevy@redhat.com>
 Date: Thu, 29 Nov 2012 14:11:19 +0200
 Subject: [PATCH] configure: move vscclient binary under libcacard

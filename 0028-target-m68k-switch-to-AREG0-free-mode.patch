@@ -1,4 +1,4 @@
-From 2ace9fd11db103aecebf451aff3bc23838248667 Mon Sep 17 00:00:00 2001
+From 6c109ebaaae09fdebadceeb105d37dbd20bd2a31 Mon Sep 17 00:00:00 2001
 From: Blue Swirl <blauwirbel@gmail.com>
 Date: Sun, 2 Sep 2012 07:27:38 +0000
 Subject: [PATCH] target-m68k: switch to AREG0 free mode

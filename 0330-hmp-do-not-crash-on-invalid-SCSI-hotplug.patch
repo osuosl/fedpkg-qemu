@@ -1,4 +1,4 @@
-From 7c0aea40a3318d914d791f23a85d0c488cae60fe Mon Sep 17 00:00:00 2001
+From 94234bbb0657c37b0a0c4f69c32108a31bf4ca4d Mon Sep 17 00:00:00 2001
 From: Paolo Bonzini <pbonzini@redhat.com>
 Date: Fri, 23 Nov 2012 16:56:18 +0100
 Subject: [PATCH] hmp: do not crash on invalid SCSI hotplug

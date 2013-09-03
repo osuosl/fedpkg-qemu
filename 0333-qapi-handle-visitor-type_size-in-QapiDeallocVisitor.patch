@@ -1,4 +1,4 @@
-From 0e647462940092c7af035c69613c799fd65bd0cb Mon Sep 17 00:00:00 2001
+From 6e1431bdac779ef4c3332be51494eb7ae67826d9 Mon Sep 17 00:00:00 2001
 From: Stefan Hajnoczi <stefanha@redhat.com>
 Date: Mon, 26 Nov 2012 13:10:12 +0100
 Subject: [PATCH] qapi: handle visitor->type_size() in QapiDeallocVisitor

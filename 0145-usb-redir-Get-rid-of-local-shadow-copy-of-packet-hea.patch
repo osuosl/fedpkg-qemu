@@ -1,4 +1,4 @@
-From 40d22426e0e12f26c7bfa5848cf0a9857d52dc99 Mon Sep 17 00:00:00 2001
+From bcc020e525558589da4b725664cc3b78781f402b Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Tue, 28 Aug 2012 09:05:38 +0200
 Subject: [PATCH] usb-redir: Get rid of local shadow copy of packet headers

@@ -1,4 +1,4 @@
-From 7c3e573b364a65d4abce5266c376f4e77624b039 Mon Sep 17 00:00:00 2001
+From 7338fddbe058c6d68f93b3ceea881508629bbf6b Mon Sep 17 00:00:00 2001
 From: Aurelien Jarno <aurelien@aurel32.net>
 Date: Fri, 21 Sep 2012 18:20:26 +0200
 Subject: [PATCH] tcg/mips: implement deposit op on MIPS32R2

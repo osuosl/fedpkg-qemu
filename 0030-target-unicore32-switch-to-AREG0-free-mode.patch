@@ -1,4 +1,4 @@
-From 23ff6fa6a883d210aab33e09d0bb9470df5083fc Mon Sep 17 00:00:00 2001
+From 5968c571f5a53f6d8e20089649071bfebb12583e Mon Sep 17 00:00:00 2001
 From: Blue Swirl <blauwirbel@gmail.com>
 Date: Sun, 2 Sep 2012 07:42:33 +0000
 Subject: [PATCH] target-unicore32: switch to AREG0 free mode

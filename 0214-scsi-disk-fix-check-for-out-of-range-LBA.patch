@@ -1,4 +1,4 @@
-From 2fd88dcb7fdb90508a85c30a32516ff57f081cba Mon Sep 17 00:00:00 2001
+From f6e211c731f1197773920bc9e9ee8b8400b7face Mon Sep 17 00:00:00 2001
 From: Paolo Bonzini <pbonzini@redhat.com>
 Date: Wed, 5 Sep 2012 17:54:36 +0200
 Subject: [PATCH] scsi-disk: fix check for out-of-range LBA

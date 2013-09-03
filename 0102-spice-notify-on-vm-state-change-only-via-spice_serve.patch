@@ -1,4 +1,4 @@
-From c50f358fbd549b5ec3b5dd82e29ed06ce969e50a Mon Sep 17 00:00:00 2001
+From 43e6fcfb29f1b1196d0be526a640392606b39a2a Mon Sep 17 00:00:00 2001
 From: Yonit Halperin <yhalperi@redhat.com>
 Date: Tue, 21 Aug 2012 11:51:56 +0300
 Subject: [PATCH] spice: notify on vm state change only via

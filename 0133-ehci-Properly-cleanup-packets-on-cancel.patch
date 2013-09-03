@@ -1,4 +1,4 @@
-From 35fe185a5455160db638820211bad5aed45a669f Mon Sep 17 00:00:00 2001
+From 184cd01131b21f1c88fdf584903a031f6ea16e13 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Thu, 30 Aug 2012 15:00:33 +0200
 Subject: [PATCH] ehci: Properly cleanup packets on cancel

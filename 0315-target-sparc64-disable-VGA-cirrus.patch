@@ -1,4 +1,4 @@
-From d88afebe37fbaf40a5f43c1c82609abc69a629b3 Mon Sep 17 00:00:00 2001
+From 86bdf44c2a36411a6fee9beb934d3010a0ba7862 Mon Sep 17 00:00:00 2001
 From: Aurelien Jarno <aurelien@aurel32.net>
 Date: Mon, 22 Oct 2012 00:50:58 +0200
 Subject: [PATCH] target-sparc64: disable VGA cirrus

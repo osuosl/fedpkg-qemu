@@ -1,4 +1,4 @@
-From eb26fee60bcc7b1191395c21f41c22e5e4f24182 Mon Sep 17 00:00:00 2001
+From 3946ff444587b2efc3313ae4ac7dcf6c7f8bcf39 Mon Sep 17 00:00:00 2001
 From: Stefan Weil <sw@weilnetz.de>
 Date: Mon, 3 Sep 2012 09:25:16 +0000
 Subject: [PATCH] audio: Fix warning from static code analysis

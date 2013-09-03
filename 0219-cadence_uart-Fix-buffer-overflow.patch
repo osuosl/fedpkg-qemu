@@ -1,4 +1,4 @@
-From d563cd7529186355aa8dc11e2cc7d16342dca1c9 Mon Sep 17 00:00:00 2001
+From ce929be5ee48b9e0763e1326c083bd12c521671e Mon Sep 17 00:00:00 2001
 From: Stefan Weil <sw@weilnetz.de>
 Date: Sat, 1 Sep 2012 11:12:23 +0200
 Subject: [PATCH] cadence_uart: Fix buffer overflow

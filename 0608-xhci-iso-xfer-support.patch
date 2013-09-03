@@ -1,4 +1,4 @@
-From c578154e75f7dc2433bcde4180320b0bfd884e62 Mon Sep 17 00:00:00 2001
+From c9f1f764424448f509768d9432d3457ed522ebeb Mon Sep 17 00:00:00 2001
 From: Gerd Hoffmann <kraxel@redhat.com>
 Date: Fri, 24 Aug 2012 14:13:08 +0200
 Subject: [PATCH] xhci: iso xfer support

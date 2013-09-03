@@ -1,4 +1,4 @@
-From d03ab137143aeae21ab7bb4e8cab72e1f49b8309 Mon Sep 17 00:00:00 2001
+From 25dee96d63d77dcb793ab2057bae439fbecadd52 Mon Sep 17 00:00:00 2001
 From: Alon Levy <alevy@redhat.com>
 Date: Sun, 7 Oct 2012 17:03:35 +0200
 Subject: [PATCH] hw/qxl: qxl_dirty_surfaces: use uintptr_t

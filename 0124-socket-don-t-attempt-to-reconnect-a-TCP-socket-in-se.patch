@@ -1,4 +1,4 @@
-From 40874e295225675fec7b42bb8e015fb3f2065a69 Mon Sep 17 00:00:00 2001
+From f276ee7ea911244a07f4db52160f07ef08867a16 Mon Sep 17 00:00:00 2001
 From: Anthony Liguori <aliguori@us.ibm.com>
 Date: Wed, 5 Sep 2012 13:52:49 -0500
 Subject: [PATCH] socket: don't attempt to reconnect a TCP socket in server

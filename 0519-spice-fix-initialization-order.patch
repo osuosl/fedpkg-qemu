@@ -1,4 +1,4 @@
-From 13cc38946d570a43c1a913b8fb014c189e660ceb Mon Sep 17 00:00:00 2001
+From 0cdd689692d20f10545a2c522f1134388d7f2148 Mon Sep 17 00:00:00 2001
 From: Gerd Hoffmann <kraxel@redhat.com>
 Date: Fri, 2 Nov 2012 09:37:27 +0100
 Subject: [PATCH] spice: fix initialization order

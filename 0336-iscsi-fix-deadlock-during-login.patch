@@ -1,4 +1,4 @@
-From e450cd0c7256039a42167621ff8125067feca6ad Mon Sep 17 00:00:00 2001
+From ed6908292da25f5391109d9d145a0aeb5d1d30f7 Mon Sep 17 00:00:00 2001
 From: Peter Lieven <pl@dlhnet.de>
 Date: Sat, 17 Nov 2012 14:37:39 +0100
 Subject: [PATCH] iscsi: fix deadlock during login

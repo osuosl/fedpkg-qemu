@@ -1,4 +1,4 @@
-From 20936a5a29113b32aeb319ca5ebe2a754cd3e014 Mon Sep 17 00:00:00 2001
+From 84944d7bd7200d953f40b8522c11227ab4de030f Mon Sep 17 00:00:00 2001
 From: Stefan Weil <sw@weilnetz.de>
 Date: Fri, 14 Sep 2012 19:02:30 +0200
 Subject: [PATCH] configure: Allow builds without any system or user emulation

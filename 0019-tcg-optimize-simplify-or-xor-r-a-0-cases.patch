@@ -1,4 +1,4 @@
-From f69f9bd1a7a095ee153eea5422651780aef178b0 Mon Sep 17 00:00:00 2001
+From fe3f54361dd26369e5efb5c6f41d7fc2a817af22 Mon Sep 17 00:00:00 2001
 From: Aurelien Jarno <aurelien@aurel32.net>
 Date: Thu, 6 Sep 2012 16:47:14 +0200
 Subject: [PATCH] tcg/optimize: simplify or/xor r, a, 0 cases

@@ -1,4 +1,4 @@
-From 9c6751bf2b2c817c3f52a638566b99125a0ba0f1 Mon Sep 17 00:00:00 2001
+From b998279997e1f7d5341df54a247b7ece56750fcb Mon Sep 17 00:00:00 2001
 From: BALATON Zoltan <balaton@eik.bme.hu>
 Date: Wed, 22 Aug 2012 17:19:42 +0200
 Subject: [PATCH] console: Clean up bytes per pixel calculation

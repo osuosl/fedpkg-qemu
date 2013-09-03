@@ -1,4 +1,4 @@
-From 191a171e02de164ae03e0f90a6cdead6e2bd029f Mon Sep 17 00:00:00 2001
+From 4ce9c54234a391106923f962fadfc5641fed8fa5 Mon Sep 17 00:00:00 2001
 From: Bruce Rogers <brogers@suse.com>
 Date: Tue, 27 Nov 2012 13:11:25 -0700
 Subject: [PATCH] qapi: fix qapi_dealloc_type_size parameter type

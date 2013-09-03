@@ -1,4 +1,4 @@
-From bcbf10c15f43cfc079622c25ef282688965a7128 Mon Sep 17 00:00:00 2001
+From 643bf61b8a2283513ccbe736eab9556a9aeb614f Mon Sep 17 00:00:00 2001
 From: Paolo Bonzini <pbonzini@redhat.com>
 Date: Tue, 13 Nov 2012 10:34:17 +0100
 Subject: [PATCH] nbd: fixes to read-only handling

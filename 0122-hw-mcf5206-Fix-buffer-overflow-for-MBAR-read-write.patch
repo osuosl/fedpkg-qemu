@@ -1,4 +1,4 @@
-From 90c742c7f36f45249c62c0c5db2e138a604e44ac Mon Sep 17 00:00:00 2001
+From c8e5bc19b568e04c31ac56c19d20e5c50e16b7de Mon Sep 17 00:00:00 2001
 From: Stefan Weil <sw@weilnetz.de>
 Date: Tue, 4 Sep 2012 19:37:39 +0200
 Subject: [PATCH] hw/mcf5206: Fix buffer overflow for MBAR read / write

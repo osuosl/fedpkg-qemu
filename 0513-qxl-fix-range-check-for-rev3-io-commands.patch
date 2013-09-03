@@ -1,4 +1,4 @@
-From 7d349451b0b2561922927e45d7febeed514d7a86 Mon Sep 17 00:00:00 2001
+From c633df1be04c4a9e757a1645f3ff36a7aec01941 Mon Sep 17 00:00:00 2001
 From: Gerd Hoffmann <kraxel@redhat.com>
 Date: Tue, 25 Sep 2012 13:56:40 +0200
 Subject: [PATCH] qxl: fix range check for rev3 io commands.

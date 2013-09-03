@@ -1,4 +1,4 @@
-From f6df33dc89bfa16645e3a8b76e9457986c07b271 Mon Sep 17 00:00:00 2001
+From 9640ba89224217dbc1b94e12667cd6f847b94719 Mon Sep 17 00:00:00 2001
 From: Stefan Weil <sw@weilnetz.de>
 Date: Mon, 3 Sep 2012 21:19:11 +0200
 Subject: [PATCH] json-parser: Fix potential NULL pointer segfault

@@ -1,4 +1,4 @@
-From 3f7b149e9d80fee4274dfaf46eb7989420a9f046 Mon Sep 17 00:00:00 2001
+From 75389bc658711f6d410e78a28a8217800711dfd7 Mon Sep 17 00:00:00 2001
 From: Paolo Bonzini <pbonzini@redhat.com>
 Date: Fri, 23 Nov 2012 09:47:12 +0100
 Subject: [PATCH] qom: fix refcount of non-heap-allocated objects

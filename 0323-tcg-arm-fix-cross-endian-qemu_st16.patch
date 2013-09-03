@@ -1,4 +1,4 @@
-From c6f924c195da25e7211db91abfe0f2942d631509 Mon Sep 17 00:00:00 2001
+From 01dc1f3913245ad06c4a6e274648682c190a1cd6 Mon Sep 17 00:00:00 2001
 From: Aurelien Jarno <aurelien@aurel32.net>
 Date: Tue, 9 Oct 2012 21:53:11 +0200
 Subject: [PATCH] tcg/arm: fix cross-endian qemu_st16

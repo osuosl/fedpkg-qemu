@@ -1,4 +1,4 @@
-From 8daf993d3d75acea92ef5054c924c7d825ae812e Mon Sep 17 00:00:00 2001
+From c77ab77e583ec05e0fbf29e45e8976c8c1a069d8 Mon Sep 17 00:00:00 2001
 From: Peter Maydell <peter.maydell@linaro.org>
 Date: Wed, 19 Sep 2012 14:51:38 +0100
 Subject: [PATCH] arch_init.c: Improve '-soundhw help' for non-HAS_AUDIO_CHOICE

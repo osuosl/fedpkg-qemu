@@ -1,4 +1,4 @@
-From 675a9bdcd5bf5bd663ee58cf5e4be4acf12d34ce Mon Sep 17 00:00:00 2001
+From ba3a80ad644349bb2b10936635fc7a3e0a794f9e Mon Sep 17 00:00:00 2001
 From: Stefan Weil <sw@weilnetz.de>
 Date: Wed, 22 Aug 2012 21:42:32 +0200
 Subject: [PATCH] w32: Always use standard instead of native format strings

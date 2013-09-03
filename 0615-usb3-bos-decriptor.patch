@@ -1,4 +1,4 @@
-From 56e4093206b136735942b1fa94fc9826b489fac1 Mon Sep 17 00:00:00 2001
+From 9e2098ab16f2d07d95a3de4aa0876e107a5983d1 Mon Sep 17 00:00:00 2001
 From: Gerd Hoffmann <kraxel@redhat.com>
 Date: Tue, 28 Aug 2012 17:46:29 +0200
 Subject: [PATCH] usb3: bos decriptor

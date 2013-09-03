@@ -1,4 +1,4 @@
-From 0b95df52ecad351c916108e9f3a9d1bc3327b495 Mon Sep 17 00:00:00 2001
+From a520e49d09447cc6dbf5925d3e0d1c0fad304b07 Mon Sep 17 00:00:00 2001
 From: Aurelien Jarno <aurelien@aurel32.net>
 Date: Sat, 8 Sep 2012 03:45:43 +0000
 Subject: [PATCH] tcg/s390: fix ld/st with CONFIG_TCG_PASS_AREG0

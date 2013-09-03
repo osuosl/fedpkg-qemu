@@ -1,4 +1,4 @@
-From ead7a100e907eddd0ba9f3cebb5f84c1afb120b8 Mon Sep 17 00:00:00 2001
+From 569db8db7081ba480e60b5fc55f457793959e4f5 Mon Sep 17 00:00:00 2001
 From: Blue Swirl <blauwirbel@gmail.com>
 Date: Sun, 2 Sep 2012 07:33:38 +0000
 Subject: [PATCH] target-s390x: avoid AREG0 for condition code helpers

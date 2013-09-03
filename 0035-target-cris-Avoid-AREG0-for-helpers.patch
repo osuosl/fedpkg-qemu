@@ -1,4 +1,4 @@
-From 1e3916b0cbfd39cb3fc8996423d5574068583145 Mon Sep 17 00:00:00 2001
+From 90193bff4bc1aaec99135eed2d0d64d1a0c3fb59 Mon Sep 17 00:00:00 2001
 From: Aurelien Jarno <aurelien@aurel32.net>
 Date: Thu, 30 Aug 2012 16:56:39 +0200
 Subject: [PATCH] target-cris: Avoid AREG0 for helpers

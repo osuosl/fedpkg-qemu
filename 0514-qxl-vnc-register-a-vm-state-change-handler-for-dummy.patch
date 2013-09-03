@@ -1,4 +1,4 @@
-From 2c410bf8bafee23b4a4d1041b833645c6320851e Mon Sep 17 00:00:00 2001
+From 17fb11291217df11dc47a41bcb8a3403fb1704ad Mon Sep 17 00:00:00 2001
 From: Uri Lublin <uril@redhat.com>
 Date: Wed, 12 Dec 2012 16:30:47 +0000
 Subject: [PATCH] qxl+vnc: register a vm state change handler for dummy

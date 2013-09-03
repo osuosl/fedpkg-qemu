@@ -1,4 +1,4 @@
-From b4d71f364924655c47f7e54a9726e303c91978d1 Mon Sep 17 00:00:00 2001
+From ddeba1cfd2ea6560d529b25b4229a3341b355ed6 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Wed, 14 Nov 2012 16:21:37 +0000
 Subject: [PATCH] ehci: Fixup q->qtdaddr after cancelling an already completed

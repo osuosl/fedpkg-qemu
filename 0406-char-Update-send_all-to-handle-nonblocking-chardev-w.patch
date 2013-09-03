@@ -1,4 +1,4 @@
-From 0bb331d124049a9157c08bb1d3572493e6691f05 Mon Sep 17 00:00:00 2001
+From 4c5cec74d54b61c9738980030a16a2d5406e2820 Mon Sep 17 00:00:00 2001
 From: Amit Shah <amit.shah@redhat.com>
 Date: Mon, 21 Mar 2011 22:00:27 +0100
 Subject: [PATCH] char: Update send_all() to handle nonblocking chardev write

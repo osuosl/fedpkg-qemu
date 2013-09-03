@@ -1,4 +1,4 @@
-From d8503917ec9ba86829387f05db7da2eb6fa8123f Mon Sep 17 00:00:00 2001
+From bbe3ec30ffba86f1154ac3c2128aa2b366f0ad44 Mon Sep 17 00:00:00 2001
 From: Blue Swirl <blauwirbel@gmail.com>
 Date: Sat, 8 Sep 2012 11:15:37 +0000
 Subject: [PATCH] target-s390x: avoid cpu_single_env

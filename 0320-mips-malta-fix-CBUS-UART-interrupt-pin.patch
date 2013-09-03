@@ -1,4 +1,4 @@
-From e6cd59a324a330fe7fd50f3b91df4f34ad2ea111 Mon Sep 17 00:00:00 2001
+From c815f5b939ad9486865ba25eefa10ea496a6e6ef Mon Sep 17 00:00:00 2001
 From: Aurelien Jarno <aurelien@aurel32.net>
 Date: Wed, 14 Nov 2012 15:04:42 +0100
 Subject: [PATCH] mips/malta: fix CBUS UART interrupt pin

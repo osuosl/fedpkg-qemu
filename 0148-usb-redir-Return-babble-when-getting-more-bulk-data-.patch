@@ -1,4 +1,4 @@
-From 138e9d997e487dafbf686e0e1eba44a8b26dcaf7 Mon Sep 17 00:00:00 2001
+From 2daffb91f129dbe156a50c3df373f3db945074f2 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Tue, 28 Aug 2012 11:33:47 +0200
 Subject: [PATCH] usb-redir: Return babble when getting more bulk data then

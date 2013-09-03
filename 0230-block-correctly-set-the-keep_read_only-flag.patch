@@ -1,4 +1,4 @@
-From 48f550221420bd90ddca06c6c7492ea3aca9b644 Mon Sep 17 00:00:00 2001
+From 25eb004d45df9ebba75f66472031f55bd2a09384 Mon Sep 17 00:00:00 2001
 From: Jeff Cody <jcody@redhat.com>
 Date: Thu, 20 Sep 2012 15:13:17 -0400
 Subject: [PATCH] block: correctly set the keep_read_only flag

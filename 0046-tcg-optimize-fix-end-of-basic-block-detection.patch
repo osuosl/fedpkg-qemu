@@ -1,4 +1,4 @@
-From 4ce7a1e0aaecb220016af9b4f390b76f7fffcce8 Mon Sep 17 00:00:00 2001
+From 3066878819419c80c650e8f18aee284c36c6cc6e Mon Sep 17 00:00:00 2001
 From: Aurelien Jarno <aurelien@aurel32.net>
 Date: Wed, 19 Sep 2012 21:40:30 +0200
 Subject: [PATCH] tcg/optimize: fix end of basic block detection

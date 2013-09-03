@@ -1,4 +1,4 @@
-From a9fd3192a956ed1bce0f945f6b35bf9b162b30c3 Mon Sep 17 00:00:00 2001
+From b0e7708595e2e2ec31d5d930dfa5c3a56a98c952 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Mon, 27 Aug 2012 16:33:08 +0200
 Subject: [PATCH] usb-redir: Get rid of async-struct get member

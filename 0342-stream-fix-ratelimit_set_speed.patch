@@ -1,4 +1,4 @@
-From e56a0d717b356c4e847c1c5cf537c1382a1597ec Mon Sep 17 00:00:00 2001
+From 13bc9a103967c9ecba30e7fef6d757fadbff328a Mon Sep 17 00:00:00 2001
 From: Dietmar Maurer <dietmar@proxmox.com>
 Date: Wed, 24 Oct 2012 12:10:47 +0200
 Subject: [PATCH] stream: fix ratelimit_set_speed

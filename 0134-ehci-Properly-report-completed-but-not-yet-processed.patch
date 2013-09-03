@@ -1,4 +1,4 @@
-From c7251f2557d09ce4b8466eeccd0f3264c297c515 Mon Sep 17 00:00:00 2001
+From 19d8886d9a930e4d0a825dd1ff0ab69de6a5ca0b Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Thu, 30 Aug 2012 15:18:24 +0200
 Subject: [PATCH] ehci: Properly report completed but not yet processed packets

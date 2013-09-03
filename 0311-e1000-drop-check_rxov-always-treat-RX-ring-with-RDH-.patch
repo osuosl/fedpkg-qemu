@@ -1,4 +1,4 @@
-From 0b8f2583c9cd2b06b422c80ceec6a7f2641fc4e0 Mon Sep 17 00:00:00 2001
+From 4203e341557f60c4dc4757343e39bc201e8a8eba Mon Sep 17 00:00:00 2001
 From: Dmitry Fleytman <dmitry@daynix.com>
 Date: Fri, 19 Oct 2012 07:56:55 +0200
 Subject: [PATCH] e1000: drop check_rxov, always treat RX ring with RDH == RDT

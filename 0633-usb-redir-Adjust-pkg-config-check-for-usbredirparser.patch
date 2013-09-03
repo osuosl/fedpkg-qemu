@@ -1,4 +1,4 @@
-From 93e27ddf8c5e60eb932528cf1c560d81be108f96 Mon Sep 17 00:00:00 2001
+From cb24e7e9d70e39a8ac58995feda350c6450d41db Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Tue, 25 Sep 2012 13:22:21 +0200
 Subject: [PATCH] usb-redir: Adjust pkg-config check for usbredirparser .pc

@@ -1,4 +1,4 @@
-From 7c1a67bb734f364ea0643b549e030f04d4eed798 Mon Sep 17 00:00:00 2001
+From ecb4e3759e0cbd46852b84e604627725325fd244 Mon Sep 17 00:00:00 2001
 From: Aurelien Jarno <aurelien@aurel32.net>
 Date: Tue, 11 Sep 2012 16:18:49 +0200
 Subject: [PATCH] tcg/optimize: do copy propagation for all operations

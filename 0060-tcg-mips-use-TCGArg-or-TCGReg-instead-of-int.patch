@@ -1,4 +1,4 @@
-From 7b817977fbb87ee2e34018d92b64907197974a75 Mon Sep 17 00:00:00 2001
+From 2417514a55d2f449c3eb1d244f3d232327528917 Mon Sep 17 00:00:00 2001
 From: Aurelien Jarno <aurelien@aurel32.net>
 Date: Fri, 21 Sep 2012 18:20:26 +0200
 Subject: [PATCH] tcg/mips: use TCGArg or TCGReg instead of int

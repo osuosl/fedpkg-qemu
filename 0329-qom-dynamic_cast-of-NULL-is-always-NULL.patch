@@ -1,4 +1,4 @@
-From 6ec7c05b9b753df2058dda52b10b6943a5626036 Mon Sep 17 00:00:00 2001
+From b7846b2315003e75583a65e30cda84e533b8b501 Mon Sep 17 00:00:00 2001
 From: Paolo Bonzini <pbonzini@redhat.com>
 Date: Fri, 23 Nov 2012 16:56:17 +0100
 Subject: [PATCH] qom: dynamic_cast of NULL is always NULL

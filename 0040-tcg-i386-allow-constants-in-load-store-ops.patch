@@ -1,4 +1,4 @@
-From 83b25655bcd988054a2bb2a0a38dc662d4901b08 Mon Sep 17 00:00:00 2001
+From 1c8cfef602f6c17a618a6c00f8ac919204e51a97 Mon Sep 17 00:00:00 2001
 From: Aurelien Jarno <aurelien@aurel32.net>
 Date: Mon, 10 Sep 2012 13:56:24 +0200
 Subject: [PATCH] tcg/i386: allow constants in load/store ops

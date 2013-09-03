@@ -1,4 +1,4 @@
-From 1e597afb2b3581ddcda1eeac81475452520ae43f Mon Sep 17 00:00:00 2001
+From 2e96d542eed371bfcfb2e999a71b2b88bef96028 Mon Sep 17 00:00:00 2001
 From: Julio Guerra <guerr@julio.in>
 Date: Fri, 19 Oct 2012 00:17:13 +0000
 Subject: [PATCH] PPC: Fix missing TRACE exception

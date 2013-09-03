@@ -1,4 +1,4 @@
-From 044cadadb3bb63396a1e8d72a0c90673ccd7be98 Mon Sep 17 00:00:00 2001
+From c25623230650b19a74d653fb9f01b71ed060783e Mon Sep 17 00:00:00 2001
 From: Stefan Weil <sw@weilnetz.de>
 Date: Mon, 3 Sep 2012 22:56:00 +0200
 Subject: [PATCH] hw/wm8750: Fix potential buffer overflow

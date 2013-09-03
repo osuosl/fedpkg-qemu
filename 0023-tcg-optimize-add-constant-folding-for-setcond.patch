@@ -1,4 +1,4 @@
-From 1bbb9ac3e775b55d0d5c57c209f47e742a9be810 Mon Sep 17 00:00:00 2001
+From 83478c497090698dd1f46c6b5a6425e7ac4d9a6b Mon Sep 17 00:00:00 2001
 From: Aurelien Jarno <aurelien@aurel32.net>
 Date: Thu, 6 Sep 2012 16:47:14 +0200
 Subject: [PATCH] tcg/optimize: add constant folding for setcond

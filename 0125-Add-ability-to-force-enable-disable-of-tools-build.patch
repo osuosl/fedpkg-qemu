@@ -1,4 +1,4 @@
-From d9f498f4b7b7ca2ff96b4d87827713caea3743b5 Mon Sep 17 00:00:00 2001
+From a81d0a7f3e269679b53ff54083adc966475a107d Mon Sep 17 00:00:00 2001
 From: "Daniel P. Berrange" <berrange@redhat.com>
 Date: Mon, 10 Sep 2012 12:26:29 +0100
 Subject: [PATCH] Add ability to force enable/disable of tools build

@@ -1,4 +1,4 @@
-From 4007ba909e0188ed03d5a1fc1dde094d0ac14488 Mon Sep 17 00:00:00 2001
+From 47694021e532ef04ff0f4df67ed4da39e504852d Mon Sep 17 00:00:00 2001
 From: Dunrong Huang <riegamaths@gmail.com>
 Date: Fri, 31 Aug 2012 00:44:44 +0800
 Subject: [PATCH] qxl: dont update invalid area

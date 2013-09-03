@@ -1,4 +1,4 @@
-From 1c596a9498830485a1b2f4a4445643a149179b99 Mon Sep 17 00:00:00 2001
+From 7f4b231ccc54dd10dec3722771bf71ce60677b8e Mon Sep 17 00:00:00 2001
 From: Max Filippov <jcmvbkbc@gmail.com>
 Date: Fri, 21 Sep 2012 02:59:49 +0400
 Subject: [PATCH] target-xtensa: fix extui shift amount

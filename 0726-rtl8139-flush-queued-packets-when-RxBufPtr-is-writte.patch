@@ -1,4 +1,4 @@
-From f4bc1dee14b12c20c7464dc2b61446366a013dd6 Mon Sep 17 00:00:00 2001
+From d485597ad765eefdaa70d0cedc6baed9c764d993 Mon Sep 17 00:00:00 2001
 From: Stefan Hajnoczi <stefanha@redhat.com>
 Date: Wed, 22 May 2013 14:50:18 +0200
 Subject: [PATCH] rtl8139: flush queued packets when RxBufPtr is written

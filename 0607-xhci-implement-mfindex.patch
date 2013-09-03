@@ -1,4 +1,4 @@
-From 3529c46a54fcd3e1bc0bef97be254005177e5054 Mon Sep 17 00:00:00 2001
+From 9a7e60f9ab4b83d7faa5a88e5797407b29756307 Mon Sep 17 00:00:00 2001
 From: Gerd Hoffmann <kraxel@redhat.com>
 Date: Tue, 21 Aug 2012 12:32:58 +0200
 Subject: [PATCH] xhci: implement mfindex

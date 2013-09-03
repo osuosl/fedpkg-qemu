@@ -1,4 +1,4 @@
-From 39b2ed0e73ac5b220accf7116bdaecb71ce759af Mon Sep 17 00:00:00 2001
+From 97efa24f71b142e1a7b182c69db67cea0f0000a3 Mon Sep 17 00:00:00 2001
 From: Natanael Copa <natanael.copa@gmail.com>
 Date: Wed, 12 Sep 2012 09:06:51 +0000
 Subject: [PATCH] configure: properly check if -lrt and -lm is needed

@@ -1,4 +1,4 @@
-From b6407e30c30268cdeddec6e2b115f419647cc07f Mon Sep 17 00:00:00 2001
+From fb10603b1f812733e5b2eeb57d9a5bc5d3147239 Mon Sep 17 00:00:00 2001
 From: Aurelien Jarno <aurelien@aurel32.net>
 Date: Sun, 16 Sep 2012 13:12:21 +0200
 Subject: [PATCH] gdbstub/sh4: fix build with USE_SOFTFLOAT_STRUCT_TYPES

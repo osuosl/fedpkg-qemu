@@ -1,4 +1,4 @@
-From 154f1e30c09d261b12937c385632c05474989b02 Mon Sep 17 00:00:00 2001
+From d0ea794ae1ecc03518824a0d91447d0ffe35f7cb Mon Sep 17 00:00:00 2001
 From: Bo Yang <boyang@suse.com>
 Date: Wed, 29 Aug 2012 19:26:11 +0800
 Subject: [PATCH] eepro100: Fix network hang when rx buffers run out

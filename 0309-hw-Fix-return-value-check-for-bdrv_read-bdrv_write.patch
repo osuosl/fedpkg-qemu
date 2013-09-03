@@ -1,4 +1,4 @@
-From 4c9e1e2839d81b65a1b4a3a150c793d577e4ce70 Mon Sep 17 00:00:00 2001
+From 3708305e13b287803c33d99deb4d930835fdeff5 Mon Sep 17 00:00:00 2001
 From: Stefan Weil <sw@weilnetz.de>
 Date: Sun, 23 Sep 2012 08:51:01 +0200
 Subject: [PATCH] hw: Fix return value check for bdrv_read, bdrv_write

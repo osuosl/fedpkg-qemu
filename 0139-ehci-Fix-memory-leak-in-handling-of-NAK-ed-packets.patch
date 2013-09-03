@@ -1,4 +1,4 @@
-From 5d369bd44cf2611f47fec52c7402472cd2436b4a Mon Sep 17 00:00:00 2001
+From 6c48dcedcaf733a700513c32c555d03c623942d1 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Mon, 3 Sep 2012 11:01:13 +0200
 Subject: [PATCH] ehci: Fix memory leak in handling of NAK-ed packets

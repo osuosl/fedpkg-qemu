@@ -1,4 +1,4 @@
-From 3eb9b25ae5d2bcc024646c5a04f28899661ab14c Mon Sep 17 00:00:00 2001
+From d11cb977c11d498c9ee1db3192b9d8ec0227d591 Mon Sep 17 00:00:00 2001
 From: Blue Swirl <blauwirbel@gmail.com>
 Date: Sun, 2 Sep 2012 07:33:31 +0000
 Subject: [PATCH] target-s390x: split FPU ops

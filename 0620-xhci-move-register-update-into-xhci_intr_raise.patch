@@ -1,4 +1,4 @@
-From febd3b03f0bf3d108d201232e6f05c1d840f941d Mon Sep 17 00:00:00 2001
+From c6245049b3c4577619465fd5c9ec88c709f9f305 Mon Sep 17 00:00:00 2001
 From: Gerd Hoffmann <kraxel@redhat.com>
 Date: Thu, 30 Aug 2012 14:04:04 +0200
 Subject: [PATCH] xhci: move register update into xhci_intr_raise

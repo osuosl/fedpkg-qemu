@@ -1,4 +1,4 @@
-From c84ed39e601ff69d93e0ad81d92cb7234ad5d4cd Mon Sep 17 00:00:00 2001
+From 9bf88d4856ea45211d500fa6a1acbb61c497b7fe Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Mon, 10 Sep 2012 12:44:10 +0200
 Subject: [PATCH] ehci: Fix interrupts stopping when Interrupt Threshold

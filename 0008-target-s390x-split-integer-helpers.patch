@@ -1,4 +1,4 @@
-From e9f67c1f326a995ff0000a08a223435386867d8f Mon Sep 17 00:00:00 2001
+From 3c9b728bd92f8f11ab694705ce2a0782d476dcbc Mon Sep 17 00:00:00 2001
 From: Blue Swirl <blauwirbel@gmail.com>
 Date: Sun, 2 Sep 2012 07:33:33 +0000
 Subject: [PATCH] target-s390x: split integer helpers

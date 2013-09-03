@@ -1,4 +1,4 @@
-From 9fa75115d0f300817a372dd8b9460d6b65a30b20 Mon Sep 17 00:00:00 2001
+From 1e7b58a3d7c6bbe0f557c490f28c833b0c98303c Mon Sep 17 00:00:00 2001
 From: Christophe Fergeau <cfergeau@redhat.com>
 Date: Mon, 13 Aug 2012 10:32:32 +0200
 Subject: [PATCH] spice: abort on invalid streaming cmdline params

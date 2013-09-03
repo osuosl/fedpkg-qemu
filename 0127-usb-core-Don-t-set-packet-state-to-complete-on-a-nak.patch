@@ -1,4 +1,4 @@
-From bcd7c845fbfbafe03e320fbffcaa32417cfd5267 Mon Sep 17 00:00:00 2001
+From bf1728edd53fa868db209e71e7024cff6287d6b9 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Mon, 3 Sep 2012 12:33:44 +0200
 Subject: [PATCH] usb-core: Don't set packet state to complete on a nak

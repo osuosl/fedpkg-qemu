@@ -1,4 +1,4 @@
-From 2acbc7d596b022dca4fc147eb89e3d5f297acb1f Mon Sep 17 00:00:00 2001
+From a7e6a74efde077f4e1102cbb563f8b1bca1f8002 Mon Sep 17 00:00:00 2001
 From: Stefan Weil <sw@weilnetz.de>
 Date: Tue, 18 Sep 2012 22:43:38 +0200
 Subject: [PATCH] tci: Fix for AREG0 free mode

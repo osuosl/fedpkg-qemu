@@ -1,4 +1,4 @@
-From b303845e11bd656915198589294a0660002e6814 Mon Sep 17 00:00:00 2001
+From 56cb8139207993cc36b7221521564735f66a31f8 Mon Sep 17 00:00:00 2001
 From: Cole Robinson <crobinso@redhat.com>
 Date: Mon, 13 Aug 2012 18:39:54 -0400
 Subject: [PATCH] configure: Add --disable-kvm-options

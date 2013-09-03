@@ -1,4 +1,4 @@
-From d112b2fbcc278746037badfb96619b6a87c7b7a3 Mon Sep 17 00:00:00 2001
+From da9f0b690042ac817fd3b2ea896b567b70ee550f Mon Sep 17 00:00:00 2001
 From: Gerd Hoffmann <kraxel@redhat.com>
 Date: Wed, 5 Sep 2012 10:41:42 +0200
 Subject: [PATCH] spice: send updates only for changed screen content

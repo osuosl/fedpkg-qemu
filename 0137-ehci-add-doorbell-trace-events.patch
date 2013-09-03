@@ -1,4 +1,4 @@
-From bd1c78528cbd45629fe31127f5bde708263d6e17 Mon Sep 17 00:00:00 2001
+From 49231fba65e8e7f61658514f1dc525f9ab05200c Mon Sep 17 00:00:00 2001
 From: Gerd Hoffmann <kraxel@redhat.com>
 Date: Fri, 31 Aug 2012 12:41:43 +0200
 Subject: [PATCH] ehci: add doorbell trace events

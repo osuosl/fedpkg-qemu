@@ -1,4 +1,4 @@
-From 0a8b8d39763f05c7862dceec9d4f44e902a9d192 Mon Sep 17 00:00:00 2001
+From 668b771a36e2f547da4078b2ca27ac771d8adc5f Mon Sep 17 00:00:00 2001
 From: Stefan Weil <sw@weilnetz.de>
 Date: Mon, 3 Sep 2012 22:40:40 +0200
 Subject: [PATCH] kvm: Fix warning from static code analysis

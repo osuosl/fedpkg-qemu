@@ -1,4 +1,4 @@
-From 25ade2154673396e432de2b3c413865d1552c9b3 Mon Sep 17 00:00:00 2001
+From 7e8d33b027316936a7659007117b644b65bc01dd Mon Sep 17 00:00:00 2001
 From: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
 Date: Fri, 24 Aug 2012 13:50:30 +0100
 Subject: [PATCH] net: broadcast hub packets if at least one port can receive

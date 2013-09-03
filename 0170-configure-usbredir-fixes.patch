@@ -1,4 +1,4 @@
-From 00d9118be03020d3a905bd0a61f74eccd76edee9 Mon Sep 17 00:00:00 2001
+From 8cba2e90e7163eeab85afd5c76624d6b16d251ee Mon Sep 17 00:00:00 2001
 From: Aurelien Jarno <aurelien@aurel32.net>
 Date: Tue, 11 Sep 2012 20:57:58 +0200
 Subject: [PATCH] configure: usbredir fixes

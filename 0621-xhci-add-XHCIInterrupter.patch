@@ -1,4 +1,4 @@
-From 0d297b79dc199a7670c867e035d20a1f1b4a02e0 Mon Sep 17 00:00:00 2001
+From 015e8e070513cfa840a170aecd1f088fe536b9ce Mon Sep 17 00:00:00 2001
 From: Gerd Hoffmann <kraxel@redhat.com>
 Date: Thu, 30 Aug 2012 15:49:03 +0200
 Subject: [PATCH] xhci: add XHCIInterrupter

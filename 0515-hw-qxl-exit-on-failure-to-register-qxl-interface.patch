@@ -1,4 +1,4 @@
-From 8502c47123cbbb2f81b751780bdc8bc2fd3024ca Mon Sep 17 00:00:00 2001
+From f4cedc75e656a432a23157431195dcabaa20ed4a Mon Sep 17 00:00:00 2001
 From: Alon Levy <alevy@redhat.com>
 Date: Wed, 3 Oct 2012 20:13:58 +0200
 Subject: [PATCH] hw/qxl: exit on failure to register qxl interface

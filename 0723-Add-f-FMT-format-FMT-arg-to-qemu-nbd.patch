@@ -1,4 +1,4 @@
-From 849967d707bb55bfbe93feae78969aaeb5e71dfd Mon Sep 17 00:00:00 2001
+From a5ecab4962d52e7dcec96c7e99bade769fb8cf8b Mon Sep 17 00:00:00 2001
 From: "Daniel P. Berrange" <berrange@redhat.com>
 Date: Tue, 19 Mar 2013 11:20:20 +0000
 Subject: [PATCH] Add -f FMT / --format FMT arg to qemu-nbd

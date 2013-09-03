@@ -1,4 +1,4 @@
-From 985b8342244b5f76ed1df75eb8757d6feff30316 Mon Sep 17 00:00:00 2001
+From 35ea87c77d34e73fd685d5ba43b4de0d1c7456a1 Mon Sep 17 00:00:00 2001
 From: Blue Swirl <blauwirbel@gmail.com>
 Date: Sun, 2 Sep 2012 07:33:30 +0000
 Subject: [PATCH] target-s390x: fix style

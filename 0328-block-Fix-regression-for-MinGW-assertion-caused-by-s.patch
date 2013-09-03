@@ -1,4 +1,4 @@
-From 9eeac8cebac645531dd0b9d79710bea732e76c40 Mon Sep 17 00:00:00 2001
+From 767241bd6e8982aebff143967a5808224c61b83e Mon Sep 17 00:00:00 2001
 From: Stefan Weil <sw@weilnetz.de>
 Date: Thu, 22 Nov 2012 07:25:48 +0100
 Subject: [PATCH] block: Fix regression for MinGW (assertion caused by short

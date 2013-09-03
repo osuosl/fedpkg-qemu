@@ -1,4 +1,4 @@
-From c441420055790934d7f344800a46c7ae644002a4 Mon Sep 17 00:00:00 2001
+From 09b2573e4115f43a09d0c5d529d15b92b2d43d66 Mon Sep 17 00:00:00 2001
 From: Joel Martin <github@martintribe.org>
 Date: Wed, 16 May 2012 12:54:25 +0000
 Subject: [PATCH] ui/vnc: Only report/use TIGHT_PNG encoding if enabled.

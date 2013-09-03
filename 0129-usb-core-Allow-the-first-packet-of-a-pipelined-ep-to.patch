@@ -1,4 +1,4 @@
-From 2a2b40b145764ece12d0872ae5bb7b7ec2dc271f Mon Sep 17 00:00:00 2001
+From 80ee7fba60a11f36c280427bfbe395907c267fa1 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Mon, 3 Sep 2012 12:48:49 +0200
 Subject: [PATCH] usb-core: Allow the first packet of a pipelined ep to

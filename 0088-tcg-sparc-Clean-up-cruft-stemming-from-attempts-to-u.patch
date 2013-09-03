@@ -1,4 +1,4 @@
-From 5767c23140f2c92b899d9caeaa8e08711cb63868 Mon Sep 17 00:00:00 2001
+From 075fb033238d41d8602186f32bbdb330f1daf11e Mon Sep 17 00:00:00 2001
 From: Richard Henderson <rth@twiddle.net>
 Date: Sun, 25 Mar 2012 21:21:46 +0200
 Subject: [PATCH] tcg-sparc: Clean up cruft stemming from attempts to use

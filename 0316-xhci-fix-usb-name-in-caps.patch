@@ -1,4 +1,4 @@
-From 57f23d23f079eaea5605e636ba3fa5d1bd2fe377 Mon Sep 17 00:00:00 2001
+From 2665cef7d2df17086fa03328f3a0314b4dc55847 Mon Sep 17 00:00:00 2001
 From: Gerd Hoffmann <kraxel@redhat.com>
 Date: Wed, 24 Oct 2012 16:19:21 +0200
 Subject: [PATCH] xhci: fix usb name in caps

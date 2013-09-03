@@ -1,4 +1,4 @@
-From 3ee0b38d21a4ced7e7040666b523ab711bb4b20c Mon Sep 17 00:00:00 2001
+From 43c42f1487cf3f13f00f11b961d55b2722faeef9 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Tue, 4 Sep 2012 14:18:34 +0200
 Subject: [PATCH] usb-redir: Change cancelled packet code into a generic

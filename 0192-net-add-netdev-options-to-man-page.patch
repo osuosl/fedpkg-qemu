@@ -1,4 +1,4 @@
-From 773b0a456b236ccdcf1e5329992c0d4669f0af26 Mon Sep 17 00:00:00 2001
+From 9e7777a3b9824ddf7a23e3badcf07f903379827c Mon Sep 17 00:00:00 2001
 From: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
 Date: Tue, 14 Aug 2012 14:14:27 +0100
 Subject: [PATCH] net: add -netdev options to man page

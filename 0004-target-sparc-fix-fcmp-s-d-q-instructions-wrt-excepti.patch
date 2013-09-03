@@ -1,4 +1,4 @@
-From 5e955b895d4a92cdc49c7b4e76284483d49aa4b8 Mon Sep 17 00:00:00 2001
+From 304944bc4ff1b2d30d605d7af9d44286e0b17116 Mon Sep 17 00:00:00 2001
 From: Aurelien Jarno <aurelien@aurel32.net>
 Date: Fri, 7 Sep 2012 17:13:28 +0200
 Subject: [PATCH] target-sparc: fix fcmp{s,d,q} instructions wrt exception

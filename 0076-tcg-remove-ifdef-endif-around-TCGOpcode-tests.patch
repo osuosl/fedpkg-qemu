@@ -1,4 +1,4 @@
-From 3942910a66f682b98ac53ac2d2fba65b9c75eefd Mon Sep 17 00:00:00 2001
+From a16013b44c05b95548b5d340cb9b66a43a7fd4f1 Mon Sep 17 00:00:00 2001
 From: Aurelien Jarno <aurelien@aurel32.net>
 Date: Fri, 21 Sep 2012 10:02:45 +0200
 Subject: [PATCH] tcg: remove #ifdef #endif around TCGOpcode tests

@@ -1,4 +1,4 @@
-From 46193407875faf8a8be20dabc4ecfee4ceb6f1a3 Mon Sep 17 00:00:00 2001
+From 7ecf65f14f6c14e2bf12bef2bb313e62fe28cf10 Mon Sep 17 00:00:00 2001
 From: Stefan Weil <sw@weilnetz.de>
 Date: Sat, 1 Sep 2012 09:40:26 +0200
 Subject: [PATCH] qemu-sockets: Fix potential memory leak

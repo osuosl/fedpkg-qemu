@@ -1,4 +1,4 @@
-From 17df2130cd8be0cd6892b86103947746f95efc2c Mon Sep 17 00:00:00 2001
+From 2d2fd68b56eb21fcb6a0496e70435a37d92516dc Mon Sep 17 00:00:00 2001
 From: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
 Date: Mon, 20 Aug 2012 13:35:23 +0100
 Subject: [PATCH] net: do not report queued packets as sent

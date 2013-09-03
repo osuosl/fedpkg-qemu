@@ -1,4 +1,4 @@
-From 07a824f03fe1e820b5a0f19c380b19595ac0caa9 Mon Sep 17 00:00:00 2001
+From d6a6c617a00a1595bcc56c9f1d823189ad8ba43e Mon Sep 17 00:00:00 2001
 From: Paolo Bonzini <pbonzini@redhat.com>
 Date: Wed, 10 Oct 2012 14:30:58 +0200
 Subject: [PATCH] vnc: fix "info vnc" with "-vnc ..., reverse=on"

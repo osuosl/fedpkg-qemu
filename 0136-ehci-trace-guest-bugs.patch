@@ -1,4 +1,4 @@
-From 82b29b635d26ad0f5e14fabdf0956e9b8e7dbbfb Mon Sep 17 00:00:00 2001
+From 5ff965f0738d095b6e2ddc3a7dce48419cd9205f Mon Sep 17 00:00:00 2001
 From: Gerd Hoffmann <kraxel@redhat.com>
 Date: Fri, 31 Aug 2012 10:44:21 +0200
 Subject: [PATCH] ehci: trace guest bugs

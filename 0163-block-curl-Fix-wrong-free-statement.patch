@@ -1,4 +1,4 @@
-From a29b7f5390e33d089dcdbf75d6e92c20bbedc562 Mon Sep 17 00:00:00 2001
+From fcff99019db09b59416cfc8e2b22827c18dfcd9a Mon Sep 17 00:00:00 2001
 From: Stefan Weil <sw@weilnetz.de>
 Date: Sat, 1 Sep 2012 11:06:45 +0200
 Subject: [PATCH] block/curl: Fix wrong free statement

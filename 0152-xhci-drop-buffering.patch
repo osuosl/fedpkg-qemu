@@ -1,4 +1,4 @@
-From 985807ab66338c6a9cab8d68a2b52b0cff0423ee Mon Sep 17 00:00:00 2001
+From 2a5373bdca3e8c45c33dbe3c4867b13025b7fcb3 Mon Sep 17 00:00:00 2001
 From: Gerd Hoffmann <kraxel@redhat.com>
 Date: Fri, 17 Aug 2012 11:04:36 +0200
 Subject: [PATCH] xhci: drop buffering

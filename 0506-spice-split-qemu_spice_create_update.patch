@@ -1,4 +1,4 @@
-From fc15ba066a059c49cf1022345d7ac8fa24a1dd92 Mon Sep 17 00:00:00 2001
+From e1ea134930eec2c5d6190fbfba0675e28877e2a2 Mon Sep 17 00:00:00 2001
 From: Gerd Hoffmann <kraxel@redhat.com>
 Date: Wed, 5 Sep 2012 08:52:23 +0200
 Subject: [PATCH] spice: split qemu_spice_create_update

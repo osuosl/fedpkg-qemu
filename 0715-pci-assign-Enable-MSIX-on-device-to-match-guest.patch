@@ -1,4 +1,4 @@
-From 96a60c347aa7da64d34b8980ea13f4fd06b3d679 Mon Sep 17 00:00:00 2001
+From 3eeae6bf88b1d59e973864b5849d1368f86280ab Mon Sep 17 00:00:00 2001
 From: Alex Williamson <alex.williamson@redhat.com>
 Date: Sun, 6 Jan 2013 21:30:31 -0700
 Subject: [PATCH] pci-assign: Enable MSIX on device to match guest

@@ -1,4 +1,4 @@
-From 928865de80da6a23e6f0d4d86187c52f6c940255 Mon Sep 17 00:00:00 2001
+From 948c8d193abef29bd47e9217b4a347171a54a0c9 Mon Sep 17 00:00:00 2001
 From: Stefan Weil <sw@weilnetz.de>
 Date: Fri, 17 Aug 2012 15:23:24 +0200
 Subject: [PATCH] vdi: Fix warning from clang

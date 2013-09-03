@@ -1,4 +1,4 @@
-From 5d3868bb343df0c13240521e36d0cc942c7a2d04 Mon Sep 17 00:00:00 2001
+From b6b73085fe939404092998a6653e44643a8fd430 Mon Sep 17 00:00:00 2001
 From: Aurelien Jarno <aurelien@aurel32.net>
 Date: Wed, 26 Sep 2012 00:30:12 +0200
 Subject: [PATCH] tcg/i386: fix build with -march < i686

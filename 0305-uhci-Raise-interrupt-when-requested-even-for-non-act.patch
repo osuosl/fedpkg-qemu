@@ -1,4 +1,4 @@
-From 7fdcb0738e43e49ac3081cc28212c1b7985f8bae Mon Sep 17 00:00:00 2001
+From 9a3bf24a77e069326ff73f7ee21bf76a6541cb73 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Wed, 10 Oct 2012 15:50:36 +0200
 Subject: [PATCH] uhci: Raise interrupt when requested even for non active tds

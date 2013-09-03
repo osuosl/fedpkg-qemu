@@ -1,4 +1,4 @@
-From 14294fa1c903ab239bce3d2839e9e1883141b4f1 Mon Sep 17 00:00:00 2001
+From ceb326f476c6de05c10c81cb85f0ce3efd6776d3 Mon Sep 17 00:00:00 2001
 From: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
 Date: Fri, 24 Aug 2012 13:37:29 +0100
 Subject: [PATCH] net: fix usbnet_receive() packet drops

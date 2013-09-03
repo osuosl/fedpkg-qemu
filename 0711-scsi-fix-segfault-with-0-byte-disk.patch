@@ -1,4 +1,4 @@
-From ca525ebda9b0869bddd602c7ac2884ef5cf96507 Mon Sep 17 00:00:00 2001
+From 193d9de2948dac46db24484fef5ff3795df0e747 Mon Sep 17 00:00:00 2001
 From: Paolo Bonzini <pbonzini@redhat.com>
 Date: Thu, 10 Jan 2013 15:08:05 +0100
 Subject: [PATCH] scsi: fix segfault with 0-byte disk

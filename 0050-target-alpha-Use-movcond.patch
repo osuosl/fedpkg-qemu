@@ -1,4 +1,4 @@
-From 4bf321d3f494134fe2e03c9cbc042e28ec3a1045 Mon Sep 17 00:00:00 2001
+From 014ef59ba637f1013478653a48fc7d0b43545fcc Mon Sep 17 00:00:00 2001
 From: Richard Henderson <rth@twiddle.net>
 Date: Fri, 21 Sep 2012 10:13:35 -0700
 Subject: [PATCH] target-alpha: Use movcond

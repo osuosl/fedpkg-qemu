@@ -1,4 +1,4 @@
-From 45af32e160bf339974a74bb8a38384b95aa2f555 Mon Sep 17 00:00:00 2001
+From 2949c4c52537839ede95e28f08ce0ce5738b0e50 Mon Sep 17 00:00:00 2001
 From: David Gibson <david@gibson.dropbear.id.au>
 Date: Tue, 25 Sep 2012 17:12:20 +0000
 Subject: [PATCH] pseries: Don't test for MSR_PR for hypercalls under KVM

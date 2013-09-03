@@ -1,4 +1,4 @@
-From 91d2b5a0faa030cb437fbe99e94bb0720b03b44b Mon Sep 17 00:00:00 2001
+From a5d61499f0d19e53840d700e7535c13b972a14ec Mon Sep 17 00:00:00 2001
 From: Michael Roth <mdroth@linux.vnet.ibm.com>
 Date: Tue, 11 Dec 2012 15:09:44 -0600
 Subject: [PATCH] update VERSION for v1.2.2

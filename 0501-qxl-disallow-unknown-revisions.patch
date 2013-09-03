@@ -1,4 +1,4 @@
-From 0826dcf575c1f88b5082458d3876c2bfe0a1d9a3 Mon Sep 17 00:00:00 2001
+From 69f02f8570e4ba7233ee8bdd15b7c23e302ea407 Mon Sep 17 00:00:00 2001
 From: Alon Levy <alevy@redhat.com>
 Date: Tue, 21 Aug 2012 13:51:32 +0300
 Subject: [PATCH] qxl: disallow unknown revisions

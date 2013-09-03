@@ -1,4 +1,4 @@
-From 22bb4c416286bbfc340f65e5c7f286d96a731cc7 Mon Sep 17 00:00:00 2001
+From 4549596721636b62b8d58c36db7b4488f3f16a0e Mon Sep 17 00:00:00 2001
 From: Blue Swirl <blauwirbel@gmail.com>
 Date: Sun, 2 Sep 2012 10:37:06 +0000
 Subject: [PATCH] target-sh4: switch to AREG0 free mode

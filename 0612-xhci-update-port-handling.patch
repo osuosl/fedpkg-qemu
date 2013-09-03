@@ -1,4 +1,4 @@
-From 2ed404cacc625272fb7017476634b77002ee880b Mon Sep 17 00:00:00 2001
+From a316db87304f2b025dc323af952d1cad054d01bc Mon Sep 17 00:00:00 2001
 From: Gerd Hoffmann <kraxel@redhat.com>
 Date: Tue, 28 Aug 2012 13:38:01 +0200
 Subject: [PATCH] xhci: update port handling

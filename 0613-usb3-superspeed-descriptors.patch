@@ -1,4 +1,4 @@
-From 626f97d5fb771fadedccc9d05f6fea47b689c3bc Mon Sep 17 00:00:00 2001
+From 964dad12b48445be6e14d9ab57c326b815dadfcb Mon Sep 17 00:00:00 2001
 From: Gerd Hoffmann <kraxel@redhat.com>
 Date: Tue, 28 Aug 2012 17:28:50 +0200
 Subject: [PATCH] usb3: superspeed descriptors

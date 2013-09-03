@@ -1,4 +1,4 @@
-From 04edfbcf025b5588e0f3b86c74356a4339745f35 Mon Sep 17 00:00:00 2001
+From ba3e0a3391bf6523de1332fc1b5dc5c480649584 Mon Sep 17 00:00:00 2001
 From: Aurelien Jarno <aurelien@aurel32.net>
 Date: Fri, 21 Sep 2012 11:07:29 +0200
 Subject: [PATCH] tcg/optimize: add constant folding for deposit

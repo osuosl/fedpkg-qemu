@@ -1,4 +1,4 @@
-From 6f364e7d71769eeb134ebaa4c6cc5ffd214768d9 Mon Sep 17 00:00:00 2001
+From 8d94963135d206a7afb700628a463b78206d6513 Mon Sep 17 00:00:00 2001
 From: David Gibson <david@gibson.dropbear.id.au>
 Date: Fri, 23 Nov 2012 16:08:44 +1100
 Subject: [PATCH] virtio-scsi: Fix some endian bugs with virtio-scsi

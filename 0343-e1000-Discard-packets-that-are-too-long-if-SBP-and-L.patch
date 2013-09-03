@@ -1,4 +1,4 @@
-From 55c6a5611acc88b9c97fff3324fc743fafc6d0c7 Mon Sep 17 00:00:00 2001
+From 77ce8fdc0507e85cfdc0127538cb6fc9d9c2cecc Mon Sep 17 00:00:00 2001
 From: Michael Contreras <michael@inetric.com>
 Date: Sun, 2 Dec 2012 20:11:22 -0800
 Subject: [PATCH] e1000: Discard packets that are too long if !SBP and !LPE

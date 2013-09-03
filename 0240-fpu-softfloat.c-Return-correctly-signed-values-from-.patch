@@ -1,4 +1,4 @@
-From 41e7a1710ee9787900713a769b7d07677857260a Mon Sep 17 00:00:00 2001
+From d6ef534d5357e9b592cf6743f38688cf5bfaa280 Mon Sep 17 00:00:00 2001
 From: Peter Maydell <peter.maydell@linaro.org>
 Date: Fri, 28 Sep 2012 16:17:03 +0100
 Subject: [PATCH] fpu/softfloat.c: Return correctly signed values from

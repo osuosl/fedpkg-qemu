@@ -1,4 +1,4 @@
-From f08c59ce7dee67a95cf06d9588b4312e7d071788 Mon Sep 17 00:00:00 2001
+From 36326ed415fa251fb7dd2d8bfec1e02ffc8609f2 Mon Sep 17 00:00:00 2001
 From: Aurelien Jarno <aurelien@aurel32.net>
 Date: Thu, 6 Sep 2012 16:47:14 +0200
 Subject: [PATCH] tcg/optimize: simplify and r, a, 0 cases

@@ -1,4 +1,4 @@
-From e688bfbda0f6893b08d1e51f4fb26d4b38e922d4 Mon Sep 17 00:00:00 2001
+From f0d12ea05a0b69c9f27782dfba0af77d502cb0dc Mon Sep 17 00:00:00 2001
 From: Christian Borntraeger <borntraeger@de.ibm.com>
 Date: Fri, 10 Aug 2012 15:11:45 +0200
 Subject: [PATCH] qemu: Use valgrind annotations to mark kvm guest memory as

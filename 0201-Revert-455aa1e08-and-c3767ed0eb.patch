@@ -1,4 +1,4 @@
-From 423df48a1277f20511f21f4d249ea977aa4fa721 Mon Sep 17 00:00:00 2001
+From 8ed315bfd095856ad0c8a6d1d81d2f8b1ffe430b Mon Sep 17 00:00:00 2001
 From: Anthony Liguori <aliguori@us.ibm.com>
 Date: Wed, 12 Sep 2012 14:34:07 -0500
 Subject: [PATCH] Revert 455aa1e08 and c3767ed0eb

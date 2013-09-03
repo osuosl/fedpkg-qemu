@@ -1,4 +1,4 @@
-From 9a4f545e4526f946613548a427fcab4c2a089ac0 Mon Sep 17 00:00:00 2001
+From 4818ab7f1cad3d14e933f3bf5781ba3d5d1373a7 Mon Sep 17 00:00:00 2001
 From: Aurelien Jarno <aurelien@aurel32.net>
 Date: Fri, 21 Sep 2012 18:20:26 +0200
 Subject: [PATCH] tcg/mips: don't use global pointer

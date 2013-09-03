@@ -1,4 +1,4 @@
-From 061d22ad76512e8ec10af89eda1dcc7c185360d2 Mon Sep 17 00:00:00 2001
+From 271d71e9ebfec527e61b6e793599cb3112aa6227 Mon Sep 17 00:00:00 2001
 From: Aurelien Jarno <aurelien@aurel32.net>
 Date: Fri, 21 Sep 2012 18:20:25 +0200
 Subject: [PATCH] tcg-mips: fix wrong usage of 'Z' constraint

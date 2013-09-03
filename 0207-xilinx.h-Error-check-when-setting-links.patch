@@ -1,4 +1,4 @@
-From bfec52da020f35304f4e059bf4725fe01dbdd154 Mon Sep 17 00:00:00 2001
+From 13b54c48dfc00101273f93c402a92681ce37db2d Mon Sep 17 00:00:00 2001
 From: "Peter A. G. Crosthwaite" <peter.crosthwaite@petalogix.com>
 Date: Mon, 17 Sep 2012 13:41:39 +1000
 Subject: [PATCH] xilinx.h: Error check when setting links

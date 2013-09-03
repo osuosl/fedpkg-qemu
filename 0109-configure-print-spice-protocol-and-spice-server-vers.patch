@@ -1,4 +1,4 @@
-From b132bd0cdb4d684105b91a8173c172296cd191af Mon Sep 17 00:00:00 2001
+From 734f2d30608fcbe82db17a62653c825f70463a90 Mon Sep 17 00:00:00 2001
 From: Alon Levy <alevy@redhat.com>
 Date: Wed, 22 Aug 2012 11:16:26 +0300
 Subject: [PATCH] configure: print spice-protocol and spice-server versions

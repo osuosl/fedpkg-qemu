@@ -1,4 +1,4 @@
-From 358b29311255c2277ec4d0ca1eefd29882dee006 Mon Sep 17 00:00:00 2001
+From c862037379d47d3b66faafbb84605e65ac5db01a Mon Sep 17 00:00:00 2001
 From: Yonit Halperin <yhalperi@redhat.com>
 Date: Wed, 28 Nov 2012 10:08:22 -0500
 Subject: [PATCH] qxl: reload memslots after migration, when qxl is in

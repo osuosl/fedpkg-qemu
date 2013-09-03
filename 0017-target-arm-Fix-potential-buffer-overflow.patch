@@ -1,4 +1,4 @@
-From e7c3f6b4365f3162f8e25d58f76410aca28719a2 Mon Sep 17 00:00:00 2001
+From d3bcdbc63927557fa949194b0a977873794b701b Mon Sep 17 00:00:00 2001
 From: Stefan Weil <sw@weilnetz.de>
 Date: Tue, 4 Sep 2012 07:35:57 +0200
 Subject: [PATCH] target-arm: Fix potential buffer overflow

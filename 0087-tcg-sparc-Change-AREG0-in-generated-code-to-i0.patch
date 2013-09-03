@@ -1,4 +1,4 @@
-From d526285d4339f02e3be64a7287d1e009dd5bff3d Mon Sep 17 00:00:00 2001
+From 32f94d904dabe209a7d66c28bd7015d4268f8083 Mon Sep 17 00:00:00 2001
 From: Richard Henderson <rth@twiddle.net>
 Date: Sun, 25 Mar 2012 19:52:11 +0200
 Subject: [PATCH] tcg-sparc: Change AREG0 in generated code to %i0.

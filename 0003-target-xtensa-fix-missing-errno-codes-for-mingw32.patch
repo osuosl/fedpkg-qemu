@@ -1,4 +1,4 @@
-From 33e25a4a6c6dc7632b15ee50637d33b4c3cf729e Mon Sep 17 00:00:00 2001
+From 86eaada772e86d7049155ef84385b9e553c40dc4 Mon Sep 17 00:00:00 2001
 From: Max Filippov <jcmvbkbc@gmail.com>
 Date: Thu, 6 Sep 2012 04:36:46 +0400
 Subject: [PATCH] target-xtensa: fix missing errno codes for mingw32

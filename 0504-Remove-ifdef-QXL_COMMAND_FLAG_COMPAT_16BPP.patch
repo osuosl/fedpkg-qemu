@@ -1,4 +1,4 @@
-From 2c3ddbb6b2b53fd06dfd3d5c1fd4c95bc4d8fa28 Mon Sep 17 00:00:00 2001
+From 00f0e24b96265ab9432bfd3504b4e4553f0eb565 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?S=C3=B8ren=20Sandmann=20Pedersen?= <ssp@redhat.com>
 Date: Tue, 4 Sep 2012 10:14:49 -0400
 Subject: [PATCH] Remove #ifdef QXL_COMMAND_FLAG_COMPAT_16BPP

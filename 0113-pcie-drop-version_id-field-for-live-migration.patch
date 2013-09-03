@@ -1,4 +1,4 @@
-From 7544abf3b783fc82b031d40d0685d2047709492a Mon Sep 17 00:00:00 2001
+From aa487e4e6ee6e2c9863ca0494c85682a362b07d1 Mon Sep 17 00:00:00 2001
 From: Jason Baron <jbaron@redhat.com>
 Date: Wed, 8 Aug 2012 14:29:12 -0400
 Subject: [PATCH] pcie: drop version_id field for live migration

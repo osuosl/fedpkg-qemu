@@ -1,4 +1,4 @@
-From 8557d38b8d660d07c7b6fd1bfa62182cc6c52400 Mon Sep 17 00:00:00 2001
+From 8cf5a1be042202e1ad927bd17b95782e80dfd36e Mon Sep 17 00:00:00 2001
 From: Stefan Weil <sw@weilnetz.de>
 Date: Mon, 3 Sep 2012 22:13:56 +0200
 Subject: [PATCH] ide: Fix error messages from static code analysis (no real

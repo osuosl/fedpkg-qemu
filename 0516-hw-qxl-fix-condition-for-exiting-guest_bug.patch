@@ -1,4 +1,4 @@
-From 35bc51bb66018c3b387c735070612cd81200a2f9 Mon Sep 17 00:00:00 2001
+From efbc6ec68313d280377ce101e896f5a437be8588 Mon Sep 17 00:00:00 2001
 From: Alon Levy <alevy@redhat.com>
 Date: Tue, 2 Oct 2012 11:39:14 +0200
 Subject: [PATCH] hw/qxl: fix condition for exiting guest_bug

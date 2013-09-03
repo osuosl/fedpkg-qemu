@@ -1,4 +1,4 @@
-From f9b8c1e3044cb4c221ea0c971630bf1f348af848 Mon Sep 17 00:00:00 2001
+From 97e344d7c46b55590058d52b75e1a46a2af7c749 Mon Sep 17 00:00:00 2001
 From: Gerd Hoffmann <kraxel@redhat.com>
 Date: Tue, 4 Sep 2012 14:42:20 +0200
 Subject: [PATCH] xhci: kill xhci_mem_{read,write} dispatcher functions

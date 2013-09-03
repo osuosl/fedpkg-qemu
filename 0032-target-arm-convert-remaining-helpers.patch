@@ -1,4 +1,4 @@
-From 18e713cf6b5ae2e7c48bb412c959c10322bef5e5 Mon Sep 17 00:00:00 2001
+From 61624377f16e1d69787000fd527c2219dd0ec326 Mon Sep 17 00:00:00 2001
 From: Blue Swirl <blauwirbel@gmail.com>
 Date: Tue, 4 Sep 2012 20:19:15 +0000
 Subject: [PATCH] target-arm: convert remaining helpers

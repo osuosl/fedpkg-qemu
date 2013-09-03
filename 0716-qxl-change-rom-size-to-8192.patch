@@ -1,4 +1,4 @@
-From b0929a65ac12a63a5b38f27261b13cf76ef7755e Mon Sep 17 00:00:00 2001
+From 47a100efb664074c1fd4b7c35d0262ff4033c387 Mon Sep 17 00:00:00 2001
 From: Alon Levy <alevy@redhat.com>
 Date: Mon, 21 Jan 2013 14:48:07 +0200
 Subject: [PATCH] qxl: change rom size to 8192

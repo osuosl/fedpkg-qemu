@@ -1,4 +1,4 @@
-From 2f56ee52ed70bed32de06ba1c9ef22e4d4d504f0 Mon Sep 17 00:00:00 2001
+From ff332375e248457d9e18eefabb1bc42feba8feed Mon Sep 17 00:00:00 2001
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Date: Mon, 24 Sep 2012 13:11:07 +0200
 Subject: [PATCH] Refactor inet_connect_opts function

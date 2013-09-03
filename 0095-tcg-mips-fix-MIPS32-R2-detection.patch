@@ -1,4 +1,4 @@
-From 66588d01b8cb710d746c249a34f31f7f353bc697 Mon Sep 17 00:00:00 2001
+From 6db3527cb219b6efe1931cb004d3b0d908238a1e Mon Sep 17 00:00:00 2001
 From: Aurelien Jarno <aurelien@aurel32.net>
 Date: Sat, 22 Sep 2012 23:08:38 +0200
 Subject: [PATCH] tcg/mips: fix MIPS32(R2) detection

@@ -1,4 +1,4 @@
-From ba9c2acb955f0453ae80077a791a4d1c27b5d6e6 Mon Sep 17 00:00:00 2001
+From fc976b44ecc603bfd16a1d03fb17d894a0bf0acd Mon Sep 17 00:00:00 2001
 From: Max Filippov <jcmvbkbc@gmail.com>
 Date: Fri, 21 Sep 2012 02:59:50 +0400
 Subject: [PATCH] target-xtensa: don't emit extra tcg_gen_goto_tb

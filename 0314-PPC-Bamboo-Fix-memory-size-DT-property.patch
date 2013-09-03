@@ -1,4 +1,4 @@
-From ef7b114db1a56aaa69cb872ea0212a8cbe5c438d Mon Sep 17 00:00:00 2001
+From 7c7179362e51af8a56aa88c56ff1639ba67a5ead Mon Sep 17 00:00:00 2001
 From: Alexander Graf <agraf@suse.de>
 Date: Sat, 6 Oct 2012 02:02:05 +0200
 Subject: [PATCH] PPC: Bamboo: Fix memory size DT property

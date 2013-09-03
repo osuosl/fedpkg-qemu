@@ -1,4 +1,4 @@
-From 707f294ca28977968fb85bf36f10c6b37b16f557 Mon Sep 17 00:00:00 2001
+From 638f396d14fbd84884e17333838f3515bbb9a789 Mon Sep 17 00:00:00 2001
 From: Max Filippov <jcmvbkbc@gmail.com>
 Date: Wed, 29 Aug 2012 23:54:25 +0400
 Subject: [PATCH] target-xtensa: convert host errno values to guest

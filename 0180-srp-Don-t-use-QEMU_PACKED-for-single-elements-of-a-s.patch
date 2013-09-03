@@ -1,4 +1,4 @@
-From 66cbaa761bc0f6d528957f9e3bc5762acb7f5f1c Mon Sep 17 00:00:00 2001
+From da65bc928a6227a39c3896aa672a7619e2950fef Mon Sep 17 00:00:00 2001
 From: Stefan Weil <sw@weilnetz.de>
 Date: Fri, 10 Aug 2012 22:03:27 +0200
 Subject: [PATCH] srp: Don't use QEMU_PACKED for single elements of a

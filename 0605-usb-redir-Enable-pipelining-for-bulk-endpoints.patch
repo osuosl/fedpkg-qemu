@@ -1,4 +1,4 @@
-From 71b8edadc72990f1f987a8b39ab2fc10582b454d Mon Sep 17 00:00:00 2001
+From 0a92a6735d699350e015b9f8076a9e2199a05477 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Mon, 3 Sep 2012 13:44:04 +0200
 Subject: [PATCH] usb-redir: Enable pipelining for bulk endpoints

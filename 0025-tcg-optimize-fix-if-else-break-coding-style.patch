@@ -1,4 +1,4 @@
-From b7dc881b44c3698a0a81d226d6012d3c5833fd29 Mon Sep 17 00:00:00 2001
+From e887688b8e39a2abad0707b080f3282306c1c8bf Mon Sep 17 00:00:00 2001
 From: Aurelien Jarno <aurelien@aurel32.net>
 Date: Fri, 7 Sep 2012 12:24:32 +0200
 Subject: [PATCH] tcg/optimize: fix if/else/break coding style

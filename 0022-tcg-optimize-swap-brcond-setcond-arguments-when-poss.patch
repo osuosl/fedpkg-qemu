@@ -1,4 +1,4 @@
-From 1127ad0d084f0cef11b5658b3dbbf8505d8d3af0 Mon Sep 17 00:00:00 2001
+From 17bc74a53ebc1a49bcd1f556f35eebfd65a64b12 Mon Sep 17 00:00:00 2001
 From: Aurelien Jarno <aurelien@aurel32.net>
 Date: Thu, 6 Sep 2012 16:47:14 +0200
 Subject: [PATCH] tcg/optimize: swap brcond/setcond arguments when possible

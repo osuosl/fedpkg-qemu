@@ -1,4 +1,4 @@
-From d01c76a8d9d0d80ba00a407103e7b79112a21fce Mon Sep 17 00:00:00 2001
+From 12fd21226c677f1d017eee19cf1d1ceba9911614 Mon Sep 17 00:00:00 2001
 From: Stefan Weil <sw@weilnetz.de>
 Date: Sat, 1 Sep 2012 09:30:39 +0200
 Subject: [PATCH] qapi: Fix potential NULL pointer segfault

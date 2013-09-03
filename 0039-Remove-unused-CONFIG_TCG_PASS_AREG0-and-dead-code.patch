@@ -1,4 +1,4 @@
-From 3ec8ca067ea6617b5bd4423d0b40c894b39a4924 Mon Sep 17 00:00:00 2001
+From bca0704da7e5430b1a09a956dec8027fe2c2ca95 Mon Sep 17 00:00:00 2001
 From: Blue Swirl <blauwirbel@gmail.com>
 Date: Sun, 2 Sep 2012 15:28:56 +0000
 Subject: [PATCH] Remove unused CONFIG_TCG_PASS_AREG0 and dead code

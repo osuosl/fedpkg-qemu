@@ -1,4 +1,4 @@
-From 36f7af3f8bfd2c16f2e6c4b61d9564d5cfdd2394 Mon Sep 17 00:00:00 2001
+From 8b4c99fb437a9b254359f122de0e201e6b4c1424 Mon Sep 17 00:00:00 2001
 From: Orit Wasserman <owasserm@redhat.com>
 Date: Mon, 24 Sep 2012 13:11:08 +0200
 Subject: [PATCH] Separate inet_connect into inet_connect (blocking) and

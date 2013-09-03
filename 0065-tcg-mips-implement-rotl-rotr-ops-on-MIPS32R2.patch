@@ -1,4 +1,4 @@
-From d19858a5515cd15dabf88b8f180754c1c3f3eb76 Mon Sep 17 00:00:00 2001
+From 2b72ceb3526bbfd08e9874ba895f965f41306fcc Mon Sep 17 00:00:00 2001
 From: Aurelien Jarno <aurelien@aurel32.net>
 Date: Fri, 21 Sep 2012 18:20:26 +0200
 Subject: [PATCH] tcg/mips: implement rotl/rotr ops on MIPS32R2

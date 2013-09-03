@@ -1,4 +1,4 @@
-From 868600d91f1c165cdd91f293870af0ca351c6025 Mon Sep 17 00:00:00 2001
+From d53c61843771720fc5cf0ed74b4e76b912813cc5 Mon Sep 17 00:00:00 2001
 From: Paolo Bonzini <pbonzini@redhat.com>
 Date: Fri, 22 Feb 2013 18:14:28 +0100
 Subject: [PATCH] iscsi: look for pkg-config file too

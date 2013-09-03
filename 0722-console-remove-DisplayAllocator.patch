@@ -1,4 +1,4 @@
-From 82ffa03f372852a8e34775bf49a345a120b22be0 Mon Sep 17 00:00:00 2001
+From 984836153d323fde6d2714542596913c19a98c42 Mon Sep 17 00:00:00 2001
 From: Gerd Hoffmann <kraxel@redhat.com>
 Date: Tue, 16 Apr 2013 17:06:56 +0200
 Subject: [PATCH] console: remove DisplayAllocator

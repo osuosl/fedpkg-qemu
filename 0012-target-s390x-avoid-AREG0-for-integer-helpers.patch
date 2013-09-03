@@ -1,4 +1,4 @@
-From d44b8c2cacaa50e7420f0dfaf42c344bcf134431 Mon Sep 17 00:00:00 2001
+From b81c73d5f5fcf2ed6446ecf887351fa60129359b Mon Sep 17 00:00:00 2001
 From: Blue Swirl <blauwirbel@gmail.com>
 Date: Sun, 2 Sep 2012 07:33:37 +0000
 Subject: [PATCH] target-s390x: avoid AREG0 for integer helpers

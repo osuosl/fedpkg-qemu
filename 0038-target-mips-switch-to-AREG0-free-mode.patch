@@ -1,4 +1,4 @@
-From 8ad14b12fbe7555da2b2f0f1f28e07b8a34b686c Mon Sep 17 00:00:00 2001
+From f73f93108dcec69c32f14b6adee56b42b0ca955a Mon Sep 17 00:00:00 2001
 From: Blue Swirl <blauwirbel@gmail.com>
 Date: Sun, 2 Sep 2012 14:52:59 +0000
 Subject: [PATCH] target-mips: switch to AREG0 free mode

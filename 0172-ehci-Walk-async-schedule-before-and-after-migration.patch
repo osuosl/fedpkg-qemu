@@ -1,4 +1,4 @@
-From 6b145e32e9e219c723b4911aac0a96ea2aa70e77 Mon Sep 17 00:00:00 2001
+From c8c0bea0209adabadc9649a556f7427cdd1664af Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Wed, 12 Sep 2012 15:08:33 +0200
 Subject: [PATCH] ehci: Walk async schedule before and after migration

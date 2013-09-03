@@ -1,4 +1,4 @@
-From 949f263f90b97dadae23ad205c4c5a3671ecb3aa Mon Sep 17 00:00:00 2001
+From a8bb0ad1185b51d6b42930d8074095c8885d9f7a Mon Sep 17 00:00:00 2001
 From: Hitoshi Mitake <h.mitake@gmail.com>
 Date: Sat, 15 Sep 2012 01:15:41 +0900
 Subject: [PATCH] curses: don't initialize curses when qemu is daemonized

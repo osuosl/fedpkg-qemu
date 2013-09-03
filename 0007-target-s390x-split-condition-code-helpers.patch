@@ -1,4 +1,4 @@
-From f642126aece222f6ff87d26c29f00e1b6c47e10a Mon Sep 17 00:00:00 2001
+From 371c834f34f4cfc0a1678b76de26625bff459f41 Mon Sep 17 00:00:00 2001
 From: Blue Swirl <blauwirbel@gmail.com>
 Date: Sun, 2 Sep 2012 07:33:32 +0000
 Subject: [PATCH] target-s390x: split condition code helpers

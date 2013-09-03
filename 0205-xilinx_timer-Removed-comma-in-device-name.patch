@@ -1,4 +1,4 @@
-From 030d44c473036d44abc76562860a89b21220ca2f Mon Sep 17 00:00:00 2001
+From 24518f0b7d9101f3d313aaa257a73cfb66e97cd0 Mon Sep 17 00:00:00 2001
 From: "Peter A. G. Crosthwaite" <peter.crosthwaite@petalogix.com>
 Date: Thu, 28 Jun 2012 12:52:23 +1000
 Subject: [PATCH] xilinx_timer: Removed comma in device name
