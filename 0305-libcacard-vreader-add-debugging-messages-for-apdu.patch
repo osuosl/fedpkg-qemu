@@ -1,7 +1,7 @@
-From 71560a321c2c7678191f0f7da42f25917ed40974 Mon Sep 17 00:00:00 2001
+From c8149d68b2b487ac37f4e7d74b8611d377f47d82 Mon Sep 17 00:00:00 2001
 From: Alon Levy <alevy@redhat.com>
 Date: Tue, 5 Mar 2013 15:32:19 +0200
-Subject: [PATCH 236/241] libcacard/vreader: add debugging messages for apdu
+Subject: [PATCH] libcacard/vreader: add debugging messages for apdu
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -164,6 +164,3 @@ index f3efc27..5793d73 100644
      }
      assert(card_status == VCARD_DONE);
      if (card_status == VCARD_DONE) {
--- 
-1.8.3.1
-

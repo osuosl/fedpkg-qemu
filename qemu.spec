@@ -131,7 +131,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.4.2
-Release: 7%{?dist}
+Release: 8%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -237,24 +237,17 @@ Patch0146: 0146-migration-eliminate-s-migration_file.patch
 Patch0147: 0147-migration-inline-migrate_fd_close.patch
 Patch0148: 0148-Revert-migration-don-t-account-sleep-time-for-calcul.patch
 
-# qemu-kvm migration compat (posted upstream)
+# 917860 libcacard and qemu/hw/ccid windows 7 smartcard support.
 Patch0201: 0201-configure-Add-enable-migration-from-qemu-kvm.patch
 Patch0202: 0202-acpi_piix4-Drop-minimum_version_id-to-handle-qemu-kv.patch
 Patch0203: 0203-i8254-Fix-migration-from-qemu-kvm-1.1.patch
 Patch0204: 0204-pc_piix-Add-compat-handling-for-qemu-kvm-VGA-mem-siz.patch
 Patch0205: 0205-qxl-Add-rom_size-compat-property-fix-migration-from-.patch
-# Fix rtl8139 + windows 7 + large transfers (bz #970240)
 Patch0206: 0206-rtl8139-flush-queued-packets-when-RxBufPtr-is-writte.patch
-# Fix crash on large drag and drop file transfer w/ spice (bz #969109)
 Patch0207: 0207-spice-qemu-char-vmc_write-Don-t-write-more-bytes-the.patch
-# Fix build with latest libfdt
 Patch0208: 0208-configure-dtc-Probe-for-libfdt_env.h.patch
-# Fix usb_handle_packet assertions (bz #981459)
 Patch0209: 0209-Fix-usage-of-USB_DEV_FLAG_IS_HOST-flag.patch
-# Fix crash when adding spice vdagent channel in the guest (bz #969084)
 Patch0210: 0210-qxl-Fix-QXLRam-initialisation.patch
-
-# 917860 related libcacard and qemu/hw/ccid windows 7 smartcard support.
 Patch0211: 0211-qemu-socket-Make-socket_optslist-public.patch
 Patch0212: 0212-libcacard-correct-T0-historical-bytes-size.patch
 Patch0213: 0213-ccid-card-emul-do-not-crash-if-backend-is-not-provid.patch
@@ -276,16 +269,32 @@ Patch0228: 0228-dev-smartcard-reader-support-windows-guest.patch
 Patch0229: 0229-dev-smartcard-reader-reuse-usb.h-definitions.patch
 Patch0230: 0230-libcacard-change-default-ATR.patch
 Patch0231: 0231-ccid-card-passthru-add-atr-check.patch
-Patch0232: 0232-ccid-card-passthru-dev-smartcard-reader-add-debug-en.patch
-Patch0233: 0233-dev-smartcard-reader-define-structs-for-CCID_Paramet.patch
-Patch0234: 0234-dev-smartcard-reader-change-default-protocol-to-T-0.patch
-Patch0235: 0235-dev-smartcard-reader-copy-atr-protocol-to-ccid-param.patch
-Patch0236: 0236-libcacard-vreader-add-debugging-messages-for-apdu.patch
-Patch0237: 0237-libcacard-move-atr-setting-from-macro-to-function.patch
-Patch0238: 0238-dev-smartcard-reader-empty-implementation-for-Mechan.patch
-Patch0239: 0239-libcacard-cac-change-big-switch-functions-to-single-.patch
-Patch0240: 0240-libcacard-vscclient-fix-leakage-of-socket-on-error-p.patch
-Patch0241: 0241-libcacard-Fix-cppcheck-warning-and-remove-unneeded-c.patch
+
+# qemu-kvm migration compat (posted upstream)
+Patch0301: 0301-ccid-card-passthru-dev-smartcard-reader-add-debug-en.patch
+Patch0302: 0302-dev-smartcard-reader-define-structs-for-CCID_Paramet.patch
+Patch0303: 0303-dev-smartcard-reader-change-default-protocol-to-T-0.patch
+Patch0304: 0304-dev-smartcard-reader-copy-atr-protocol-to-ccid-param.patch
+Patch0305: 0305-libcacard-vreader-add-debugging-messages-for-apdu.patch
+# Fix rtl8139 + windows 7 + large transfers (bz #970240)
+Patch0306: 0306-libcacard-move-atr-setting-from-macro-to-function.patch
+# Fix crash on large drag and drop file transfer w/ spice (bz #969109)
+Patch0307: 0307-dev-smartcard-reader-empty-implementation-for-Mechan.patch
+# Fix build with latest libfdt
+Patch0308: 0308-libcacard-cac-change-big-switch-functions-to-single-.patch
+# Fix usb_handle_packet assertions (bz #981459)
+Patch0309: 0309-libcacard-vscclient-fix-leakage-of-socket-on-error-p.patch
+# Fix crash when adding spice vdagent channel in the guest (bz #969084)
+Patch0310: 0310-libcacard-Fix-cppcheck-warning-and-remove-unneeded-c.patch
+# Fix crash with -M isapc -cpu Haswell (bz #986790)
+Patch0311: 0311-isapc-disable-kvmvapic.patch
+# Fix crash in lsi_soft_reset (bz #1000947)
+# Patches posted upstream
+Patch0312: 0312-pci-do-not-export-pci_bus_reset.patch
+Patch0313: 0313-qdev-allow-both-pre-and-post-order-vists-in-qdev-wal.patch
+Patch0314: 0314-qdev-switch-reset-to-post-order.patch
+# Fix crash in scsi_dma_complete (bz #1001617)
+Patch0315: 0315-scsi-avoid-assertion-failure-on-VERIFY-command.patch
 
 BuildRequires: SDL-devel
 BuildRequires: zlib-devel
@@ -812,24 +821,17 @@ CAC emulation development files.
 %patch0147 -p1
 %patch0148 -p1
 
-# qemu-kvm migration compat (posted upstream)
+# 917860 libcacard and qemu/hw/ccid windows 7 smartcard support.
 %patch0201 -p1
 %patch0202 -p1
 %patch0203 -p1
 %patch0204 -p1
 %patch0205 -p1
-# Fix rtl8139 + windows 7 + large transfers (bz #970240)
 %patch0206 -p1
-# Fix crash on large drag and drop file transfer w/ spice (bz #969109)
 %patch0207 -p1
-# Fix build with latest libfdt
 %patch0208 -p1
-# Fix usb_handle_packet assertions (bz #981459)
 %patch0209 -p1
-# Fix crash when adding spice vdagent channel in the guest (bz #969084)
 %patch0210 -p1
-
-# 917860 libcacard and qemu/hw/ccid windows 7 smartcard support.
 %patch0211 -p1
 %patch0212 -p1
 %patch0213 -p1
@@ -851,16 +853,32 @@ CAC emulation development files.
 %patch0229 -p1
 %patch0230 -p1
 %patch0231 -p1
-%patch0232 -p1
-%patch0233 -p1
-%patch0234 -p1
-%patch0235 -p1
-%patch0236 -p1
-%patch0237 -p1
-%patch0238 -p1
-%patch0239 -p1
-%patch0240 -p1
-%patch0241 -p1
+
+# qemu-kvm migration compat (posted upstream)
+%patch0301 -p1
+%patch0302 -p1
+%patch0303 -p1
+%patch0304 -p1
+%patch0305 -p1
+# Fix rtl8139 + windows 7 + large transfers (bz #970240)
+%patch0306 -p1
+# Fix crash on large drag and drop file transfer w/ spice (bz #969109)
+%patch0307 -p1
+# Fix build with latest libfdt
+%patch0308 -p1
+# Fix usb_handle_packet assertions (bz #981459)
+%patch0309 -p1
+# Fix crash when adding spice vdagent channel in the guest (bz #969084)
+%patch0310 -p1
+# Fix crash with -M isapc -cpu Haswell (bz #986790)
+%patch0311 -p1
+# Fix crash in lsi_soft_reset (bz #1000947)
+# Patches posted upstream
+%patch0312 -p1
+%patch0313 -p1
+%patch0314 -p1
+# Fix crash in scsi_dma_complete (bz #1001617)
+%patch0315 -p1
 
 %build
 %if %{with kvmonly}
@@ -1140,6 +1158,7 @@ make check
 # load kvm modules now, so we can make sure no reboot is needed.
 # If there's already a kvm module installed, we don't mess with it
 sh %{_sysconfdir}/sysconfig/modules/kvm.modules &> /dev/null || :
+setfacl --remove-all /dev/kvm &> /dev/null || :
 udevadm trigger --subsystem-match=misc --sysname-match=kvm --action=add || :
 %endif
 
@@ -1507,6 +1526,12 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Tue Sep 03 2013 Cole Robinson <crobinso@redhat.com> - 2:1.4.2-8
+- Fix crash with -M isapc -cpu Haswell (bz #986790)
+- Fix crash in lsi_soft_reset (bz #1000947)
+- Fix crash in scsi_dma_complete (bz #1001617)
+- Fix initial /dev/kvm permissions (bz #993491)
+
 * Sun Aug 18 2013 Alon Levy <alevy@redhat.com> - 2:1.4.2-7
 - Support windows 7 smartcard using guests and clients - (bz #917860 rhel 6.5)
 

@@ -1,8 +1,7 @@
-From aae98aa5aa23dbddf3a6e8c8c0399948f0d43480 Mon Sep 17 00:00:00 2001
+From fb5d3b665f4a4c123ecf89c3d9da488f0f455d99 Mon Sep 17 00:00:00 2001
 From: Alon Levy <alevy@redhat.com>
 Date: Tue, 4 Jun 2013 16:23:37 -0400
-Subject: [PATCH 240/241] libcacard/vscclient: fix leakage of socket on error
- paths
+Subject: [PATCH] libcacard/vscclient: fix leakage of socket on error paths
 
 Spotted by Coverity.
 
@@ -50,6 +49,3 @@ index ac23647..5180d29 100644
 +    closesocket(sock);
      return 0;
  }
--- 
-1.8.3.1
-

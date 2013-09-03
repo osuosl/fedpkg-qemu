@@ -1,8 +1,7 @@
-From 742e78d849a701e49f3c7d3c13eb9c4013f2cec3 Mon Sep 17 00:00:00 2001
+From 4b227c5279d96e767f5976d1e45d76ef485176a4 Mon Sep 17 00:00:00 2001
 From: Stefan Weil <sw@weilnetz.de>
 Date: Sun, 16 Jun 2013 11:08:52 +0200
-Subject: [PATCH 241/241] libcacard: Fix cppcheck warning and remove unneeded
- code
+Subject: [PATCH] libcacard: Fix cppcheck warning and remove unneeded code
 
 The local function vcard_emul_alloc_arrays always returned PR_TRUE.
 Therefore cppcheck complained about code which handled the
@@ -84,6 +83,3 @@ index 1a3e568..fb429b1 100644
          cert_count = 0;
          for (j = 0; j < options->vreader[i].cert_count; j++) {
              /* we should have a better way of identifying certs than by
--- 
-1.8.3.1
-

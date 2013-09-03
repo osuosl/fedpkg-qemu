@@ -1,7 +1,7 @@
-From b3d57573e23a456b2c21f045b153e2c0a621f886 Mon Sep 17 00:00:00 2001
+From b6c0f55dee51c131fc2e4154aae30693b88b4595 Mon Sep 17 00:00:00 2001
 From: Alon Levy <alevy@redhat.com>
 Date: Tue, 5 Mar 2013 15:35:24 +0200
-Subject: [PATCH 230/241] libcacard: change default ATR
+Subject: [PATCH] libcacard: change default ATR
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -37,6 +37,3 @@ index 538bdde..3b9a619 100644
  
  typedef enum {
      VCARD_DONE,
--- 
-1.8.3.1
-

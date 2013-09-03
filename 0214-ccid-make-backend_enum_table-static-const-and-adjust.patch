@@ -1,8 +1,7 @@
-From e72e97097d1c619774cb07326496e38c0de46ef0 Mon Sep 17 00:00:00 2001
+From c05bf7d253830527dbb6f4280f50e805c188bb57 Mon Sep 17 00:00:00 2001
 From: Jim Meyering <meyering@redhat.com>
 Date: Mon, 21 May 2012 21:56:20 +0200
-Subject: [PATCH 214/241] ccid: make backend_enum_table "static const" and
- adjust users
+Subject: [PATCH] ccid: make backend_enum_table "static const" and adjust users
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -45,6 +44,3 @@ index 210433e..cb9ef10 100644
  
      QSIMPLEQ_INIT(&card->event_list);
      QSIMPLEQ_INIT(&card->guest_apdu_list);
--- 
-1.8.3.1
-

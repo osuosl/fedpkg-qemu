@@ -1,7 +1,7 @@
-From f7019fa4fc6d883f1922bb0e3b18ceb3a628b340 Mon Sep 17 00:00:00 2001
+From 4a70750aabe57e3a24d16fd1c82acc7f1c6f66f0 Mon Sep 17 00:00:00 2001
 From: Alon Levy <alevy@redhat.com>
 Date: Wed, 27 Mar 2013 10:14:15 +0200
-Subject: [PATCH 234/241] dev-smartcard-reader: change default protocol to T=0
+Subject: [PATCH] dev-smartcard-reader: change default protocol to T=0
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -45,6 +45,3 @@ index f2cab09..e97dfcb 100644
     s->abProtocolDataStructure = defaultProtocolDataStructure;
  }
  
--- 
-1.8.3.1
-

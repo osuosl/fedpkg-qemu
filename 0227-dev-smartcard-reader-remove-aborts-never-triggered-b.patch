@@ -1,8 +1,8 @@
-From 006440535dd1d581f0e5b7b15295fe511589c3e2 Mon Sep 17 00:00:00 2001
+From 3ea945e317cfda37503bccc6c0548f7bebdb5ba3 Mon Sep 17 00:00:00 2001
 From: Alon Levy <alevy@redhat.com>
 Date: Mon, 4 Mar 2013 18:55:07 +0200
-Subject: [PATCH 227/241] dev-smartcard-reader: remove aborts (never triggered,
- but just in case)
+Subject: [PATCH] dev-smartcard-reader: remove aborts (never triggered, but
+ just in case)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -66,6 +66,3 @@ index 173dcc9..54ea536 100644
      }
      DPRINTF(s, 1, "APDU returned to guest %d (answer seq %d, slot %d)\n",
          len, answer->seq, answer->slot);
--- 
-1.8.3.1
-

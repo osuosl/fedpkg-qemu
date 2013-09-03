@@ -1,7 +1,7 @@
-From 2898705c820b4b0c6bbd196bccce55dd3d64f62c Mon Sep 17 00:00:00 2001
+From 6a7a90c34f62ffca270db3dbe3653f4eb2145c32 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Marc-Andr=C3=A9=20Lureau?= <marcandre.lureau@redhat.com>
 Date: Mon, 25 Feb 2013 23:31:14 +0100
-Subject: [PATCH 220/241] libcacard: split vscclient main() from socket reading
+Subject: [PATCH] libcacard: split vscclient main() from socket reading
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -372,6 +372,3 @@ index 9b744f2..5e00db3 100644
      } while (rv >= 0);
  
      return 0;
--- 
-1.8.3.1
-

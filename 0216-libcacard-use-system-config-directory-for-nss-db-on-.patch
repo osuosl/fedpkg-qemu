@@ -1,8 +1,7 @@
-From 2b60d2a60e98747e46e6addb89bf9a7f923ae499 Mon Sep 17 00:00:00 2001
+From 55f9a7671661393885ed67a5fdbd54a2bf8fed48 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Marc-Andr=C3=A9=20Lureau?= <mlureau@redhat.com>
 Date: Wed, 27 Feb 2013 21:08:06 +0100
-Subject: [PATCH 216/241] libcacard: use system config directory for nss db on
- win32
+Subject: [PATCH] libcacard: use system config directory for nss db on win32
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -46,6 +45,3 @@ index df79476..21d4689 100644
      }
      if (rv != SECSuccess) {
          return VCARD_EMUL_FAIL;
--- 
-1.8.3.1
-

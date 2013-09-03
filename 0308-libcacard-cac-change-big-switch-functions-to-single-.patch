@@ -1,8 +1,8 @@
-From 8527c47117c0ec6d12929b6c19206eed6ee90528 Mon Sep 17 00:00:00 2001
+From f90f2ac15af433ed36fce659bc2d40d533c3943f Mon Sep 17 00:00:00 2001
 From: Alon Levy <alevy@redhat.com>
 Date: Mon, 4 Mar 2013 21:43:36 +0200
-Subject: [PATCH 239/241] libcacard/cac: change big switch functions to single
- return point
+Subject: [PATCH] libcacard/cac: change big switch functions to single return
+ point
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -204,6 +204,3 @@ index 5864539..7a06b5a 100644
  }
  
  /*
--- 
-1.8.3.1
-

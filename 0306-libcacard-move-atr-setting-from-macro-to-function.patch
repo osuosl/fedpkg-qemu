@@ -1,7 +1,7 @@
-From 703a72f26668f26f2bb98851f1a2edd9a8681f86 Mon Sep 17 00:00:00 2001
+From 3cab527b3f9be5bbc8b8d3637ff0a8d1cddd6356 Mon Sep 17 00:00:00 2001
 From: Alon Levy <alevy@redhat.com>
 Date: Tue, 5 Mar 2013 16:27:43 +0200
-Subject: [PATCH 237/241] libcacard: move atr setting from macro to function
+Subject: [PATCH] libcacard: move atr setting from macro to function
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -156,6 +156,3 @@ index 0000000..e5c8d2d
 +unsigned char *vcard_alloc_atr(const char *postfix, int *atr_len);
 +
 +#endif
--- 
-1.8.3.1
-

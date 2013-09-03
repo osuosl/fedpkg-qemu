@@ -1,7 +1,7 @@
-From f462152289d55ae01456d1d9122e26ff63407520 Mon Sep 17 00:00:00 2001
+From b22a9a5c4b0a3907cf00b04a12b84a5366d1fc8d Mon Sep 17 00:00:00 2001
 From: Alon Levy <alevy@redhat.com>
 Date: Mon, 4 Mar 2013 18:41:28 +0200
-Subject: [PATCH 232/241] ccid-card-passthru, dev-smartcard-reader: add debug
+Subject: [PATCH] ccid-card-passthru, dev-smartcard-reader: add debug
  environment variables
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -105,6 +105,3 @@ index 1439da4..32e1f5b 100644
 +    }
 +    return debug;
 +}
--- 
-1.8.3.1
-

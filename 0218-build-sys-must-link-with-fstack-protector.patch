@@ -1,7 +1,7 @@
-From 989623664fb428748a5efedbab162d75e1eb0432 Mon Sep 17 00:00:00 2001
+From 2772b3db795ff963a6dc9fade6e561b6e23dea9a Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Marc-Andr=C3=A9=20Lureau?= <mlureau@redhat.com>
 Date: Mon, 25 Feb 2013 23:31:12 +0100
-Subject: [PATCH 218/241] build-sys: must link with -fstack-protector
+Subject: [PATCH] build-sys: must link with -fstack-protector
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -68,6 +68,3 @@ index edc2552..36aba2d 100644
         $(LIBS),$(if $(filter %.lo %.la,$^),"lt LINK ", "  LINK  ")"$(TARGET_DIR)$@")
  endif
  
--- 
-1.8.3.1
-

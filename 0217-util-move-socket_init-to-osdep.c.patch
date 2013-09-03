@@ -1,7 +1,7 @@
-From 2f2068568e87fc1f20bc891cce18b4e65965b091 Mon Sep 17 00:00:00 2001
+From 9819cebc4010a996b466669022e78dfedd4f0b9f Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Marc-Andr=C3=A9=20Lureau?= <marcandre.lureau@redhat.com>
 Date: Mon, 25 Feb 2013 23:31:11 +0100
-Subject: [PATCH 217/241] util: move socket_init() to osdep.c
+Subject: [PATCH] util: move socket_init() to osdep.c
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -92,6 +92,3 @@ index b32510a..7909381 100644
 -#endif
 -    return 0;
 -}
--- 
-1.8.3.1
-

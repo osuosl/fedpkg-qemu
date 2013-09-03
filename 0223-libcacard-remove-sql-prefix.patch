@@ -1,7 +1,7 @@
-From 1975b2acbff807d88d494153db64882d19410724 Mon Sep 17 00:00:00 2001
+From 0cb5cdc4badf4f3415425413986b91915b1fab52 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Marc-Andr=C3=A9=20Lureau?= <mlureau@redhat.com>
 Date: Wed, 20 Mar 2013 14:07:48 +0100
-Subject: [PATCH 223/241] libcacard: remove sql: prefix
+Subject: [PATCH] libcacard: remove sql: prefix
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -42,6 +42,3 @@ index 21d4689..6b1ca8a 100644
          g_free(path);
      }
      if (rv != SECSuccess) {
--- 
-1.8.3.1
-

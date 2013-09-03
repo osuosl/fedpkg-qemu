@@ -1,8 +1,7 @@
-From 2e26deacddb52bb3f7eb100ac5fe9709d6089cf3 Mon Sep 17 00:00:00 2001
+From bdba89b1e2ff2a5d72847741b87b1bf03a17f008 Mon Sep 17 00:00:00 2001
 From: Alon Levy <alevy@redhat.com>
 Date: Mon, 4 Mar 2013 18:58:29 +0200
-Subject: [PATCH 235/241] dev-smartcard-reader: copy atr protocol to ccid
- parameters
+Subject: [PATCH] dev-smartcard-reader: copy atr protocol to ccid parameters
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -80,6 +79,3 @@ index e97dfcb..4e08f9b 100644
      ccid_write_data_block(s, recv->bSlot, recv->bSeq, atr, len);
  }
  
--- 
-1.8.3.1
-

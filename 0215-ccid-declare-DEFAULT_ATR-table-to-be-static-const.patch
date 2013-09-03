@@ -1,7 +1,7 @@
-From 0a8bbcf1c62e0cf12188eaad871b23633a336f73 Mon Sep 17 00:00:00 2001
+From f45224daee28b04543bf913e4d544c77ba9751a4 Mon Sep 17 00:00:00 2001
 From: Jim Meyering <meyering@redhat.com>
 Date: Mon, 21 May 2012 21:51:33 +0200
-Subject: [PATCH 215/241] ccid: declare DEFAULT_ATR table to be "static const"
+Subject: [PATCH] ccid: declare DEFAULT_ATR table to be "static const"
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -27,6 +27,3 @@ index 0dde761..62070db 100644
  /*
   * From some example somewhere
   * 0x3B, 0xB0, 0x18, 0x00, 0xD1, 0x81, 0x05, 0xB1, 0x40, 0x38, 0x1F, 0x03, 0x28
--- 
-1.8.3.1
-

@@ -1,8 +1,7 @@
-From dc54f4b260b2fe57af5ad57326f0a67a82f977d3 Mon Sep 17 00:00:00 2001
+From 30cbcaa34cbfa214b8680b83ad8d5da3b4ac0512 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Marc-Andr=C3=A9=20Lureau?= <marcandre.lureau@redhat.com>
 Date: Mon, 25 Feb 2013 23:31:15 +0100
-Subject: [PATCH 221/241] libcacard: vscclient to use QemuThread for
- portability
+Subject: [PATCH] libcacard: vscclient to use QemuThread for portability
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -41,6 +40,3 @@ index 5e00db3..5f47634 100644
      return 0;
  }
  
--- 
-1.8.3.1
-

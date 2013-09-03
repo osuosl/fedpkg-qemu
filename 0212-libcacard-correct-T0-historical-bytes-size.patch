@@ -1,7 +1,7 @@
-From ec22a81dc76492a729695a54e32a837ab6384e65 Mon Sep 17 00:00:00 2001
+From 82ba8008f0c6d7328872421e4d9d4f9868d74b11 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Marc-Andr=C3=A9=20Lureau?= <mlureau@redhat.com>
 Date: Sun, 2 Dec 2012 22:00:55 +0100
-Subject: [PATCH 212/241] libcacard: correct T0 historical bytes size
+Subject: [PATCH] libcacard: correct T0 historical bytes size
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -33,6 +33,3 @@ index d3e9522..538bdde 100644
                                 'V', 'C', 'A', 'R', 'D', '_'
  
  
--- 
-1.8.3.1
-

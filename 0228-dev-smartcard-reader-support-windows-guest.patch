@@ -1,7 +1,7 @@
-From 6339bbf28651cbcb5cf24bd1d53cd7b52028ff1b Mon Sep 17 00:00:00 2001
+From 749942f6d5fdfed2d860169cf5271373e6a02868 Mon Sep 17 00:00:00 2001
 From: Alon Levy <alevy@redhat.com>
 Date: Mon, 4 Mar 2013 21:40:53 +0200
-Subject: [PATCH 228/241] dev-smartcard-reader: support windows guest
+Subject: [PATCH] dev-smartcard-reader: support windows guest
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -33,6 +33,3 @@ index 54ea536..db5dd6d 100644
                      /*
                       * u32 dwMaxCCIDMessageLength; For extended APDU in
                       * [261 + 10 , 65544 + 10]. Otherwise the minimum is
--- 
-1.8.3.1
-

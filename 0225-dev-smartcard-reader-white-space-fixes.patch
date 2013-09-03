@@ -1,7 +1,7 @@
-From c1a01e889c7562c5e61cbd2da7844697c56940bd Mon Sep 17 00:00:00 2001
+From 4407e349fde5a3ab43a0cad130ec66e6a31c4471 Mon Sep 17 00:00:00 2001
 From: Alon Levy <alevy@redhat.com>
 Date: Mon, 4 Mar 2013 18:45:49 +0200
-Subject: [PATCH 225/241] dev-smartcard-reader: white space fixes
+Subject: [PATCH] dev-smartcard-reader: white space fixes
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -49,6 +49,3 @@ index 979a473..24c84ce 100644
      if (cc->initfn) {
          return cc->initfn(card);
      }
--- 
-1.8.3.1
-

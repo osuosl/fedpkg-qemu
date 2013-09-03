@@ -1,7 +1,7 @@
-From 1c4d96f6622f00c4d4b84b5e17f8e42dcb5b7501 Mon Sep 17 00:00:00 2001
+From a447d4fc0ece3d1f0ae20c89ddf4b01d7afdb553 Mon Sep 17 00:00:00 2001
 From: Alon Levy <alevy@redhat.com>
 Date: Mon, 4 Mar 2013 18:39:09 +0200
-Subject: [PATCH 231/241] ccid-card-passthru: add atr check
+Subject: [PATCH] ccid-card-passthru: add atr check
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -90,6 +90,3 @@ index 62070db..7fecd10 100644
          memcpy(card->atr, data, scr_msg_header->length);
          card->atr_length = scr_msg_header->length;
          ccid_card_card_inserted(&card->base);
--- 
-1.8.3.1
-

@@ -1,8 +1,8 @@
-From 4d36e75eb55c7ee557bebabd6fe33c5a65d52228 Mon Sep 17 00:00:00 2001
+From cf593228aeb0a8be714d3bf5d83d3e0eef87ea76 Mon Sep 17 00:00:00 2001
 From: Alon Levy <alevy@redhat.com>
 Date: Mon, 4 Mar 2013 18:57:45 +0200
-Subject: [PATCH 233/241] dev-smartcard-reader: define structs for
- CCID_Parameter internals
+Subject: [PATCH] dev-smartcard-reader: define structs for CCID_Parameter
+ internals
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -156,6 +156,3 @@ index 09c2403..f2cab09 100644
          VMSTATE_UINT32(ulProtocolDataStructureSize, USBCCIDState),
          VMSTATE_STRUCT_ARRAY(bulk_in_pending, USBCCIDState,
                         BULK_IN_PENDING_NUM, 1, bulk_in_vmstate, BulkIn),
--- 
-1.8.3.1
-

@@ -1,7 +1,7 @@
-From 26acaa4bf064f7608dec08cff4d23769b167dced Mon Sep 17 00:00:00 2001
+From 218d4160ff017861388f37feb02fa818d55d4eb3 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Marc-Andr=C3=A9=20Lureau?= <mlureau@redhat.com>
 Date: Wed, 20 Mar 2013 14:07:49 +0100
-Subject: [PATCH 224/241] libcacard: remove default libcoolkey loading
+Subject: [PATCH] libcacard: remove default libcoolkey loading
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -59,6 +59,3 @@ index 6b1ca8a..9ba80fb 100644
      /* now examine all the slots, finding which should be readers */
      /* We should control this with options. For now we mirror out any
       * removable hardware slot */
--- 
-1.8.3.1
-

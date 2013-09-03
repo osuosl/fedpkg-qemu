@@ -1,8 +1,8 @@
-From 002714edb70b00c20de7d54980a528ac7232bb33 Mon Sep 17 00:00:00 2001
+From 6c11295ab78a3b421d94c64a88bec74676e0bc4f Mon Sep 17 00:00:00 2001
 From: Alon Levy <alevy@redhat.com>
 Date: Tue, 5 Mar 2013 17:31:10 +0200
-Subject: [PATCH 238/241] dev-smartcard-reader: empty implementation for
- Mechanical (fail correctly)
+Subject: [PATCH] dev-smartcard-reader: empty implementation for Mechanical
+ (fail correctly)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -29,6 +29,3 @@ index 4e08f9b..a473b87 100644
          default:
              DPRINTF(s, 1,
                  "handle_data: ERROR: unhandled message type %Xh\n",
--- 
-1.8.3.1
-

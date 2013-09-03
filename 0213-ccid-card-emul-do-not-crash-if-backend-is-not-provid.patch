@@ -1,8 +1,7 @@
-From 142383e938fddcf7ed4f81aa30a1e7c1a968cef8 Mon Sep 17 00:00:00 2001
+From ab2662a8074e329e15d92ee5bdce741b84901c4a Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Marc-Andr=C3=A9=20Lureau?= <mlureau@redhat.com>
 Date: Wed, 21 Nov 2012 14:16:08 +0100
-Subject: [PATCH 213/241] ccid-card-emul: do not crash if backend is not
- provided
+Subject: [PATCH] ccid-card-emul: do not crash if backend is not provided
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -35,6 +34,3 @@ index c8f8ba3..210433e 100644
      while (table->name != NULL) {
          if (strcmp(table->name, str) == 0) {
              ret = table->value;
--- 
-1.8.3.1
-

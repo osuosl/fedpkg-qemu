@@ -1,7 +1,7 @@
-From bd39de640ffd3f552775bfb1a084657872acd114 Mon Sep 17 00:00:00 2001
+From 5220cd7238ea12e4fa361372706dc81ae0e6b54a Mon Sep 17 00:00:00 2001
 From: Alon Levy <alevy@redhat.com>
 Date: Mon, 4 Mar 2013 18:50:33 +0200
-Subject: [PATCH 226/241] dev-smartcard-reader: nicer debug messages
+Subject: [PATCH] dev-smartcard-reader: nicer debug messages
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -139,6 +139,3 @@ index 24c84ce..173dcc9 100644
              ccid_reset_error_status(s);
              s->powered = false;
              ccid_write_slot_status(s, ccid_header);
--- 
-1.8.3.1
-

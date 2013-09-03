@@ -1,7 +1,7 @@
-From b7fd4cdb21c93be3a3e4b2d309f07e56d47eb2a4 Mon Sep 17 00:00:00 2001
+From cede7cafc7b0056c44446468463eabbc89d4da2c Mon Sep 17 00:00:00 2001
 From: Alon Levy <alevy@redhat.com>
 Date: Tue, 5 Mar 2013 15:31:26 +0200
-Subject: [PATCH 229/241] dev-smartcard-reader: reuse usb.h definitions
+Subject: [PATCH] dev-smartcard-reader: reuse usb.h definitions
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -60,6 +60,3 @@ index db5dd6d..75f813c 100644
          DPRINTF(s, 1, "ccid_control get data rates UNIMPLEMENTED\n");
          p->status = USB_RET_STALL;
          break;
--- 
-1.8.3.1
-
