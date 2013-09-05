@@ -131,7 +131,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.4.2
-Release: 8%{?dist}
+Release: 9%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -295,6 +295,8 @@ Patch0313: 0313-qdev-allow-both-pre-and-post-order-vists-in-qdev-wal.patch
 Patch0314: 0314-qdev-switch-reset-to-post-order.patch
 # Fix crash in scsi_dma_complete (bz #1001617)
 Patch0315: 0315-scsi-avoid-assertion-failure-on-VERIFY-command.patch
+# ppc64 hangs at "Trying to read invalid spr 896 380 at .." (bz #1004532)
+Patch0316: 0316-target-ppc-Add-read-and-write-of-PPR-SPR.patch
 
 BuildRequires: SDL-devel
 BuildRequires: zlib-devel
@@ -879,6 +881,8 @@ CAC emulation development files.
 %patch0314 -p1
 # Fix crash in scsi_dma_complete (bz #1001617)
 %patch0315 -p1
+# ppc64 hangs at "Trying to read invalid spr 896 380 at .." (bz #1004532)
+%patch0316 -p1
 
 %build
 %if %{with kvmonly}
@@ -1526,6 +1530,9 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Thu Sep 05 2013 Richard W.M. Jones <rjones@redhat.com> - 2:1.4.2-9
+- ppc64 hangs at "Trying to read invalid spr 896 380 at .." (bz #1004532)
+
 * Tue Sep 03 2013 Cole Robinson <crobinso@redhat.com> - 2:1.4.2-8
 - Fix crash with -M isapc -cpu Haswell (bz #986790)
 - Fix crash in lsi_soft_reset (bz #1000947)
