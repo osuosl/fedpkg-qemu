@@ -140,7 +140,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.6.0
-Release: 6%{?dist}
+Release: 7%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -275,7 +275,9 @@ BuildRequires: vte3-devel
 # GTK translations
 BuildRequires: gettext
 # RDMA migration
+%ifnarch s390 s390x
 BuildRequires: librdmacm-devel
+%endif
 # For sanity test
 %if 0%{?fedora} >= 20
 BuildRequires: qemu-sanity-check-nodeps
@@ -784,6 +786,9 @@ dobuild() {
         --with-gtkabi="3.0" \
 %endif
         --enable-tpm \
+%ifarch s390
+        --enable-tcg-interpreter \
+%endif
         "$@"
 
     echo "config-host.mak contents:"
@@ -1420,6 +1425,10 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Thu Sep 12 2013 Dan Horák <dan[at]danny.cz> - 2:1.6.0-7
+- Enable TCG interpreter for s390 as the native backend supports 64-bit only
+- Don't require RDMA on s390(x)
+
 * Tue Sep 03 2013 Cole Robinson <crobinso@redhat.com> - 2:1.6.0-6
 - Fix qmp capabilities calls on i686 (bz #1003162)
 - Fix crash with -M isapc -cpu Haswell (bz #986790)
