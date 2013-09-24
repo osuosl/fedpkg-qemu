@@ -131,7 +131,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.4.2
-Release: 9%{?dist}
+Release: 10%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -331,7 +331,7 @@ BuildRequires: libseccomp-devel >= 1.0.0
 BuildRequires: libcurl-devel
 %if %{with rbd}
 # For rbd block driver
-BuildRequires: ceph-devel
+BuildRequires: ceph-devel >= 0.61
 %endif
 # We need both because the 'stap' binary is probed for by configure
 BuildRequires: systemtap
@@ -467,6 +467,14 @@ Requires(post): /usr/sbin/useradd
 Requires(post): systemd-units
 Requires(preun): systemd-units
 Requires(postun): systemd-units
+
+# ceph added new symbol rbd_aio_flush which qemu wants to use, but ceph
+# lacks symbol versioning so RPM doesn't pick up the dependency.
+# Need to keep this for the lifetime of f19
+%if %{with rbd}
+Requires: ceph-libs >= 0.61
+%endif
+
 %description common
 QEMU is a generic and open source processor emulator which achieves a good
 emulation speed by using dynamic translation.
@@ -1530,6 +1538,9 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Tue Sep 24 2013 Cole Robinson <crobinso@redhat.com> - 2:1.4.2-10
+- Require newer ceph-libs to fix symbol error (bz #995883)
+
 * Thu Sep 05 2013 Richard W.M. Jones <rjones@redhat.com> - 2:1.4.2-9
 - ppc64 hangs at "Trying to read invalid spr 896 380 at .." (bz #1004532)
 
