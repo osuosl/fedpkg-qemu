@@ -104,7 +104,6 @@
 %global system_arm    kvm
 %global kvm_package   system-arm
 %global kvm_target    arm
-%global need_qemu_kvm 1
 %endif
 
 %if %{with kvmonly}
@@ -140,7 +139,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.6.0
-Release: 7%{?dist}
+Release: 8%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -193,6 +192,12 @@ Patch0003: 0003-isapc-disable-kvmvapic.patch
 Patch0004: 0004-pci-do-not-export-pci_bus_reset.patch
 Patch0005: 0005-qdev-allow-both-pre-and-post-order-vists-in-qdev-wal.patch
 Patch0006: 0006-qdev-switch-reset-to-post-order.patch
+# Fix -vga qxl with -display vnc (bz #948717)
+# Patch posted upstream
+Patch0007: 0007-qxl-fix-local-renderer.patch
+# Fix USB crash when installing reactos (bz #1005495)
+# Patch posted upstream
+Patch0008: 0008-ehci-save-device-pointer-in-EHCIState.patch
 
 BuildRequires: SDL-devel
 BuildRequires: zlib-devel
@@ -717,6 +722,12 @@ CAC emulation development files.
 %patch0004 -p1
 %patch0005 -p1
 %patch0006 -p1
+# Fix -vga qxl with -display vnc (bz #948717)
+# Patch posted upstream
+%patch0007 -p1
+# Fix USB crash when installing reactos (bz #1005495)
+# Patch posted upstream
+%patch0008 -p1
 
 
 %build
@@ -1425,6 +1436,11 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Tue Sep 24 2013 Cole Robinson <crobinso@redhat.com> - 2:1.6.0-8
+- Fix -vga qxl with -display vnc (bz #948717)
+- Fix USB crash when installing reactos (bz #1005495)
+- Don't ship x86 kvm wrapper on arm (bz #1005581)
+
 * Thu Sep 12 2013 Dan Horák <dan[at]danny.cz> - 2:1.6.0-7
 - Enable TCG interpreter for s390 as the native backend supports 64-bit only
 - Don't require RDMA on s390(x)
