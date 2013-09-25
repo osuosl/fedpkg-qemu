@@ -131,7 +131,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.4.2
-Release: 10%{?dist}
+Release: 11%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -297,6 +297,9 @@ Patch0314: 0314-qdev-switch-reset-to-post-order.patch
 Patch0315: 0315-scsi-avoid-assertion-failure-on-VERIFY-command.patch
 # ppc64 hangs at "Trying to read invalid spr 896 380 at .." (bz #1004532)
 Patch0316: 0316-target-ppc-Add-read-and-write-of-PPR-SPR.patch
+
+# Fix screenshots for qxl kernel driver (bz #948717)
+Patch0400: 0400-qxl-fix-local-renderer.patch
 
 BuildRequires: SDL-devel
 BuildRequires: zlib-devel
@@ -891,6 +894,8 @@ CAC emulation development files.
 %patch0315 -p1
 # ppc64 hangs at "Trying to read invalid spr 896 380 at .." (bz #1004532)
 %patch0316 -p1
+# Fix screenshots for qxl kernel driver (bz #948717)
+%patch0400 -p1
 
 %build
 %if %{with kvmonly}
@@ -1538,6 +1543,9 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Wed Sep 25 2013 Alon Levy <alevy@redhat.com> 2:1.4.2-11
+- Fix screenshots for qxl kernel driver (bz #948717)
+
 * Tue Sep 24 2013 Cole Robinson <crobinso@redhat.com> - 2:1.4.2-10
 - Require newer ceph-libs to fix symbol error (bz #995883)
 
