@@ -1,0 +1,39 @@
+From 5d2de77798cacf1dadf6a4211972473e057cc6e5 Mon Sep 17 00:00:00 2001
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Date: Tue, 3 Sep 2013 18:08:52 +0200
+Subject: [PATCH] kvmvapic: Clear also physical ROM address when entering
+ INACTIVE state
+
+To avoid misinterpreting INACTIVE after migration as old qemu-kvm's
+STANDBY, also clear rom_state_paddr when going back to this state.
+
+CC: qemu-stable@nongnu.org
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+(cherry picked from commit 4357930b8a7d2fcff2d8121ec518117428a781e7)
+
+Signed-off-by: Michael Roth <mdroth@linux.vnet.ibm.com>
+---
+ hw/i386/kvmvapic.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/hw/i386/kvmvapic.c b/hw/i386/kvmvapic.c
+index f2e335d..cf6c714 100644
+--- a/hw/i386/kvmvapic.c
++++ b/hw/i386/kvmvapic.c
+@@ -511,6 +511,7 @@ static void vapic_reset(DeviceState *dev)
+     VAPICROMState *s = VAPIC(dev);
+ 
+     s->state = VAPIC_INACTIVE;
++    s->rom_state_paddr = 0;
+     vapic_enable_tpr_reporting(false);
+ }
+ 
+@@ -664,6 +665,7 @@ static void vapic_write(void *opaque, hwaddr addr, uint64_t data,
+         }
+         if (vapic_prepare(s) < 0) {
+             s->state = VAPIC_INACTIVE;
++            s->rom_state_paddr = 0;
+             break;
+         }
+         break;

@@ -1,0 +1,41 @@
+From 358bb0daa1ce332a18cc996fcd078a3989f77d36 Mon Sep 17 00:00:00 2001
+From: yinyin <yin.yin@cs2c.com.cn>
+Date: Thu, 22 Aug 2013 14:47:16 +0800
+Subject: [PATCH] virtio: virtqueue_get_avail_bytes: fix desc_pa when loop over
+ the indirect descriptor table
+
+virtqueue_get_avail_bytes: when found a indirect desc, we need loop over it.
+           /* loop over the indirect descriptor table */
+           indirect = 1;
+           max = vring_desc_len(desc_pa, i) / sizeof(VRingDesc);
+           num_bufs = i = 0;
+           desc_pa = vring_desc_addr(desc_pa, i);
+But, It init i to 0, then use i to update desc_pa. so we will always get:
+desc_pa = vring_desc_addr(desc_pa, 0);
+the last two line should swap.
+
+Cc: qemu-stable@nongnu.org
+Signed-off-by: Yin Yin <yin.yin@cs2c.com.cn>
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+(cherry picked from commit 1ae2757c6c4525c9b42f408c86818f843bad7418)
+
+Signed-off-by: Michael Roth <mdroth@linux.vnet.ibm.com>
+---
+ hw/virtio/virtio.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/hw/virtio/virtio.c b/hw/virtio/virtio.c
+index f03c45d..2f1e73b 100644
+--- a/hw/virtio/virtio.c
++++ b/hw/virtio/virtio.c
+@@ -377,8 +377,8 @@ void virtqueue_get_avail_bytes(VirtQueue *vq, unsigned int *in_bytes,
+             /* loop over the indirect descriptor table */
+             indirect = 1;
+             max = vring_desc_len(desc_pa, i) / sizeof(VRingDesc);
+-            num_bufs = i = 0;
+             desc_pa = vring_desc_addr(desc_pa, i);
++            num_bufs = i = 0;
+         }
+ 
+         do {

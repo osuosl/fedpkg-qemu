@@ -1,0 +1,86 @@
+From e8601a4e3102321d054ce3d641c03ebcd0519357 Mon Sep 17 00:00:00 2001
+From: Stefan Weil <sw@weilnetz.de>
+Date: Sun, 1 Sep 2013 22:59:25 +0200
+Subject: [PATCH] w32: Fix access to host devices (regression)
+
+QEMU failed to open host devices like \\.\PhysicalDrive0 (first hard disk)
+since some time (commit 8a79380b8ef1b02d2abd705dd026a18863b09020?).
+
+Those devices use hdev_open which did not use the latest API for options.
+This resulted in a fatal runtime error:
+
+  Block protocol 'host_device' doesn't support the option 'filename'
+
+Duplicate code from raw_open to fix this.
+
+Cc: qemu-stable@nongnu.org
+Reported-by: David Brenner <david.brenner3@gmail.com>
+Signed-off-by: Stefan Weil <sw@weilnetz.de>
+Reviewed-by: Kevin Wolf <kwolf@redhat.com>
+Signed-off-by: Stefan Hajnoczi <stefanha@redhat.com>
+(cherry picked from commit 68dc036488dfea170627a55e6ee3dfd7f2c2063e)
+
+Signed-off-by: Michael Roth <mdroth@linux.vnet.ibm.com>
+---
+ block/raw-win32.c | 36 +++++++++++++++++++++++++++++-------
+ 1 file changed, 29 insertions(+), 7 deletions(-)
+
+diff --git a/block/raw-win32.c b/block/raw-win32.c
+index 9b5b2af..d2d2d9f 100644
+--- a/block/raw-win32.c
++++ b/block/raw-win32.c
+@@ -535,13 +535,29 @@ static int hdev_open(BlockDriverState *bs, QDict *options, int flags)
+ {
+     BDRVRawState *s = bs->opaque;
+     int access_flags, create_flags;
++    int ret = 0;
+     DWORD overlapped;
+     char device_name[64];
+-    const char *filename = qdict_get_str(options, "filename");
++
++    Error *local_err = NULL;
++    const char *filename;
++
++    QemuOpts *opts = qemu_opts_create_nofail(&raw_runtime_opts);
++    qemu_opts_absorb_qdict(opts, options, &local_err);
++    if (error_is_set(&local_err)) {
++        qerror_report_err(local_err);
++        error_free(local_err);
++        ret = -EINVAL;
++        goto done;
++    }
++
++    filename = qemu_opt_get(opts, "filename");
+ 
+     if (strstart(filename, "/dev/cdrom", NULL)) {
+-        if (find_cdrom(device_name, sizeof(device_name)) < 0)
+-            return -ENOENT;
++        if (find_cdrom(device_name, sizeof(device_name)) < 0) {
++            ret = -ENOENT;
++            goto done;
++        }
+         filename = device_name;
+     } else {
+         /* transform drive letters into device name */
+@@ -564,11 +580,17 @@ static int hdev_open(BlockDriverState *bs, QDict *options, int flags)
+     if (s->hfile == INVALID_HANDLE_VALUE) {
+         int err = GetLastError();
+ 
+-        if (err == ERROR_ACCESS_DENIED)
+-            return -EACCES;
+-        return -1;
++        if (err == ERROR_ACCESS_DENIED) {
++            ret = -EACCES;
++        } else {
++            ret = -1;
++        }
++        goto done;
+     }
+-    return 0;
++
++done:
++    qemu_opts_del(opts);
++    return ret;
+ }
+ 
+ static BlockDriver bdrv_host_device = {

@@ -1,0 +1,37 @@
+From 9fab8e1fe15014a4bd147eeedd2491bcfbba4e59 Mon Sep 17 00:00:00 2001
+From: Paolo Bonzini <pbonzini@redhat.com>
+Date: Mon, 29 Jul 2013 14:27:39 +0200
+Subject: [PATCH] exec: fix writing to MMIO area with non-power-of-two length
+
+The problem is introduced by commit 2332616 (exec: Support 64-bit
+operations in address_space_rw, 2013-07-08).  Before that commit,
+memory_access_size would only return 1/2/4.
+
+Since alignment is already handled above, reduce l to the largest
+power of two that is smaller than l.
+
+Cc: qemu-stable@nongnu.org
+Reported-by: Oleksii Shevchuk <alxchk@gmail.com>
+Tested-by: Oleksii Shevchuk <alxchk@gmail.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+(cherry picked from commit 098178f2749a63fbbb1a626dcc7d939d5cb2bde7)
+
+Signed-off-by: Michael Roth <mdroth@linux.vnet.ibm.com>
+---
+ exec.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/exec.c b/exec.c
+index 3ca9381..394f7e2 100644
+--- a/exec.c
++++ b/exec.c
+@@ -1928,6 +1928,9 @@ static int memory_access_size(MemoryRegion *mr, unsigned l, hwaddr addr)
+     if (l > access_size_max) {
+         l = access_size_max;
+     }
++    if (l & (l - 1)) {
++        l = 1 << (qemu_fls(l) - 1);
++    }
+ 
+     return l;
+ }

@@ -1,4 +1,4 @@
-From 846f71f534a6a026793eacb0c620f54eb30540a8 Mon Sep 17 00:00:00 2001
+From 2196426a9b081cb99f4bdefb854aaa206bdd0392 Mon Sep 17 00:00:00 2001
 From: Cole Robinson <crobinso@redhat.com>
 Date: Fri, 16 Aug 2013 12:14:51 -0400
 Subject: [PATCH] Fix migration from qemu-kvm
@@ -17,7 +17,7 @@ video memory bits.
  4 files changed, 74 insertions(+), 11 deletions(-)
 
 diff --git a/hw/acpi/piix4.c b/hw/acpi/piix4.c
-index c885690..e6c4c8b 100644
+index 3aaf18c..6fbe57c 100644
 --- a/hw/acpi/piix4.c
 +++ b/hw/acpi/piix4.c
 @@ -289,7 +289,13 @@ static int acpi_load_old(QEMUFile *f, void *opaque, int version_id)
@@ -76,7 +76,7 @@ index c537057..7ef3eff 100644
  };
  
 diff --git a/hw/i386/pc_piix.c b/hw/i386/pc_piix.c
-index 6e1e654..4fd5b6d 100644
+index 3df2ff9..28216ee 100644
 --- a/hw/i386/pc_piix.c
 +++ b/hw/i386/pc_piix.c
 @@ -377,6 +377,24 @@ static QEMUMachine pc_i440fx_machine_v1_4 = {

@@ -1,0 +1,78 @@
+From 7ab1044eb1ac2cbc7e65769edf44ced92b85b038 Mon Sep 17 00:00:00 2001
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Date: Mon, 2 Sep 2013 18:43:30 +0200
+Subject: [PATCH] memory: Provide separate handling of unassigned io ports
+ accesses
+
+Accesses to unassigned io ports shall return -1 on read and be ignored
+on write. Ensure these properties via dedicated ops, decoupling us from
+the memory core's handling of unassigned accesses.
+
+Cc: qemu-stable@nongnu.org
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+(cherry picked from commit 3bb28b7208b349e7a1b326e3c6ef9efac1d462bf)
+
+Signed-off-by: Michael Roth <mdroth@linux.vnet.ibm.com>
+---
+ exec.c                |  3 ++-
+ include/exec/ioport.h |  4 ++++
+ ioport.c              | 16 ++++++++++++++++
+ 3 files changed, 22 insertions(+), 1 deletion(-)
+
+diff --git a/exec.c b/exec.c
+index 2ea8f04..08eecb3 100644
+--- a/exec.c
++++ b/exec.c
+@@ -1821,7 +1821,8 @@ static void memory_map_init(void)
+     address_space_init(&address_space_memory, system_memory, "memory");
+ 
+     system_io = g_malloc(sizeof(*system_io));
+-    memory_region_init(system_io, NULL, "io", 65536);
++    memory_region_init_io(system_io, NULL, &unassigned_io_ops, NULL, "io",
++                          65536);
+     address_space_init(&address_space_io, system_io, "I/O");
+ 
+     memory_listener_register(&core_memory_listener, &address_space_memory);
+diff --git a/include/exec/ioport.h b/include/exec/ioport.h
+index bdd4e96..b3848be 100644
+--- a/include/exec/ioport.h
++++ b/include/exec/ioport.h
+@@ -45,6 +45,10 @@ typedef struct MemoryRegionPortio {
+ 
+ #define PORTIO_END_OF_LIST() { }
+ 
++#ifndef CONFIG_USER_ONLY
++extern const MemoryRegionOps unassigned_io_ops;
++#endif
++
+ void cpu_outb(pio_addr_t addr, uint8_t val);
+ void cpu_outw(pio_addr_t addr, uint16_t val);
+ void cpu_outl(pio_addr_t addr, uint32_t val);
+diff --git a/ioport.c b/ioport.c
+index 79b7f1a..707cce8 100644
+--- a/ioport.c
++++ b/ioport.c
+@@ -44,6 +44,22 @@ typedef struct MemoryRegionPortioList {
+     MemoryRegionPortio ports[];
+ } MemoryRegionPortioList;
+ 
++static uint64_t unassigned_io_read(void *opaque, hwaddr addr, unsigned size)
++{
++    return -1ULL;
++}
++
++static void unassigned_io_write(void *opaque, hwaddr addr, uint64_t val,
++                                unsigned size)
++{
++}
++
++const MemoryRegionOps unassigned_io_ops = {
++    .read = unassigned_io_read,
++    .write = unassigned_io_write,
++    .endianness = DEVICE_NATIVE_ENDIAN,
++};
++
+ void cpu_outb(pio_addr_t addr, uint8_t val)
+ {
+     LOG_IOPORT("outb: %04"FMT_pioaddr" %02"PRIx8"\n", addr, val);

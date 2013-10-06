@@ -1,0 +1,40 @@
+From 1110014801d368388bca2ed7c28aa695560c4991 Mon Sep 17 00:00:00 2001
+From: Hu Tao <hutao@cn.fujitsu.com>
+Date: Thu, 29 Aug 2013 18:21:16 +0800
+Subject: [PATCH] exec: check offset_within_address_space for register subpage
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+If offset_within_address_space falls in a page, then we register a
+subpage. So check offset_within_address_space rather than
+offset_within_region.
+
+Cc: qemu-stable@nongnu.org
+Cc: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Richard Henderson <rth@twiddle.net>
+Cc: "Andreas Färber" <afaerber@suse.de>
+Cc: Peter Maydell <peter.maydell@linaro.org>
+Cc: Blue Swirl <blauwirbel@gmail.com>
+Signed-off-by: Hu Tao <hutao@cn.fujitsu.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+(cherry picked from commit 88266249701032211c1d7449460d063fbc01bf12)
+
+Signed-off-by: Michael Roth <mdroth@linux.vnet.ibm.com>
+---
+ exec.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/exec.c b/exec.c
+index 08eecb3..f6674e5 100644
+--- a/exec.c
++++ b/exec.c
+@@ -869,7 +869,7 @@ static void mem_add(MemoryListener *listener, MemoryRegionSection *section)
+         now = remain;
+         if (int128_lt(remain.size, page_size)) {
+             register_subpage(d, &now);
+-        } else if (remain.offset_within_region & ~TARGET_PAGE_MASK) {
++        } else if (remain.offset_within_address_space & ~TARGET_PAGE_MASK) {
+             now.size = page_size;
+             register_subpage(d, &now);
+         } else {

@@ -1,0 +1,33 @@
+From ae00a27feab0ca12d2a802cfae9ee65ba3d43602 Mon Sep 17 00:00:00 2001
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Date: Wed, 11 Sep 2013 13:33:31 +0300
+Subject: [PATCH] piix4: disable io on reset
+
+io base register at 0x40 is cleared on reset,
+but io is not disabled until some other event
+happens to call pm_io_space_update.
+
+Invoke pm_io_space_update directly to make this
+consistent.
+
+Cc: qemu-stable@nongnu.org
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+(cherry picked from commit c046e8c4a26c902ca1b4f5bdf668a2da6bc75f54)
+
+Signed-off-by: Michael Roth <mdroth@linux.vnet.ibm.com>
+---
+ hw/acpi/piix4.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/hw/acpi/piix4.c b/hw/acpi/piix4.c
+index c885690..3aaf18c 100644
+--- a/hw/acpi/piix4.c
++++ b/hw/acpi/piix4.c
+@@ -380,6 +380,7 @@ static void piix4_reset(void *opaque)
+         /* Mark SMM as already inited (until KVM supports SMM). */
+         pci_conf[0x5B] = 0x02;
+     }
++    pm_io_space_update(s);
+     piix4_update_hotplug(s);
+ }
+ 

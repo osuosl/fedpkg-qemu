@@ -1,0 +1,48 @@
+From c09a4634d945df5d7e1fbc394646e78d7d713c67 Mon Sep 17 00:00:00 2001
+From: Gerd Hoffmann <kraxel@redhat.com>
+Date: Tue, 27 Aug 2013 17:00:04 +0200
+Subject: [PATCH] Revert "usb-hub: report status changes only once"
+
+This reverts commit a309ee6e0a256f690760abfba44fceaa52a7c2f3.
+
+This isn't in line with the usb specification and adds regressions,
+win7 fails to drive the usb hub for example.
+
+Was added because it "solved" the issue of hubs interacting badly
+with the xhci host controller.  Now with the root cause being fixed
+in xhci (commit <FIXME>) we can revert this one.
+
+Cc: qemu-stable@nongnu.org
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+(cherry picked from commit bdebd6ee81f4d849aa8541c289203e3992450db0)
+
+Signed-off-by: Michael Roth <mdroth@linux.vnet.ibm.com>
+---
+ hw/usb/dev-hub.c | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
+
+diff --git a/hw/usb/dev-hub.c b/hw/usb/dev-hub.c
+index e865a98..4188a3c 100644
+--- a/hw/usb/dev-hub.c
++++ b/hw/usb/dev-hub.c
+@@ -33,7 +33,6 @@ typedef struct USBHubPort {
+     USBPort port;
+     uint16_t wPortStatus;
+     uint16_t wPortChange;
+-    uint16_t wPortChange_reported;
+ } USBHubPort;
+ 
+ typedef struct USBHubState {
+@@ -468,11 +467,8 @@ static void usb_hub_handle_data(USBDevice *dev, USBPacket *p)
+             status = 0;
+             for(i = 0; i < NUM_PORTS; i++) {
+                 port = &s->ports[i];
+-                if (port->wPortChange &&
+-                    port->wPortChange_reported != port->wPortChange) {
++                if (port->wPortChange)
+                     status |= (1 << (i + 1));
+-                }
+-                port->wPortChange_reported = port->wPortChange;
+             }
+             if (status != 0) {
+                 for(i = 0; i < n; i++) {

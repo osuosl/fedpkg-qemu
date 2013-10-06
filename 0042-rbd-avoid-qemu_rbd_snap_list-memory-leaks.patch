@@ -1,0 +1,43 @@
+From fc06b430942e84a2a69e2a80a6d5b376a8064020 Mon Sep 17 00:00:00 2001
+From: Stefan Hajnoczi <stefanha@redhat.com>
+Date: Wed, 25 Sep 2013 16:00:48 +0200
+Subject: [PATCH] rbd: avoid qemu_rbd_snap_list() memory leaks
+
+When there are no snapshots qemu_rbd_snap_list() returns 0 and the
+snapshot table pointer is NULL.  Don't forget to free the snaps buffer
+we allocated for librbd rbd_snap_list().
+
+When the function succeeds don't forget to free the snaps buffer after
+calling rbd_snap_list_end().
+
+Cc: qemu-stable@nongnu.org
+Signed-off-by: Stefan Hajnoczi <stefanha@redhat.com>
+Signed-off-by: Kevin Wolf <kwolf@redhat.com>
+(cherry picked from commit 9e6337d0818650362149b734d53edf9489f3acaa)
+
+Signed-off-by: Michael Roth <mdroth@linux.vnet.ibm.com>
+---
+ block/rbd.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/block/rbd.c b/block/rbd.c
+index cb71751..7e7c735 100644
+--- a/block/rbd.c
++++ b/block/rbd.c
+@@ -934,7 +934,7 @@ static int qemu_rbd_snap_list(BlockDriverState *bs,
+     do {
+         snaps = g_malloc(sizeof(*snaps) * max_snaps);
+         snap_count = rbd_snap_list(s->image, snaps, &max_snaps);
+-        if (snap_count < 0) {
++        if (snap_count <= 0) {
+             g_free(snaps);
+         }
+     } while (snap_count == -ERANGE);
+@@ -958,6 +958,7 @@ static int qemu_rbd_snap_list(BlockDriverState *bs,
+         sn_info->vm_clock_nsec = 0;
+     }
+     rbd_snap_list_end(snaps);
++    g_free(snaps);
+ 
+  done:
+     *psn_tab = sn_tab;

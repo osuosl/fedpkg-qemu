@@ -1,4 +1,4 @@
-From b8decc166db51601a6ad6f1df1752e9a9dc4544c Mon Sep 17 00:00:00 2001
+From 07873f45017c04994496d8dc3f7acb60358bba49 Mon Sep 17 00:00:00 2001
 From: Paolo Bonzini <pbonzini@redhat.com>
 Date: Thu, 2 May 2013 11:38:37 +0200
 Subject: [PATCH] pci: do not export pci_bus_reset

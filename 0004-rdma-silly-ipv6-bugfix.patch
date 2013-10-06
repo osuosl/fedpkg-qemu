@@ -1,0 +1,37 @@
+From 260790645e95891cb264c2d657648f43401ac915 Mon Sep 17 00:00:00 2001
+From: "Michael R. Hines" <mrhines@us.ibm.com>
+Date: Sun, 18 Aug 2013 22:27:08 -0400
+Subject: [PATCH] rdma: silly ipv6 bugfix
+
+My bad - but it's very important for us to warn the user that
+IPv6 is broken on RoCE in linux right now, until linux releases
+a fixed version.
+
+Signed-off-by: Michael R. Hines <mrhines@us.ibm.com>
+Signed-off-by: Michael Tokarev <mjt@tls.msk.ru>
+(cherry picked from commit c89aa2f1851b08c3efa8a1070c0a6b9a36e1227f)
+
+Signed-off-by: Michael Roth <mdroth@linux.vnet.ibm.com>
+---
+ migration-rdma.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
+
+diff --git a/migration-rdma.c b/migration-rdma.c
+index 3d1266f..f5e75d6 100644
+--- a/migration-rdma.c
++++ b/migration-rdma.c
+@@ -920,9 +920,11 @@ static int qemu_rdma_resolve_host(RDMAContext *rdma, Error **errp)
+         ret = rdma_resolve_addr(rdma->cm_id, NULL, e->ai_dst_addr,
+                 RDMA_RESOLVE_TIMEOUT_MS);
+         if (!ret) {
+-            ret = qemu_rdma_broken_ipv6_kernel(errp, rdma->cm_id->verbs);
+-            if (ret) {
+-                continue;
++            if (e->ai_family == AF_INET6) {
++                ret = qemu_rdma_broken_ipv6_kernel(errp, rdma->cm_id->verbs);
++                if (ret) {
++                    continue;
++                }
+             }
+             goto route;
+         }

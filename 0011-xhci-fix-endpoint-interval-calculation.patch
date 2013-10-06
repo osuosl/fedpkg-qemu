@@ -1,0 +1,27 @@
+From c0a5eb81b43e56569cfdb9c86fd78930b2765b96 Mon Sep 17 00:00:00 2001
+From: Gerd Hoffmann <kraxel@redhat.com>
+Date: Wed, 28 Aug 2013 11:39:02 +0200
+Subject: [PATCH] xhci: fix endpoint interval calculation
+
+Cc: qemu-stable@nongnu.org
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+(cherry picked from commit ca7162782a293f525633e5816470498dd86a51cf)
+
+Signed-off-by: Michael Roth <mdroth@linux.vnet.ibm.com>
+---
+ hw/usb/hcd-xhci.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/hw/usb/hcd-xhci.c b/hw/usb/hcd-xhci.c
+index 58c88b8..3c0ba8e 100644
+--- a/hw/usb/hcd-xhci.c
++++ b/hw/usb/hcd-xhci.c
+@@ -1257,7 +1257,7 @@ static void xhci_init_epctx(XHCIEPContext *epctx,
+         epctx->ring.ccs = ctx[2] & 1;
+     }
+ 
+-    epctx->interval = 1 << (ctx[0] >> 16) & 0xff;
++    epctx->interval = 1 << ((ctx[0] >> 16) & 0xff);
+ }
+ 
+ static TRBCCode xhci_enable_ep(XHCIState *xhci, unsigned int slotid,

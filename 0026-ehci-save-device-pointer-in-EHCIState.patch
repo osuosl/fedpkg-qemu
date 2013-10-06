@@ -1,4 +1,4 @@
-From f0679fb95d2c1b9597b83184309e70cc3c3e3b1d Mon Sep 17 00:00:00 2001
+From b6d163fdd8131285a01fe46e6afdba727e4df9ca Mon Sep 17 00:00:00 2001
 From: Gerd Hoffmann <kraxel@redhat.com>
 Date: Mon, 9 Sep 2013 10:18:17 +0200
 Subject: [PATCH] ehci: save device pointer in EHCIState
@@ -10,6 +10,8 @@ https://bugzilla.redhat.com/show_bug.cgi?id=1005495
 
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 (cherry picked from commit adbecc89731cf3e0ae656d50ea9fa58c589c4bdc)
+
+Signed-off-by: Michael Roth <mdroth@linux.vnet.ibm.com>
 ---
  hw/usb/hcd-ehci.c | 7 +++----
  hw/usb/hcd-ehci.h | 1 +

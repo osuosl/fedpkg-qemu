@@ -1,0 +1,45 @@
+From 76f698948781a148d336ff9032159f6c7c9eccd2 Mon Sep 17 00:00:00 2001
+From: Aurelien Jarno <aurelien@aurel32.net>
+Date: Wed, 28 Aug 2013 14:17:39 +0200
+Subject: [PATCH] pcnet-pci: mark I/O and MMIO as LITTLE_ENDIAN
+
+Now that the memory subsystem is propagating the endianness correctly,
+the pcnet-pci device should have its I/O ports and MMIO memory marked
+as LITTLE_ENDIAN, as PCI devices are little endian.
+
+This makes the pcnet-pci NIC to work again on big endian MIPS Malta
+(default NIC).
+
+Cc: qemu-stable@nongnu.org
+Signed-off-by: Aurelien Jarno <aurelien@aurel32.net>
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+Signed-off-by: Stefan Hajnoczi <stefanha@redhat.com>
+(cherry picked from commit a26405b350c0d31d5ef53f3b459aeb6eaaf50db0)
+
+Signed-off-by: Michael Roth <mdroth@linux.vnet.ibm.com>
+---
+ hw/net/pcnet-pci.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/hw/net/pcnet-pci.c b/hw/net/pcnet-pci.c
+index 2c2301c..23fc33c 100644
+--- a/hw/net/pcnet-pci.c
++++ b/hw/net/pcnet-pci.c
+@@ -134,7 +134,7 @@ static void pcnet_ioport_write(void *opaque, hwaddr addr,
+ static const MemoryRegionOps pcnet_io_ops = {
+     .read = pcnet_ioport_read,
+     .write = pcnet_ioport_write,
+-    .endianness = DEVICE_NATIVE_ENDIAN,
++    .endianness = DEVICE_LITTLE_ENDIAN,
+ };
+ 
+ static void pcnet_mmio_writeb(void *opaque, hwaddr addr, uint32_t val)
+@@ -256,7 +256,7 @@ static const MemoryRegionOps pcnet_mmio_ops = {
+         .read = { pcnet_mmio_readb, pcnet_mmio_readw, pcnet_mmio_readl },
+         .write = { pcnet_mmio_writeb, pcnet_mmio_writew, pcnet_mmio_writel },
+     },
+-    .endianness = DEVICE_NATIVE_ENDIAN,
++    .endianness = DEVICE_LITTLE_ENDIAN,
+ };
+ 
+ static void pci_physical_memory_write(void *dma_opaque, hwaddr addr,

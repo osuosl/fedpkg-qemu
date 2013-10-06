@@ -1,0 +1,49 @@
+From 964e0d4ec52ea7400ccc69de69b05ac913bbfff8 Mon Sep 17 00:00:00 2001
+From: Markus Armbruster <armbru@redhat.com>
+Date: Fri, 23 Aug 2013 18:01:58 +0200
+Subject: [PATCH] scsi: Fix scsi_bus_legacy_add_drive() scsi-generic with
+ serial
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+scsi_bus_legacy_add_drive() creates either a scsi-disk or a
+scsi-generic device.  It sets property "serial" to argument serial
+unless null.  Crashes with scsi-generic, because it doesn't have such
+the property.
+
+Only usb_msd_initfn_storage() passes non-null serial.  Reproducer:
+
+    $ qemu-system-x86_64 -nodefaults -display none -S -usb \
+    -drive if=none,file=/dev/sg1,id=usb-drv0 \
+    -device usb-storage,id=usb-msd0,drive=usb-drv0,serial=123
+    qemu-system-x86_64: -device usb-storage,id=usb-msd0,drive=usb-drv0,serial=123: Property '.serial' not found
+    Aborted (core dumped)
+
+Fix by handling exactly like "removable": set the property only when
+it exists.
+
+Cc: qemu-stable@nongnu.org
+Reviewed-by: Andreas Färber <afaerber@suse.de>
+Signed-off-by: Markus Armbruster <armbru@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+(cherry picked from commit c24e7517ee4a98e90eee5f0f07708a1fa12326b3)
+
+Signed-off-by: Michael Roth <mdroth@linux.vnet.ibm.com>
+---
+ hw/scsi/scsi-bus.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/hw/scsi/scsi-bus.c b/hw/scsi/scsi-bus.c
+index fbf9173..8fe4f4c 100644
+--- a/hw/scsi/scsi-bus.c
++++ b/hw/scsi/scsi-bus.c
+@@ -224,7 +224,7 @@ SCSIDevice *scsi_bus_legacy_add_drive(SCSIBus *bus, BlockDriverState *bdrv,
+     if (object_property_find(OBJECT(dev), "removable", NULL)) {
+         qdev_prop_set_bit(dev, "removable", removable);
+     }
+-    if (serial) {
++    if (serial && object_property_find(OBJECT(dev), "serial", NULL)) {
+         qdev_prop_set_string(dev, "serial", serial);
+     }
+     if (qdev_prop_set_drive(dev, "drive", bdrv) < 0) {

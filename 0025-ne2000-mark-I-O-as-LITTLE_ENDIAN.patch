@@ -1,0 +1,35 @@
+From a1991d05d37ac9054d772b32d8fac70bc31be81a Mon Sep 17 00:00:00 2001
+From: Aurelien Jarno <aurelien@aurel32.net>
+Date: Mon, 2 Sep 2013 13:10:34 +0200
+Subject: [PATCH] ne2000: mark I/O as LITTLE_ENDIAN
+
+Now that the memory subsystem is propagating the endianness correctly,
+the ne2000 device should have its I/O ports marked as LITTLE_ENDIAN, as
+PCI devices are little endian.
+
+This makes the ne2000 NIC to work again on PowerPC.
+
+Cc: qemu-stable@nongnu.org
+Cc: Stefan Hajnoczi <stefanha@redhat.com>
+Signed-off-by: Aurelien Jarno <aurelien@aurel32.net>
+Signed-off-by: Stefan Hajnoczi <stefanha@redhat.com>
+(cherry picked from commit 45d883dcf208160e2db308d1b368beb74f37dc7e)
+
+Signed-off-by: Michael Roth <mdroth@linux.vnet.ibm.com>
+---
+ hw/net/ne2000.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/hw/net/ne2000.c b/hw/net/ne2000.c
+index 31afd28..c961258 100644
+--- a/hw/net/ne2000.c
++++ b/hw/net/ne2000.c
+@@ -693,7 +693,7 @@ static void ne2000_write(void *opaque, hwaddr addr,
+ static const MemoryRegionOps ne2000_ops = {
+     .read = ne2000_read,
+     .write = ne2000_write,
+-    .endianness = DEVICE_NATIVE_ENDIAN,
++    .endianness = DEVICE_LITTLE_ENDIAN,
+ };
+ 
+ /***********************************************************/

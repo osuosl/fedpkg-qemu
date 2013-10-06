@@ -1,0 +1,45 @@
+From 3fe494efc5eb107c4c90e96df3e6131f9960f4b9 Mon Sep 17 00:00:00 2001
+From: Anton Blanchard <anton@samba.org>
+Date: Tue, 13 Aug 2013 14:10:04 +1000
+Subject: [PATCH] pseries: Fix stalls on hypervisor virtual console
+
+A number of users are reporting stalls when using the pseries
+hypervisor virtual console.
+
+A simple test case is to paste 15 or 17 characters at a time
+into the console. Pasting 15 characters at a time works fine
+but pasting 17 characters hangs for a random amount of time.
+Other activity (network, qemu monitor etc) unblocks it.
+
+If qemu-char tries to send more than 16 characters at once,
+vty_can_receive returns false. At this point we have to
+wait for the guest to consume that output. Everything is good
+so far.
+
+The problem occurs when the the guest does consume the output.
+We need to signal back to the qemu-char layer that we are
+ready for more input. Without this we block until something
+else kicks us (eg network activity).
+
+Signed-off-by: Anton Blanchard <anton@samba.org>
+Signed-off-by: Alexander Graf <agraf@suse.de>
+(cherry picked from commit 7770b6f78a2d655e03852a5de238f5926c92be6a)
+
+Signed-off-by: Michael Roth <mdroth@linux.vnet.ibm.com>
+---
+ hw/char/spapr_vty.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/hw/char/spapr_vty.c b/hw/char/spapr_vty.c
+index a799721..9c2aef8 100644
+--- a/hw/char/spapr_vty.c
++++ b/hw/char/spapr_vty.c
+@@ -47,6 +47,8 @@ static int vty_getchars(VIOsPAPRDevice *sdev, uint8_t *buf, int max)
+         buf[n++] = dev->buf[dev->out++ % VTERM_BUFSIZE];
+     }
+ 
++    qemu_chr_accept_input(dev->chardev);
++
+     return n;
+ }
+ 

@@ -1,4 +1,4 @@
-From 7dbd6881f10537bf586f1eedf5a3bda2e50174ca Mon Sep 17 00:00:00 2001
+From cf09bc533d82f2b16d1e9f4888c1afd977ca256d Mon Sep 17 00:00:00 2001
 From: Paolo Bonzini <pbonzini@redhat.com>
 Date: Thu, 2 May 2013 11:38:38 +0200
 Subject: [PATCH] qdev: allow both pre- and post-order vists in qdev walking

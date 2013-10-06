@@ -1,4 +1,4 @@
-From 56cee96f3c71ffee457d8fbdf427c47824a12e05 Mon Sep 17 00:00:00 2001
+From 85a924af30f31a4f701ee6f18d84dd27aa02f47b Mon Sep 17 00:00:00 2001
 From: Paolo Bonzini <pbonzini@redhat.com>
 Date: Tue, 13 Aug 2013 00:02:18 +0200
 Subject: [PATCH] isapc: disable kvmvapic
@@ -18,7 +18,7 @@ Signed-off-by: Cole Robinson <crobinso@redhat.com>
  1 file changed, 5 insertions(+), 1 deletion(-)
 
 diff --git a/hw/i386/pc_piix.c b/hw/i386/pc_piix.c
-index 4fd5b6d..462d991 100644
+index 28216ee..2f2cb4d 100644
 --- a/hw/i386/pc_piix.c
 +++ b/hw/i386/pc_piix.c
 @@ -795,7 +795,11 @@ static QEMUMachine isapc_machine = {

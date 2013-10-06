@@ -1,6 +1,6 @@
-From f3e59ce7c471d3f0f1f293ecd0ef3e1797ce411f Mon Sep 17 00:00:00 2001
+From 8b4b3a71fd35d67c5c30652a120c0a59dfab7182 Mon Sep 17 00:00:00 2001
 From: Cole Robinson <crobinso@redhat.com>
-Date: Sat, 31 Aug 2013 18:25:01 -0400
+Date: Sat, 31 Aug 2013 18:36:17 -0400
 Subject: [PATCH] qapi-types.py: Fix enum struct sizes on i686
 
 Unlike other list types, enum wasn't adding any padding, which caused
@@ -15,7 +15,13 @@ upsets libvirt capabilities probing. Reproducer on i686:
 https://bugs.launchpad.net/qemu/+bug/1219207
 
 Cc: qemu-stable@nongnu.org
-(cherry picked from commit a9d960fb0b1bc104294ab965116a2d53038b4692)
+Signed-off-by: Cole Robinson <crobinso@redhat.com>
+Reviewed-by: Eric Blake <eblake@redhat.com>
+Tested-by: Richard W.M. Jones <rjones@redhat.com>
+Signed-off-by: Luiz Capitulino <lcapitulino@redhat.com>
+(cherry picked from commit 02dc4bf5684d3fb46786fab2ecff98214b1df9fe)
+
+Signed-off-by: Michael Roth <mdroth@linux.vnet.ibm.com>
 ---
  scripts/qapi-types.py | 5 ++++-
  1 file changed, 4 insertions(+), 1 deletion(-)
