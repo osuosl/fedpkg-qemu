@@ -131,7 +131,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.4.2
-Release: 11%{?dist}
+Release: 12%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -295,11 +295,17 @@ Patch0313: 0313-qdev-allow-both-pre-and-post-order-vists-in-qdev-wal.patch
 Patch0314: 0314-qdev-switch-reset-to-post-order.patch
 # Fix crash in scsi_dma_complete (bz #1001617)
 Patch0315: 0315-scsi-avoid-assertion-failure-on-VERIFY-command.patch
-# ppc64 hangs at "Trying to read invalid spr 896 380 at .." (bz #1004532)
+# ppc64 hangs at "Trying to read invalid spr 896 380 at .." (bz
+# #1004532)
 Patch0316: 0316-target-ppc-Add-read-and-write-of-PPR-SPR.patch
-
 # Fix screenshots for qxl kernel driver (bz #948717)
-Patch0400: 0400-qxl-fix-local-renderer.patch
+Patch0317: 0317-qxl-fix-local-renderer.patch
+# CVE-2013-4344: buffer overflow in scsi_target_emulate_report_luns (bz
+# #1015274, bz #1007330)
+Patch0318: 0318-scsi-Allocate-SCSITargetReq-r-buf-dynamically.patch
+# Fix 9pfs xattrs on kernel 3.11 (bz #1013676)
+Patch0319: 0319-hw-9pfs-Be-robust-against-paths-without-FS_IOC_GETVE.patch
+Patch0320: 0320-hw-9pfs-Fix-errno-value-for-xattr-functions.patch
 
 BuildRequires: SDL-devel
 BuildRequires: zlib-devel
@@ -892,10 +898,17 @@ CAC emulation development files.
 %patch0314 -p1
 # Fix crash in scsi_dma_complete (bz #1001617)
 %patch0315 -p1
-# ppc64 hangs at "Trying to read invalid spr 896 380 at .." (bz #1004532)
+# ppc64 hangs at "Trying to read invalid spr 896 380 at .." (bz
+# #1004532)
 %patch0316 -p1
 # Fix screenshots for qxl kernel driver (bz #948717)
-%patch0400 -p1
+%patch0317 -p1
+# CVE-2013-4344: buffer overflow in scsi_target_emulate_report_luns (bz
+# #1015274, bz #1007330)
+%patch0318 -p1
+# Fix 9pfs xattrs on kernel 3.11 (bz #1013676)
+%patch0319 -p1
+%patch0320 -p1
 
 %build
 %if %{with kvmonly}
@@ -1543,6 +1556,11 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Sun Oct 06 2013 Cole Robinson <crobinso@redhat.com> - 2:1.4.2-12
+- CVE-2013-4344: buffer overflow in scsi_target_emulate_report_luns (bz
+  #1015274, bz #1007330)
+- Fix 9pfs xattrs on kernel 3.11 (bz #1013676)
+
 * Wed Sep 25 2013 Alon Levy <alevy@redhat.com> 2:1.4.2-11
 - Fix screenshots for qxl kernel driver (bz #948717)
 

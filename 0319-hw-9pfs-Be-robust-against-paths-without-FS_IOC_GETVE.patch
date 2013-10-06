@@ -1,0 +1,42 @@
+From 5ba99e361671bc22bfc3ce45d866826f297e25b7 Mon Sep 17 00:00:00 2001
+From: Gabriel de Perthuis <g2p.code@gmail.com>
+Date: Fri, 10 May 2013 19:53:28 +0200
+Subject: [PATCH] hw/9pfs: Be robust against paths without FS_IOC_GETVERSION
+
+9P optionally uses the FS_IOC_GETVERSION ioctl to get information about
+a file's version (sometimes called generation number).
+
+The code checks for supported filesystems at mount time, but some paths
+may come from other mounted filesystems.
+
+Change it to treat unsupported paths the same as unsupported
+filesystems, returning 0 in both cases.
+
+Note: ENOTTY is the error code for an unsupported ioctl.
+
+This fix allows booting a linux kernel with the same / filesystem as the
+host; otherwise the boot fails when mounting devtmpfs.
+
+Signed-off-by: Gabriel de Perthuis <g2p.code@gmail.com>
+Reviewed-by: Aneesh Kumar K.V <aneesh.kumar@linux.vnet.ibm.com>
+Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.vnet.ibm.com>
+(cherry picked from commit db431f6adc881a0758512cd765b3108209013512)
+---
+ hw/9pfs/cofile.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/hw/9pfs/cofile.c b/hw/9pfs/cofile.c
+index 2efebf3..194c130 100644
+--- a/hw/9pfs/cofile.c
++++ b/hw/9pfs/cofile.c
+@@ -38,6 +38,10 @@ int v9fs_co_st_gen(V9fsPDU *pdu, V9fsPath *path, mode_t st_mode,
+             });
+         v9fs_path_unlock(s);
+     }
++    /* The ioctl may not be supported depending on the path */
++    if (err == -ENOTTY) {
++        err = 0;
++    }
+     return err;
+ }
+ 

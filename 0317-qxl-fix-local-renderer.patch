@@ -1,4 +1,4 @@
-From d7a39084ead4274e58f01b713676e34242cbe2a1 Mon Sep 17 00:00:00 2001
+From 95a8ab8e74cdf9140601b436edc9b7240ef2f8d4 Mon Sep 17 00:00:00 2001
 From: Gerd Hoffmann <kraxel@redhat.com>
 Date: Thu, 5 Sep 2013 21:57:19 +0200
 Subject: [PATCH] qxl: fix local renderer
@@ -18,10 +18,7 @@ memory location.
 https://bugzilla.redhat.com/show_bug.cgi?id=948717
 
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
-
-cherry-picked from c58c7b959b93b864a27fd6b3646ee1465ab8832b
- applied cleanly to hw/qxl-render.c (upstream renamed to
- hw/display/qxl-render.c)
+(cherry picked from commit c58c7b959b93b864a27fd6b3646ee1465ab8832b)
 ---
  hw/qxl-render.c | 15 ++++++++++-----
  1 file changed, 10 insertions(+), 5 deletions(-)
@@ -66,6 +63,3 @@ index 455fb91..fe21b18 100644
      for (i = 0; i < qxl->num_dirty_rects; i++) {
          if (qemu_spice_rect_is_empty(qxl->dirty+i)) {
              break;
--- 
-1.8.3.1
-
