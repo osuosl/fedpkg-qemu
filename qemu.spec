@@ -139,7 +139,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.6.0
-Release: 9%{?dist}
+Release: 10%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -262,6 +262,9 @@ Patch0202: 0202-qcow2-Discard-VM-state-in-active-L1-after-creating-s.patch
 # Fix 9pfs xattrs on kernel 3.11 (bz #1013676)
 # Patch posted upstream
 Patch0203: 0203-hw-9pfs-Fix-errno-value-for-xattr-functions.patch
+# Fix migration from qemu <= 1.5
+# Patch posted upstream
+Patch0204: 0204-Fix-pc-migration-from-qemu-1.5.patch
 
 BuildRequires: SDL-devel
 BuildRequires: zlib-devel
@@ -856,6 +859,9 @@ CAC emulation development files.
 # Fix 9pfs xattrs on kernel 3.11 (bz #1013676)
 # Patch posted upstream
 %patch0203 -p1
+# Fix migration from qemu <= 1.5
+# Patch posted upstream
+%patch0204 -p1
 
 
 %build
@@ -1564,6 +1570,9 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Wed Oct 09 2013 Cole Robinson <crobinso@redhat.com> - 2:1.6.0-10
+- Fix migration from qemu <= 1.5
+
 * Sun Oct 06 2013 Cole Robinson <crobinso@redhat.com> - 2:1.6.0-9
 - Rebase to pending 1.6.1 stable
 - CVE-2013-4377: Fix crash when unplugging virtio devices (bz #1012633, bz

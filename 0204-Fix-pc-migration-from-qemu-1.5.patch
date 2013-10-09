@@ -1,0 +1,202 @@
+From 16f89cbf7737626a0ab24a5b0fd7ce4ab940f5a2 Mon Sep 17 00:00:00 2001
+From: Cole Robinson <crobinso@redhat.com>
+Date: Mon, 7 Oct 2013 16:32:24 -0400
+Subject: [PATCH] Fix pc migration from qemu <= 1.5
+
+The following commit introduced a migration incompatibility:
+
+commit 568f0690fd9aa4d39d84b04c1a5dbb53a915c3fe
+Author: David Gibson <david@gibson.dropbear.id.au>
+Date:   Thu Jun 6 18:48:49 2013 +1000
+
+    pci: Replace pci_find_domain() with more general pci_root_bus_path()
+
+The issue is that i440fx savevm idstr went from 0000:00:00.0/I440FX to
+0000:00.0/I440FX. Unfortunately we are stuck with the breakage for
+1.6 machine types.
+
+Add a compat property to maintain the busted idstr for the 1.6 machine
+types, but revert to the old style format for 1.7+, and <= 1.5.
+
+Tested with migration from qemu 1.5, qemu 1.6, and qemu.git.
+
+Cc: qemu-stable@nongnu.org
+---
+ hw/i386/pc_piix.c         | 11 +++++++++++
+ hw/i386/pc_q35.c          | 11 +++++++++++
+ hw/pci-host/piix.c        |  9 ++++++++-
+ hw/pci-host/q35.c         | 10 ++++++++--
+ include/hw/i386/pc.h      | 20 ++++++++++++++++++++
+ include/hw/pci-host/q35.h |  1 +
+ 6 files changed, 59 insertions(+), 3 deletions(-)
+
+diff --git a/hw/i386/pc_piix.c b/hw/i386/pc_piix.c
+index 2f2cb4d..10866f5 100644
+--- a/hw/i386/pc_piix.c
++++ b/hw/i386/pc_piix.c
+@@ -341,6 +341,13 @@ static void pc_xen_hvm_init(QEMUMachineInitArgs *args)
+ }
+ #endif
+ 
++#define PC_I440FX_MACHINE_OPTIONS \
++    PC_DEFAULT_MACHINE_OPTIONS, \
++    .desc = "Standard PC (i440FX + PIIX, 1996)", \
++    .hot_add_cpu = pc_hot_add_cpu
++
++#define PC_I440FX_1_6_MACHINE_OPTIONS PC_I440FX_MACHINE_OPTIONS
++
+ static QEMUMachine pc_i440fx_machine_v1_6 = {
+     .name = "pc-i440fx-1.6",
+     .alias = "pc",
+@@ -349,6 +356,10 @@ static QEMUMachine pc_i440fx_machine_v1_6 = {
+     .hot_add_cpu = pc_hot_add_cpu,
+     .max_cpus = 255,
+     .is_default = 1,
++    .compat_props = (GlobalProperty[]) {
++        PC_COMPAT_1_6,
++        { /* end of list */ }
++    },
+     DEFAULT_MACHINE_OPTIONS,
+ };
+ 
+diff --git a/hw/i386/pc_q35.c b/hw/i386/pc_q35.c
+index dd13130..4998ed3 100644
+--- a/hw/i386/pc_q35.c
++++ b/hw/i386/pc_q35.c
+@@ -243,6 +243,13 @@ static void pc_q35_init_1_4(QEMUMachineInitArgs *args)
+     pc_q35_init(args);
+ }
+ 
++#define PC_Q35_MACHINE_OPTIONS \
++    PC_DEFAULT_MACHINE_OPTIONS, \
++    .desc = "Standard PC (Q35 + ICH9, 2009)", \
++    .hot_add_cpu = pc_hot_add_cpu
++
++#define PC_Q35_1_6_MACHINE_OPTIONS PC_Q35_MACHINE_OPTIONS
++
+ static QEMUMachine pc_q35_machine_v1_6 = {
+     .name = "pc-q35-1.6",
+     .alias = "q35",
+@@ -250,6 +257,10 @@ static QEMUMachine pc_q35_machine_v1_6 = {
+     .init = pc_q35_init_1_6,
+     .hot_add_cpu = pc_hot_add_cpu,
+     .max_cpus = 255,
++    .compat_props = (GlobalProperty[]) {
++        PC_COMPAT_1_6,
++        { /* end of list */ }
++    },
+     DEFAULT_MACHINE_OPTIONS,
+ };
+ 
+diff --git a/hw/pci-host/piix.c b/hw/pci-host/piix.c
+index 221d82b..967f949 100644
+--- a/hw/pci-host/piix.c
++++ b/hw/pci-host/piix.c
+@@ -48,6 +48,7 @@ typedef struct I440FXState {
+     PCIHostState parent_obj;
+     PcPciInfo pci_info;
+     uint64_t pci_hole64_size;
++    uint32_t short_root_bus;
+ } I440FXState;
+ 
+ #define PIIX_NUM_PIC_IRQS       16      /* i8259 * 2 */
+@@ -706,13 +707,19 @@ static const TypeInfo i440fx_info = {
+ static const char *i440fx_pcihost_root_bus_path(PCIHostState *host_bridge,
+                                                 PCIBus *rootbus)
+ {
++    I440FXState *s = I440FX_PCI_HOST_BRIDGE(host_bridge);
++
+     /* For backwards compat with old device paths */
+-    return "0000";
++    if (s->short_root_bus) {
++        return "0000";
++    }
++    return "0000:00";
+ }
+ 
+ static Property i440fx_props[] = {
+     DEFINE_PROP_SIZE(PCI_HOST_PROP_PCI_HOLE64_SIZE, I440FXState,
+                      pci_hole64_size, DEFAULT_PCI_HOLE64_SIZE),
++    DEFINE_PROP_UINT32("short_root_bus", I440FXState, short_root_bus, 0),
+     DEFINE_PROP_END_OF_LIST(),
+ };
+ 
+diff --git a/hw/pci-host/q35.c b/hw/pci-host/q35.c
+index 4febd24..f762053 100644
+--- a/hw/pci-host/q35.c
++++ b/hw/pci-host/q35.c
+@@ -61,8 +61,13 @@ static void q35_host_realize(DeviceState *dev, Error **errp)
+ static const char *q35_host_root_bus_path(PCIHostState *host_bridge,
+                                           PCIBus *rootbus)
+ {
+-    /* For backwards compat with old device paths */
+-    return "0000";
++    Q35PCIHost *s = Q35_HOST_DEVICE(host_bridge);
++
++     /* For backwards compat with old device paths */
++    if (s->mch.short_root_bus) {
++        return "0000";
++    }
++    return "0000:00";
+ }
+ 
+ static void q35_host_get_pci_hole_start(Object *obj, Visitor *v,
+@@ -108,6 +113,7 @@ static Property mch_props[] = {
+                         MCH_HOST_BRIDGE_PCIEXBAR_DEFAULT),
+     DEFINE_PROP_SIZE(PCI_HOST_PROP_PCI_HOLE64_SIZE, Q35PCIHost,
+                      mch.pci_hole64_size, DEFAULT_PCI_HOLE64_SIZE),
++    DEFINE_PROP_UINT32("short_root_bus", Q35PCIHost, mch.short_root_bus, 0),
+     DEFINE_PROP_END_OF_LIST(),
+ };
+ 
+diff --git a/include/hw/i386/pc.h b/include/hw/i386/pc.h
+index 475ba9e..a0bbdd9 100644
+--- a/include/hw/i386/pc.h
++++ b/include/hw/i386/pc.h
+@@ -225,7 +225,19 @@ void pvpanic_init(ISABus *bus);
+ 
+ int e820_add_entry(uint64_t, uint64_t, uint32_t);
+ 
++#define PC_COMPAT_1_6 \
++        {\
++            .driver   = "i440FX-pcihost",\
++            .property = "short_root_bus",\
++            .value    = stringify(1),\
++        },{\
++            .driver   = "mch",\
++            .property = "short_root_bus",\
++            .value    = stringify(1),\
++        }
++
+ #define PC_COMPAT_1_5 \
++        PC_COMPAT_1_6, \
+         {\
+             .driver   = "Conroe-" TYPE_X86_CPU,\
+             .property = "model",\
+@@ -258,6 +270,14 @@ int e820_add_entry(uint64_t, uint64_t, uint32_t);
+             .driver = TYPE_X86_CPU,\
+             .property = "pmu",\
+             .value = "on",\
++        },{\
++            .driver   = "i440FX-pcihost",\
++            .property = "short_root_bus",\
++            .value    = stringify(0),\
++        },{\
++            .driver   = "mch",\
++            .property = "short_root_bus",\
++            .value    = stringify(0),\
+         }
+ 
+ #define PC_COMPAT_1_4 \
+diff --git a/include/hw/pci-host/q35.h b/include/hw/pci-host/q35.h
+index 6eb7ab6..95a3cc2 100644
+--- a/include/hw/pci-host/q35.h
++++ b/include/hw/pci-host/q35.h
+@@ -61,6 +61,7 @@ typedef struct MCHPCIState {
+     ram_addr_t above_4g_mem_size;
+     uint64_t pci_hole64_size;
+     PcGuestInfo *guest_info;
++    uint32_t short_root_bus;
+ } MCHPCIState;
+ 
+ typedef struct Q35PCIHost {
