@@ -131,7 +131,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.4.2
-Release: 12%{?dist}
+Release: 13%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -1150,7 +1150,6 @@ install -m 0644 %{SOURCE11} $RPM_BUILD_ROOT%{_udevdir}
 
 # Install rules to use the bridge helper with libvirt's virbr0
 install -m 0644 %{SOURCE12} $RPM_BUILD_ROOT%{_sysconfdir}/qemu
-chmod u+s $RPM_BUILD_ROOT%{_libexecdir}/qemu-bridge-helper
 
 find $RPM_BUILD_ROOT -name '*.la' -or -name '*.a' | xargs rm -f
 find $RPM_BUILD_ROOT -name "libcacard.so*" -exec chmod +x \{\} \;
@@ -1257,7 +1256,7 @@ getent passwd qemu >/dev/null || \
 %{_mandir}/man1/qemu.1*
 %{_mandir}/man1/virtfs-proxy-helper.1*
 %{_bindir}/virtfs-proxy-helper
-%{_libexecdir}/qemu-bridge-helper
+%attr(4755, root, root) %{_libexecdir}/qemu-bridge-helper
 %config(noreplace) %{_sysconfdir}/sasl2/qemu.conf
 %dir %{_sysconfdir}/qemu
 %config(noreplace) %{_sysconfdir}/qemu/bridge.conf
@@ -1556,6 +1555,11 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Tue Nov 05 2013 Cole Robinson <crobinso@redhat.com> - 2:1.4.2-13
+- ksmtuned: Fix matching qemu w/o set_process_name (bz #1012604)
+- ksmtuned: Fix committed_memory when no qemu running (bz #1012610)
+- Make sure bridge helper is setuid (bz #1017660)
+
 * Sun Oct 06 2013 Cole Robinson <crobinso@redhat.com> - 2:1.4.2-12
 - CVE-2013-4344: buffer overflow in scsi_target_emulate_report_luns (bz
   #1015274, bz #1007330)
