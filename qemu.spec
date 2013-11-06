@@ -138,8 +138,8 @@
 
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
-Version: 1.6.0
-Release: 10%{?dist}
+Version: 1.6.1
+Release: 1%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -180,91 +180,42 @@ Source12: bridge.conf
 # qemu-kvm back compat wrapper
 Source13: qemu-kvm.sh
 
-# Rebase to pending 1.6.1 stable
-Patch0001: 0001-block-ensure-bdrv_drain_all-works-during-bdrv_delete.patch
-Patch0002: 0002-gdbstub-Fix-gdb_register_coprocessor-register-counti.patch
-Patch0003: 0003-target-ppc-fix-bit-extraction-for-FPBF-and-FPL.patch
-Patch0004: 0004-rdma-silly-ipv6-bugfix.patch
-Patch0005: 0005-scripts-qapi.py-Avoid-syntax-not-supported-by-Python.patch
-Patch0006: 0006-usb-dev-hid-Modified-usb-tablet-category-from-Misc-t.patch
-Patch0007: 0007-scsi-Fix-scsi_bus_legacy_add_drive-scsi-generic-with.patch
-Patch0008: 0008-pc-fix-regression-for-64-bit-PCI-memory.patch
-Patch0009: 0009-pseries-Fix-stalls-on-hypervisor-virtual-console.patch
-Patch0010: 0010-virtio-virtqueue_get_avail_bytes-fix-desc_pa-when-lo.patch
-Patch0011: 0011-xhci-fix-endpoint-interval-calculation.patch
-Patch0012: 0012-Revert-usb-hub-report-status-changes-only-once.patch
-Patch0013: 0013-block-expect-errors-from-bdrv_co_is_allocated.patch
-Patch0014: 0014-target-i386-fix-disassembly-with-PAE-1-PG-0.patch
-Patch0015: 0015-adlib-sort-offsets-in-portio-registration.patch
-Patch0016: 0016-exec-fix-writing-to-MMIO-area-with-non-power-of-two-.patch
-Patch0017: 0017-virtio_pci-fix-level-interrupts-with-irqfd.patch
-Patch0018: 0018-exec-always-use-MADV_DONTFORK.patch
-Patch0019: 0019-xhci-reset-port-when-disabling-slot.patch
-Patch0020: 0020-usb-parallelize-usb3-streams.patch
-Patch0021: 0021-w32-Fix-access-to-host-devices-regression.patch
-Patch0022: 0022-memory-Provide-separate-handling-of-unassigned-io-po.patch
-Patch0023: 0023-Revert-memory-Return-1-again-on-reads-from-unsigned-.patch
-Patch0024: 0024-exec-check-offset_within_address_space-for-register-.patch
-Patch0025: 0025-ne2000-mark-I-O-as-LITTLE_ENDIAN.patch
-Patch0026: 0026-ehci-save-device-pointer-in-EHCIState.patch
-Patch0027: 0027-qxl-fix-local-renderer.patch
-Patch0028: 0028-pc-Initializing-ram_memory-under-Xen.patch
-Patch0029: 0029-pc_q35-Initialize-Xen.patch
-Patch0030: 0030-qapi-types.py-Fix-enum-struct-sizes-on-i686.patch
-Patch0031: 0031-pcnet-pci-mark-I-O-and-MMIO-as-LITTLE_ENDIAN.patch
-Patch0032: 0032-chardev-fix-pty_chr_timer.patch
-Patch0033: 0033-kvmvapic-Catch-invalid-ROM-size.patch
-Patch0034: 0034-kvmvapic-Enter-inactive-state-on-hardware-reset.patch
-Patch0035: 0035-kvmvapic-Clear-also-physical-ROM-address-when-enteri.patch
-Patch0036: 0036-tci-Fix-qemu-alpha-on-32-bit-hosts-wrong-assertions.patch
-Patch0037: 0037-blockdev-do-not-default-cache.no-flush-to-true.patch
-Patch0038: 0038-virtio-blk-do-not-relay-a-previous-driver-s-WCE-conf.patch
-Patch0039: 0039-xhci-emulate-intr-endpoint-intervals-correctly.patch
-Patch0040: 0040-iov-avoid-orig_len-may-be-used-unitialized-warning.patch
-Patch0041: 0041-tap-Use-numbered-tap-tun-devices-on-all-BSD-OS-s.patch
-Patch0042: 0042-rbd-avoid-qemu_rbd_snap_list-memory-leaks.patch
-Patch0043: 0043-vmdk-fix-cluster-size-check-for-flat-extents.patch
-Patch0044: 0044-piix4-disable-io-on-reset.patch
-Patch0045: 0045-coroutine-add-.-configure-disable-coroutine-pool.patch
-Patch0046: 0046-qemu-Adjust-qemu-wakeup.patch
-Patch0047: 0047-qemu-Add-qemu-xen-logic-for-Xen-HVM-S3-resume.patch
-Patch0048: 0048-scsi-Allocate-SCSITargetReq-r-buf-dynamically.patch
-Patch0049: 0049-Update-VERSION-for-1.6.1-release.patch
-
 # qemu-kvm migration compat (not for upstream, drop by Fedora 21?)
-Patch0101: 0101-Fix-migration-from-qemu-kvm.patch
+Patch0001: 0001-Fix-migration-from-qemu-kvm.patch
 # Fix crash with -M isapc -cpu Haswell (bz #986790)
-Patch0102: 0102-isapc-disable-kvmvapic.patch
+Patch0002: 0002-isapc-disable-kvmvapic.patch
 # Fix crash in lsi_soft_reset (bz #1000947)
 # Patches posted upstream
-Patch0103: 0103-pci-do-not-export-pci_bus_reset.patch
-Patch0104: 0104-qdev-allow-both-pre-and-post-order-vists-in-qdev-wal.patch
-Patch0105: 0105-qdev-switch-reset-to-post-order.patch
+Patch0003: 0003-pci-do-not-export-pci_bus_reset.patch
+Patch0004: 0004-qdev-allow-both-pre-and-post-order-vists-in-qdev-wal.patch
+Patch0005: 0005-qdev-switch-reset-to-post-order.patch
 # CVE-2013-4377: Fix crash when unplugging virtio devices (bz #1012633,
 # bz #1012641)
 # Patches posted upstream
-Patch0106: 0106-virtio-bus-remove-vdev-field.patch
-Patch0107: 0107-virtio-pci-remove-vdev-field.patch
-Patch0108: 0108-virtio-ccw-remove-vdev-field.patch
-Patch0109: 0109-virtio-bus-cleanup-plug-unplug-interface.patch
-Patch0110: 0110-virtio-blk-switch-exit-callback-to-VirtioDeviceClass.patch
-Patch0111: 0111-virtio-serial-switch-exit-callback-to-VirtioDeviceCl.patch
-Patch0112: 0112-virtio-net-switch-exit-callback-to-VirtioDeviceClass.patch
-Patch0113: 0113-virtio-scsi-switch-exit-callback-to-VirtioDeviceClas.patch
-Patch0114: 0114-virtio-balloon-switch-exit-callback-to-VirtioDeviceC.patch
-Patch0115: 0115-virtio-rng-switch-exit-callback-to-VirtioDeviceClass.patch
-Patch0116: 0116-virtio-pci-add-device_unplugged-callback.patch
+Patch0006: 0006-virtio-bus-remove-vdev-field.patch
+Patch0007: 0007-virtio-pci-remove-vdev-field.patch
+Patch0008: 0008-virtio-ccw-remove-vdev-field.patch
+Patch0009: 0009-virtio-bus-cleanup-plug-unplug-interface.patch
+Patch0010: 0010-virtio-blk-switch-exit-callback-to-VirtioDeviceClass.patch
+Patch0011: 0011-virtio-serial-switch-exit-callback-to-VirtioDeviceCl.patch
+Patch0012: 0012-virtio-net-switch-exit-callback-to-VirtioDeviceClass.patch
+Patch0013: 0013-virtio-scsi-switch-exit-callback-to-VirtioDeviceClas.patch
+Patch0014: 0014-virtio-balloon-switch-exit-callback-to-VirtioDeviceC.patch
+Patch0015: 0015-virtio-rng-switch-exit-callback-to-VirtioDeviceClass.patch
+Patch0016: 0016-virtio-pci-add-device_unplugged-callback.patch
 
 # Fix 'new snapshot' slowness after the first snap (bz #988436)
 # Patches queued for upstream
-Patch0201: 0201-qcow2-Pass-discard-type-to-qcow2_discard_clusters.patch
-Patch0202: 0202-qcow2-Discard-VM-state-in-active-L1-after-creating-s.patch
+Patch0101: 0101-qcow2-Pass-discard-type-to-qcow2_discard_clusters.patch
+Patch0102: 0102-qcow2-Discard-VM-state-in-active-L1-after-creating-s.patch
 # Fix 9pfs xattrs on kernel 3.11 (bz #1013676)
 # Patch posted upstream
-Patch0203: 0203-hw-9pfs-Fix-errno-value-for-xattr-functions.patch
+Patch0103: 0103-hw-9pfs-Fix-errno-value-for-xattr-functions.patch
 # Fix migration from qemu <= 1.5
 # Patch posted upstream
-Patch0204: 0204-Fix-pc-migration-from-qemu-1.5.patch
+Patch0104: 0104-Fix-pc-migration-from-qemu-1.5.patch
+# Reduce CPU usage when audio is playing (bz #1017644)
+Patch0105: 0105-audio-honor-QEMU_AUDIO_TIMER_PERIOD-instead-of-wakin.patch
 
 BuildRequires: SDL-devel
 BuildRequires: zlib-devel
@@ -777,12 +728,18 @@ CAC emulation development files.
 %prep
 %setup -q
 
-# Rebase to pending 1.6.1 stable
+# qemu-kvm migration compat (not for upstream, drop by Fedora 21?)
 %patch0001 -p1
+# Fix crash with -M isapc -cpu Haswell (bz #986790)
 %patch0002 -p1
+# Fix crash in lsi_soft_reset (bz #1000947)
+# Patches posted upstream
 %patch0003 -p1
 %patch0004 -p1
 %patch0005 -p1
+# CVE-2013-4377: Fix crash when unplugging virtio devices (bz #1012633,
+# bz #1012641)
+# Patches posted upstream
 %patch0006 -p1
 %patch0007 -p1
 %patch0008 -p1
@@ -794,74 +751,19 @@ CAC emulation development files.
 %patch0014 -p1
 %patch0015 -p1
 %patch0016 -p1
-%patch0017 -p1
-%patch0018 -p1
-%patch0019 -p1
-%patch0020 -p1
-%patch0021 -p1
-%patch0022 -p1
-%patch0023 -p1
-%patch0024 -p1
-%patch0025 -p1
-%patch0026 -p1
-%patch0027 -p1
-%patch0028 -p1
-%patch0029 -p1
-%patch0030 -p1
-%patch0031 -p1
-%patch0032 -p1
-%patch0033 -p1
-%patch0034 -p1
-%patch0035 -p1
-%patch0036 -p1
-%patch0037 -p1
-%patch0038 -p1
-%patch0039 -p1
-%patch0040 -p1
-%patch0041 -p1
-%patch0042 -p1
-%patch0043 -p1
-%patch0044 -p1
-%patch0045 -p1
-%patch0046 -p1
-%patch0047 -p1
-%patch0048 -p1
-%patch0049 -p1
-
-# qemu-kvm migration compat (not for upstream, drop by Fedora 21?)
-%patch0101 -p1
-# Fix crash with -M isapc -cpu Haswell (bz #986790)
-%patch0102 -p1
-# Fix crash in lsi_soft_reset (bz #1000947)
-# Patches posted upstream
-%patch0103 -p1
-%patch0104 -p1
-%patch0105 -p1
-# CVE-2013-4377: Fix crash when unplugging virtio devices (bz #1012633,
-# bz #1012641)
-# Patches posted upstream
-%patch0106 -p1
-%patch0107 -p1
-%patch0108 -p1
-%patch0109 -p1
-%patch0110 -p1
-%patch0111 -p1
-%patch0112 -p1
-%patch0113 -p1
-%patch0114 -p1
-%patch0115 -p1
-%patch0116 -p1
 
 # Fix 'new snapshot' slowness after the first snap (bz #988436)
 # Patches queued for upstream
-%patch0201 -p1
-%patch0202 -p1
+%patch0101 -p1
+%patch0102 -p1
 # Fix 9pfs xattrs on kernel 3.11 (bz #1013676)
 # Patch posted upstream
-%patch0203 -p1
+%patch0103 -p1
 # Fix migration from qemu <= 1.5
 # Patch posted upstream
-%patch0204 -p1
+%patch0104 -p1
+# Reduce CPU usage when audio is playing (bz #1017644)
+%patch0105 -p1
 
 
 %build
@@ -1127,7 +1029,6 @@ install -m 0644 %{SOURCE11} $RPM_BUILD_ROOT%{_udevdir}
 
 # Install rules to use the bridge helper with libvirt's virbr0
 install -m 0644 %{SOURCE12} $RPM_BUILD_ROOT%{_sysconfdir}/qemu
-chmod u+s $RPM_BUILD_ROOT%{_libexecdir}/qemu-bridge-helper
 
 find $RPM_BUILD_ROOT -name '*.la' -or -name '*.a' | xargs rm -f
 find $RPM_BUILD_ROOT -name "libcacard.so*" -exec chmod +x \{\} \;
@@ -1243,7 +1144,7 @@ getent passwd qemu >/dev/null || \
 %{_mandir}/man1/qemu.1*
 %{_mandir}/man1/virtfs-proxy-helper.1*
 %{_bindir}/virtfs-proxy-helper
-%{_libexecdir}/qemu-bridge-helper
+%attr(4755, root, root) %{_libexecdir}/qemu-bridge-helper
 %config(noreplace) %{_sysconfdir}/sasl2/qemu.conf
 %dir %{_sysconfdir}/qemu
 %config(noreplace) %{_sysconfdir}/qemu/bridge.conf
@@ -1570,6 +1471,13 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Tue Nov 05 2013 Cole Robinson <crobinso@redhat.com> - 2:1.6.1-1
+- Reduce CPU usage when audio is playing (bz #1017644)
+- Base on qemu 1.6.1 tarball
+- ksmtuned: Fix matching qemu w/o set_process_name (bz #1012604)
+- ksmtuned: Fix committed_memory when no qemu running (bz #1012610)
+- Make sure bridge helper is setuid (bz #1017660)
+
 * Wed Oct 09 2013 Cole Robinson <crobinso@redhat.com> - 2:1.6.0-10
 - Fix migration from qemu <= 1.5
 

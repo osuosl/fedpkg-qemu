@@ -1,4 +1,4 @@
-From 16f89cbf7737626a0ab24a5b0fd7ce4ab940f5a2 Mon Sep 17 00:00:00 2001
+From 042c76790b1168766332b1aafa4429c265d35ed0 Mon Sep 17 00:00:00 2001
 From: Cole Robinson <crobinso@redhat.com>
 Date: Mon, 7 Oct 2013 16:32:24 -0400
 Subject: [PATCH] Fix pc migration from qemu <= 1.5
@@ -21,6 +21,7 @@ types, but revert to the old style format for 1.7+, and <= 1.5.
 Tested with migration from qemu 1.5, qemu 1.6, and qemu.git.
 
 Cc: qemu-stable@nongnu.org
+Signed-off-by: Cole Robinson <crobinso@redhat.com>
 ---
  hw/i386/pc_piix.c         | 11 +++++++++++
  hw/i386/pc_q35.c          | 11 +++++++++++
@@ -150,7 +151,7 @@ index 4febd24..f762053 100644
  };
  
 diff --git a/include/hw/i386/pc.h b/include/hw/i386/pc.h
-index 475ba9e..a0bbdd9 100644
+index 475ba9e..6e2b839 100644
 --- a/include/hw/i386/pc.h
 +++ b/include/hw/i386/pc.h
 @@ -225,7 +225,19 @@ void pvpanic_init(ISABus *bus);
@@ -163,7 +164,7 @@ index 475ba9e..a0bbdd9 100644
 +            .property = "short_root_bus",\
 +            .value    = stringify(1),\
 +        },{\
-+            .driver   = "mch",\
++            .driver   = "q35-pcihost",\
 +            .property = "short_root_bus",\
 +            .value    = stringify(1),\
 +        }
@@ -182,7 +183,7 @@ index 475ba9e..a0bbdd9 100644
 +            .property = "short_root_bus",\
 +            .value    = stringify(0),\
 +        },{\
-+            .driver   = "mch",\
++            .driver   = "q35-pcihost",\
 +            .property = "short_root_bus",\
 +            .value    = stringify(0),\
          }
