@@ -131,7 +131,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.4.2
-Release: 13%{?dist}
+Release: 14%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -306,6 +306,8 @@ Patch0318: 0318-scsi-Allocate-SCSITargetReq-r-buf-dynamically.patch
 # Fix 9pfs xattrs on kernel 3.11 (bz #1013676)
 Patch0319: 0319-hw-9pfs-Be-robust-against-paths-without-FS_IOC_GETVE.patch
 Patch0320: 0320-hw-9pfs-Fix-errno-value-for-xattr-functions.patch
+# Fix process exit with -sandbox on (bz #1027421)
+Patch0321: 0321-seccomp-fine-tuning-whitelist-by-adding-times.patch
 
 BuildRequires: SDL-devel
 BuildRequires: zlib-devel
@@ -909,6 +911,8 @@ CAC emulation development files.
 # Fix 9pfs xattrs on kernel 3.11 (bz #1013676)
 %patch0319 -p1
 %patch0320 -p1
+# Fix process exit with -sandbox on (bz #1027421)
+%patch0321 -p1
 
 %build
 %if %{with kvmonly}
@@ -1555,6 +1559,9 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Sun Nov 17 2013 Cole Robinson <crobinso@redhat.com> - 2:1.4.2-14
+- Fix process exit with -sandbox on (bz #1027421)
+
 * Tue Nov 05 2013 Cole Robinson <crobinso@redhat.com> - 2:1.4.2-13
 - ksmtuned: Fix matching qemu w/o set_process_name (bz #1012604)
 - ksmtuned: Fix committed_memory when no qemu running (bz #1012610)
