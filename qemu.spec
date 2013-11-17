@@ -139,7 +139,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.6.1
-Release: 1%{?dist}
+Release: 2%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -216,6 +216,11 @@ Patch0103: 0103-hw-9pfs-Fix-errno-value-for-xattr-functions.patch
 Patch0104: 0104-Fix-pc-migration-from-qemu-1.5.patch
 # Reduce CPU usage when audio is playing (bz #1017644)
 Patch0105: 0105-audio-honor-QEMU_AUDIO_TIMER_PERIOD-instead-of-wakin.patch
+# Fix drive discard options via libvirt (bz #1029953)
+# Patch queued upstream
+Patch0106: 0106-qmp-access-the-local-QemuOptsLists-for-drive-option.patch
+# Fix process exit with -sandbox on (bz #1027421)
+Patch0107: 0107-seccomp-fine-tuning-whitelist-by-adding-times.patch
 
 BuildRequires: SDL-devel
 BuildRequires: zlib-devel
@@ -764,6 +769,11 @@ CAC emulation development files.
 %patch0104 -p1
 # Reduce CPU usage when audio is playing (bz #1017644)
 %patch0105 -p1
+# Fix drive discard options via libvirt (bz #1029953)
+# Patch queued upstream
+%patch0106 -p1
+# Fix process exit with -sandbox on (bz #1027421)
+%patch0107 -p1
 
 
 %build
@@ -1471,6 +1481,10 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Sun Nov 17 2013 Cole Robinson <crobinso@redhat.com> - 2:1.6.1-2
+- Fix drive discard options via libvirt (bz #1029953)
+- Fix process exit with -sandbox on (bz #1027421)
+
 * Tue Nov 05 2013 Cole Robinson <crobinso@redhat.com> - 2:1.6.1-1
 - Reduce CPU usage when audio is playing (bz #1017644)
 - Base on qemu 1.6.1 tarball

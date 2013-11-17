@@ -1,0 +1,28 @@
+From aafda3de0ce3589fa69472bd4a1782c65c8c7ade Mon Sep 17 00:00:00 2001
+From: Eduardo Otubo <otubo@linux.vnet.ibm.com>
+Date: Tue, 24 Sep 2013 14:50:44 -0300
+Subject: [PATCH] seccomp: fine tuning whitelist by adding times()
+
+This was causing Qemu process to hang when using -sandbox on as
+discribed on RHBZ: https://bugzilla.redhat.com/show_bug.cgi?id=1004175
+
+Signed-off-by: Eduardo Otubo <otubo@linux.vnet.ibm.com>
+Tested-by: Paul Moore <pmoore@redhat.com>
+Acked-by: Paul Moore <pmoore@redhat.com>
+(cherry picked from commit c236f4519c9838801798f3705c17dce9ab9e3b9d)
+---
+ qemu-seccomp.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/qemu-seccomp.c b/qemu-seccomp.c
+index 37d38f8..69cee44 100644
+--- a/qemu-seccomp.c
++++ b/qemu-seccomp.c
+@@ -90,6 +90,7 @@ static const struct QemuSeccompSyscall seccomp_whitelist[] = {
+     { SCMP_SYS(getuid), 245 },
+     { SCMP_SYS(geteuid), 245 },
+     { SCMP_SYS(timer_create), 245 },
++    { SCMP_SYS(times), 245 },
+     { SCMP_SYS(exit), 245 },
+     { SCMP_SYS(clock_gettime), 245 },
+     { SCMP_SYS(time), 245 },
