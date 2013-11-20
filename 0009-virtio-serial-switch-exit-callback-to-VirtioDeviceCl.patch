@@ -1,4 +1,4 @@
-From 811b51426d9e7819e6498d4dad0d6ac744a8e5d0 Mon Sep 17 00:00:00 2001
+From 010f4a29c797e098a1fe4b5b2b14c6cfba2f6327 Mon Sep 17 00:00:00 2001
 From: Paolo Bonzini <pbonzini@redhat.com>
 Date: Fri, 20 Sep 2013 16:57:55 +0200
 Subject: [PATCH] virtio-serial: switch exit callback to VirtioDeviceClass
@@ -12,7 +12,7 @@ Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
  1 file changed, 4 insertions(+), 6 deletions(-)
 
 diff --git a/hw/char/virtio-serial-bus.c b/hw/char/virtio-serial-bus.c
-index da417c7..57dd070 100644
+index 703f026..a7ede90 100644
 --- a/hw/char/virtio-serial-bus.c
 +++ b/hw/char/virtio-serial-bus.c
 @@ -987,12 +987,11 @@ static const TypeInfo virtio_serial_port_type_info = {

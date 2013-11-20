@@ -1,4 +1,4 @@
-From 1d388b4fda2c4c9d00dc6ae91aaf35eb9fc04c26 Mon Sep 17 00:00:00 2001
+From cc7e97d969c93e197bda7ed17d32254e31793b2d Mon Sep 17 00:00:00 2001
 From: Paolo Bonzini <pbonzini@redhat.com>
 Date: Fri, 20 Sep 2013 16:57:51 +0200
 Subject: [PATCH] virtio-pci: remove vdev field
@@ -27,10 +27,10 @@ index 96d6f5d..00932c7 100644
      uint32_t host_features[VIRTIO_CCW_FEATURE_SIZE];
      VirtioBusState bus;
 diff --git a/hw/virtio/virtio-pci.c b/hw/virtio/virtio-pci.c
-index 55617a6..6fd6d6d 100644
+index 76b7652..be18e92 100644
 --- a/hw/virtio/virtio-pci.c
 +++ b/hw/virtio/virtio-pci.c
-@@ -112,31 +112,39 @@ static inline VirtIOPCIProxy *to_virtio_pci_proxy_fast(DeviceState *d)
+@@ -113,31 +113,39 @@ static inline VirtIOPCIProxy *to_virtio_pci_proxy_fast(DeviceState *d)
  static void virtio_pci_notify(DeviceState *d, uint16_t vector)
  {
      VirtIOPCIProxy *proxy = to_virtio_pci_proxy_fast(d);
@@ -39,8 +39,8 @@ index 55617a6..6fd6d6d 100644
      if (msix_enabled(&proxy->pci_dev))
          msix_notify(&proxy->pci_dev, vector);
      else
--        qemu_set_irq(proxy->pci_dev.irq[0], proxy->vdev->isr & 1);
-+        qemu_set_irq(proxy->pci_dev.irq[0], vdev->isr & 1);
+-        pci_set_irq(&proxy->pci_dev, proxy->vdev->isr & 1);
++        pci_set_irq(&proxy->pci_dev, vdev->isr & 1);
  }
  
  static void virtio_pci_save_config(DeviceState *d, QEMUFile *f)
@@ -73,7 +73,7 @@ index 55617a6..6fd6d6d 100644
      int ret;
      ret = pci_device_load(&proxy->pci_dev, f);
      if (ret) {
-@@ -145,12 +153,12 @@ static int virtio_pci_load_config(DeviceState *d, QEMUFile *f)
+@@ -146,12 +154,12 @@ static int virtio_pci_load_config(DeviceState *d, QEMUFile *f)
      msix_unuse_all_vectors(&proxy->pci_dev);
      msix_load(&proxy->pci_dev, f);
      if (msix_present(&proxy->pci_dev)) {
@@ -90,7 +90,7 @@ index 55617a6..6fd6d6d 100644
      }
      return 0;
  }
-@@ -158,13 +166,15 @@ static int virtio_pci_load_config(DeviceState *d, QEMUFile *f)
+@@ -159,13 +167,15 @@ static int virtio_pci_load_config(DeviceState *d, QEMUFile *f)
  static int virtio_pci_load_queue(DeviceState *d, int n, QEMUFile *f)
  {
      VirtIOPCIProxy *proxy = to_virtio_pci_proxy(d);
@@ -107,7 +107,7 @@ index 55617a6..6fd6d6d 100644
      if (vector != VIRTIO_NO_VECTOR) {
          return msix_vector_use(&proxy->pci_dev, vector);
      }
-@@ -174,7 +184,8 @@ static int virtio_pci_load_queue(DeviceState *d, int n, QEMUFile *f)
+@@ -175,7 +185,8 @@ static int virtio_pci_load_queue(DeviceState *d, int n, QEMUFile *f)
  static int virtio_pci_set_host_notifier_internal(VirtIOPCIProxy *proxy,
                                                   int n, bool assign, bool set_handler)
  {
@@ -117,7 +117,7 @@ index 55617a6..6fd6d6d 100644
      EventNotifier *notifier = virtio_queue_get_host_notifier(vq);
      int r = 0;
  
-@@ -199,6 +210,7 @@ static int virtio_pci_set_host_notifier_internal(VirtIOPCIProxy *proxy,
+@@ -200,6 +211,7 @@ static int virtio_pci_set_host_notifier_internal(VirtIOPCIProxy *proxy,
  
  static void virtio_pci_start_ioeventfd(VirtIOPCIProxy *proxy)
  {
@@ -125,7 +125,7 @@ index 55617a6..6fd6d6d 100644
      int n, r;
  
      if (!(proxy->flags & VIRTIO_PCI_FLAG_USE_IOEVENTFD) ||
-@@ -208,7 +220,7 @@ static void virtio_pci_start_ioeventfd(VirtIOPCIProxy *proxy)
+@@ -209,7 +221,7 @@ static void virtio_pci_start_ioeventfd(VirtIOPCIProxy *proxy)
      }
  
      for (n = 0; n < VIRTIO_PCI_QUEUE_MAX; n++) {
@@ -134,7 +134,7 @@ index 55617a6..6fd6d6d 100644
              continue;
          }
  
-@@ -222,7 +234,7 @@ static void virtio_pci_start_ioeventfd(VirtIOPCIProxy *proxy)
+@@ -223,7 +235,7 @@ static void virtio_pci_start_ioeventfd(VirtIOPCIProxy *proxy)
  
  assign_error:
      while (--n >= 0) {
@@ -143,7 +143,7 @@ index 55617a6..6fd6d6d 100644
              continue;
          }
  
-@@ -235,6 +247,7 @@ assign_error:
+@@ -236,6 +248,7 @@ assign_error:
  
  static void virtio_pci_stop_ioeventfd(VirtIOPCIProxy *proxy)
  {
@@ -151,7 +151,7 @@ index 55617a6..6fd6d6d 100644
      int r;
      int n;
  
-@@ -243,7 +256,7 @@ static void virtio_pci_stop_ioeventfd(VirtIOPCIProxy *proxy)
+@@ -244,7 +257,7 @@ static void virtio_pci_stop_ioeventfd(VirtIOPCIProxy *proxy)
      }
  
      for (n = 0; n < VIRTIO_PCI_QUEUE_MAX; n++) {
@@ -160,7 +160,7 @@ index 55617a6..6fd6d6d 100644
              continue;
          }
  
-@@ -256,7 +269,7 @@ static void virtio_pci_stop_ioeventfd(VirtIOPCIProxy *proxy)
+@@ -257,7 +270,7 @@ static void virtio_pci_stop_ioeventfd(VirtIOPCIProxy *proxy)
  static void virtio_ioport_write(void *opaque, uint32_t addr, uint32_t val)
  {
      VirtIOPCIProxy *proxy = opaque;
@@ -169,7 +169,7 @@ index 55617a6..6fd6d6d 100644
      hwaddr pa;
  
      switch (addr) {
-@@ -271,7 +284,7 @@ static void virtio_ioport_write(void *opaque, uint32_t addr, uint32_t val)
+@@ -272,7 +285,7 @@ static void virtio_ioport_write(void *opaque, uint32_t addr, uint32_t val)
          pa = (hwaddr)val << VIRTIO_PCI_QUEUE_ADDR_SHIFT;
          if (pa == 0) {
              virtio_pci_stop_ioeventfd(proxy);
@@ -178,7 +178,7 @@ index 55617a6..6fd6d6d 100644
              msix_unuse_all_vectors(&proxy->pci_dev);
          }
          else
-@@ -298,7 +311,7 @@ static void virtio_ioport_write(void *opaque, uint32_t addr, uint32_t val)
+@@ -299,7 +312,7 @@ static void virtio_ioport_write(void *opaque, uint32_t addr, uint32_t val)
          }
  
          if (vdev->status == 0) {
@@ -187,7 +187,7 @@ index 55617a6..6fd6d6d 100644
              msix_unuse_all_vectors(&proxy->pci_dev);
          }
  
-@@ -334,7 +347,7 @@ static void virtio_ioport_write(void *opaque, uint32_t addr, uint32_t val)
+@@ -335,7 +348,7 @@ static void virtio_ioport_write(void *opaque, uint32_t addr, uint32_t val)
  
  static uint32_t virtio_ioport_read(VirtIOPCIProxy *proxy, uint32_t addr)
  {
@@ -196,7 +196,7 @@ index 55617a6..6fd6d6d 100644
      uint32_t ret = 0xFFFFFFFF;
  
      switch (addr) {
-@@ -380,6 +393,7 @@ static uint64_t virtio_pci_config_read(void *opaque, hwaddr addr,
+@@ -381,6 +394,7 @@ static uint64_t virtio_pci_config_read(void *opaque, hwaddr addr,
                                         unsigned size)
  {
      VirtIOPCIProxy *proxy = opaque;
@@ -204,7 +204,7 @@ index 55617a6..6fd6d6d 100644
      uint32_t config = VIRTIO_PCI_CONFIG(&proxy->pci_dev);
      uint64_t val = 0;
      if (addr < config) {
-@@ -389,16 +403,16 @@ static uint64_t virtio_pci_config_read(void *opaque, hwaddr addr,
+@@ -390,16 +404,16 @@ static uint64_t virtio_pci_config_read(void *opaque, hwaddr addr,
  
      switch (size) {
      case 1:
@@ -224,7 +224,7 @@ index 55617a6..6fd6d6d 100644
          if (virtio_is_big_endian()) {
              val = bswap32(val);
          }
-@@ -412,6 +426,7 @@ static void virtio_pci_config_write(void *opaque, hwaddr addr,
+@@ -413,6 +427,7 @@ static void virtio_pci_config_write(void *opaque, hwaddr addr,
  {
      VirtIOPCIProxy *proxy = opaque;
      uint32_t config = VIRTIO_PCI_CONFIG(&proxy->pci_dev);
@@ -232,7 +232,7 @@ index 55617a6..6fd6d6d 100644
      if (addr < config) {
          virtio_ioport_write(proxy, addr, val);
          return;
-@@ -423,19 +438,19 @@ static void virtio_pci_config_write(void *opaque, hwaddr addr,
+@@ -424,19 +439,19 @@ static void virtio_pci_config_write(void *opaque, hwaddr addr,
       */
      switch (size) {
      case 1:
@@ -255,7 +255,7 @@ index 55617a6..6fd6d6d 100644
          break;
      }
  }
-@@ -454,6 +469,7 @@ static void virtio_write_config(PCIDevice *pci_dev, uint32_t address,
+@@ -455,6 +470,7 @@ static void virtio_write_config(PCIDevice *pci_dev, uint32_t address,
                                  uint32_t val, int len)
  {
      VirtIOPCIProxy *proxy = DO_UPCAST(VirtIOPCIProxy, pci_dev, pci_dev);
@@ -263,7 +263,7 @@ index 55617a6..6fd6d6d 100644
  
      pci_default_write_config(pci_dev, address, val, len);
  
-@@ -461,8 +477,7 @@ static void virtio_write_config(PCIDevice *pci_dev, uint32_t address,
+@@ -462,8 +478,7 @@ static void virtio_write_config(PCIDevice *pci_dev, uint32_t address,
          !(pci_dev->config[PCI_COMMAND] & PCI_COMMAND_MASTER) &&
          !(proxy->flags & VIRTIO_PCI_FLAG_BUS_MASTER_BUG)) {
          virtio_pci_stop_ioeventfd(proxy);
@@ -273,7 +273,7 @@ index 55617a6..6fd6d6d 100644
      }
  }
  
-@@ -505,7 +520,8 @@ static int kvm_virtio_pci_irqfd_use(VirtIOPCIProxy *proxy,
+@@ -506,7 +521,8 @@ static int kvm_virtio_pci_irqfd_use(VirtIOPCIProxy *proxy,
                                   unsigned int vector)
  {
      VirtIOIRQFD *irqfd = &proxy->vector_irqfd[vector];
@@ -282,8 +282,8 @@ index 55617a6..6fd6d6d 100644
 +    VirtQueue *vq = virtio_get_queue(vdev, queue_no);
      EventNotifier *n = virtio_queue_get_guest_notifier(vq);
      int ret;
-     ret = kvm_irqchip_add_irqfd_notifier(kvm_state, n, irqfd->virq);
-@@ -516,7 +532,8 @@ static void kvm_virtio_pci_irqfd_release(VirtIOPCIProxy *proxy,
+     ret = kvm_irqchip_add_irqfd_notifier(kvm_state, n, NULL, irqfd->virq);
+@@ -517,7 +533,8 @@ static void kvm_virtio_pci_irqfd_release(VirtIOPCIProxy *proxy,
                                        unsigned int queue_no,
                                        unsigned int vector)
  {
@@ -293,7 +293,7 @@ index 55617a6..6fd6d6d 100644
      EventNotifier *n = virtio_queue_get_guest_notifier(vq);
      VirtIOIRQFD *irqfd = &proxy->vector_irqfd[vector];
      int ret;
-@@ -528,7 +545,7 @@ static void kvm_virtio_pci_irqfd_release(VirtIOPCIProxy *proxy,
+@@ -529,7 +546,7 @@ static void kvm_virtio_pci_irqfd_release(VirtIOPCIProxy *proxy,
  static int kvm_virtio_pci_vector_use(VirtIOPCIProxy *proxy, int nvqs)
  {
      PCIDevice *dev = &proxy->pci_dev;
@@ -302,7 +302,7 @@ index 55617a6..6fd6d6d 100644
      VirtioDeviceClass *k = VIRTIO_DEVICE_GET_CLASS(vdev);
      unsigned int vector;
      int ret, queue_no;
-@@ -577,7 +594,7 @@ undo:
+@@ -578,7 +595,7 @@ undo:
  static void kvm_virtio_pci_vector_release(VirtIOPCIProxy *proxy, int nvqs)
  {
      PCIDevice *dev = &proxy->pci_dev;
@@ -311,7 +311,7 @@ index 55617a6..6fd6d6d 100644
      unsigned int vector;
      int queue_no;
      VirtioDeviceClass *k = VIRTIO_DEVICE_GET_CLASS(vdev);
-@@ -605,8 +622,9 @@ static int virtio_pci_vq_vector_unmask(VirtIOPCIProxy *proxy,
+@@ -606,8 +623,9 @@ static int virtio_pci_vq_vector_unmask(VirtIOPCIProxy *proxy,
                                         unsigned int vector,
                                         MSIMessage msg)
  {
@@ -323,7 +323,7 @@ index 55617a6..6fd6d6d 100644
      EventNotifier *n = virtio_queue_get_guest_notifier(vq);
      VirtIOIRQFD *irqfd;
      int ret = 0;
-@@ -625,10 +643,10 @@ static int virtio_pci_vq_vector_unmask(VirtIOPCIProxy *proxy,
+@@ -626,10 +644,10 @@ static int virtio_pci_vq_vector_unmask(VirtIOPCIProxy *proxy,
       * Otherwise, set it up now.
       */
      if (k->guest_notifier_mask) {
@@ -336,7 +336,7 @@ index 55617a6..6fd6d6d 100644
              event_notifier_set(n);
          }
      } else {
-@@ -641,13 +659,14 @@ static void virtio_pci_vq_vector_mask(VirtIOPCIProxy *proxy,
+@@ -642,13 +660,14 @@ static void virtio_pci_vq_vector_mask(VirtIOPCIProxy *proxy,
                                               unsigned int queue_no,
                                               unsigned int vector)
  {
@@ -353,7 +353,7 @@ index 55617a6..6fd6d6d 100644
      } else {
          kvm_virtio_pci_irqfd_release(proxy, queue_no, vector);
      }
-@@ -657,7 +676,7 @@ static int virtio_pci_vector_unmask(PCIDevice *dev, unsigned vector,
+@@ -658,7 +677,7 @@ static int virtio_pci_vector_unmask(PCIDevice *dev, unsigned vector,
                                      MSIMessage msg)
  {
      VirtIOPCIProxy *proxy = container_of(dev, VirtIOPCIProxy, pci_dev);
@@ -362,7 +362,7 @@ index 55617a6..6fd6d6d 100644
      int ret, queue_no;
  
      for (queue_no = 0; queue_no < proxy->nvqs_with_notifiers; queue_no++) {
-@@ -687,7 +706,7 @@ undo:
+@@ -688,7 +707,7 @@ undo:
  static void virtio_pci_vector_mask(PCIDevice *dev, unsigned vector)
  {
      VirtIOPCIProxy *proxy = container_of(dev, VirtIOPCIProxy, pci_dev);
@@ -371,7 +371,7 @@ index 55617a6..6fd6d6d 100644
      int queue_no;
  
      for (queue_no = 0; queue_no < proxy->nvqs_with_notifiers; queue_no++) {
-@@ -706,7 +725,7 @@ static void virtio_pci_vector_poll(PCIDevice *dev,
+@@ -707,7 +726,7 @@ static void virtio_pci_vector_poll(PCIDevice *dev,
                                     unsigned int vector_end)
  {
      VirtIOPCIProxy *proxy = container_of(dev, VirtIOPCIProxy, pci_dev);
@@ -380,7 +380,7 @@ index 55617a6..6fd6d6d 100644
      VirtioDeviceClass *k = VIRTIO_DEVICE_GET_CLASS(vdev);
      int queue_no;
      unsigned int vector;
-@@ -738,8 +757,9 @@ static int virtio_pci_set_guest_notifier(DeviceState *d, int n, bool assign,
+@@ -739,8 +758,9 @@ static int virtio_pci_set_guest_notifier(DeviceState *d, int n, bool assign,
                                           bool with_irqfd)
  {
      VirtIOPCIProxy *proxy = to_virtio_pci_proxy(d);
@@ -392,7 +392,7 @@ index 55617a6..6fd6d6d 100644
      EventNotifier *notifier = virtio_queue_get_guest_notifier(vq);
  
      if (assign) {
-@@ -754,7 +774,7 @@ static int virtio_pci_set_guest_notifier(DeviceState *d, int n, bool assign,
+@@ -755,7 +775,7 @@ static int virtio_pci_set_guest_notifier(DeviceState *d, int n, bool assign,
      }
  
      if (!msix_enabled(&proxy->pci_dev) && vdc->guest_notifier_mask) {
@@ -401,7 +401,7 @@ index 55617a6..6fd6d6d 100644
      }
  
      return 0;
-@@ -769,7 +789,7 @@ static bool virtio_pci_query_guest_notifiers(DeviceState *d)
+@@ -770,7 +790,7 @@ static bool virtio_pci_query_guest_notifiers(DeviceState *d)
  static int virtio_pci_set_guest_notifiers(DeviceState *d, int nvqs, bool assign)
  {
      VirtIOPCIProxy *proxy = to_virtio_pci_proxy(d);
@@ -410,7 +410,7 @@ index 55617a6..6fd6d6d 100644
      VirtioDeviceClass *k = VIRTIO_DEVICE_GET_CLASS(vdev);
      int r, n;
      bool with_irqfd = msix_enabled(&proxy->pci_dev) &&
-@@ -863,11 +883,12 @@ static int virtio_pci_set_host_notifier(DeviceState *d, int n, bool assign)
+@@ -864,11 +884,12 @@ static int virtio_pci_set_host_notifier(DeviceState *d, int n, bool assign)
  static void virtio_pci_vmstate_change(DeviceState *d, bool running)
  {
      VirtIOPCIProxy *proxy = to_virtio_pci_proxy(d);
@@ -424,7 +424,7 @@ index 55617a6..6fd6d6d 100644
              !(proxy->pci_dev.config[PCI_COMMAND] & PCI_COMMAND_MASTER)) {
              proxy->flags |= VIRTIO_PCI_FLAG_BUS_MASTER_BUG;
          }
-@@ -942,8 +963,6 @@ static void virtio_pci_device_plugged(DeviceState *d)
+@@ -943,8 +964,6 @@ static void virtio_pci_device_plugged(DeviceState *d)
      uint8_t *config;
      uint32_t size;
  

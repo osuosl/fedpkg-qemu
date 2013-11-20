@@ -1,4 +1,4 @@
-From 07873f45017c04994496d8dc3f7acb60358bba49 Mon Sep 17 00:00:00 2001
+From 68c3010699db0e83c7bb2ac469527d6a7a36dfa4 Mon Sep 17 00:00:00 2001
 From: Paolo Bonzini <pbonzini@redhat.com>
 Date: Thu, 2 May 2013 11:38:37 +0200
 Subject: [PATCH] pci: do not export pci_bus_reset
@@ -19,7 +19,7 @@ Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
  3 files changed, 3 insertions(+), 8 deletions(-)
 
 diff --git a/hw/pci/pci.c b/hw/pci/pci.c
-index 4c004f5..0389375 100644
+index ed32059..ab73b4c 100644
 --- a/hw/pci/pci.c
 +++ b/hw/pci/pci.c
 @@ -210,8 +210,9 @@ void pci_device_reset(PCIDevice *dev)
@@ -46,7 +46,7 @@ index 4c004f5..0389375 100644
      /* topology traverse is done by pci_bus_reset().
         Tell qbus/qdev walker not to traverse the tree */
 diff --git a/hw/pci/pci_bridge.c b/hw/pci/pci_bridge.c
-index a90671d..5d0e5ff 100644
+index 290abab..41d8755 100644
 --- a/hw/pci/pci_bridge.c
 +++ b/hw/pci/pci_bridge.c
 @@ -268,7 +268,7 @@ void pci_bridge_write_config(PCIDevice *d,
@@ -59,10 +59,10 @@ index a90671d..5d0e5ff 100644
  }
  
 diff --git a/include/hw/pci/pci.h b/include/hw/pci/pci.h
-index ccec2ba..32f1419 100644
+index b783e68..754b82d 100644
 --- a/include/hw/pci/pci.h
 +++ b/include/hw/pci/pci.h
-@@ -376,7 +376,6 @@ void pci_bus_fire_intx_routing_notifier(PCIBus *bus);
+@@ -373,7 +373,6 @@ void pci_bus_fire_intx_routing_notifier(PCIBus *bus);
  void pci_device_set_intx_routing_notifier(PCIDevice *dev,
                                            PCIINTxRoutingNotifier notifier);
  void pci_device_reset(PCIDevice *dev);

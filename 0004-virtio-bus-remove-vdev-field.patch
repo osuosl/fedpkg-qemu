@@ -1,4 +1,4 @@
-From ed35f9edcc420b4f8c1f909bc7cfb002a54f437b Mon Sep 17 00:00:00 2001
+From 21cbcaf09677ba959d977bfc0712c5e08ca1aec9 Mon Sep 17 00:00:00 2001
 From: Paolo Bonzini <pbonzini@redhat.com>
 Date: Fri, 20 Sep 2013 16:57:50 +0200
 Subject: [PATCH] virtio-bus: remove vdev field
@@ -9,14 +9,14 @@ BusState's list of children.
 Cc: qemu-stable@nongnu.org
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 ---
- hw/virtio/virtio-bus.c         | 67 ++++++++++++++++++++++++------------------
+ hw/virtio/virtio-bus.c         | 65 +++++++++++++++++++++++++-----------------
  hw/virtio/virtio-mmio.c        |  9 +++---
  hw/virtio/virtio-pci.c         |  2 +-
- include/hw/virtio/virtio-bus.h | 16 +++++++---
- 4 files changed, 57 insertions(+), 37 deletions(-)
+ include/hw/virtio/virtio-bus.h | 16 ++++++++---
+ 4 files changed, 57 insertions(+), 35 deletions(-)
 
 diff --git a/hw/virtio/virtio-bus.c b/hw/virtio/virtio-bus.c
-index 6849a01..669ce38 100644
+index e6b103c..17dd06e 100644
 --- a/hw/virtio/virtio-bus.c
 +++ b/hw/virtio/virtio-bus.c
 @@ -46,8 +46,6 @@ int virtio_bus_plug_device(VirtIODevice *vdev)
@@ -28,7 +28,7 @@ index 6849a01..669ce38 100644
      if (klass->device_plugged != NULL) {
          klass->device_plugged(qbus->parent);
      }
-@@ -58,75 +56,84 @@ int virtio_bus_plug_device(VirtIODevice *vdev)
+@@ -58,9 +56,11 @@ int virtio_bus_plug_device(VirtIODevice *vdev)
  /* Reset the virtio_bus */
  void virtio_bus_reset(VirtioBusState *bus)
  {
@@ -42,10 +42,8 @@ index 6849a01..669ce38 100644
      }
  }
  
- /* Destroy the VirtIODevice */
- void virtio_bus_destroy_device(VirtioBusState *bus)
+@@ -69,62 +69,71 @@ void virtio_bus_destroy_device(VirtioBusState *bus)
  {
--    DeviceState *qdev;
      BusState *qbus = BUS(bus);
      VirtioBusClass *klass = VIRTIO_BUS_GET_CLASS(bus);
 +    VirtIODevice *vdev = virtio_bus_get_device(bus);
@@ -57,10 +55,9 @@ index 6849a01..669ce38 100644
          if (klass->device_unplug != NULL) {
              klass->device_unplug(qbus->parent);
          }
--        qdev = DEVICE(bus->vdev);
--        qdev_free(qdev);
+-        object_unparent(OBJECT(bus->vdev));
 -        bus->vdev = NULL;
-+        qdev_free(DEVICE(vdev));
++        object_unparent(OBJECT(vdev));
      }
  }
  
@@ -133,7 +130,7 @@ index 6849a01..669ce38 100644
      } else {
          return 0;
      }
-@@ -135,22 +142,26 @@ uint32_t virtio_bus_get_vdev_bad_features(VirtioBusState *bus)
+@@ -133,22 +142,26 @@ uint32_t virtio_bus_get_vdev_bad_features(VirtioBusState *bus)
  /* Get config of the plugged device. */
  void virtio_bus_get_vdev_config(VirtioBusState *bus, uint8_t *config)
  {
@@ -167,10 +164,10 @@ index 6849a01..669ce38 100644
  }
  
 diff --git a/hw/virtio/virtio-mmio.c b/hw/virtio/virtio-mmio.c
-index 4bd2953..8f7b764 100644
+index 29cf284..8829eb0 100644
 --- a/hw/virtio/virtio-mmio.c
 +++ b/hw/virtio/virtio-mmio.c
-@@ -94,7 +94,7 @@ static void virtio_mmio_bus_new(VirtioBusState *bus, VirtIOMMIOProxy *dev);
+@@ -95,7 +95,7 @@ static void virtio_mmio_bus_new(VirtioBusState *bus, size_t bus_size,
  static uint64_t virtio_mmio_read(void *opaque, hwaddr offset, unsigned size)
  {
      VirtIOMMIOProxy *proxy = (VirtIOMMIOProxy *)opaque;
@@ -179,7 +176,7 @@ index 4bd2953..8f7b764 100644
  
      DPRINTF("virtio_mmio_read offset 0x%x\n", (int)offset);
  
-@@ -184,7 +184,7 @@ static void virtio_mmio_write(void *opaque, hwaddr offset, uint64_t value,
+@@ -185,7 +185,7 @@ static void virtio_mmio_write(void *opaque, hwaddr offset, uint64_t value,
                                unsigned size)
  {
      VirtIOMMIOProxy *proxy = (VirtIOMMIOProxy *)opaque;
@@ -188,7 +185,7 @@ index 4bd2953..8f7b764 100644
  
      DPRINTF("virtio_mmio_write offset 0x%x value 0x%" PRIx64 "\n",
              (int)offset, value);
-@@ -297,12 +297,13 @@ static const MemoryRegionOps virtio_mem_ops = {
+@@ -298,12 +298,13 @@ static const MemoryRegionOps virtio_mem_ops = {
  static void virtio_mmio_update_irq(DeviceState *opaque, uint16_t vector)
  {
      VirtIOMMIOProxy *proxy = VIRTIO_MMIO(opaque);
@@ -205,10 +202,10 @@ index 4bd2953..8f7b764 100644
      qemu_set_irq(proxy->irq, level);
  }
 diff --git a/hw/virtio/virtio-pci.c b/hw/virtio/virtio-pci.c
-index 41b96ce..55617a6 100644
+index 7647be8..76b7652 100644
 --- a/hw/virtio/virtio-pci.c
 +++ b/hw/virtio/virtio-pci.c
-@@ -942,7 +942,7 @@ static void virtio_pci_device_plugged(DeviceState *d)
+@@ -943,7 +943,7 @@ static void virtio_pci_device_plugged(DeviceState *d)
      uint8_t *config;
      uint32_t size;
  

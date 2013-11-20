@@ -1,4 +1,4 @@
-From 1582699fb9f748f9f91b015ef311f93bf5a95f5d Mon Sep 17 00:00:00 2001
+From 8ed30b7ae128c31617c96128d9aa126332c7afaa Mon Sep 17 00:00:00 2001
 From: Paolo Bonzini <pbonzini@redhat.com>
 Date: Fri, 20 Sep 2013 16:57:56 +0200
 Subject: [PATCH] virtio-net: switch exit callback to VirtioDeviceClass
@@ -12,10 +12,10 @@ Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
  1 file changed, 4 insertions(+), 7 deletions(-)
 
 diff --git a/hw/net/virtio-net.c b/hw/net/virtio-net.c
-index aa1880c..46a4d8c 100644
+index b75c753..93a81eb 100644
 --- a/hw/net/virtio-net.c
 +++ b/hw/net/virtio-net.c
-@@ -1568,16 +1568,15 @@ static int virtio_net_device_init(VirtIODevice *vdev)
+@@ -1570,16 +1570,15 @@ static int virtio_net_device_init(VirtIODevice *vdev)
      return 0;
  }
  
@@ -35,7 +35,7 @@ index aa1880c..46a4d8c 100644
  
      if (n->netclient_name) {
          g_free(n->netclient_name);
-@@ -1608,8 +1607,6 @@ static int virtio_net_device_exit(DeviceState *qdev)
+@@ -1610,8 +1609,6 @@ static int virtio_net_device_exit(DeviceState *qdev)
      g_free(n->vqs);
      qemu_del_nic(n->nic);
      virtio_cleanup(vdev);
@@ -44,7 +44,7 @@ index aa1880c..46a4d8c 100644
  }
  
  static void virtio_net_instance_init(Object *obj)
-@@ -1636,10 +1633,10 @@ static void virtio_net_class_init(ObjectClass *klass, void *data)
+@@ -1638,10 +1635,10 @@ static void virtio_net_class_init(ObjectClass *klass, void *data)
  {
      DeviceClass *dc = DEVICE_CLASS(klass);
      VirtioDeviceClass *vdc = VIRTIO_DEVICE_CLASS(klass);

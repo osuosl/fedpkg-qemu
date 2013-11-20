@@ -1,4 +1,4 @@
-From 41a2077cea8ce006dbef885bcb0778af05a0b159 Mon Sep 17 00:00:00 2001
+From 6e6d80327eb2e249daaa0937468248d54222b125 Mon Sep 17 00:00:00 2001
 From: Paolo Bonzini <pbonzini@redhat.com>
 Date: Thu, 2 May 2013 11:38:39 +0200
 Subject: [PATCH] qdev: switch reset to post-order
@@ -32,7 +32,7 @@ Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
  3 files changed, 20 insertions(+), 19 deletions(-)
 
 diff --git a/hw/core/qdev.c b/hw/core/qdev.c
-index 842804f..87d7e1e 100644
+index 5ddf1aa..d2ffe35 100644
 --- a/hw/core/qdev.c
 +++ b/hw/core/qdev.c
 @@ -233,19 +233,19 @@ static int qbus_reset_one(BusState *bus, void *opaque)
@@ -59,7 +59,7 @@ index 842804f..87d7e1e 100644
  
  void qbus_reset_all_fn(void *opaque)
 diff --git a/hw/pci/pci.c b/hw/pci/pci.c
-index 0389375..bbca696 100644
+index ab73b4c..b52df14 100644
 --- a/hw/pci/pci.c
 +++ b/hw/pci/pci.c
 @@ -46,7 +46,7 @@
@@ -129,10 +129,10 @@ index 0389375..bbca696 100644
  
  static void pci_host_bus_register(PCIBus *bus, DeviceState *parent)
 diff --git a/include/hw/qdev-core.h b/include/hw/qdev-core.h
-index c6c9b14..89dcbad 100644
+index ecf5cb3..a9ce4a3 100644
 --- a/include/hw/qdev-core.h
 +++ b/include/hw/qdev-core.h
-@@ -174,7 +174,7 @@ struct BusClass {
+@@ -158,7 +158,7 @@ struct BusClass {
       * bindings can be found at http://playground.sun.com/1275/bindings/.
       */
      char *(*get_fw_dev_path)(DeviceState *dev);

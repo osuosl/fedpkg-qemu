@@ -138,8 +138,8 @@
 
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
-Version: 1.6.1
-Release: 2%{?dist}
+Version: 1.7.0
+Release: 0.1.rc1%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -154,7 +154,8 @@ ExclusiveArch: %{kvm_archs}
 %define _smp_mflags %{nil}
 %endif
 
-Source0: http://wiki.qemu-project.org/download/%{name}-%{version}.tar.bz2
+#Source0: http://wiki.qemu-project.org/download/%{name}-%{version}.tar.bz2
+Source0: http://wiki.qemu-project.org/download/%{name}-%{version}-rc1.tar.bz2
 
 
 Source1: qemu.binfmt
@@ -180,47 +181,25 @@ Source12: bridge.conf
 # qemu-kvm back compat wrapper
 Source13: qemu-kvm.sh
 
-# qemu-kvm migration compat (not for upstream, drop by Fedora 21?)
-Patch0001: 0001-Fix-migration-from-qemu-kvm.patch
-# Fix crash with -M isapc -cpu Haswell (bz #986790)
-Patch0002: 0002-isapc-disable-kvmvapic.patch
 # Fix crash in lsi_soft_reset (bz #1000947)
 # Patches posted upstream
-Patch0003: 0003-pci-do-not-export-pci_bus_reset.patch
-Patch0004: 0004-qdev-allow-both-pre-and-post-order-vists-in-qdev-wal.patch
-Patch0005: 0005-qdev-switch-reset-to-post-order.patch
+Patch0001: 0001-pci-do-not-export-pci_bus_reset.patch
+Patch0002: 0002-qdev-allow-both-pre-and-post-order-vists-in-qdev-wal.patch
+Patch0003: 0003-qdev-switch-reset-to-post-order.patch
 # CVE-2013-4377: Fix crash when unplugging virtio devices (bz #1012633,
 # bz #1012641)
 # Patches posted upstream
-Patch0006: 0006-virtio-bus-remove-vdev-field.patch
-Patch0007: 0007-virtio-pci-remove-vdev-field.patch
-Patch0008: 0008-virtio-ccw-remove-vdev-field.patch
-Patch0009: 0009-virtio-bus-cleanup-plug-unplug-interface.patch
-Patch0010: 0010-virtio-blk-switch-exit-callback-to-VirtioDeviceClass.patch
-Patch0011: 0011-virtio-serial-switch-exit-callback-to-VirtioDeviceCl.patch
-Patch0012: 0012-virtio-net-switch-exit-callback-to-VirtioDeviceClass.patch
-Patch0013: 0013-virtio-scsi-switch-exit-callback-to-VirtioDeviceClas.patch
-Patch0014: 0014-virtio-balloon-switch-exit-callback-to-VirtioDeviceC.patch
-Patch0015: 0015-virtio-rng-switch-exit-callback-to-VirtioDeviceClass.patch
-Patch0016: 0016-virtio-pci-add-device_unplugged-callback.patch
-
-# Fix 'new snapshot' slowness after the first snap (bz #988436)
-# Patches queued for upstream
-Patch0101: 0101-qcow2-Pass-discard-type-to-qcow2_discard_clusters.patch
-Patch0102: 0102-qcow2-Discard-VM-state-in-active-L1-after-creating-s.patch
-# Fix 9pfs xattrs on kernel 3.11 (bz #1013676)
-# Patch posted upstream
-Patch0103: 0103-hw-9pfs-Fix-errno-value-for-xattr-functions.patch
-# Fix migration from qemu <= 1.5
-# Patch posted upstream
-Patch0104: 0104-Fix-pc-migration-from-qemu-1.5.patch
-# Reduce CPU usage when audio is playing (bz #1017644)
-Patch0105: 0105-audio-honor-QEMU_AUDIO_TIMER_PERIOD-instead-of-wakin.patch
-# Fix drive discard options via libvirt (bz #1029953)
-# Patch queued upstream
-Patch0106: 0106-qmp-access-the-local-QemuOptsLists-for-drive-option.patch
-# Fix process exit with -sandbox on (bz #1027421)
-Patch0107: 0107-seccomp-fine-tuning-whitelist-by-adding-times.patch
+Patch0004: 0004-virtio-bus-remove-vdev-field.patch
+Patch0005: 0005-virtio-pci-remove-vdev-field.patch
+Patch0006: 0006-virtio-ccw-remove-vdev-field.patch
+Patch0007: 0007-virtio-bus-cleanup-plug-unplug-interface.patch
+Patch0008: 0008-virtio-blk-switch-exit-callback-to-VirtioDeviceClass.patch
+Patch0009: 0009-virtio-serial-switch-exit-callback-to-VirtioDeviceCl.patch
+Patch0010: 0010-virtio-net-switch-exit-callback-to-VirtioDeviceClass.patch
+Patch0011: 0011-virtio-scsi-switch-exit-callback-to-VirtioDeviceClas.patch
+Patch0012: 0012-virtio-balloon-switch-exit-callback-to-VirtioDeviceC.patch
+Patch0013: 0013-virtio-rng-switch-exit-callback-to-VirtioDeviceClass.patch
+Patch0014: 0014-virtio-pci-add-device_unplugged-callback.patch
 
 BuildRequires: SDL-devel
 BuildRequires: zlib-devel
@@ -311,6 +290,7 @@ BuildRequires: librdmacm-devel
 BuildRequires: qemu-sanity-check-nodeps
 BuildRequires: kernel
 %endif
+BuildRequires: iasl
 
 %if 0%{?user:1}
 Requires: %{name}-%{user} = %{epoch}:%{version}-%{release}
@@ -731,20 +711,18 @@ CAC emulation development files.
 %endif
 
 %prep
-%setup -q
+%setup -q -n qemu-1.7.0-rc1
 
-# qemu-kvm migration compat (not for upstream, drop by Fedora 21?)
-%patch0001 -p1
-# Fix crash with -M isapc -cpu Haswell (bz #986790)
-%patch0002 -p1
 # Fix crash in lsi_soft_reset (bz #1000947)
 # Patches posted upstream
+%patch0001 -p1
+%patch0002 -p1
 %patch0003 -p1
-%patch0004 -p1
-%patch0005 -p1
 # CVE-2013-4377: Fix crash when unplugging virtio devices (bz #1012633,
 # bz #1012641)
 # Patches posted upstream
+%patch0004 -p1
+%patch0005 -p1
 %patch0006 -p1
 %patch0007 -p1
 %patch0008 -p1
@@ -754,26 +732,6 @@ CAC emulation development files.
 %patch0012 -p1
 %patch0013 -p1
 %patch0014 -p1
-%patch0015 -p1
-%patch0016 -p1
-
-# Fix 'new snapshot' slowness after the first snap (bz #988436)
-# Patches queued for upstream
-%patch0101 -p1
-%patch0102 -p1
-# Fix 9pfs xattrs on kernel 3.11 (bz #1013676)
-# Patch posted upstream
-%patch0103 -p1
-# Fix migration from qemu <= 1.5
-# Patch posted upstream
-%patch0104 -p1
-# Reduce CPU usage when audio is playing (bz #1017644)
-%patch0105 -p1
-# Fix drive discard options via libvirt (bz #1029953)
-# Patch queued upstream
-%patch0106 -p1
-# Fix process exit with -sandbox on (bz #1027421)
-%patch0107 -p1
 
 
 %build
@@ -814,17 +772,17 @@ dobuild() {
         --libdir=%{_libdir} \
         --sysconfdir=%{_sysconfdir} \
         --interp-prefix=%{_prefix}/qemu-%%M \
-        --audio-drv-list=pa,sdl,alsa,oss \
         --localstatedir=%{_localstatedir} \
         --libexecdir=%{_libexecdir} \
         --disable-strip \
         --extra-ldflags="$extraldflags -pie -Wl,-z,relro -Wl,-z,now" \
         --extra-cflags="%{optflags} -fPIE -DPIE" \
-        --enable-mixemu \
-        --enable-trace-backend=dtrace \
         --disable-werror \
+        --audio-drv-list=pa,sdl,alsa,oss \
+        --enable-trace-backend=dtrace \
         --disable-xen \
         --enable-kvm \
+        --enable-tpm \
 %if 0%{?have_spice:1}
         --enable-spice \
 %endif
@@ -842,7 +800,6 @@ dobuild() {
 %if %{with gtk}
         --with-gtkabi="3.0" \
 %endif
-        --enable-tpm \
 %ifarch s390
         --enable-tcg-interpreter \
 %endif
@@ -1481,6 +1438,9 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Thu Nov 21 2013 Cole Robinson <crobinso@redhat.com> - 2:1.7.0-0.1.rc1
+- Update qemu-1.7.0-rc1
+
 * Sun Nov 17 2013 Cole Robinson <crobinso@redhat.com> - 2:1.6.1-2
 - Fix drive discard options via libvirt (bz #1029953)
 - Fix process exit with -sandbox on (bz #1027421)

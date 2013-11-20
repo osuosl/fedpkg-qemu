@@ -1,4 +1,4 @@
-From d42ac36363ef9e3d3963c2c31fa7122492dbaf0e Mon Sep 17 00:00:00 2001
+From 6b83317ba5edf378a1d5d4ccf1af7cc2a521f6ca Mon Sep 17 00:00:00 2001
 From: Paolo Bonzini <pbonzini@redhat.com>
 Date: Fri, 20 Sep 2013 16:57:58 +0200
 Subject: [PATCH] virtio-balloon: switch exit callback to VirtioDeviceClass
@@ -12,7 +12,7 @@ Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
  1 file changed, 4 insertions(+), 6 deletions(-)
 
 diff --git a/hw/virtio/virtio-balloon.c b/hw/virtio/virtio-balloon.c
-index aac7f83..c23facb 100644
+index 9504877..d7a392d 100644
 --- a/hw/virtio/virtio-balloon.c
 +++ b/hw/virtio/virtio-balloon.c
 @@ -370,16 +370,14 @@ static int virtio_balloon_device_init(VirtIODevice *vdev)

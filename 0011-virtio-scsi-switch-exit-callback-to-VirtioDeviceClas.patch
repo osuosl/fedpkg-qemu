@@ -1,4 +1,4 @@
-From df750f462929ba85a61dbdd6a4020cb4b2ee68d0 Mon Sep 17 00:00:00 2001
+From 78ad270fe43666fb11ba1352f591a7f217dd87b7 Mon Sep 17 00:00:00 2001
 From: Paolo Bonzini <pbonzini@redhat.com>
 Date: Fri, 20 Sep 2013 16:57:57 +0200
 Subject: [PATCH] virtio-scsi: switch exit callback to VirtioDeviceClass
@@ -54,10 +54,10 @@ index 9e770fb..5e3cc61 100644
      vdc->set_config = vhost_scsi_set_config;
      vdc->set_status = vhost_scsi_set_status;
 diff --git a/hw/scsi/virtio-scsi.c b/hw/scsi/virtio-scsi.c
-index 05da56b..5545993 100644
+index 26d95a1..83344ea 100644
 --- a/hw/scsi/virtio-scsi.c
 +++ b/hw/scsi/virtio-scsi.c
-@@ -643,22 +643,21 @@ static int virtio_scsi_device_init(VirtIODevice *vdev)
+@@ -644,22 +644,21 @@ static int virtio_scsi_device_init(VirtIODevice *vdev)
      return 0;
  }
  
@@ -86,7 +86,7 @@ index 05da56b..5545993 100644
  }
  
  static Property virtio_scsi_properties[] = {
-@@ -679,10 +678,10 @@ static void virtio_scsi_class_init(ObjectClass *klass, void *data)
+@@ -680,10 +679,10 @@ static void virtio_scsi_class_init(ObjectClass *klass, void *data)
  {
      DeviceClass *dc = DEVICE_CLASS(klass);
      VirtioDeviceClass *vdc = VIRTIO_DEVICE_CLASS(klass);

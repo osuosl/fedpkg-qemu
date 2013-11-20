@@ -1,4 +1,4 @@
-From fe02fcc2b929e6a678ec783cb80890b79b7dca78 Mon Sep 17 00:00:00 2001
+From 7d948d3491e58e32ece358d783a05d51fdbd6ec3 Mon Sep 17 00:00:00 2001
 From: Paolo Bonzini <pbonzini@redhat.com>
 Date: Fri, 20 Sep 2013 16:57:53 +0200
 Subject: [PATCH] virtio-bus: cleanup plug/unplug interface
@@ -42,7 +42,7 @@ Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
  4 files changed, 19 insertions(+), 13 deletions(-)
 
 diff --git a/hw/virtio/virtio-bus.c b/hw/virtio/virtio-bus.c
-index 669ce38..7aed6a4 100644
+index 17dd06e..7aed6a4 100644
 --- a/hw/virtio/virtio-bus.c
 +++ b/hw/virtio/virtio-bus.c
 @@ -37,8 +37,8 @@ do { printf("virtio_bus: " fmt , ## __VA_ARGS__); } while (0)
@@ -80,7 +80,7 @@ index 669ce38..7aed6a4 100644
 +        if (klass->device_unplugged != NULL) {
 +            klass->device_unplugged(qbus->parent);
          }
--        qdev_free(DEVICE(vdev));
+-        object_unparent(OBJECT(vdev));
      }
  }
  
