@@ -139,7 +139,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.7.0
-Release: 0.1.rc1%{?dist}
+Release: 0.2.rc1%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -204,6 +204,7 @@ Patch0014: 0014-virtio-pci-add-device_unplugged-callback.patch
 BuildRequires: SDL-devel
 BuildRequires: zlib-devel
 BuildRequires: which
+BuildRequires: chrpath
 BuildRequires: texi2html
 BuildRequires: gnutls-devel
 BuildRequires: cyrus-sasl-devel
@@ -1025,6 +1026,15 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/pkgconfig/libcacard.pc
 rm -rf $RPM_BUILD_ROOT%{_includedir}/cacard
 %endif
 
+# When building using 'rpmbuild' or 'fedpkg local', RPATHs are left in
+# the binaries and libraries (although this doesn't occur when
+# building in Koji, for some unknown reason).  In any case it should
+# always be safe to remove RPATHs from the final binaries:
+for f in $RPM_BUILD_ROOT%{_bindir}/* $RPM_BUILD_ROOT%{_libdir}/* \
+         $RPM_BUILD_ROOT%{_libexecdir}/*; do
+  if file $f | grep -q ELF; then chrpath --delete $f; fi
+done
+
 %check
 make check
 
@@ -1438,6 +1448,9 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Fri Nov 29 2013 Richard W.M. Jones <rjones@redhat.com> - 2:1.7.0-0.2.rc1
+- Run chrpath on binaries, so qemu can be built using rpmbuild.
+
 * Thu Nov 21 2013 Cole Robinson <crobinso@redhat.com> - 2:1.7.0-0.1.rc1
 - Update qemu-1.7.0-rc1
 
