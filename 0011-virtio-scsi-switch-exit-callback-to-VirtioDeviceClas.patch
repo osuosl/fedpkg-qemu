@@ -1,4 +1,4 @@
-From 78ad270fe43666fb11ba1352f591a7f217dd87b7 Mon Sep 17 00:00:00 2001
+From 18a73436b50ec6c28afde849c6de23ad7ebed459 Mon Sep 17 00:00:00 2001
 From: Paolo Bonzini <pbonzini@redhat.com>
 Date: Fri, 20 Sep 2013 16:57:57 +0200
 Subject: [PATCH] virtio-scsi: switch exit callback to VirtioDeviceClass

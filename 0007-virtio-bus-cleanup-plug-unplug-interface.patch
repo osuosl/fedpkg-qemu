@@ -1,4 +1,4 @@
-From 7d948d3491e58e32ece358d783a05d51fdbd6ec3 Mon Sep 17 00:00:00 2001
+From e26f88b6280b2386c36d3b3d5ec820deb1ac7749 Mon Sep 17 00:00:00 2001
 From: Paolo Bonzini <pbonzini@redhat.com>
 Date: Fri, 20 Sep 2013 16:57:53 +0200
 Subject: [PATCH] virtio-bus: cleanup plug/unplug interface

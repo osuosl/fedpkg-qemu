@@ -1,4 +1,4 @@
-From 07ffeff19959e11ae7d68f7dc17a3225deb88f8f Mon Sep 17 00:00:00 2001
+From e8821c68009a5b801ffef6d7d9ed5d770c0bfd9f Mon Sep 17 00:00:00 2001
 From: Paolo Bonzini <pbonzini@redhat.com>
 Date: Fri, 20 Sep 2013 16:57:54 +0200
 Subject: [PATCH] virtio-blk: switch exit callback to VirtioDeviceClass

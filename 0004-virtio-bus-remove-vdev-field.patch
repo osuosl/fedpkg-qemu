@@ -1,4 +1,4 @@
-From 21cbcaf09677ba959d977bfc0712c5e08ca1aec9 Mon Sep 17 00:00:00 2001
+From d704692d459a40bd28950e734a57075b0ab87393 Mon Sep 17 00:00:00 2001
 From: Paolo Bonzini <pbonzini@redhat.com>
 Date: Fri, 20 Sep 2013 16:57:50 +0200
 Subject: [PATCH] virtio-bus: remove vdev field

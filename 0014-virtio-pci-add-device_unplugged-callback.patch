@@ -1,4 +1,4 @@
-From 91ff7bf3e20ced8742319d77bd5f2b9929bc3c24 Mon Sep 17 00:00:00 2001
+From 96412e68c312ae4d91d6febc2284951f8b295ef7 Mon Sep 17 00:00:00 2001
 From: Paolo Bonzini <pbonzini@redhat.com>
 Date: Fri, 20 Sep 2013 16:58:00 +0200
 Subject: [PATCH] virtio-pci: add device_unplugged callback
