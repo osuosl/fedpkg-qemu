@@ -1,0 +1,35 @@
+From f2b896fa48272c26445e17b59a365fcaea808e0e Mon Sep 17 00:00:00 2001
+From: Max Reitz <mreitz@redhat.com>
+Date: Fri, 29 Nov 2013 21:41:29 +0100
+Subject: [PATCH] block: Close backing file early in bdrv_img_create
+
+Leaving the backing file open although it is not needed anymore can
+cause problems if it is opened through a block driver which allows
+exclusive access only and if the create function of the block driver
+used for the top image (the one being created) tries to close and reopen
+the image file (which will include opening the backing file a second
+time).
+
+In particular, this will happen with a backing file opened through
+qemu-nbd and using qcow2 as the top image file format (which reopens the
+image to flush it to disk).
+
+Signed-off-by: Max Reitz <mreitz@redhat.com>
+---
+ block.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/block.c b/block.c
+index 382ea71..6d571ad 100644
+--- a/block.c
++++ b/block.c
+@@ -4608,6 +4608,9 @@ void bdrv_img_create(const char *filename, const char *fmt,
+ 
+             snprintf(buf, sizeof(buf), "%" PRId64, size);
+             set_option_parameter(param, BLOCK_OPT_SIZE, buf);
++
++            bdrv_unref(bs);
++            bs = NULL;
+         } else {
+             error_setg(errp, "Image creation needs a size parameter");
+             goto out;
