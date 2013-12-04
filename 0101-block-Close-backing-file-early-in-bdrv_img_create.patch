@@ -1,6 +1,6 @@
-From f2b896fa48272c26445e17b59a365fcaea808e0e Mon Sep 17 00:00:00 2001
+From 62a30a970548466900ac45962a0fe8c051514329 Mon Sep 17 00:00:00 2001
 From: Max Reitz <mreitz@redhat.com>
-Date: Fri, 29 Nov 2013 21:41:29 +0100
+Date: Tue, 3 Dec 2013 14:57:52 +0100
 Subject: [PATCH] block: Close backing file early in bdrv_img_create
 
 Leaving the backing file open although it is not needed anymore can
@@ -14,22 +14,59 @@ In particular, this will happen with a backing file opened through
 qemu-nbd and using qcow2 as the top image file format (which reopens the
 image to flush it to disk).
 
+In addition, the BlockDriverState in bdrv_img_create() is used for the
+backing file only; it should therefore be made local to the respective
+block.
+
 Signed-off-by: Max Reitz <mreitz@redhat.com>
 ---
- block.c | 3 +++
- 1 file changed, 3 insertions(+)
+ block.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/block.c b/block.c
-index 382ea71..6d571ad 100644
+index 382ea71..0468765 100644
 --- a/block.c
 +++ b/block.c
-@@ -4608,6 +4608,9 @@ void bdrv_img_create(const char *filename, const char *fmt,
+@@ -4504,7 +4504,6 @@ void bdrv_img_create(const char *filename, const char *fmt,
+ {
+     QEMUOptionParameter *param = NULL, *create_options = NULL;
+     QEMUOptionParameter *backing_fmt, *backing_file, *size;
+-    BlockDriverState *bs = NULL;
+     BlockDriver *drv, *proto_drv;
+     BlockDriver *backing_drv = NULL;
+     Error *local_err = NULL;
+@@ -4583,6 +4582,7 @@ void bdrv_img_create(const char *filename, const char *fmt,
+     size = get_option_parameter(param, BLOCK_OPT_SIZE);
+     if (size && size->value.n == -1) {
+         if (backing_file && backing_file->value.s) {
++            BlockDriverState *bs;
+             uint64_t size;
+             char buf[32];
+             int back_flags;
+@@ -4601,6 +4601,7 @@ void bdrv_img_create(const char *filename, const char *fmt,
+                                  error_get_pretty(local_err));
+                 error_free(local_err);
+                 local_err = NULL;
++                bdrv_unref(bs);
+                 goto out;
+             }
+             bdrv_get_geometry(bs, &size);
+@@ -4608,6 +4609,8 @@ void bdrv_img_create(const char *filename, const char *fmt,
  
              snprintf(buf, sizeof(buf), "%" PRId64, size);
              set_option_parameter(param, BLOCK_OPT_SIZE, buf);
 +
 +            bdrv_unref(bs);
-+            bs = NULL;
          } else {
              error_setg(errp, "Image creation needs a size parameter");
              goto out;
+@@ -4638,9 +4641,6 @@ out:
+     free_option_parameters(create_options);
+     free_option_parameters(param);
+ 
+-    if (bs) {
+-        bdrv_unref(bs);
+-    }
+     if (error_is_set(&local_err)) {
+         error_propagate(errp, local_err);
+     }
