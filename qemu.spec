@@ -1022,10 +1022,14 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/pkgconfig/libcacard.pc
 rm -rf $RPM_BUILD_ROOT%{_includedir}/cacard
 %endif
 
-# When building using 'rpmbuild' or 'fedpkg local', RPATHs are left in
+# When building using 'rpmbuild' or 'fedpkg local', RPATHs can be left in
 # the binaries and libraries (although this doesn't occur when
-# building in Koji, for some unknown reason).  In any case it should
-# always be safe to remove RPATHs from the final binaries:
+# building in Koji, for some unknown reason). Some discussion here:
+#
+# https://lists.fedoraproject.org/pipermail/devel/2013-November/192553.html
+#
+# In any case it should always be safe to remove RPATHs from
+# the final binaries:
 for f in $RPM_BUILD_ROOT%{_bindir}/* $RPM_BUILD_ROOT%{_libdir}/* \
          $RPM_BUILD_ROOT%{_libexecdir}/*; do
   if file $f | grep -q ELF; then chrpath --delete $f; fi
