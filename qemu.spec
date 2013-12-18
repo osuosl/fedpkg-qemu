@@ -131,7 +131,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.4.2
-Release: 14%{?dist}
+Release: 15%{?dist}
 # Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
@@ -308,6 +308,11 @@ Patch0319: 0319-hw-9pfs-Be-robust-against-paths-without-FS_IOC_GETVE.patch
 Patch0320: 0320-hw-9pfs-Fix-errno-value-for-xattr-functions.patch
 # Fix process exit with -sandbox on (bz #1027421)
 Patch0321: 0321-seccomp-fine-tuning-whitelist-by-adding-times.patch
+# Add kill() to seccomp whitelist, fix AC97 with -sandbox on (bz
+# #1043521)
+Patch0322: 0322-seccomp-add-kill-to-the-syscall-whitelist.patch
+# Changing streaming mode default to off for spice (bz #1038336)
+Patch0323: 0323-spice-flip-streaming-video-mode-to-off-by-default.patch
 
 BuildRequires: SDL-devel
 BuildRequires: zlib-devel
@@ -465,6 +470,13 @@ will install qemu-system-x86
 %package  img
 Summary: QEMU command line tool for manipulating disk images
 Group: Development/Tools
+
+# ceph added new symbol rbd_aio_flush which qemu wants to use, but ceph
+# lacks symbol versioning so RPM doesn't pick up the dependency.
+# Need to keep this for the lifetime of f19
+%if %{with rbd}
+Requires: ceph-libs >= 0.61
+%endif
 
 %description img
 This package provides a command line tool for manipulating disk images
@@ -913,6 +925,11 @@ CAC emulation development files.
 %patch0320 -p1
 # Fix process exit with -sandbox on (bz #1027421)
 %patch0321 -p1
+# Add kill() to seccomp whitelist, fix AC97 with -sandbox on (bz
+# #1043521)
+%patch0322 -p1
+# Changing streaming mode default to off for spice (bz #1038336)
+%patch0323 -p1
 
 %build
 %if %{with kvmonly}
@@ -1559,6 +1576,11 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Wed Dec 18 2013 Cole Robinson <crobinso@redhat.com> - 2:1.4.2-15
+- Add kill() to seccomp whitelist, fix AC97 with -sandbox on (bz #1043521)
+- Changing streaming mode default to off for spice (bz #1038336)
+- Fix qemu-img ceph dep (bz #1024781)
+
 * Sun Nov 17 2013 Cole Robinson <crobinso@redhat.com> - 2:1.4.2-14
 - Fix process exit with -sandbox on (bz #1027421)
 

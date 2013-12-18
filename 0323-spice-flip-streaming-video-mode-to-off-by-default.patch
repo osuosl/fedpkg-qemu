@@ -1,0 +1,33 @@
+From 3bbf8ef814e238de967eb1ef90f63c23e1942ecd Mon Sep 17 00:00:00 2001
+From: Gerd Hoffmann <kraxel@redhat.com>
+Date: Mon, 2 Dec 2013 11:17:04 +0100
+Subject: [PATCH] spice: flip streaming video mode to off by default
+
+Video streaming detection heuristics in spice-server have problems
+keeping modern desktop animations (as done by gnome shell) and real
+video playback apart.  This leads to jpeg compression artefacts on
+your desktop, due to spice using mjpeg to send what it thinks is
+a video stream.
+
+Turn off video detection by default to avoid these artifacts.
+
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+Reviewed-by: Alon Levy <alevy@redhat.com>
+(cherry picked from commit f1d3e586f069e17f83b669842bc02d60d509daca)
+---
+ ui/spice-core.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/ui/spice-core.c b/ui/spice-core.c
+index bcc4199..76e5dcd 100644
+--- a/ui/spice-core.c
++++ b/ui/spice-core.c
+@@ -764,6 +764,8 @@ void qemu_spice_init(void)
+     if (str) {
+         int streaming_video = parse_stream_video(str);
+         spice_server_set_streaming_video(spice_server, streaming_video);
++    } else {
++        spice_server_set_streaming_video(spice_server, SPICE_STREAM_VIDEO_OFF);
+     }
+ 
+     spice_server_set_agent_mouse
