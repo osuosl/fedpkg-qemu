@@ -139,7 +139,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.6.1
-Release: 2%{?dist}
+Release: 3%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -221,6 +221,16 @@ Patch0105: 0105-audio-honor-QEMU_AUDIO_TIMER_PERIOD-instead-of-wakin.patch
 Patch0106: 0106-qmp-access-the-local-QemuOptsLists-for-drive-option.patch
 # Fix process exit with -sandbox on (bz #1027421)
 Patch0107: 0107-seccomp-fine-tuning-whitelist-by-adding-times.patch
+# Add kill() to seccomp whitelist, fix AC97 with -sandbox on (bz
+# #1043521)
+Patch0108: 0108-seccomp-add-kill-to-the-syscall-whitelist.patch
+# Changing streaming mode default to off for spice (bz #1038336)
+Patch0109: 0109-spice-flip-streaming-video-mode-to-off-by-default.patch
+# Fix guest scsi verify command (bz #1001617)
+Patch0110: 0110-scsi-bus-fix-transfer-length-and-direction-for-VERIF.patch
+Patch0111: 0111-scsi-disk-fix-VERIFY-emulation.patch
+# Fix performance regression after save/restore (bz #917723)
+Patch0112: 0112-migration-drop-MADVISE_DONT_NEED-for-incoming-zero-p.patch
 
 BuildRequires: SDL-devel
 BuildRequires: zlib-devel
@@ -774,6 +784,16 @@ CAC emulation development files.
 %patch0106 -p1
 # Fix process exit with -sandbox on (bz #1027421)
 %patch0107 -p1
+# Add kill() to seccomp whitelist, fix AC97 with -sandbox on (bz
+# #1043521)
+%patch0108 -p1
+# Changing streaming mode default to off for spice (bz #1038336)
+%patch0109 -p1
+# Fix guest scsi verify command (bz #1001617)
+%patch0110 -p1
+%patch0111 -p1
+# Fix performance regression after save/restore (bz #917723)
+%patch0112 -p1
 
 
 %build
@@ -1481,6 +1501,12 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Wed Dec 18 2013 Cole Robinson <crobinso@redhat.com> - 2:1.6.1-3
+- Add kill() to seccomp whitelist, fix AC97 with -sandbox on (bz #1043521)
+- Changing streaming mode default to off for spice (bz #1038336)
+- Fix guest scsi verify command (bz #1001617)
+- Fix performance regression after save/restore (bz #917723)
+
 * Sun Nov 17 2013 Cole Robinson <crobinso@redhat.com> - 2:1.6.1-2
 - Fix drive discard options via libvirt (bz #1029953)
 - Fix process exit with -sandbox on (bz #1027421)
