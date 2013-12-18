@@ -139,7 +139,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.7.0
-Release: 1%{?dist}
+Release: 2%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -202,6 +202,14 @@ Patch0014: 0014-virtio-pci-add-device_unplugged-callback.patch
 # Fix qemu-img create with NBD backing file (bz #1034433)
 # Patch posted upstream
 Patch0101: 0101-block-Close-backing-file-early-in-bdrv_img_create.patch
+# Add kill() to seccomp whitelist, fix AC97 with -sandbox on (bz
+# #1043521)
+Patch0102: 0102-seccomp-add-kill-to-the-syscall-whitelist.patch
+# Changing streaming mode default to off for spice (bz #1038336)
+Patch0103: 0103-spice-flip-streaming-video-mode-to-off-by-default.patch
+# Fix guest scsi verify command (bz #1001617)
+Patch0104: 0104-scsi-bus-fix-transfer-length-and-direction-for-VERIF.patch
+Patch0105: 0105-scsi-disk-fix-VERIFY-emulation.patch
 
 BuildRequires: SDL-devel
 BuildRequires: zlib-devel
@@ -726,6 +734,14 @@ CAC emulation development files.
 # Fix qemu-img create with NBD backing file (bz #1034433)
 # Patch posted upstream
 %patch0101 -p1
+# Add kill() to seccomp whitelist, fix AC97 with -sandbox on (bz
+# #1043521)
+%patch0102 -p1
+# Changing streaming mode default to off for spice (bz #1038336)
+%patch0103 -p1
+# Fix guest scsi verify command (bz #1001617)
+%patch0104 -p1
+%patch0105 -p1
 
 
 %build
@@ -1449,6 +1465,11 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Wed Dec 18 2013 Cole Robinson <crobinso@redhat.com> - 2:1.7.0-2
+- Add kill() to seccomp whitelist, fix AC97 with -sandbox on (bz #1043521)
+- Changing streaming mode default to off for spice (bz #1038336)
+- Fix guest scsi verify command (bz #1001617)
+
 * Mon Dec 02 2013 Cole Robinson <crobinso@redhat.com> - 2:1.7.0-1
 - Fix qemu-img create with NBD backing file (bz #1034433)
 - Rebase to qemu-1.7 GA
