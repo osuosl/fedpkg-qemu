@@ -139,7 +139,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.7.0
-Release: 2%{?dist}
+Release: 3%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -1090,6 +1090,10 @@ getent passwd qemu >/dev/null || \
 %systemd_postun_with_restart ksmtuned.service
 %endif
 
+%if %{without separate_kvm}
+%post -n libcacard -p /sbin/ldconfig
+%postun -n libcacard -p /sbin/ldconfig
+%endif
 
 %if 0%{?user:1}
 %post %{user}
@@ -1465,6 +1469,9 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Sat Dec 21 2013 Ville Skyttä <ville.skytta@iki.fi> - 2:1.7.0-3
+- Add libcacard ldconfig %%post* scriptlets.
+
 * Wed Dec 18 2013 Cole Robinson <crobinso@redhat.com> - 2:1.7.0-2
 - Add kill() to seccomp whitelist, fix AC97 with -sandbox on (bz #1043521)
 - Changing streaming mode default to off for spice (bz #1038336)
