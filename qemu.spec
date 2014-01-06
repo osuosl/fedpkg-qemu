@@ -795,9 +795,13 @@ dobuild() {
         --enable-tpm \
 %if 0%{?have_spice:1}
         --enable-spice \
+%else
+        --disable-spice \
 %endif
 %if 0%{?have_seccomp:1}
         --enable-seccomp \
+%else
+        --disable-seccomp \
 %endif
 %if %{without rbd}
         --disable-rbd \
