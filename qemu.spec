@@ -139,7 +139,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.7.0
-Release: 3%{?dist}
+Release: 4%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -1056,7 +1056,11 @@ for f in $RPM_BUILD_ROOT%{_bindir}/* $RPM_BUILD_ROOT%{_libdir}/* \
 done
 
 %check
+# Disabled on aarch64 where it fails with several errors.  Will
+# investigate and fix when we have access to real hardware - RWMJ.
+%ifnarch aarch64
 make check
+%endif
 
 # Sanity-check current kernel can boot on this qemu.
 # The results are advisory only.
@@ -1473,6 +1477,9 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Mon Jan 13 2014 Richard W.M. Jones <rjones@redhat.com> - 2:1.7.0-4
+- Disable make check on aarch64.
+
 * Sat Dec 21 2013 Ville Skyttä <ville.skytta@iki.fi> - 2:1.7.0-3
 - Add libcacard ldconfig %%post* scriptlets.
 
