@@ -139,7 +139,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.7.0
-Release: 4%{?dist}
+Release: 5%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -1065,9 +1065,16 @@ make check
 # Sanity-check current kernel can boot on this qemu.
 # The results are advisory only.
 %if 0%{?fedora} >= 20
-%ifarch x86_64
-qemu-sanity-check --qemu=x86_64-softmmu/qemu-system-x86_64 || :
+%ifarch %{arm}
+hostqemu=arm-softmmu/qemu-system-arm
 %endif
+%ifarch %{ix86}
+hostqemu=i386-softmmu/qemu-system-i386
+%endif
+%ifarch x86_64
+hostqemu=x86_64-softmmu/qemu-system-x86_64
+%endif
+if test -f $hostqemu; then qemu-sanity-check --qemu=$hostqemu ||: ; fi
 %endif
 
 %ifarch %{kvm_archs}
@@ -1477,6 +1484,10 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Tue Feb 18 2014 Richard W.M. Jones <rjones@redhat.com> - 2:1.7.0-5
+- Run qemu-sanity-check on x86 and armv7 too.  The results are still
+  only advisory.
+
 * Mon Jan 13 2014 Richard W.M. Jones <rjones@redhat.com> - 2:1.7.0-4
 - Disable make check on aarch64.
 
