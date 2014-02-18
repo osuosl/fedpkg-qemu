@@ -1074,7 +1074,7 @@ hostqemu=i386-softmmu/qemu-system-i386
 %ifarch x86_64
 hostqemu=x86_64-softmmu/qemu-system-x86_64
 %endif
-if test -f $hostqemu; then qemu-sanity-check --qemu=$hostqemu ||: ; fi
+if test -f "$hostqemu"; then qemu-sanity-check --qemu=$hostqemu ||: ; fi
 %endif
 
 %ifarch %{kvm_archs}
