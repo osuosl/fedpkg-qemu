@@ -1,0 +1,143 @@
+From b7906779d6a9eac1815d61cb34aa3d71154025bb Mon Sep 17 00:00:00 2001
+From: Paolo Bonzini <pbonzini@redhat.com>
+Date: Thu, 2 May 2013 11:38:39 +0200
+Subject: [PATCH] qdev: switch reset to post-order
+
+Post-order is the only sensible direction for the reset signals.
+For example, suppose pre-order is used and the parent has some data
+structures that cache children state (for example a list of active
+requests).  When the reset method is invoked on the parent, these caches
+could be in any state.
+
+If post-order is used, on the other hand, these will be in a known state
+when the reset method is invoked on the parent.
+
+This change means that it is no longer possible to block the visit of
+the devices, so the callback is changed to return void.  This is not
+a problem, because PCI was returning 1 exactly in order to achieve the
+same ordering that this patch implements.
+
+PCI can then rely on the qdev core having sent a "reset signal"
+(whatever that means) to the device, and only do the PCI-specific
+initialization with the new function pci_do_device_reset, extracted
+from pci_device_reset.  There is no change in the operation of FLR,
+which used and still uses pci_device_reset.
+
+Tested-by: Claudio Bley <cbley@av-test.de>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+---
+ hw/core/qdev.c         |  6 +++---
+ hw/pci/pci.c           | 31 ++++++++++++++++---------------
+ include/hw/qdev-core.h |  2 +-
+ 3 files changed, 20 insertions(+), 19 deletions(-)
+
+diff --git a/hw/core/qdev.c b/hw/core/qdev.c
+index 5ddf1aa..d2ffe35 100644
+--- a/hw/core/qdev.c
++++ b/hw/core/qdev.c
+@@ -233,19 +233,19 @@ static int qbus_reset_one(BusState *bus, void *opaque)
+ {
+     BusClass *bc = BUS_GET_CLASS(bus);
+     if (bc->reset) {
+-        return bc->reset(bus);
++        bc->reset(bus);
+     }
+     return 0;
+ }
+ 
+ void qdev_reset_all(DeviceState *dev)
+ {
+-    qdev_walk_children(dev, qdev_reset_one, qbus_reset_one, NULL, NULL, NULL);
++    qdev_walk_children(dev, NULL, NULL, qdev_reset_one, qbus_reset_one, NULL);
+ }
+ 
+ void qbus_reset_all(BusState *bus)
+ {
+-    qbus_walk_children(bus, qdev_reset_one, qbus_reset_one, NULL, NULL, NULL);
++    qbus_walk_children(bus, NULL, NULL, qdev_reset_one, qbus_reset_one, NULL);
+ }
+ 
+ void qbus_reset_all_fn(void *opaque)
+diff --git a/hw/pci/pci.c b/hw/pci/pci.c
+index 504ed9d..8806636 100644
+--- a/hw/pci/pci.c
++++ b/hw/pci/pci.c
+@@ -46,7 +46,7 @@
+ static void pcibus_dev_print(Monitor *mon, DeviceState *dev, int indent);
+ static char *pcibus_get_dev_path(DeviceState *dev);
+ static char *pcibus_get_fw_dev_path(DeviceState *dev);
+-static int pcibus_reset(BusState *qbus);
++static void pcibus_reset(BusState *qbus);
+ static void pci_bus_finalize(Object *obj);
+ 
+ static Property pci_props[] = {
+@@ -167,16 +167,10 @@ void pci_device_deassert_intx(PCIDevice *dev)
+     }
+ }
+ 
+-/*
+- * This function is called on #RST and FLR.
+- * FLR if PCI_EXP_DEVCTL_BCR_FLR is set
+- */
+-void pci_device_reset(PCIDevice *dev)
++static void pci_do_device_reset(PCIDevice *dev)
+ {
+     int r;
+ 
+-    qdev_reset_all(&dev->qdev);
+-
+     dev->irq_state = 0;
+     pci_update_irq_status(dev);
+     pci_device_deassert_intx(dev);
+@@ -209,10 +203,21 @@ void pci_device_reset(PCIDevice *dev)
+ }
+ 
+ /*
++ * This function is called on #RST and FLR.
++ * FLR if PCI_EXP_DEVCTL_BCR_FLR is set
++ */
++void pci_device_reset(PCIDevice *dev)
++{
++    qdev_reset_all(&dev->qdev);
++    pci_do_device_reset(dev);
++}
++
++/*
+  * Trigger pci bus reset under a given bus.
+- * To be called on RST# assert.
++ * Called via qbus_reset_all on RST# assert, after the devices
++ * have been reset qdev_reset_all-ed already.
+  */
+-static int pcibus_reset(BusState *qbus)
++static void pcibus_reset(BusState *qbus)
+ {
+     PCIBus *bus = DO_UPCAST(PCIBus, qbus, qbus);
+     int i;
+@@ -222,13 +227,9 @@ static int pcibus_reset(BusState *qbus)
+     }
+     for (i = 0; i < ARRAY_SIZE(bus->devices); ++i) {
+         if (bus->devices[i]) {
+-            pci_device_reset(bus->devices[i]);
++            pci_do_device_reset(bus->devices[i]);
+         }
+     }
+-
+-    /* topology traverse is done by pci_bus_reset().
+-       Tell qbus/qdev walker not to traverse the tree */
+-    return 1;
+ }
+ 
+ static void pci_host_bus_register(PCIBus *bus, DeviceState *parent)
+diff --git a/include/hw/qdev-core.h b/include/hw/qdev-core.h
+index ecf5cb3..a9ce4a3 100644
+--- a/include/hw/qdev-core.h
++++ b/include/hw/qdev-core.h
+@@ -158,7 +158,7 @@ struct BusClass {
+      * bindings can be found at http://playground.sun.com/1275/bindings/.
+      */
+     char *(*get_fw_dev_path)(DeviceState *dev);
+-    int (*reset)(BusState *bus);
++    void (*reset)(BusState *bus);
+     /* maximum devices allowed on the bus, 0: no limit. */
+     int max_dev;
+ };

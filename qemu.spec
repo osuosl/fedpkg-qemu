@@ -29,6 +29,7 @@
 %bcond_without seccomp          # enabled
 %bcond_with    xfsprogs         # disabled
 %bcond_with    separate_kvm     # disabled - for EPEL
+%bcond_with    gtk              # disabled
 %else
 # General defaults:
 %bcond_with    kvmonly          # disabled
@@ -38,14 +39,15 @@
 %bcond_without seccomp          # enabled
 %bcond_without xfsprogs         # enabled
 %bcond_with    separate_kvm     # disabled
+%bcond_without gtk              # enabled
 %endif
 
-%global SLOF_gittagdate 20121018
+%global SLOF_gittagdate 20130430
 
 %if %{without separate_kvm}
-%global kvm_archs %{ix86} x86_64 ppc64 s390x
+%global kvm_archs %{ix86} x86_64 ppc64 s390x armv7hl
 %else
-%global kvm_archs %{ix86} ppc64 s390x
+%global kvm_archs %{ix86} ppc64 s390x armv7hl
 %endif
 %if %{with exclusive_x86_64}
 %global kvm_archs x86_64
@@ -98,6 +100,11 @@
 %global kvm_target    s390x
 %global need_kvm_modfile 1
 %endif
+%ifarch armv7hl
+%global system_arm    kvm
+%global kvm_package   system-arm
+%global kvm_target    arm
+%endif
 
 %if %{with kvmonly}
 # If kvmonly, put the qemu-kvm binary in the qemu-kvm package
@@ -121,6 +128,7 @@
 %global system_x86    system-x86
 %global system_xtensa   system-xtensa
 %global system_unicore32   system-unicore32
+%global system_moxie   system-moxie
 %endif
 
 # libfdt is only needed to build ARM, Microblaze or PPC emulators
@@ -130,9 +138,8 @@
 
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
-Version: 1.4.2
-Release: 15%{?dist}
-# Epoch because we pushed a qemu-1.0 package. AIUI this can't ever be dropped
+Version: 1.7.0
+Release: 5%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -148,7 +155,6 @@ ExclusiveArch: %{kvm_archs}
 %endif
 
 Source0: http://wiki.qemu-project.org/download/%{name}-%{version}.tar.bz2
-
 
 Source1: qemu.binfmt
 
@@ -173,150 +179,42 @@ Source12: bridge.conf
 # qemu-kvm back compat wrapper
 Source13: qemu-kvm.sh
 
-# Flow control series
-Patch0001: 0001-char-Split-out-tcp-socket-close-code-in-a-separate-f.patch
-Patch0002: 0002-char-Add-a-QemuChrHandlers-struct-to-initialise-char.patch
-Patch0003: 0003-iohandlers-Add-enable-disable_write_fd_handler-funct.patch
-Patch0004: 0004-char-Add-framework-for-a-write-unblocked-callback.patch
-Patch0005: 0005-char-Update-send_all-to-handle-nonblocking-chardev-w.patch
-Patch0006: 0006-char-Equip-the-unix-tcp-backend-to-handle-nonblockin.patch
-Patch0007: 0007-virtio-console-Enable-port-throttling-when-chardev-i.patch
-Patch0008: 0008-spice-qemu-char.c-add-throttling.patch
-Patch0009: 0009-spice-qemu-char.c-remove-intermediate-buffer.patch
-Patch0010: 0010-usb-redir-Add-flow-control-support.patch
-Patch0011: 0011-char-Disable-write-callback-if-throttled-chardev-is-.patch
-Patch0012: 0012-hw-virtio-serial-bus-replay-guest-open-on-destinatio.patch
-
-# Fix migration crash with spice (bz #962954)
-Patch0101: 0101-vnc-tls-Fix-compilation-with-newer-versions-of-GNU-T.patch
-Patch0102: 0102-migration-change-initial-value-of-expected_downtime.patch
-Patch0103: 0103-migration-calculate-end-time-after-we-have-sent-the-.patch
-Patch0104: 0104-migration-don-t-account-sleep-time-for-calculating-b.patch
-Patch0105: 0105-migration-calculate-expected_downtime.patch
-Patch0106: 0106-migration-simplify-while-loop.patch
-Patch0107: 0107-migration-always-use-vm_stop_force_state.patch
-Patch0108: 0108-migration-move-more-error-handling-to-migrate_fd_cle.patch
-Patch0109: 0109-migration-push-qemu_savevm_state_cancel-out-of-qemu_.patch
-Patch0110: 0110-block-migration-remove-useless-calls-to-blk_mig_clea.patch
-Patch0111: 0111-qemu-file-pass-errno-from-qemu_fflush-via-f-last_err.patch
-Patch0112: 0112-migration-use-qemu_file_set_error-to-pass-error-code.patch
-Patch0113: 0113-qemu-file-temporarily-expose-qemu_file_set_error-and.patch
-Patch0114: 0114-migration-flush-all-data-to-fd-when-buffered_flush-i.patch
-Patch0115: 0115-migration-use-qemu_file_set_error.patch
-Patch0116: 0116-migration-simplify-error-handling.patch
-Patch0117: 0117-migration-do-not-nest-flushing-of-device-data.patch
-Patch0118: 0118-migration-add-migrate_set_state-tracepoint.patch
-Patch0119: 0119-migration-prepare-to-access-s-state-outside-critical.patch
-Patch0120: 0120-migration-cleanup-migration-including-thread-in-the-.patch
-Patch0121: 0121-block-migration-remove-variables-that-are-never-read.patch
-Patch0122: 0122-block-migration-small-preparatory-changes-for-lockin.patch
-Patch0123: 0123-block-migration-document-usage-of-state-across-threa.patch
-Patch0124: 0124-block-migration-add-lock.patch
-Patch0125: 0125-migration-reorder-SaveVMHandlers-members.patch
-Patch0126: 0126-migration-run-pending-iterate-callbacks-out-of-big-l.patch
-Patch0127: 0127-migration-run-setup-callbacks-out-of-big-lock.patch
-Patch0128: 0128-migration-yay-buffering-is-gone.patch
-Patch0129: 0129-Rename-buffered_-to-migration_.patch
-Patch0130: 0130-qemu-file-make-qemu_fflush-and-qemu_file_set_error-p.patch
-Patch0131: 0131-migration-eliminate-last_round.patch
-Patch0132: 0132-migration-detect-error-before-sleeping.patch
-Patch0133: 0133-migration-remove-useless-qemu_file_get_error-check.patch
-Patch0134: 0134-migration-use-qemu_file_rate_limit-consistently.patch
-Patch0135: 0135-migration-merge-qemu_popen_cmd-with-qemu_popen.patch
-Patch0136: 0136-qemu-file-fsync-a-writable-stdio-QEMUFile.patch
-Patch0137: 0137-qemu-file-check-exit-status-when-closing-a-pipe-QEMU.patch
-Patch0138: 0138-qemu-file-add-writable-socket-QEMUFile.patch
-Patch0139: 0139-qemu-file-simplify-and-export-qemu_ftell.patch
-Patch0140: 0140-migration-use-QEMUFile-for-migration-channel-lifetim.patch
-Patch0141: 0141-migration-use-QEMUFile-for-writing-outgoing-migratio.patch
-Patch0142: 0142-migration-use-qemu_ftell-to-compute-bandwidth.patch
-Patch0143: 0143-migration-small-changes-around-rate-limiting.patch
-Patch0144: 0144-migration-move-rate-limiting-to-QEMUFile.patch
-Patch0145: 0145-migration-move-contents-of-migration_close-to-migrat.patch
-Patch0146: 0146-migration-eliminate-s-migration_file.patch
-Patch0147: 0147-migration-inline-migrate_fd_close.patch
-Patch0148: 0148-Revert-migration-don-t-account-sleep-time-for-calcul.patch
-
-# 917860 libcacard and qemu/hw/ccid windows 7 smartcard support.
-Patch0201: 0201-configure-Add-enable-migration-from-qemu-kvm.patch
-Patch0202: 0202-acpi_piix4-Drop-minimum_version_id-to-handle-qemu-kv.patch
-Patch0203: 0203-i8254-Fix-migration-from-qemu-kvm-1.1.patch
-Patch0204: 0204-pc_piix-Add-compat-handling-for-qemu-kvm-VGA-mem-siz.patch
-Patch0205: 0205-qxl-Add-rom_size-compat-property-fix-migration-from-.patch
-Patch0206: 0206-rtl8139-flush-queued-packets-when-RxBufPtr-is-writte.patch
-Patch0207: 0207-spice-qemu-char-vmc_write-Don-t-write-more-bytes-the.patch
-Patch0208: 0208-configure-dtc-Probe-for-libfdt_env.h.patch
-Patch0209: 0209-Fix-usage-of-USB_DEV_FLAG_IS_HOST-flag.patch
-Patch0210: 0210-qxl-Fix-QXLRam-initialisation.patch
-Patch0211: 0211-qemu-socket-Make-socket_optslist-public.patch
-Patch0212: 0212-libcacard-correct-T0-historical-bytes-size.patch
-Patch0213: 0213-ccid-card-emul-do-not-crash-if-backend-is-not-provid.patch
-Patch0214: 0214-ccid-make-backend_enum_table-static-const-and-adjust.patch
-Patch0215: 0215-ccid-declare-DEFAULT_ATR-table-to-be-static-const.patch
-Patch0216: 0216-libcacard-use-system-config-directory-for-nss-db-on-.patch
-Patch0217: 0217-util-move-socket_init-to-osdep.c.patch
-Patch0218: 0218-build-sys-must-link-with-fstack-protector.patch
-Patch0219: 0219-libcacard-fix-mingw64-cross-compilation.patch
-Patch0220: 0220-libcacard-split-vscclient-main-from-socket-reading.patch
-Patch0221: 0221-libcacard-vscclient-to-use-QemuThread-for-portabilit.patch
-Patch0222: 0222-libcacard-teach-vscclient-to-use-GMainLoop-for-porta.patch
-Patch0223: 0223-libcacard-remove-sql-prefix.patch
-Patch0224: 0224-libcacard-remove-default-libcoolkey-loading.patch
-Patch0225: 0225-dev-smartcard-reader-white-space-fixes.patch
-Patch0226: 0226-dev-smartcard-reader-nicer-debug-messages.patch
-Patch0227: 0227-dev-smartcard-reader-remove-aborts-never-triggered-b.patch
-Patch0228: 0228-dev-smartcard-reader-support-windows-guest.patch
-Patch0229: 0229-dev-smartcard-reader-reuse-usb.h-definitions.patch
-Patch0230: 0230-libcacard-change-default-ATR.patch
-Patch0231: 0231-ccid-card-passthru-add-atr-check.patch
-
-# qemu-kvm migration compat (posted upstream)
-Patch0301: 0301-ccid-card-passthru-dev-smartcard-reader-add-debug-en.patch
-Patch0302: 0302-dev-smartcard-reader-define-structs-for-CCID_Paramet.patch
-Patch0303: 0303-dev-smartcard-reader-change-default-protocol-to-T-0.patch
-Patch0304: 0304-dev-smartcard-reader-copy-atr-protocol-to-ccid-param.patch
-Patch0305: 0305-libcacard-vreader-add-debugging-messages-for-apdu.patch
-# Fix rtl8139 + windows 7 + large transfers (bz #970240)
-Patch0306: 0306-libcacard-move-atr-setting-from-macro-to-function.patch
-# Fix crash on large drag and drop file transfer w/ spice (bz #969109)
-Patch0307: 0307-dev-smartcard-reader-empty-implementation-for-Mechan.patch
-# Fix build with latest libfdt
-Patch0308: 0308-libcacard-cac-change-big-switch-functions-to-single-.patch
-# Fix usb_handle_packet assertions (bz #981459)
-Patch0309: 0309-libcacard-vscclient-fix-leakage-of-socket-on-error-p.patch
-# Fix crash when adding spice vdagent channel in the guest (bz #969084)
-Patch0310: 0310-libcacard-Fix-cppcheck-warning-and-remove-unneeded-c.patch
-# Fix crash with -M isapc -cpu Haswell (bz #986790)
-Patch0311: 0311-isapc-disable-kvmvapic.patch
 # Fix crash in lsi_soft_reset (bz #1000947)
 # Patches posted upstream
-Patch0312: 0312-pci-do-not-export-pci_bus_reset.patch
-Patch0313: 0313-qdev-allow-both-pre-and-post-order-vists-in-qdev-wal.patch
-Patch0314: 0314-qdev-switch-reset-to-post-order.patch
-# Fix crash in scsi_dma_complete (bz #1001617)
-Patch0315: 0315-scsi-avoid-assertion-failure-on-VERIFY-command.patch
-# ppc64 hangs at "Trying to read invalid spr 896 380 at .." (bz
-# #1004532)
-Patch0316: 0316-target-ppc-Add-read-and-write-of-PPR-SPR.patch
-# Fix screenshots for qxl kernel driver (bz #948717)
-Patch0317: 0317-qxl-fix-local-renderer.patch
-# CVE-2013-4344: buffer overflow in scsi_target_emulate_report_luns (bz
-# #1015274, bz #1007330)
-Patch0318: 0318-scsi-Allocate-SCSITargetReq-r-buf-dynamically.patch
-# Fix 9pfs xattrs on kernel 3.11 (bz #1013676)
-Patch0319: 0319-hw-9pfs-Be-robust-against-paths-without-FS_IOC_GETVE.patch
-Patch0320: 0320-hw-9pfs-Fix-errno-value-for-xattr-functions.patch
-# Fix process exit with -sandbox on (bz #1027421)
-Patch0321: 0321-seccomp-fine-tuning-whitelist-by-adding-times.patch
+Patch0001: 0001-pci-do-not-export-pci_bus_reset.patch
+Patch0002: 0002-qdev-allow-both-pre-and-post-order-vists-in-qdev-wal.patch
+Patch0003: 0003-qdev-switch-reset-to-post-order.patch
+# CVE-2013-4377: Fix crash when unplugging virtio devices (bz #1012633,
+# bz #1012641)
+# Patches posted upstream
+Patch0004: 0004-virtio-bus-remove-vdev-field.patch
+Patch0005: 0005-virtio-pci-remove-vdev-field.patch
+Patch0006: 0006-virtio-ccw-remove-vdev-field.patch
+Patch0007: 0007-virtio-bus-cleanup-plug-unplug-interface.patch
+Patch0008: 0008-virtio-blk-switch-exit-callback-to-VirtioDeviceClass.patch
+Patch0009: 0009-virtio-serial-switch-exit-callback-to-VirtioDeviceCl.patch
+Patch0010: 0010-virtio-net-switch-exit-callback-to-VirtioDeviceClass.patch
+Patch0011: 0011-virtio-scsi-switch-exit-callback-to-VirtioDeviceClas.patch
+Patch0012: 0012-virtio-balloon-switch-exit-callback-to-VirtioDeviceC.patch
+Patch0013: 0013-virtio-rng-switch-exit-callback-to-VirtioDeviceClass.patch
+Patch0014: 0014-virtio-pci-add-device_unplugged-callback.patch
+
+# Fix qemu-img create with NBD backing file (bz #1034433)
+# Patch posted upstream
+Patch0101: 0101-block-Close-backing-file-early-in-bdrv_img_create.patch
 # Add kill() to seccomp whitelist, fix AC97 with -sandbox on (bz
 # #1043521)
-Patch0322: 0322-seccomp-add-kill-to-the-syscall-whitelist.patch
+Patch0102: 0102-seccomp-add-kill-to-the-syscall-whitelist.patch
 # Changing streaming mode default to off for spice (bz #1038336)
-Patch0323: 0323-spice-flip-streaming-video-mode-to-off-by-default.patch
+Patch0103: 0103-spice-flip-streaming-video-mode-to-off-by-default.patch
+# Fix guest scsi verify command (bz #1001617)
+Patch0104: 0104-scsi-bus-fix-transfer-length-and-direction-for-VERIF.patch
+Patch0105: 0105-scsi-disk-fix-VERIFY-emulation.patch
 
 BuildRequires: SDL-devel
 BuildRequires: zlib-devel
 BuildRequires: which
+BuildRequires: chrpath
 BuildRequires: texi2html
 BuildRequires: gnutls-devel
 BuildRequires: cyrus-sasl-devel
@@ -341,7 +239,7 @@ BuildRequires: spice-protocol >= 0.12.2
 BuildRequires: spice-server-devel >= 0.12.0
 %endif
 %if 0%{?have_seccomp:1}
-BuildRequires: libseccomp-devel >= 1.0.0
+BuildRequires: libseccomp-devel >= 2.1.0
 %endif
 # For network block driver
 BuildRequires: libcurl-devel
@@ -372,8 +270,6 @@ BuildRequires: brlapi-devel
 # For FDT device tree support
 BuildRequires: libfdt-devel
 %endif
-# For test suite
-BuildRequires: check-devel
 # For virtfs
 BuildRequires: libcap-devel
 # Hard requirement for version >= 1.3
@@ -383,6 +279,29 @@ BuildRequires: pixman-devel
 BuildRequires: glusterfs-devel >= 3.4.0
 BuildRequires: glusterfs-api-devel >= 3.4.0
 %endif
+# Needed for usb passthrough for qemu >= 1.5
+BuildRequires: libusbx-devel
+# SSH block driver
+%if 0%{?fedora} >= 20
+BuildRequires: libssh2-devel
+%endif
+%if %{with gtk}
+# GTK frontend
+BuildRequires: gtk3-devel
+BuildRequires: vte3-devel
+%endif
+# GTK translations
+BuildRequires: gettext
+# RDMA migration
+%ifnarch s390 s390x
+BuildRequires: librdmacm-devel
+%endif
+# For sanity test
+%if 0%{?fedora} >= 20
+BuildRequires: qemu-sanity-check-nodeps
+BuildRequires: kernel
+%endif
+BuildRequires: iasl
 
 %if 0%{?user:1}
 Requires: %{name}-%{user} = %{epoch}:%{version}-%{release}
@@ -432,6 +351,9 @@ Requires: %{name}-%{system_x86} = %{epoch}:%{version}-%{release}
 %if 0%{?system_xtensa:1}
 Requires: %{name}-%{system_xtensa} = %{epoch}:%{version}-%{release}
 %endif
+%if 0%{?system_moxie:1}
+Requires: %{name}-%{system_moxie} = %{epoch}:%{version}-%{release}
+%endif
 %if %{without separate_kvm}
 Requires: %{name}-img = %{epoch}:%{version}-%{release}
 %else
@@ -471,13 +393,6 @@ will install qemu-system-x86
 Summary: QEMU command line tool for manipulating disk images
 Group: Development/Tools
 
-# ceph added new symbol rbd_aio_flush which qemu wants to use, but ceph
-# lacks symbol versioning so RPM doesn't pick up the dependency.
-# Need to keep this for the lifetime of f19
-%if %{with rbd}
-Requires: ceph-libs >= 0.61
-%endif
-
 %description img
 This package provides a command line tool for manipulating disk images
 
@@ -490,13 +405,6 @@ Requires(post): /usr/sbin/useradd
 Requires(post): systemd-units
 Requires(preun): systemd-units
 Requires(postun): systemd-units
-
-# ceph added new symbol rbd_aio_flush which qemu wants to use, but ceph
-# lacks symbol versioning so RPM doesn't pick up the dependency.
-# Need to keep this for the lifetime of f19
-%if %{with rbd}
-Requires: ceph-libs >= 0.61
-%endif
 
 %description common
 QEMU is a generic and open source processor emulator which achieves a good
@@ -565,9 +473,10 @@ Requires: %{name}-common = %{epoch}:%{version}-%{release}
 Provides: kvm = 85
 Obsoletes: kvm < 85
 Requires: seavgabios-bin
-Requires: seabios-bin >= 0.6.0-2
+# First version that ships aml files which we depend on
+Requires: seabios-bin >= 1.7.3-2
 Requires: sgabios-bin
-Requires: ipxe-roms-qemu
+Requires: ipxe-roms-qemu >= 20130517-2.gitc4bce43
 %if 0%{?have_seccomp:1}
 Requires: libseccomp >= 1.0.0
 %endif
@@ -720,7 +629,7 @@ Summary: QEMU system emulator for PPC
 Group: Development/Tools
 Requires: %{name}-common = %{epoch}:%{version}-%{release}
 Requires: openbios
-Requires: SLOF = 0.1.git%{SLOF_gittagdate}
+Requires: SLOF >= 0.1.git%{SLOF_gittagdate}
 %description %{system_ppc}
 QEMU is a generic and open source processor emulator which achieves a good
 emulation speed by using dynamic translation.
@@ -750,6 +659,18 @@ QEMU is a generic and open source processor emulator which achieves a good
 emulation speed by using dynamic translation.
 
 This package provides the system emulator for Unicore32 boards.
+%endif
+
+%if 0%{?system_moxie:1}
+%package %{system_moxie}
+Summary: QEMU system emulator for Moxie
+Group: Development/Tools
+Requires: %{name}-common = %{epoch}:%{version}-%{release}
+%description %{system_moxie}
+QEMU is a generic and open source processor emulator which achieves a good
+emulation speed by using dynamic translation.
+
+This package provides the system emulator for Moxie boards.
 %endif
 
 %ifarch %{kvm_archs}
@@ -788,12 +709,16 @@ CAC emulation development files.
 %endif
 
 %prep
-%setup -q
+%setup -q -n qemu-1.7.0
 
-# Flow control series
+# Fix crash in lsi_soft_reset (bz #1000947)
+# Patches posted upstream
 %patch0001 -p1
 %patch0002 -p1
 %patch0003 -p1
+# CVE-2013-4377: Fix crash when unplugging virtio devices (bz #1012633,
+# bz #1012641)
+# Patches posted upstream
 %patch0004 -p1
 %patch0005 -p1
 %patch0006 -p1
@@ -803,133 +728,21 @@ CAC emulation development files.
 %patch0010 -p1
 %patch0011 -p1
 %patch0012 -p1
+%patch0013 -p1
+%patch0014 -p1
 
-# Fix migration crash with spice (bz #962954)
+# Fix qemu-img create with NBD backing file (bz #1034433)
+# Patch posted upstream
 %patch0101 -p1
-%patch0102 -p1
-%patch0103 -p1
-%patch0104 -p1
-%patch0105 -p1
-%patch0106 -p1
-%patch0107 -p1
-%patch0108 -p1
-%patch0109 -p1
-%patch0110 -p1
-%patch0111 -p1
-%patch0112 -p1
-%patch0113 -p1
-%patch0114 -p1
-%patch0115 -p1
-%patch0116 -p1
-%patch0117 -p1
-%patch0118 -p1
-%patch0119 -p1
-%patch0120 -p1
-%patch0121 -p1
-%patch0122 -p1
-%patch0123 -p1
-%patch0124 -p1
-%patch0125 -p1
-%patch0126 -p1
-%patch0127 -p1
-%patch0128 -p1
-%patch0129 -p1
-%patch0130 -p1
-%patch0131 -p1
-%patch0132 -p1
-%patch0133 -p1
-%patch0134 -p1
-%patch0135 -p1
-%patch0136 -p1
-%patch0137 -p1
-%patch0138 -p1
-%patch0139 -p1
-%patch0140 -p1
-%patch0141 -p1
-%patch0142 -p1
-%patch0143 -p1
-%patch0144 -p1
-%patch0145 -p1
-%patch0146 -p1
-%patch0147 -p1
-%patch0148 -p1
-
-# 917860 libcacard and qemu/hw/ccid windows 7 smartcard support.
-%patch0201 -p1
-%patch0202 -p1
-%patch0203 -p1
-%patch0204 -p1
-%patch0205 -p1
-%patch0206 -p1
-%patch0207 -p1
-%patch0208 -p1
-%patch0209 -p1
-%patch0210 -p1
-%patch0211 -p1
-%patch0212 -p1
-%patch0213 -p1
-%patch0214 -p1
-%patch0215 -p1
-%patch0216 -p1
-%patch0217 -p1
-%patch0218 -p1
-%patch0219 -p1
-%patch0220 -p1
-%patch0221 -p1
-%patch0222 -p1
-%patch0223 -p1
-%patch0224 -p1
-%patch0225 -p1
-%patch0226 -p1
-%patch0227 -p1
-%patch0228 -p1
-%patch0229 -p1
-%patch0230 -p1
-%patch0231 -p1
-
-# qemu-kvm migration compat (posted upstream)
-%patch0301 -p1
-%patch0302 -p1
-%patch0303 -p1
-%patch0304 -p1
-%patch0305 -p1
-# Fix rtl8139 + windows 7 + large transfers (bz #970240)
-%patch0306 -p1
-# Fix crash on large drag and drop file transfer w/ spice (bz #969109)
-%patch0307 -p1
-# Fix build with latest libfdt
-%patch0308 -p1
-# Fix usb_handle_packet assertions (bz #981459)
-%patch0309 -p1
-# Fix crash when adding spice vdagent channel in the guest (bz #969084)
-%patch0310 -p1
-# Fix crash with -M isapc -cpu Haswell (bz #986790)
-%patch0311 -p1
-# Fix crash in lsi_soft_reset (bz #1000947)
-# Patches posted upstream
-%patch0312 -p1
-%patch0313 -p1
-%patch0314 -p1
-# Fix crash in scsi_dma_complete (bz #1001617)
-%patch0315 -p1
-# ppc64 hangs at "Trying to read invalid spr 896 380 at .." (bz
-# #1004532)
-%patch0316 -p1
-# Fix screenshots for qxl kernel driver (bz #948717)
-%patch0317 -p1
-# CVE-2013-4344: buffer overflow in scsi_target_emulate_report_luns (bz
-# #1015274, bz #1007330)
-%patch0318 -p1
-# Fix 9pfs xattrs on kernel 3.11 (bz #1013676)
-%patch0319 -p1
-%patch0320 -p1
-# Fix process exit with -sandbox on (bz #1027421)
-%patch0321 -p1
 # Add kill() to seccomp whitelist, fix AC97 with -sandbox on (bz
 # #1043521)
-%patch0322 -p1
+%patch0102 -p1
 # Changing streaming mode default to off for spice (bz #1038336)
-%patch0323 -p1
+%patch0103 -p1
+# Fix guest scsi verify command (bz #1001617)
+%patch0104 -p1
+%patch0105 -p1
+
 
 %build
 %if %{with kvmonly}
@@ -940,11 +753,13 @@ CAC emulation development files.
     microblazeel-softmmu mips-softmmu mipsel-softmmu mips64-softmmu \
     mips64el-softmmu or32-softmmu ppc-softmmu ppcemb-softmmu ppc64-softmmu \
     s390x-softmmu sh4-softmmu sh4eb-softmmu sparc-softmmu sparc64-softmmu \
-    xtensa-softmmu xtensaeb-softmmu unicore32-softmmu \
+    xtensa-softmmu xtensaeb-softmmu unicore32-softmmu moxie-softmmu \
     i386-linux-user x86_64-linux-user alpha-linux-user arm-linux-user \
     armeb-linux-user cris-linux-user m68k-linux-user \
     microblaze-linux-user microblazeel-linux-user mips-linux-user \
-    mipsel-linux-user or32-linux-user ppc-linux-user ppc64-linux-user \
+    mipsel-linux-user mips64-linux-user mips64el-linux-user \
+    mipsn32-linux-user mipsn32el-linux-user \
+    or32-linux-user ppc-linux-user ppc64-linux-user \
     ppc64abi32-linux-user s390x-linux-user sh4-linux-user sh4eb-linux-user \
     sparc-linux-user sparc64-linux-user sparc32plus-linux-user \
     unicore32-linux-user"
@@ -967,23 +782,26 @@ dobuild() {
         --libdir=%{_libdir} \
         --sysconfdir=%{_sysconfdir} \
         --interp-prefix=%{_prefix}/qemu-%%M \
-        --audio-drv-list=pa,sdl,alsa,oss \
         --localstatedir=%{_localstatedir} \
         --libexecdir=%{_libexecdir} \
         --disable-strip \
         --extra-ldflags="$extraldflags -pie -Wl,-z,relro -Wl,-z,now" \
         --extra-cflags="%{optflags} -fPIE -DPIE" \
-        --enable-mixemu \
-        --enable-trace-backend=dtrace \
         --disable-werror \
+        --audio-drv-list=pa,sdl,alsa,oss \
+        --enable-trace-backend=dtrace \
         --disable-xen \
         --enable-kvm \
-        --enable-migration-from-qemu-kvm \
+        --enable-tpm \
 %if 0%{?have_spice:1}
         --enable-spice \
+%else
+        --disable-spice \
 %endif
 %if 0%{?have_seccomp:1}
         --enable-seccomp \
+%else
+        --disable-seccomp \
 %endif
 %if %{without rbd}
         --disable-rbd \
@@ -992,6 +810,12 @@ dobuild() {
         --enable-fdt \
 %else
         --disable-fdt \
+%endif
+%if %{with gtk}
+        --with-gtkabi="3.0" \
+%endif
+%ifarch s390
+        --enable-tcg-interpreter \
 %endif
         "$@"
 
@@ -1006,6 +830,12 @@ dobuild() {
 dobuild --target-list="$buildarch"
 
 gcc %{SOURCE6} -O2 -g -o ksmctl
+
+# Check the binary runs (see eg RHBZ#998722).
+%ifarch %{kvm_archs}
+b="./x86_64-softmmu/qemu-system-x86_64"
+if [ -x "$b" ]; then "$b" -help; fi
+%endif
 
 
 %install
@@ -1035,6 +865,8 @@ install -m 0644 %{SOURCE3} $RPM_BUILD_ROOT%{_udevdir}
 
 make DESTDIR=$RPM_BUILD_ROOT install
 
+%find_lang %{name}
+
 %if 0%{?need_qemu_kvm}
 install -m 0755 %{SOURCE13} $RPM_BUILD_ROOT%{_bindir}/qemu-kvm
 %endif
@@ -1045,7 +877,7 @@ rm $RPM_BUILD_ROOT%{_datadir}/systemtap/tapset/qemu-system-%{kvm_target}.stp
 %endif
 
 chmod -x ${RPM_BUILD_ROOT}%{_mandir}/man1/*
-install -D -p -m 0644 -t ${RPM_BUILD_ROOT}%{qemudocdir} Changelog README TODO COPYING COPYING.LIB LICENSE
+install -D -p -m 0644 -t ${RPM_BUILD_ROOT}%{qemudocdir} Changelog README COPYING COPYING.LIB LICENSE
 for emu in $RPM_BUILD_ROOT%{_bindir}/qemu-system-*; do
     ln -sf qemu.1.gz $RPM_BUILD_ROOT%{_mandir}/man1/$(basename $emu).1.gz
 done
@@ -1080,14 +912,21 @@ rm -f ${RPM_BUILD_ROOT}%{_datadir}/%{name}/spapr-rtas.bin
 %endif
 %if 0%{!?system_s390x:1}
 rm -rf ${RPM_BUILD_ROOT}%{_datadir}/%{name}/s390-zipl.rom
+rm -rf ${RPM_BUILD_ROOT}%{_datadir}/%{name}/s390-ccw.img
+%endif
+%if 0%{!?system_sparc:1}
+rm -rf ${RPM_BUILD_ROOT}%{_datadir}/%{name}/QEMU,tcx.bin
 %endif
 
 # Provided by package ipxe
 rm -rf ${RPM_BUILD_ROOT}%{_datadir}/%{name}/pxe*rom
+rm -rf ${RPM_BUILD_ROOT}%{_datadir}/%{name}/efi*rom
 # Provided by package seavgabios
 rm -rf ${RPM_BUILD_ROOT}%{_datadir}/%{name}/vgabios*bin
 # Provided by package seabios
 rm -rf ${RPM_BUILD_ROOT}%{_datadir}/%{name}/bios.bin
+rm -rf ${RPM_BUILD_ROOT}%{_datadir}/%{name}/acpi-dsdt.aml
+rm -rf ${RPM_BUILD_ROOT}%{_datadir}/%{name}/q35-acpi-dsdt.aml
 # Provided by package sgabios
 rm -rf ${RPM_BUILD_ROOT}%{_datadir}/%{name}/sgabios.bin
 
@@ -1097,6 +936,7 @@ rm -rf ${RPM_BUILD_ROOT}%{_datadir}/%{name}/sgabios.bin
 # for other paths, yet.
 pxe_link() {
   ln -s ../ipxe/$2.rom %{buildroot}%{_datadir}/%{name}/pxe-$1.rom
+  ln -s ../ipxe.efi/$2.rom %{buildroot}%{_datadir}/%{name}/efi-$1.rom
 }
 
 pxe_link e1000 8086100e
@@ -1115,6 +955,8 @@ rom_link ../seavgabios/vgabios-qxl.bin vgabios-qxl.bin
 rom_link ../seavgabios/vgabios-stdvga.bin vgabios-stdvga.bin
 rom_link ../seavgabios/vgabios-vmware.bin vgabios-vmware.bin
 rom_link ../seabios/bios.bin bios.bin
+rom_link ../seabios/acpi-dsdt.aml acpi-dsdt.aml
+rom_link ../seabios/q35-acpi-dsdt.aml q35-acpi-dsdt.aml
 rom_link ../sgabios/sgabios.bin sgabios.bin
 %endif
 
@@ -1200,8 +1042,40 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/pkgconfig/libcacard.pc
 rm -rf $RPM_BUILD_ROOT%{_includedir}/cacard
 %endif
 
+# When building using 'rpmbuild' or 'fedpkg local', RPATHs can be left in
+# the binaries and libraries (although this doesn't occur when
+# building in Koji, for some unknown reason). Some discussion here:
+#
+# https://lists.fedoraproject.org/pipermail/devel/2013-November/192553.html
+#
+# In any case it should always be safe to remove RPATHs from
+# the final binaries:
+for f in $RPM_BUILD_ROOT%{_bindir}/* $RPM_BUILD_ROOT%{_libdir}/* \
+         $RPM_BUILD_ROOT%{_libexecdir}/*; do
+  if file $f | grep -q ELF; then chrpath --delete $f; fi
+done
+
 %check
+# Disabled on aarch64 where it fails with several errors.  Will
+# investigate and fix when we have access to real hardware - RWMJ.
+%ifnarch aarch64
 make check
+%endif
+
+# Sanity-check current kernel can boot on this qemu.
+# The results are advisory only.
+%if 0%{?fedora} >= 20
+%ifarch %{arm}
+hostqemu=arm-softmmu/qemu-system-arm
+%endif
+%ifarch %{ix86}
+hostqemu=i386-softmmu/qemu-system-i386
+%endif
+%ifarch x86_64
+hostqemu=x86_64-softmmu/qemu-system-x86_64
+%endif
+if test -f "$hostqemu"; then qemu-sanity-check --qemu=$hostqemu ||: ; fi
+%endif
 
 %ifarch %{kvm_archs}
 %post %{kvm_package}
@@ -1231,6 +1105,10 @@ getent passwd qemu >/dev/null || \
 %systemd_postun_with_restart ksmtuned.service
 %endif
 
+%if %{without separate_kvm}
+%post -n libcacard -p /sbin/ldconfig
+%postun -n libcacard -p /sbin/ldconfig
+%endif
 
 %if 0%{?user:1}
 %post %{user}
@@ -1260,12 +1138,11 @@ getent passwd qemu >/dev/null || \
 %defattr(-,root,root)
 %endif
 
-%files common
+%files common -f %{name}.lang
 %defattr(-,root,root)
 %dir %{qemudocdir}
 %doc %{qemudocdir}/Changelog
 %doc %{qemudocdir}/README
-%doc %{qemudocdir}/TODO
 %doc %{qemudocdir}/qemu-doc.html
 %doc %{qemudocdir}/qemu-tech.html
 %doc %{qemudocdir}/qmp-commands.txt
@@ -1273,6 +1150,8 @@ getent passwd qemu >/dev/null || \
 %doc %{qemudocdir}/COPYING.LIB
 %doc %{qemudocdir}/LICENSE
 %dir %{_datadir}/%{name}/
+%{_datadir}/%{name}/qemu-icon.bmp
+%{_datadir}/%{name}/qemu_logo_no_text.svg
 %{_datadir}/%{name}/keymaps/
 %{_mandir}/man1/qemu.1*
 %{_mandir}/man1/virtfs-proxy-helper.1*
@@ -1316,6 +1195,10 @@ getent passwd qemu >/dev/null || \
 %{_bindir}/qemu-microblazeel
 %{_bindir}/qemu-mips
 %{_bindir}/qemu-mipsel
+%{_bindir}/qemu-mips64
+%{_bindir}/qemu-mips64el
+%{_bindir}/qemu-mipsn32
+%{_bindir}/qemu-mipsn32el
 %{_bindir}/qemu-or32
 %{_bindir}/qemu-ppc
 %{_bindir}/qemu-ppc64
@@ -1338,6 +1221,10 @@ getent passwd qemu >/dev/null || \
 %{_datadir}/systemtap/tapset/qemu-microblazeel.stp
 %{_datadir}/systemtap/tapset/qemu-mips.stp
 %{_datadir}/systemtap/tapset/qemu-mipsel.stp
+%{_datadir}/systemtap/tapset/qemu-mips64.stp
+%{_datadir}/systemtap/tapset/qemu-mips64el.stp
+%{_datadir}/systemtap/tapset/qemu-mipsn32.stp
+%{_datadir}/systemtap/tapset/qemu-mipsn32el.stp
 %{_datadir}/systemtap/tapset/qemu-or32.stp
 %{_datadir}/systemtap/tapset/qemu-ppc.stp
 %{_datadir}/systemtap/tapset/qemu-ppc64.stp
@@ -1375,11 +1262,15 @@ getent passwd qemu >/dev/null || \
 %{_datadir}/%{name}/vgabios-stdvga.bin
 %{_datadir}/%{name}/vgabios-vmware.bin
 %{_datadir}/%{name}/pxe-e1000.rom
+%{_datadir}/%{name}/efi-e1000.rom
 %{_datadir}/%{name}/pxe-virtio.rom
+%{_datadir}/%{name}/efi-virtio.rom
 %{_datadir}/%{name}/pxe-pcnet.rom
+%{_datadir}/%{name}/efi-pcnet.rom
 %{_datadir}/%{name}/pxe-rtl8139.rom
+%{_datadir}/%{name}/efi-rtl8139.rom
 %{_datadir}/%{name}/pxe-ne2k_pci.rom
-%{_datadir}/%{name}/qemu-icon.bmp
+%{_datadir}/%{name}/efi-ne2k_pci.rom
 %config(noreplace) %{_sysconfdir}/qemu/target-x86_64.conf
 %if %{without separate_kvm}
 %ifarch %{ix86} x86_64
@@ -1410,6 +1301,13 @@ getent passwd qemu >/dev/null || \
 %{_bindir}/qemu-system-arm
 %{_datadir}/systemtap/tapset/qemu-system-arm.stp
 %{_mandir}/man1/qemu-system-arm.1*
+%if %{without separate_kvm}
+%ifarch armv7hl
+%{?kvm_files:}
+%{?qemu_kvm_files:}
+%endif
+%endif
+
 %endif
 
 %if 0%{?system_mips:1}
@@ -1480,6 +1378,7 @@ getent passwd qemu >/dev/null || \
 %{_datadir}/systemtap/tapset/qemu-system-s390x.stp
 %{_mandir}/man1/qemu-system-s390x.1*
 %{_datadir}/%{name}/s390-zipl.rom
+%{_datadir}/%{name}/s390-ccw.img
 %ifarch s390x
 %{?kvm_files:}
 %{?qemu_kvm_files:}
@@ -1506,6 +1405,7 @@ getent passwd qemu >/dev/null || \
 %{_datadir}/systemtap/tapset/qemu-system-sparc64.stp
 %{_mandir}/man1/qemu-system-sparc.1*
 %{_mandir}/man1/qemu-system-sparc64.1*
+%{_datadir}/%{name}/QEMU,tcx.bin
 %endif
 
 %if 0%{?system_ppc:1}
@@ -1550,6 +1450,14 @@ getent passwd qemu >/dev/null || \
 %{_mandir}/man1/qemu-system-xtensaeb.1*
 %endif
 
+%if 0%{?system_moxie:1}
+%files %{system_moxie}
+%defattr(-,root,root)
+%{_bindir}/qemu-system-moxie
+%{_datadir}/systemtap/tapset/qemu-system-moxie.stp
+%{_mandir}/man1/qemu-system-moxie.1*
+%endif
+
 %if %{without separate_kvm}
 %files img
 %defattr(-,root,root)
@@ -1576,68 +1484,153 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
-* Wed Dec 18 2013 Cole Robinson <crobinso@redhat.com> - 2:1.4.2-15
+* Tue Feb 18 2014 Richard W.M. Jones <rjones@redhat.com> - 2:1.7.0-5
+- Run qemu-sanity-check on x86 and armv7 too.  The results are still
+  only advisory.
+
+* Mon Jan 13 2014 Richard W.M. Jones <rjones@redhat.com> - 2:1.7.0-4
+- Disable make check on aarch64.
+
+* Sat Dec 21 2013 Ville Skyttä <ville.skytta@iki.fi> - 2:1.7.0-3
+- Add libcacard ldconfig %%post* scriptlets.
+
+* Wed Dec 18 2013 Cole Robinson <crobinso@redhat.com> - 2:1.7.0-2
 - Add kill() to seccomp whitelist, fix AC97 with -sandbox on (bz #1043521)
 - Changing streaming mode default to off for spice (bz #1038336)
-- Fix qemu-img ceph dep (bz #1024781)
+- Fix guest scsi verify command (bz #1001617)
 
-* Sun Nov 17 2013 Cole Robinson <crobinso@redhat.com> - 2:1.4.2-14
+* Mon Dec 02 2013 Cole Robinson <crobinso@redhat.com> - 2:1.7.0-1
+- Fix qemu-img create with NBD backing file (bz #1034433)
+- Rebase to qemu-1.7 GA
+- New monitor command blockdev-add for full featured block device hotplug.
+- Performance and functionality improvements for USB 3.0.
+- Many VFIO improvements
+- ACPI tables can be generated by QEMU and can be used by firmware directly.
+- Support creating and writing .vhdx images.
+- qemu-img map: dump detailed image file metadata
+
+* Fri Nov 29 2013 Richard W.M. Jones <rjones@redhat.com> - 2:1.7.0-0.2.rc1
+- Run chrpath on binaries, so qemu can be built using rpmbuild.
+
+* Thu Nov 21 2013 Cole Robinson <crobinso@redhat.com> - 2:1.7.0-0.1.rc1
+- Update qemu-1.7.0-rc1
+
+* Sun Nov 17 2013 Cole Robinson <crobinso@redhat.com> - 2:1.6.1-2
+- Fix drive discard options via libvirt (bz #1029953)
 - Fix process exit with -sandbox on (bz #1027421)
 
-* Tue Nov 05 2013 Cole Robinson <crobinso@redhat.com> - 2:1.4.2-13
+* Tue Nov 05 2013 Cole Robinson <crobinso@redhat.com> - 2:1.6.1-1
+- Reduce CPU usage when audio is playing (bz #1017644)
+- Base on qemu 1.6.1 tarball
 - ksmtuned: Fix matching qemu w/o set_process_name (bz #1012604)
 - ksmtuned: Fix committed_memory when no qemu running (bz #1012610)
 - Make sure bridge helper is setuid (bz #1017660)
 
-* Sun Oct 06 2013 Cole Robinson <crobinso@redhat.com> - 2:1.4.2-12
+* Wed Oct 09 2013 Cole Robinson <crobinso@redhat.com> - 2:1.6.0-10
+- Fix migration from qemu <= 1.5
+
+* Sun Oct 06 2013 Cole Robinson <crobinso@redhat.com> - 2:1.6.0-9
+- Rebase to pending 1.6.1 stable
+- CVE-2013-4377: Fix crash when unplugging virtio devices (bz #1012633, bz
+  #1012641)
+- Fix 'new snapshot' slowness after the first snap (bz #988436)
+- Fix 9pfs xattrs on kernel 3.11 (bz #1013676)
 - CVE-2013-4344: buffer overflow in scsi_target_emulate_report_luns (bz
   #1015274, bz #1007330)
-- Fix 9pfs xattrs on kernel 3.11 (bz #1013676)
 
-* Wed Sep 25 2013 Alon Levy <alevy@redhat.com> 2:1.4.2-11
-- Fix screenshots for qxl kernel driver (bz #948717)
+* Tue Sep 24 2013 Cole Robinson <crobinso@redhat.com> - 2:1.6.0-8
+- Fix -vga qxl with -display vnc (bz #948717)
+- Fix USB crash when installing reactos (bz #1005495)
+- Don't ship x86 kvm wrapper on arm (bz #1005581)
 
-* Tue Sep 24 2013 Cole Robinson <crobinso@redhat.com> - 2:1.4.2-10
-- Require newer ceph-libs to fix symbol error (bz #995883)
+* Thu Sep 12 2013 Dan Horák <dan[at]danny.cz> - 2:1.6.0-7
+- Enable TCG interpreter for s390 as the native backend supports 64-bit only
+- Don't require RDMA on s390(x)
 
-* Thu Sep 05 2013 Richard W.M. Jones <rjones@redhat.com> - 2:1.4.2-9
-- ppc64 hangs at "Trying to read invalid spr 896 380 at .." (bz #1004532)
-
-* Tue Sep 03 2013 Cole Robinson <crobinso@redhat.com> - 2:1.4.2-8
+* Tue Sep 03 2013 Cole Robinson <crobinso@redhat.com> - 2:1.6.0-6
+- Fix qmp capabilities calls on i686 (bz #1003162)
 - Fix crash with -M isapc -cpu Haswell (bz #986790)
 - Fix crash in lsi_soft_reset (bz #1000947)
-- Fix crash in scsi_dma_complete (bz #1001617)
 - Fix initial /dev/kvm permissions (bz #993491)
 
-* Sun Aug 18 2013 Alon Levy <alevy@redhat.com> - 2:1.4.2-7
-- Support windows 7 smartcard using guests and clients - (bz #917860 rhel 6.5)
+* Wed Aug 28 2013 Richard W.M. Jones <rjones@redhat.com> - 2:1.6.0-5
+- Enable qemu-sanity-check, however do not fail the build if it fails.
 
-* Thu Aug 01 2013 Cole Robinson <crobinso@redhat.com> - 2:1.4.2-6
-- Fix crash when adding spice vdagent channel in the guest (bz #969084)
+* Wed Aug 21 2013 Richard W.M. Jones <rjones@redhat.com> - 2:1.6.0-4
+- Require newer libssh2 to fix missing libssh2_sftp_fsync (bz #999161)
 
-* Tue Jul 30 2013 Cole Robinson <crobinso@redhat.com> - 2:1.4.2-5
-- Fix usb_handle_packet assertions (bz #981459)
+* Tue Aug 20 2013 Cole Robinson <crobinso@redhat.com> - 2:1.6.0-3
+- Require newer ceph-libs to fix symbol error (bz #995883)
 
-* Wed Jun 19 2013 Cole Robinson <crobinso@redhat.com> - 2:1.4.2-4
-- Fix build with latest libfdt
+* Tue Aug 20 2013 Richard W.M. Jones <rjones@redhat.com> - 2:1.6.0-2
+- Try to rebuild since previous i686 build was broken (RHBZ#998722).
+- In build, qemu -help just to check the binary is not broken.
+
+* Fri Aug 16 2013 Cole Robinson <crobinso@redhat.com> - 2:1.6.0-1
+- Rebased to version 1.6.0
+- Support for live migration over RDMA
+- TCG target for aarch64.
+- Support for auto-convergence in live migration ("CPU stunning")
+- The XHCI (USB 3.0) controller supports live migration.
+- New device "nvme" provides a PCI device that implements the NVMe
+  standard.
+- ACPI hotplug of devices behind a PCI bridge is supported
+
+* Sun Aug 04 2013 Dennis Gilmore <dennis@ausil.us> - 2:1.5.2-4
+- re-enable spice support
+
+* Fri Aug 02 2013 Dennis Gilmore <dennis@ausil.us> - 2:1.5.2-3
+- build without spice support to build against new libiscsi
+- spice requires parts of qemu
+
+* Fri Aug 2 2013 Paolo Bonzini <pbonzini@redhat.com> - 2:1.5.2-2
+- Rebuild for libiscsi soname bump
+
+* Mon Jul 29 2013 Cole Robinson <crobinso@redhat.com> - 2:1.5.2-1
+- Rebased to version 1.5.2
+- Fix mouse display with spice and latest libvirt (bz #981094)
+
+* Tue Jul 09 2013 Cole Robinson <crobinso@redhat.com> - 2:1.5.1-2
+- Update to work with seabios 1.7.3
+
+* Fri Jun 28 2013 Cole Robinson <crobinso@redhat.com> - 2:1.5.1-1
+- Rebased to version 1.5.1
+
+* Wed Jun 19 2013 Cole Robinson <crobinso@redhat.com> - 2:1.5.0-9
 - Don't install conflicting binfmt handler on arm (bz #974804)
+- Use upstream patch for libfdt build fix
 
-* Tue Jun 11 2013 Cole Robinson <crobinso@redhat.com> - 2:1.4.2-3
+* Fri Jun 14 2013 Peter Robinson <pbrobinson@fedoraproject.org> 2:1.5.0-8
+- Put ARM kvm bits in right sub package
+
+* Thu Jun 13 2013 Cole Robinson <crobinso@redhat.com> - 2:1.5.0-7
+- Fix build with both new and old fdt
+
+* Wed Jun 12 2013 Cole Robinson <crobinso@redhat.com> - 2:1.5.0-6
+- Fix build with rawhide libfdt
+
+* Tue Jun 11 2013 Cole Robinson <crobinso@redhat.com> - 2:1.5.0-5
 - Fix rtl8139 + windows 7 + large transfers (bz #970240)
-- Fix crash on large drag and drop file transfer w/ spice (bz #969109)
 
-* Mon May 27 2013 Dan Horák <dan[at]danny.cz> - 2:1.4.2-2
+* Sat Jun  1 2013 Peter Robinson <pbrobinson@fedoraproject.org> 2:1.5.0-4
+- build qemu-kvm on ARMv7
+
+* Mon May 27 2013 Dan Horák <dan[at]danny.cz> - 2:1.5.0-3
 - Install the qemu-kvm.1 man page only on arches with kvm
 
-* Sat May 25 2013 Cole Robinson <crobinso@redhat.com> - 2:1.4.2-1
-- Update to qemu stable 1.4.2
+* Sat May 25 2013 Cole Robinson <crobinso@redhat.com> - 2:1.5.0-2
 - Alias qemu-system-* man page to qemu.1 (bz #907746)
 - Drop execute bit on service files (bz #963917)
 - Conditionalize KSM service on host virt support (bz #963681)
 - Split out KSM package, make it not pulled in by default
 
-* Wed May 22 2013 Alon Levy <alevy@redhat.com> - 2:1.4.1-4
-- Backport migration cleanup (bz #962954)
+* Tue May 21 2013 Cole Robinson <crobinso@redhat.com> - 2:1.5.0-1
+- Update to qemu 1.5
+- KVM for ARM support
+- A native GTK+ UI with internationalization support
+- Experimental VFIO support for VGA passthrough
+- Support for VMware PVSCSI and VMXNET3 device emulation
+- CPU hot-add support
 
 * Thu May 16 2013 Paolo Bonzini <pbonzini@redhat.com> - 2:1.4.1-3
 - Drop loading of vhost-net module (bz #963198)
