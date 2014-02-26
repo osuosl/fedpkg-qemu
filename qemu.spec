@@ -1101,9 +1101,11 @@ getent passwd qemu >/dev/null || \
 %files
 %defattr(-,root,root)
 
+%if %{without separate_kvm}
 %ifarch %{kvm_archs}
 %files kvm
 %defattr(-,root,root)
+%endif
 %endif
 
 %files common -f %{name}.lang
@@ -1251,10 +1253,12 @@ getent passwd qemu >/dev/null || \
 %endif
 %endif
 
+%if %{without separate_kvm}
 %ifarch %{kvm_archs}
 %files kvm-tools
 %defattr(-,root,root,-)
 %{_bindir}/kvm_stat
+%endif
 %endif
 
 %if 0%{?system_alpha:1}
