@@ -403,6 +403,9 @@ This package provides a command line tool for manipulating disk images
 %package  common
 Summary: QEMU common files needed by all QEMU targets
 Group: Development/Tools
+%if %{with separate_kvm}
+Requires: qemu-kvm-common
+%endif
 Requires(post): /usr/bin/getent
 Requires(post): /usr/sbin/groupadd
 Requires(post): /usr/sbin/useradd
@@ -1054,6 +1057,8 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/vscclient
 rm -f $RPM_BUILD_ROOT%{_libdir}/libcacard*
 rm -f $RPM_BUILD_ROOT%{_libdir}/pkgconfig/libcacard.pc
 rm -rf $RPM_BUILD_ROOT%{_includedir}/cacard
+
+rm -f $RPM_BUILD_ROOT%{_libexecdir}/qemu-bridge-helper
 %endif
 
 # When building using 'rpmbuild' or 'fedpkg local', RPATHs can be left in
@@ -1172,7 +1177,9 @@ getent passwd qemu >/dev/null || \
 %{_mandir}/man1/qemu.1*
 %{_mandir}/man1/virtfs-proxy-helper.1*
 %{_bindir}/virtfs-proxy-helper
+%if %{without separate_kvm}
 %attr(4755, root, root) %{_libexecdir}/qemu-bridge-helper
+%endif
 %config(noreplace) %{_sysconfdir}/sasl2/qemu.conf
 %dir %{_sysconfdir}/qemu
 %config(noreplace) %{_sysconfdir}/qemu/bridge.conf
