@@ -474,9 +474,10 @@ Provides: kvm = 85
 Obsoletes: kvm < 85
 Requires: seavgabios-bin
 # First version that ships aml files which we depend on
-Requires: seabios-bin >= 1.7.3-2
+#Requires: seabios-bin >= 1.7.3-2
 Requires: sgabios-bin
-Requires: ipxe-roms-qemu >= 20130517-2.gitc4bce43
+#Requires: ipxe-roms-qemu >= 20130517-2.gitc4bce43
+Requires: ipxe-roms-qemu
 %if 0%{?have_seccomp:1}
 Requires: libseccomp >= 1.0.0
 %endif
