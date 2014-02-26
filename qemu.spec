@@ -1024,11 +1024,13 @@ find $RPM_BUILD_ROOT -name '*.la' -or -name '*.a' | xargs rm -f
 find $RPM_BUILD_ROOT -name "libcacard.so*" -exec chmod +x \{\} \;
 
 %if %{with separate_kvm}
+rm -f $RPM_BUILD_ROOT%{_bindir}/kvm_stat
 rm -f $RPM_BUILD_ROOT%{_bindir}/qemu-kvm
 rm -f $RPM_BUILD_ROOT%{_bindir}/qemu-img
 rm -f $RPM_BUILD_ROOT%{_bindir}/qemu-io
 rm -f $RPM_BUILD_ROOT%{_bindir}/qemu-nbd
 rm -f $RPM_BUILD_ROOT%{_mandir}/man1/qemu-img.1*
+rm -f $RPM_BUILD_ROOT%{_mandir}/man1/qemu-kvm.1*
 rm -f $RPM_BUILD_ROOT%{_mandir}/man8/qemu-nbd.8*
 
 rm -f $RPM_BUILD_ROOT%{_sbindir}/ksmtuned
@@ -1041,6 +1043,7 @@ rm -f $RPM_BUILD_ROOT/lib/systemd/system/ksmtuned.service
 rm -f $RPM_BUILD_ROOT%{_bindir}/qemu-ga
 rm -f $RPM_BUILD_ROOT%{_unitdir}/qemu-guest-agent.service
 rm -f $RPM_BUILD_ROOT%{_udevdir}/99-qemu-guest-agent.rules
+rm -f $RPM_BUILD_ROOT%{_udevdir}/80-kvm.rules
 
 rm -f $RPM_BUILD_ROOT%{_bindir}/vscclient
 rm -f $RPM_BUILD_ROOT%{_libdir}/libcacard*
