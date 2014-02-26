@@ -22,14 +22,14 @@
 
 %if 0%{?rhel}
 # RHEL-specific defaults:
-%bcond_without kvmonly          # enabled
+%bcond_with    kvmonly          # enabled
 %bcond_without exclusive_x86_64 # enabled
 %bcond_with    rbd              # disabled
 %bcond_without spice            # enabled
 %bcond_without seccomp          # enabled
-%bcond_with    xfsprogs         # disabled
-%bcond_with    separate_kvm     # disabled - for EPEL
-%bcond_with    gtk              # disabled
+%bcond_without xfsprogs         # disabled
+%bcond_without separate_kvm     # disabled - for EPEL
+%bcond_without gtk              # disabled
 %else
 # General defaults:
 %bcond_with    kvmonly          # disabled
