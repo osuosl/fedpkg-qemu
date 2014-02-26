@@ -293,11 +293,9 @@ BuildRequires: librdmacm-devel
 BuildRequires: qemu-sanity-check-nodeps
 BuildRequires: kernel
 %endif
-BuildRequires: iasl
 %if %{with_xen}
 BuildRequires: xen-devel
 %endif
-
 
 %if 0%{?user:1}
 Requires: %{name}-%{user} = %{epoch}:%{version}-%{release}
