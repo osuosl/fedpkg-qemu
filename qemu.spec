@@ -121,10 +121,10 @@
 %global system_microblaze   system-microblaze
 %global system_mips   system-mips
 %global system_or32   system-or32
-%global system_ppc    system-ppc
+#global system_ppc    system-ppc
 %global system_s390x  system-s390x
 %global system_sh4    system-sh4
-%global system_sparc  system-sparc
+#global system_sparc  system-sparc
 %global system_x86    system-x86
 %global system_xtensa   system-xtensa
 %global system_unicore32   system-unicore32
@@ -708,8 +708,14 @@ CAC emulation development files.
     buildarch="i386-softmmu x86_64-softmmu alpha-softmmu arm-softmmu \
     cris-softmmu lm32-softmmu m68k-softmmu microblaze-softmmu \
     microblazeel-softmmu mips-softmmu mipsel-softmmu mips64-softmmu \
-    mips64el-softmmu or32-softmmu ppc-softmmu ppcemb-softmmu ppc64-softmmu \
-    s390x-softmmu sh4-softmmu sh4eb-softmmu sparc-softmmu sparc64-softmmu \
+    mips64el-softmmu or32-softmmu \
+%if 0%{?system_ppc:1}
+    ppc-softmmu ppcemb-softmmu ppc64-softmmu \
+%endif
+    s390x-softmmu sh4-softmmu sh4eb-softmmu \
+%if 0%{?system_sparc:1}
+    sparc-softmmu sparc64-softmmu \
+%endif
     xtensa-softmmu xtensaeb-softmmu unicore32-softmmu moxie-softmmu \
     i386-linux-user x86_64-linux-user aarch64-linux-user alpha-linux-user \
     arm-linux-user armeb-linux-user cris-linux-user m68k-linux-user \
