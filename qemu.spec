@@ -132,8 +132,12 @@
 %endif
 
 # libfdt is only needed to build ARM, Microblaze or PPC emulators
+%if 0%{?rhel}
+%global need_fdt      0
+%else
 %if 0%{?system_arm:1}%{?system_microblaze:1}%{?system_ppc:1}
 %global need_fdt      1
+%endif
 %endif
 
 # Xen is available only on i386 x86_64 (from libvirt spec)
@@ -248,7 +252,7 @@ BuildRequires: bluez-libs-devel
 BuildRequires: brlapi-devel
 %if 0%{?need_fdt:1}
 # For FDT device tree support
-BuildRequires: libfdt-devel
+#BuildRequires: libfdt-devel
 %endif
 # For virtfs
 BuildRequires: libcap-devel
