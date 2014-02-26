@@ -305,7 +305,6 @@ BuildRequires: librdmacm-devel
 BuildRequires: qemu-sanity-check-nodeps
 BuildRequires: kernel
 %endif
-BuildRequires: iasl
 
 %if 0%{?user:1}
 Requires: %{name}-%{user} = %{epoch}:%{version}-%{release}
