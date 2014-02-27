@@ -89,7 +89,7 @@
 %global need_qemu_kvm 1
 %endif
 %ifarch ppc64
-%global system_ppc    kvm
+#global system_ppc    kvm
 %global kvm_package   system-ppc
 %global kvm_target    ppc64
 %global need_kvm_modfile 1
