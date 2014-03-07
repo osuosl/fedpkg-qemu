@@ -164,6 +164,9 @@ URL: http://www.qemu.org/
 %if %{with kvmonly}
 ExclusiveArch: %{kvm_archs}
 %endif
+# XXX: The rom packages need to be updated to cross compile like fedora does,
+# otherwise qemu-system-x86 deps are broken on ppc64
+ExcludeArch: ppc64
 
 # OOM killer breaks builds with parallel make on s390(x)
 %ifarch s390 s390x
