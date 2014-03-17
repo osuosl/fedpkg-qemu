@@ -138,8 +138,8 @@
 
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
-Version: 1.7.0
-Release: 5%{?dist}
+Version: 2.0.0
+Release: 0.1.rc0%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -154,7 +154,8 @@ ExclusiveArch: %{kvm_archs}
 %define _smp_mflags %{nil}
 %endif
 
-Source0: http://wiki.qemu-project.org/download/%{name}-%{version}.tar.bz2
+#Source0: http://wiki.qemu-project.org/download/%{name}-%{version}.tar.bz2
+Source0: http://wiki.qemu-project.org/download/%{name}-%{version}-rc0.tar.bz2
 
 Source1: qemu.binfmt
 
@@ -179,39 +180,7 @@ Source12: bridge.conf
 # qemu-kvm back compat wrapper
 Source13: qemu-kvm.sh
 
-# Fix crash in lsi_soft_reset (bz #1000947)
-# Patches posted upstream
-Patch0001: 0001-pci-do-not-export-pci_bus_reset.patch
-Patch0002: 0002-qdev-allow-both-pre-and-post-order-vists-in-qdev-wal.patch
-Patch0003: 0003-qdev-switch-reset-to-post-order.patch
-# CVE-2013-4377: Fix crash when unplugging virtio devices (bz #1012633,
-# bz #1012641)
-# Patches posted upstream
-Patch0004: 0004-virtio-bus-remove-vdev-field.patch
-Patch0005: 0005-virtio-pci-remove-vdev-field.patch
-Patch0006: 0006-virtio-ccw-remove-vdev-field.patch
-Patch0007: 0007-virtio-bus-cleanup-plug-unplug-interface.patch
-Patch0008: 0008-virtio-blk-switch-exit-callback-to-VirtioDeviceClass.patch
-Patch0009: 0009-virtio-serial-switch-exit-callback-to-VirtioDeviceCl.patch
-Patch0010: 0010-virtio-net-switch-exit-callback-to-VirtioDeviceClass.patch
-Patch0011: 0011-virtio-scsi-switch-exit-callback-to-VirtioDeviceClas.patch
-Patch0012: 0012-virtio-balloon-switch-exit-callback-to-VirtioDeviceC.patch
-Patch0013: 0013-virtio-rng-switch-exit-callback-to-VirtioDeviceClass.patch
-Patch0014: 0014-virtio-pci-add-device_unplugged-callback.patch
-
-# Fix qemu-img create with NBD backing file (bz #1034433)
-# Patch posted upstream
-Patch0101: 0101-block-Close-backing-file-early-in-bdrv_img_create.patch
-# Add kill() to seccomp whitelist, fix AC97 with -sandbox on (bz
-# #1043521)
-Patch0102: 0102-seccomp-add-kill-to-the-syscall-whitelist.patch
-# Changing streaming mode default to off for spice (bz #1038336)
-Patch0103: 0103-spice-flip-streaming-video-mode-to-off-by-default.patch
-# Fix guest scsi verify command (bz #1001617)
-Patch0104: 0104-scsi-bus-fix-transfer-length-and-direction-for-VERIF.patch
-Patch0105: 0105-scsi-disk-fix-VERIFY-emulation.patch
-
-BuildRequires: SDL-devel
+BuildRequires: SDL2-devel
 BuildRequires: zlib-devel
 BuildRequires: which
 BuildRequires: chrpath
@@ -473,8 +442,8 @@ Requires: %{name}-common = %{epoch}:%{version}-%{release}
 Provides: kvm = 85
 Obsoletes: kvm < 85
 Requires: seavgabios-bin
-# First version that ships aml files which we depend on
-Requires: seabios-bin >= 1.7.3-2
+# First version that ships bios-256k.bin
+Requires: seabios-bin >= 1.7.4-3
 Requires: sgabios-bin
 Requires: ipxe-roms-qemu >= 20130517-2.gitc4bce43
 %if 0%{?have_seccomp:1}
@@ -708,40 +677,9 @@ Requires:       libcacard = %{epoch}:%{version}-%{release}
 CAC emulation development files.
 %endif
 
+
 %prep
-%setup -q -n qemu-1.7.0
-
-# Fix crash in lsi_soft_reset (bz #1000947)
-# Patches posted upstream
-%patch0001 -p1
-%patch0002 -p1
-%patch0003 -p1
-# CVE-2013-4377: Fix crash when unplugging virtio devices (bz #1012633,
-# bz #1012641)
-# Patches posted upstream
-%patch0004 -p1
-%patch0005 -p1
-%patch0006 -p1
-%patch0007 -p1
-%patch0008 -p1
-%patch0009 -p1
-%patch0010 -p1
-%patch0011 -p1
-%patch0012 -p1
-%patch0013 -p1
-%patch0014 -p1
-
-# Fix qemu-img create with NBD backing file (bz #1034433)
-# Patch posted upstream
-%patch0101 -p1
-# Add kill() to seccomp whitelist, fix AC97 with -sandbox on (bz
-# #1043521)
-%patch0102 -p1
-# Changing streaming mode default to off for spice (bz #1038336)
-%patch0103 -p1
-# Fix guest scsi verify command (bz #1001617)
-%patch0104 -p1
-%patch0105 -p1
+%setup -q -n qemu-2.0.0-rc0
 
 
 %build
@@ -754,8 +692,8 @@ CAC emulation development files.
     mips64el-softmmu or32-softmmu ppc-softmmu ppcemb-softmmu ppc64-softmmu \
     s390x-softmmu sh4-softmmu sh4eb-softmmu sparc-softmmu sparc64-softmmu \
     xtensa-softmmu xtensaeb-softmmu unicore32-softmmu moxie-softmmu \
-    i386-linux-user x86_64-linux-user alpha-linux-user arm-linux-user \
-    armeb-linux-user cris-linux-user m68k-linux-user \
+    i386-linux-user x86_64-linux-user aarch64-linux-user alpha-linux-user \
+    arm-linux-user armeb-linux-user cris-linux-user m68k-linux-user \
     microblaze-linux-user microblazeel-linux-user mips-linux-user \
     mipsel-linux-user mips64-linux-user mips64el-linux-user \
     mipsn32-linux-user mipsn32el-linux-user \
@@ -775,59 +713,57 @@ buildldflags="VL_LDFLAGS=-Wl,--build-id"
 sed -i.debug 's/"-g $CFLAGS"/"$CFLAGS"/g' configure
 %endif
 
-
-dobuild() {
-    ./configure \
-        --prefix=%{_prefix} \
-        --libdir=%{_libdir} \
-        --sysconfdir=%{_sysconfdir} \
-        --interp-prefix=%{_prefix}/qemu-%%M \
-        --localstatedir=%{_localstatedir} \
-        --libexecdir=%{_libexecdir} \
-        --disable-strip \
-        --extra-ldflags="$extraldflags -pie -Wl,-z,relro -Wl,-z,now" \
-        --extra-cflags="%{optflags} -fPIE -DPIE" \
-        --disable-werror \
-        --audio-drv-list=pa,sdl,alsa,oss \
-        --enable-trace-backend=dtrace \
-        --disable-xen \
-        --enable-kvm \
-        --enable-tpm \
+./configure \
+    --prefix=%{_prefix} \
+    --libdir=%{_libdir} \
+    --sysconfdir=%{_sysconfdir} \
+    --interp-prefix=%{_prefix}/qemu-%%M \
+    --localstatedir=%{_localstatedir} \
+    --libexecdir=%{_libexecdir} \
+    --disable-strip \
+    --extra-ldflags="$extraldflags -pie -Wl,-z,relro -Wl,-z,now" \
+    --extra-cflags="%{optflags} -fPIE -DPIE" \
+    --disable-werror \
+    --target-list="$buildarch" \
+    --audio-drv-list=pa,sdl,alsa,oss \
+    --enable-trace-backend=dtrace \
+    --disable-xen \
+    --enable-kvm \
+    --enable-tpm \
 %if 0%{?have_spice:1}
-        --enable-spice \
+    --enable-spice \
 %else
-        --disable-spice \
+    --disable-spice \
 %endif
 %if 0%{?have_seccomp:1}
-        --enable-seccomp \
+    --enable-seccomp \
 %else
-        --disable-seccomp \
+    --disable-seccomp \
 %endif
 %if %{without rbd}
-        --disable-rbd \
+    --disable-rbd \
 %endif
 %if 0%{?need_fdt:1}
-        --enable-fdt \
+    --enable-fdt \
 %else
-        --disable-fdt \
+    --disable-fdt \
 %endif
 %if %{with gtk}
-        --with-gtkabi="3.0" \
+    --with-gtkabi="3.0" \
 %endif
 %ifarch s390
-        --enable-tcg-interpreter \
+    --enable-tcg-interpreter \
 %endif
-        "$@"
+    --with-sdlabi="2.0" \
+    --enable-quorum \
+    "$@"
 
-    echo "config-host.mak contents:"
-    echo "==="
-    cat config-host.mak
-    echo "==="
+echo "config-host.mak contents:"
+echo "==="
+cat config-host.mak
+echo "==="
 
-    make V=1 %{?_smp_mflags} $buildldflags
-}
-
-dobuild --target-list="$buildarch"
+make V=1 %{?_smp_mflags} $buildldflags
 
 gcc %{SOURCE6} -O2 -g -o ksmctl
 
@@ -925,6 +861,7 @@ rm -rf ${RPM_BUILD_ROOT}%{_datadir}/%{name}/efi*rom
 rm -rf ${RPM_BUILD_ROOT}%{_datadir}/%{name}/vgabios*bin
 # Provided by package seabios
 rm -rf ${RPM_BUILD_ROOT}%{_datadir}/%{name}/bios.bin
+rm -rf ${RPM_BUILD_ROOT}%{_datadir}/%{name}/bios-256k.bin
 rm -rf ${RPM_BUILD_ROOT}%{_datadir}/%{name}/acpi-dsdt.aml
 rm -rf ${RPM_BUILD_ROOT}%{_datadir}/%{name}/q35-acpi-dsdt.aml
 # Provided by package sgabios
@@ -955,6 +892,7 @@ rom_link ../seavgabios/vgabios-qxl.bin vgabios-qxl.bin
 rom_link ../seavgabios/vgabios-stdvga.bin vgabios-stdvga.bin
 rom_link ../seavgabios/vgabios-vmware.bin vgabios-vmware.bin
 rom_link ../seabios/bios.bin bios.bin
+rom_link ../seabios/bios-256k.bin bios-256k.bin
 rom_link ../seabios/acpi-dsdt.aml acpi-dsdt.aml
 rom_link ../seabios/q35-acpi-dsdt.aml q35-acpi-dsdt.aml
 rom_link ../sgabios/sgabios.bin sgabios.bin
@@ -1186,6 +1124,7 @@ getent passwd qemu >/dev/null || \
 %{_exec_prefix}/lib/binfmt.d/qemu-*.conf
 %{_bindir}/qemu-i386
 %{_bindir}/qemu-x86_64
+%{_bindir}/qemu-aarch64
 %{_bindir}/qemu-alpha
 %{_bindir}/qemu-arm
 %{_bindir}/qemu-armeb
@@ -1212,6 +1151,7 @@ getent passwd qemu >/dev/null || \
 %{_bindir}/qemu-unicore32
 %{_datadir}/systemtap/tapset/qemu-i386.stp
 %{_datadir}/systemtap/tapset/qemu-x86_64.stp
+%{_datadir}/systemtap/tapset/qemu-aarch64.stp
 %{_datadir}/systemtap/tapset/qemu-alpha.stp
 %{_datadir}/systemtap/tapset/qemu-arm.stp
 %{_datadir}/systemtap/tapset/qemu-armeb.stp
@@ -1252,6 +1192,7 @@ getent passwd qemu >/dev/null || \
 %{_datadir}/%{name}/acpi-dsdt.aml
 %{_datadir}/%{name}/q35-acpi-dsdt.aml
 %{_datadir}/%{name}/bios.bin
+%{_datadir}/%{name}/bios-256k.bin
 %{_datadir}/%{name}/sgabios.bin
 %{_datadir}/%{name}/linuxboot.bin
 %{_datadir}/%{name}/multiboot.bin
@@ -1406,6 +1347,7 @@ getent passwd qemu >/dev/null || \
 %{_mandir}/man1/qemu-system-sparc.1*
 %{_mandir}/man1/qemu-system-sparc64.1*
 %{_datadir}/%{name}/QEMU,tcx.bin
+%{_datadir}/%{name}/QEMU,cgthree.bin
 %endif
 
 %if 0%{?system_ppc:1}
@@ -1484,6 +1426,9 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Tue Mar 18 2014 Cole Robinson <crobinso@redhat.com> 2:2.0.0-0.1.rc0
+- Update to qemu 2.0.0-rc0
+
 * Tue Feb 18 2014 Richard W.M. Jones <rjones@redhat.com> - 2:1.7.0-5
 - Run qemu-sanity-check on x86 and armv7 too.  The results are still
   only advisory.
