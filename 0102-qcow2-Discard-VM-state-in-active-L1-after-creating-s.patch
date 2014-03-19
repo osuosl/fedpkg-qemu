@@ -1,4 +1,4 @@
-From 16d78f7cd9e1455ebb0599706ba5badfa3ee4fdc Mon Sep 17 00:00:00 2001
+From 08af434ab2532e22edc79898c6958ad6c44d10e1 Mon Sep 17 00:00:00 2001
 From: Kevin Wolf <kwolf@redhat.com>
 Date: Fri, 6 Sep 2013 12:32:26 +0200
 Subject: [PATCH] qcow2: Discard VM state in active L1 after creating snapshot
@@ -40,10 +40,10 @@ index 0caac90..ae33b45 100644
      {
        BdrvCheckResult result = {0};
 diff --git a/block/qcow2.c b/block/qcow2.c
-index 16e45a0..f63c2cb 100644
+index f87e6e3..44161b2 100644
 --- a/block/qcow2.c
 +++ b/block/qcow2.c
-@@ -1666,11 +1666,6 @@ static coroutine_fn int qcow2_co_flush_to_os(BlockDriverState *bs)
+@@ -1670,11 +1670,6 @@ static coroutine_fn int qcow2_co_flush_to_os(BlockDriverState *bs)
      return 0;
  }
  

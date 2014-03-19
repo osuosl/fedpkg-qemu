@@ -1,4 +1,4 @@
-From 2196426a9b081cb99f4bdefb854aaa206bdd0392 Mon Sep 17 00:00:00 2001
+From 2ad13e88a15c892d2732467bf8b8a6656c521c09 Mon Sep 17 00:00:00 2001
 From: Cole Robinson <crobinso@redhat.com>
 Date: Fri, 16 Aug 2013 12:14:51 -0400
 Subject: [PATCH] Fix migration from qemu-kvm

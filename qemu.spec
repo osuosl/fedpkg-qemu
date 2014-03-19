@@ -138,8 +138,8 @@
 
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
-Version: 1.6.1
-Release: 3%{?dist}
+Version: 1.6.2
+Release: 1%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -211,26 +211,30 @@ Patch0102: 0102-qcow2-Discard-VM-state-in-active-L1-after-creating-s.patch
 # Fix 9pfs xattrs on kernel 3.11 (bz #1013676)
 # Patch posted upstream
 Patch0103: 0103-hw-9pfs-Fix-errno-value-for-xattr-functions.patch
-# Fix migration from qemu <= 1.5
-# Patch posted upstream
-Patch0104: 0104-Fix-pc-migration-from-qemu-1.5.patch
-# Reduce CPU usage when audio is playing (bz #1017644)
-Patch0105: 0105-audio-honor-QEMU_AUDIO_TIMER_PERIOD-instead-of-wakin.patch
 # Fix drive discard options via libvirt (bz #1029953)
 # Patch queued upstream
-Patch0106: 0106-qmp-access-the-local-QemuOptsLists-for-drive-option.patch
+Patch0104: 0104-qmp-access-the-local-QemuOptsLists-for-drive-option.patch
 # Fix process exit with -sandbox on (bz #1027421)
-Patch0107: 0107-seccomp-fine-tuning-whitelist-by-adding-times.patch
-# Add kill() to seccomp whitelist, fix AC97 with -sandbox on (bz
-# #1043521)
-Patch0108: 0108-seccomp-add-kill-to-the-syscall-whitelist.patch
+Patch0105: 0105-seccomp-fine-tuning-whitelist-by-adding-times.patch
 # Changing streaming mode default to off for spice (bz #1038336)
-Patch0109: 0109-spice-flip-streaming-video-mode-to-off-by-default.patch
+Patch0106: 0106-spice-flip-streaming-video-mode-to-off-by-default.patch
 # Fix guest scsi verify command (bz #1001617)
-Patch0110: 0110-scsi-bus-fix-transfer-length-and-direction-for-VERIF.patch
-Patch0111: 0111-scsi-disk-fix-VERIFY-emulation.patch
+Patch0107: 0107-scsi-bus-fix-transfer-length-and-direction-for-VERIF.patch
+Patch0108: 0108-scsi-disk-fix-VERIFY-emulation.patch
 # Fix performance regression after save/restore (bz #917723)
-Patch0112: 0112-migration-drop-MADVISE_DONT_NEED-for-incoming-zero-p.patch
+Patch0109: 0109-migration-drop-MADVISE_DONT_NEED-for-incoming-zero-p.patch
+# Fix bogus libcacard dep on gluster (bz #987441)
+Patch0110: 0110-libcacard-Don-t-link-with-all-libraries-QEMU-links-t.patch
+# Fix mouse with -display gtk -vga qxl (bz #1051724)
+Patch0111: 0111-gtk-Fix-mouse-warping-with-gtk3.patch
+Patch0112: 0112-gtk-Don-t-warp-absolute-pointer.patch
+# Change gtk quit accelerator to ctrl+shift+q (bz #1062393)
+# Patches queued for 2.1
+Patch0113: 0113-Change-gtk-quit-accelerator-to-ctrl-shift-q-bz-10623.patch
+# Fix crash during virtio-scsi hotplug (bz #1051611)
+Patch0114: 0114-scsi-Assign-cancel_io-vector-for-scsi_disk_emulate_o.patch
+Patch0115: 0115-virtio-scsi-Cleanup-of-I-Os-that-never-started.patch
+Patch0116: 0116-virtio-scsi-Prevent-assertion-on-missed-events.patch
 
 BuildRequires: SDL-devel
 BuildRequires: zlib-devel
@@ -774,26 +778,30 @@ CAC emulation development files.
 # Fix 9pfs xattrs on kernel 3.11 (bz #1013676)
 # Patch posted upstream
 %patch0103 -p1
-# Fix migration from qemu <= 1.5
-# Patch posted upstream
-%patch0104 -p1
-# Reduce CPU usage when audio is playing (bz #1017644)
-%patch0105 -p1
 # Fix drive discard options via libvirt (bz #1029953)
 # Patch queued upstream
-%patch0106 -p1
+%patch0104 -p1
 # Fix process exit with -sandbox on (bz #1027421)
-%patch0107 -p1
-# Add kill() to seccomp whitelist, fix AC97 with -sandbox on (bz
-# #1043521)
-%patch0108 -p1
+%patch0105 -p1
 # Changing streaming mode default to off for spice (bz #1038336)
-%patch0109 -p1
+%patch0106 -p1
 # Fix guest scsi verify command (bz #1001617)
-%patch0110 -p1
-%patch0111 -p1
+%patch0107 -p1
+%patch0108 -p1
 # Fix performance regression after save/restore (bz #917723)
+%patch0109 -p1
+# Fix bogus libcacard dep on gluster (bz #987441)
+%patch0110 -p1
+# Fix mouse with -display gtk -vga qxl (bz #1051724)
+%patch0111 -p1
 %patch0112 -p1
+# Change gtk quit accelerator to ctrl+shift+q (bz #1062393)
+# Patches queued for 2.1
+%patch0113 -p1
+# Fix crash during virtio-scsi hotplug (bz #1051611)
+%patch0114 -p1
+%patch0115 -p1
+%patch0116 -p1
 
 
 %build
@@ -1501,6 +1509,12 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Wed Mar 19 2014 Cole Robinson <crobinso@redhat.com> - 2:1.6.2-1
+- Fix bogus libcacard dep on gluster (bz #987441)
+- Fix mouse with -display gtk -vga qxl (bz #1051724)
+- Change gtk quit accelerator to ctrl+shift+q (bz #1062393)
+- Fix crash during virtio-scsi hotplug (bz #1051611)
+
 * Wed Dec 18 2013 Cole Robinson <crobinso@redhat.com> - 2:1.6.1-3
 - Add kill() to seccomp whitelist, fix AC97 with -sandbox on (bz #1043521)
 - Changing streaming mode default to off for spice (bz #1038336)

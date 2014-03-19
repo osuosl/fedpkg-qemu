@@ -1,4 +1,4 @@
-From 2bb10b85ffa655f91a4777da4f7a5534ee4c266c Mon Sep 17 00:00:00 2001
+From d1c9d98ee0e4128337f63649895994a7867312c0 Mon Sep 17 00:00:00 2001
 From: Paolo Bonzini <pbonzini@redhat.com>
 Date: Fri, 20 Sep 2013 16:57:59 +0200
 Subject: [PATCH] virtio-rng: switch exit callback to VirtioDeviceClass

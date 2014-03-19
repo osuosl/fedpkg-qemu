@@ -1,4 +1,4 @@
-From a9b1f1aeba8167ae90aecea9b8ca223faf33ae90 Mon Sep 17 00:00:00 2001
+From cb4b225256c2c12eaf0b53c6633c38ac7ad9561d Mon Sep 17 00:00:00 2001
 From: Paolo Bonzini <pbonzini@redhat.com>
 Date: Fri, 20 Sep 2013 16:57:52 +0200
 Subject: [PATCH] virtio-ccw: remove vdev field

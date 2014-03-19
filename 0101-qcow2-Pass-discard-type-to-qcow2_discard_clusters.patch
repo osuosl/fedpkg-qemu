@@ -1,4 +1,4 @@
-From 411a7e4ad457f7f3c9f1d02ef9f726ce13a35f08 Mon Sep 17 00:00:00 2001
+From 9faa24bdebcab5861acfa9fe390997d1eb319219 Mon Sep 17 00:00:00 2001
 From: Kevin Wolf <kwolf@redhat.com>
 Date: Fri, 6 Sep 2013 12:32:25 +0200
 Subject: [PATCH] qcow2: Pass discard type to qcow2_discard_clusters()
@@ -14,10 +14,10 @@ Signed-off-by: Kevin Wolf <kwolf@redhat.com>
  3 files changed, 6 insertions(+), 6 deletions(-)
 
 diff --git a/block/qcow2-cluster.c b/block/qcow2-cluster.c
-index cca76d4..8c3185d 100644
+index b558eb0..09abbf0 100644
 --- a/block/qcow2-cluster.c
 +++ b/block/qcow2-cluster.c
-@@ -1317,7 +1317,7 @@ int qcow2_decompress_cluster(BlockDriverState *bs, uint64_t cluster_offset)
+@@ -1320,7 +1320,7 @@ int qcow2_decompress_cluster(BlockDriverState *bs, uint64_t cluster_offset)
   * clusters.
   */
  static int discard_single_l2(BlockDriverState *bs, uint64_t offset,
@@ -26,7 +26,7 @@ index cca76d4..8c3185d 100644
  {
      BDRVQcowState *s = bs->opaque;
      uint64_t *l2_table;
-@@ -1346,7 +1346,7 @@ static int discard_single_l2(BlockDriverState *bs, uint64_t offset,
+@@ -1349,7 +1349,7 @@ static int discard_single_l2(BlockDriverState *bs, uint64_t offset,
          l2_table[l2_index + i] = cpu_to_be64(0);
  
          /* Then decrease the refcount */
@@ -35,7 +35,7 @@ index cca76d4..8c3185d 100644
      }
  
      ret = qcow2_cache_put(bs, s->l2_table_cache, (void**) &l2_table);
-@@ -1358,7 +1358,7 @@ static int discard_single_l2(BlockDriverState *bs, uint64_t offset,
+@@ -1361,7 +1361,7 @@ static int discard_single_l2(BlockDriverState *bs, uint64_t offset,
  }
  
  int qcow2_discard_clusters(BlockDriverState *bs, uint64_t offset,
@@ -44,7 +44,7 @@ index cca76d4..8c3185d 100644
  {
      BDRVQcowState *s = bs->opaque;
      uint64_t end_offset;
-@@ -1381,7 +1381,7 @@ int qcow2_discard_clusters(BlockDriverState *bs, uint64_t offset,
+@@ -1384,7 +1384,7 @@ int qcow2_discard_clusters(BlockDriverState *bs, uint64_t offset,
  
      /* Each L2 table is handled by its own loop iteration */
      while (nb_clusters > 0) {
@@ -54,10 +54,10 @@ index cca76d4..8c3185d 100644
              goto fail;
          }
 diff --git a/block/qcow2.c b/block/qcow2.c
-index 7f7282e..16e45a0 100644
+index 3bf932b..f87e6e3 100644
 --- a/block/qcow2.c
 +++ b/block/qcow2.c
-@@ -1506,7 +1506,7 @@ static coroutine_fn int qcow2_co_discard(BlockDriverState *bs,
+@@ -1510,7 +1510,7 @@ static coroutine_fn int qcow2_co_discard(BlockDriverState *bs,
  
      qemu_co_mutex_lock(&s->lock);
      ret = qcow2_discard_clusters(bs, sector_num << BDRV_SECTOR_BITS,
