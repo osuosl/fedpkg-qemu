@@ -1,0 +1,47 @@
+From 4c99df0e305aeb93405575daef6dc79de054f1aa Mon Sep 17 00:00:00 2001
+From: Peter Lieven <pl@kamp.de>
+Date: Thu, 24 Oct 2013 09:21:29 +0200
+Subject: [PATCH] migration: drop MADVISE_DONT_NEED for incoming zero pages
+
+The madvise for zeroed out pages was introduced when every transferred
+zero page was memset to zero and thus allocated. Since commit
+211ea740 we check for zeroness of a target page before we memset
+it to zero. Additionally we memmap target memory so it is essentially
+zero initialized (except for e.g. option roms and bios which are loaded
+into target memory although they shouldn't).
+
+It was reported recently that this madvise causes a performance degradation
+in some situations. As the madvise should only be called rarely and if it's called
+it is likely on a busy page (it was non-zero and changed to zero during migration)
+drop it completely.
+
+Reported-By: Zhang Haoyu <haoyu.zhang@huawei.com>
+Acked-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Peter Lieven <pl@kamp.de>
+Signed-off-by: Juan Quintela <quintela@redhat.com>
+(cherry picked from commit fc1c4a5d32e15a4c40c47945da85ef9c1e0c1b54)
+
+Conflicts:
+	arch_init.c
+---
+ arch_init.c | 7 -------
+ 1 file changed, 7 deletions(-)
+
+diff --git a/arch_init.c b/arch_init.c
+index 68a7ab7..23151b3 100644
+--- a/arch_init.c
++++ b/arch_init.c
+@@ -845,13 +845,6 @@ void ram_handle_compressed(void *host, uint8_t ch, uint64_t size)
+ {
+     if (ch != 0 || !is_zero_page(host)) {
+         memset(host, ch, size);
+-#ifndef _WIN32
+-        if (ch == 0 &&
+-            (!kvm_enabled() || kvm_has_sync_mmu()) &&
+-            getpagesize() <= TARGET_PAGE_SIZE) {
+-            qemu_madvise(host, TARGET_PAGE_SIZE, QEMU_MADV_DONTNEED);
+-        }
+-#endif
+     }
+ }
+ 

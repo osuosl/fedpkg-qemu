@@ -1,0 +1,30 @@
+From 167ceff41489ca932ae7e75b54bb62c119341b05 Mon Sep 17 00:00:00 2001
+From: Eric Farman <farman@linux.vnet.ibm.com>
+Date: Tue, 14 Jan 2014 14:16:26 -0500
+Subject: [PATCH] virtio-scsi: Prevent assertion on missed events
+
+In some cases, an unplug can cause events to be dropped, which
+leads to an assertion failure when preparing to notify the guest
+kernel.
+
+Signed-off-by: Eric Farman <farman@linux.vnet.ibm.com>
+Cc: qemu-stable@nongnu.org
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+(cherry picked from commit 49fb65c7f985baa56d2964e0a85c1f098e3e2a9d)
+---
+ hw/scsi/virtio-scsi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/hw/scsi/virtio-scsi.c b/hw/scsi/virtio-scsi.c
+index 110827c..15e40d9 100644
+--- a/hw/scsi/virtio-scsi.c
++++ b/hw/scsi/virtio-scsi.c
+@@ -520,7 +520,7 @@ static void virtio_scsi_push_event(VirtIOSCSI *s, SCSIDevice *dev,
+     evt->event = event;
+     evt->reason = reason;
+     if (!dev) {
+-        assert(event == VIRTIO_SCSI_T_NO_EVENT);
++        assert(event == VIRTIO_SCSI_T_EVENTS_MISSED);
+     } else {
+         evt->lun[0] = 1;
+         evt->lun[1] = dev->id;

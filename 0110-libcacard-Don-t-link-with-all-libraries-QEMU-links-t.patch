@@ -1,0 +1,30 @@
+From 61ec7dc46f8acad7ea6be4ba1993048f7404b0e3 Mon Sep 17 00:00:00 2001
+From: Christophe Fergeau <cfergeau@redhat.com>
+Date: Thu, 30 Jan 2014 14:56:49 +0100
+Subject: [PATCH] libcacard: Don't link with all libraries QEMU links to
+
+As described in https://bugzilla.redhat.com/show_bug.cgi?id=987441 ,
+libcacard currently links to all the libraries QEMU is linking to,
+including glusterfs libraries, libiscsi, ... libcacard does not need all of
+these. This patch ensures it's only linked with the libraries it needs.
+
+Signed-off-by: Christophe Fergeau <cfergeau@redhat.com>
+Signed-off-by: Alon Levy <alevy@redhat.com>
+(cherry picked from commit 73db416ae7941f8ffeabc060ec87402b97314b6d)
+---
+ libcacard/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/libcacard/Makefile b/libcacard/Makefile
+index 47827a0..9fa297c 100644
+--- a/libcacard/Makefile
++++ b/libcacard/Makefile
+@@ -24,7 +24,7 @@ vscclient$(EXESUF): libcacard/vscclient.o libcacard.la
+ 
+ libcacard.la: LDFLAGS += -rpath $(libdir) -no-undefined \
+ 	-export-syms $(SRC_PATH)/libcacard/libcacard.syms
+-libcacard.la: LIBS += $(libcacard_libs)
++libcacard.la: LIBS = $(libcacard_libs)
+ libcacard.la: $(libcacard-lobj-y)
+ 	$(call LINK,$^)
+ 

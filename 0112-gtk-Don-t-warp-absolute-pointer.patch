@@ -1,0 +1,42 @@
+From 256b1b8cb133a1f26587e068fb403f067aeeaa59 Mon Sep 17 00:00:00 2001
+From: Cole Robinson <crobinso@redhat.com>
+Date: Thu, 13 Mar 2014 15:30:24 -0400
+Subject: [PATCH] gtk: Don't warp absolute pointer
+
+This matches the behavior of SDL, and makes the mouse usable when
+using -display gtk -vga qxl
+
+https://bugzilla.redhat.com/show_bug.cgi?id=1051724
+Signed-off-by: Cole Robinson <crobinso@redhat.com>
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+(cherry picked from commit 2bda66028b4962c36d4eabe2995edab12df93691)
+---
+ ui/gtk.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/ui/gtk.c b/ui/gtk.c
+index 6c9d90a..6ce9694 100644
+--- a/ui/gtk.c
++++ b/ui/gtk.c
+@@ -349,6 +349,10 @@ static void gd_mouse_set(DisplayChangeListener *dcl,
+     GdkDeviceManager *mgr;
+     gint x_root, y_root;
+ 
++    if (kbd_mouse_is_absolute()) {
++        return;
++    }
++
+     dpy = gtk_widget_get_display(s->drawing_area);
+     mgr = gdk_display_get_device_manager(dpy);
+     gdk_window_get_root_coords(gtk_widget_get_window(s->drawing_area),
+@@ -364,6 +368,10 @@ static void gd_mouse_set(DisplayChangeListener *dcl,
+     GtkDisplayState *s = container_of(dcl, GtkDisplayState, dcl);
+     gint x_root, y_root;
+ 
++    if (kbd_mouse_is_absolute()) {
++        return;
++    }
++
+     gdk_window_get_root_coords(gtk_widget_get_window(s->drawing_area),
+                                x, y, &x_root, &y_root);
+     gdk_display_warp_pointer(gtk_widget_get_display(s->drawing_area),

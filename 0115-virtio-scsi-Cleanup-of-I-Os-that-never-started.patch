@@ -1,0 +1,39 @@
+From aa1e5b8649b8055722bf987d76322a1a1b46c407 Mon Sep 17 00:00:00 2001
+From: Eric Farman <farman@linux.vnet.ibm.com>
+Date: Tue, 14 Jan 2014 14:16:25 -0500
+Subject: [PATCH] virtio-scsi: Cleanup of I/Os that never started
+
+There is still a small window that occurs when a cancel I/O affects
+an asynchronous I/O operation that hasn't started.  In other words,
+when the residual data length equals the expected data length.
+
+Today, the routine virtio_scsi_command_complete fails because the
+VirtIOSCSIReq pointer (from the hba_private field in SCSIRequest)
+was cleared earlier when virtio_scsi_complete_req was called by
+the virtio_scsi_request_cancelled routine.  As a result, the
+virtio_scsi_command_complete routine needs to simply return when
+it is processing a SCSIRequest block that was marked canceled.
+
+Signed-off-by: Eric Farman <farman@linux.vnet.ibm.com>
+Cc: qemu-stable@nongnu.org
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+(cherry picked from commit e9c0f0f58ad0a41c3c4b19e1911cfe095afc09ca)
+---
+ hw/scsi/virtio-scsi.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/hw/scsi/virtio-scsi.c b/hw/scsi/virtio-scsi.c
+index 5545993..110827c 100644
+--- a/hw/scsi/virtio-scsi.c
++++ b/hw/scsi/virtio-scsi.c
+@@ -306,6 +306,10 @@ static void virtio_scsi_command_complete(SCSIRequest *r, uint32_t status,
+     VirtIOSCSIReq *req = r->hba_private;
+     uint32_t sense_len;
+ 
++    if (r->io_canceled) {
++        return;
++    }
++
+     req->resp.cmd->response = VIRTIO_SCSI_S_OK;
+     req->resp.cmd->status = status;
+     if (req->resp.cmd->status == GOOD) {

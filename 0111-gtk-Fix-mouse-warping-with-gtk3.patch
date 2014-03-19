@@ -1,0 +1,33 @@
+From 8273919dfbb42ab63c683ec73264f94178cfe82e Mon Sep 17 00:00:00 2001
+From: Cole Robinson <crobinso@redhat.com>
+Date: Thu, 13 Mar 2014 15:30:23 -0400
+Subject: [PATCH] gtk: Fix mouse warping with gtk3
+
+We were using the wrong coordinates, this fixes things to match the
+original gtk2 implementation.
+
+You can see this error in action by using -vga qxl, however even after this
+patch the mouse warps in small increments up and to the left, -7x and -3y
+pixels at a time, until the pointer is warped off the widget. I think it's
+a qxl bug, but the next patch covers it up.
+
+Signed-off-by: Cole Robinson <crobinso@redhat.com>
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+(cherry picked from commit 298526fe92d0b35ea343f8ddcc3a1d54cb422494)
+---
+ ui/gtk.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/ui/gtk.c b/ui/gtk.c
+index c38146f..6c9d90a 100644
+--- a/ui/gtk.c
++++ b/ui/gtk.c
+@@ -355,7 +355,7 @@ static void gd_mouse_set(DisplayChangeListener *dcl,
+                                x, y, &x_root, &y_root);
+     gdk_device_warp(gdk_device_manager_get_client_pointer(mgr),
+                     gtk_widget_get_screen(s->drawing_area),
+-                    x, y);
++                    x_root, y_root);
+ }
+ #else
+ static void gd_mouse_set(DisplayChangeListener *dcl,

@@ -1,0 +1,31 @@
+From fcaec0080923656c3607bd4d5eccc5d05c468dda Mon Sep 17 00:00:00 2001
+From: Paolo Bonzini <pbonzini@redhat.com>
+Date: Wed, 15 Jan 2014 10:35:36 +0100
+Subject: [PATCH] scsi: Assign cancel_io vector for scsi_disk_emulate_ops
+
+Some emulated disk operations (MODE SELECT, UNMAP, WRITE SAME)
+can trigger asynchronous I/Os.  Provide the cancel_io callback
+to ensure that AIOCBs are properly cleaned up.
+
+Signed-off-by: Eric Farman <farman@linux.vnet.ibm.com>
+Cc: qemu-stable@nongnu.org
+[Tweak commit message. - Paolo]
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+
+(cherry picked from commit 33325a53f15ab5370e1917b2a11cadffc77c5a52)
+---
+ hw/scsi/scsi-disk.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/hw/scsi/scsi-disk.c b/hw/scsi/scsi-disk.c
+index 1fd1c26..ade5d4a 100644
+--- a/hw/scsi/scsi-disk.c
++++ b/hw/scsi/scsi-disk.c
+@@ -2181,6 +2181,7 @@ static const SCSIReqOps scsi_disk_emulate_reqops = {
+     .send_command = scsi_disk_emulate_command,
+     .read_data    = scsi_disk_emulate_read_data,
+     .write_data   = scsi_disk_emulate_write_data,
++    .cancel_io    = scsi_cancel_io,
+     .get_buf      = scsi_get_buf,
+ };
+ 
