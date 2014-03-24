@@ -136,10 +136,18 @@
 %global need_fdt      1
 %endif
 
+# Xen is available only on i386 x86_64 (from libvirt spec)
+%ifnarch %{ix86} x86_64
+%define with_xen 0
+%else
+%define with_xen 1
+%endif
+
+
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 2.0.0
-Release: 0.1.rc0%{?dist}
+Release: 0.2.rc0%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -271,6 +279,10 @@ BuildRequires: qemu-sanity-check-nodeps
 BuildRequires: kernel
 %endif
 BuildRequires: iasl
+%if %{with_xen}
+BuildRequires: xen-devel
+%endif
+
 
 %if 0%{?user:1}
 Requires: %{name}-%{user} = %{epoch}:%{version}-%{release}
@@ -727,9 +739,13 @@ sed -i.debug 's/"-g $CFLAGS"/"$CFLAGS"/g' configure
     --target-list="$buildarch" \
     --audio-drv-list=pa,sdl,alsa,oss \
     --enable-trace-backend=dtrace \
-    --disable-xen \
     --enable-kvm \
     --enable-tpm \
+%if %{with_xen}
+    --enable-xen \
+%else
+    --disable-xen \
+%endif
 %if 0%{?have_spice:1}
     --enable-spice \
 %else
@@ -1426,6 +1442,9 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Mon Mar 24 2014 Cole Robinson <crobinso@redhat.com> - 2:2.0.0-0.2.rc0
+- Enable xen support for xen 4.4
+
 * Tue Mar 18 2014 Cole Robinson <crobinso@redhat.com> 2:2.0.0-0.1.rc0
 - Update to qemu 2.0.0-rc0
 
