@@ -188,6 +188,13 @@ Source12: bridge.conf
 # qemu-kvm back compat wrapper
 Source13: qemu-kvm.sh
 
+# Change gtk quit accelerator to ctrl+shift+q (bz #1062393)
+# Patches queued for 2.1
+Patch0001: 0001-Change-gtk-quit-accelerator-to-ctrl-shift-q-bz-10623.patch
+# Fix mouse with spice
+# Patches queued for 2.0
+Patch0002: 0002-spice-input-Fix-absolute-mouse-y-coordinates.patch
+
 BuildRequires: SDL2-devel
 BuildRequires: zlib-devel
 BuildRequires: which
@@ -692,6 +699,13 @@ CAC emulation development files.
 
 %prep
 %setup -q -n qemu-2.0.0-rc0
+
+# Change gtk quit accelerator to ctrl+shift+q (bz #1062393)
+# Patches queued for 2.1
+%patch0001 -p1
+# Fix mouse with spice
+# Patches queued for 2.0
+%patch0002 -p1
 
 
 %build
@@ -1444,6 +1458,8 @@ getent passwd qemu >/dev/null || \
 
 %changelog
 * Mon Mar 24 2014 Cole Robinson <crobinso@redhat.com> - 2:2.0.0-0.2.rc0
+- Change gtk quit accelerator to ctrl+shift+q (bz #1062393)
+- Fix mouse with spice
 - Enable xen support for xen 4.4
 
 * Tue Mar 18 2014 Cole Robinson <crobinso@redhat.com> 2:2.0.0-0.1.rc0
