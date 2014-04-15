@@ -147,7 +147,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 2.0.0
-Release: 0.2.rc0%{?dist}
+Release: 0.3.rc3%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -163,7 +163,7 @@ ExclusiveArch: %{kvm_archs}
 %endif
 
 #Source0: http://wiki.qemu-project.org/download/%{name}-%{version}.tar.bz2
-Source0: http://wiki.qemu-project.org/download/%{name}-%{version}-rc0.tar.bz2
+Source0: http://wiki.qemu-project.org/download/%{name}-%{version}-rc3.tar.bz2
 
 Source1: qemu.binfmt
 
@@ -191,9 +191,6 @@ Source13: qemu-kvm.sh
 # Change gtk quit accelerator to ctrl+shift+q (bz #1062393)
 # Patches queued for 2.1
 Patch0001: 0001-Change-gtk-quit-accelerator-to-ctrl-shift-q-bz-10623.patch
-# Fix mouse with spice
-# Patches queued for 2.0
-Patch0002: 0002-spice-input-Fix-absolute-mouse-y-coordinates.patch
 
 BuildRequires: SDL2-devel
 BuildRequires: zlib-devel
@@ -703,9 +700,6 @@ CAC emulation development files.
 # Change gtk quit accelerator to ctrl+shift+q (bz #1062393)
 # Patches queued for 2.1
 %patch0001 -p1
-# Fix mouse with spice
-# Patches queued for 2.0
-%patch0002 -p1
 
 
 %build
@@ -1457,6 +1451,10 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Tue Apr 15 2014 Cole Robinson <crobinso@redhat.com> - 2:2.0.0-0.3.rc3
+- Update to qemu 2.0-rc3
+- Fix crash when restoring from snapshot (bz #1085632)
+
 * Mon Mar 24 2014 Cole Robinson <crobinso@redhat.com> - 2:2.0.0-0.2.rc0
 - Change gtk quit accelerator to ctrl+shift+q (bz #1062393)
 - Fix mouse with spice
