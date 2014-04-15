@@ -695,7 +695,7 @@ CAC emulation development files.
 
 
 %prep
-%setup -q -n qemu-2.0.0-rc0
+%setup -q -n qemu-2.0.0-rc3
 
 # Change gtk quit accelerator to ctrl+shift+q (bz #1062393)
 # Patches queued for 2.1
