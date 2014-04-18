@@ -199,7 +199,11 @@ Source13: qemu-kvm.sh
 # Patches queued for 2.1
 Patch0001: 0001-Change-gtk-quit-accelerator-to-ctrl-shift-q-bz-10623.patch
 
+%if 0%{?rhel}
+BuildRequires: SDL-devel
+%else
 BuildRequires: SDL2-devel
+%endif
 BuildRequires: zlib-devel
 BuildRequires: which
 BuildRequires: chrpath
@@ -795,7 +799,11 @@ sed -i.debug 's/"-g $CFLAGS"/"$CFLAGS"/g' configure
 %ifarch s390
     --enable-tcg-interpreter \
 %endif
+%if 0%{?rhel}
+    --with-sdlabi="1.2" \
+%else
     --with-sdlabi="2.0" \
+%endif
     --enable-quorum \
     "$@"
 
