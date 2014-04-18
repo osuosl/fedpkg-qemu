@@ -1409,6 +1409,8 @@ getent passwd qemu >/dev/null || \
 %{_mandir}/man1/qemu-system-sparc64.1*
 %{_datadir}/%{name}/QEMU,tcx.bin
 %{_datadir}/%{name}/QEMU,cgthree.bin
+%else
+%exclude %{_datadir}/%{name}/QEMU,cgthree.bin
 %endif
 
 %if 0%{?system_ppc:1}
