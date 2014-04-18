@@ -140,11 +140,15 @@
 %endif
 %endif
 
+%if 0%{?rhel}
+%define with_xen 0
+%else
 # Xen is available only on i386 x86_64 (from libvirt spec)
 %ifnarch %{ix86} x86_64
 %define with_xen 0
 %else
 %define with_xen 1
+%endif
 %endif
 
 
