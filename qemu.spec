@@ -105,6 +105,11 @@
 %global kvm_package   system-arm
 %global kvm_target    arm
 %endif
+%ifarch aarch64
+%global system_aarch64 kvm
+%global kvm_package   system-aarch64
+%global kvm_target    aarch64
+%endif
 
 %if %{with kvmonly}
 # If kvmonly, put the qemu-kvm binary in the qemu-kvm package
@@ -129,10 +134,16 @@
 %global system_xtensa   system-xtensa
 %global system_unicore32   system-unicore32
 %global system_moxie   system-moxie
+%global system_aarch64   system-aarch64
+%endif
+
+# Only build qemu-system-aarch64 on aarch64 for now
+%ifnarch aarch64
+%undefine system_aarch64
 %endif
 
 # libfdt is only needed to build ARM, Microblaze or PPC emulators
-%if 0%{?system_arm:1}%{?system_microblaze:1}%{?system_ppc:1}
+%if 0%{?system_aarch64:1}%{?system_arm:1}%{?system_microblaze:1}%{?system_ppc:1}
 %global need_fdt      1
 %endif
 
@@ -147,7 +158,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 2.0.0
-Release: 1%{?dist}
+Release: 2%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -191,7 +202,7 @@ Source13: qemu-kvm.sh
 # Patches queued for 2.1
 Patch0001: 0001-Change-gtk-quit-accelerator-to-ctrl-shift-q-bz-10623.patch
 
-BuildRequires: SDL2-devel
+BuildRequires: SDL-devel
 BuildRequires: zlib-devel
 BuildRequires: which
 BuildRequires: chrpath
@@ -337,6 +348,9 @@ Requires: %{name}-%{system_xtensa} = %{epoch}:%{version}-%{release}
 %endif
 %if 0%{?system_moxie:1}
 Requires: %{name}-%{system_moxie} = %{epoch}:%{version}-%{release}
+%endif
+%if 0%{?system_aarch64:1}
+Requires: %{name}-%{system_aarch64} = %{epoch}:%{version}-%{release}
 %endif
 %if %{without separate_kvm}
 Requires: %{name}-img = %{epoch}:%{version}-%{release}
@@ -657,6 +671,19 @@ emulation speed by using dynamic translation.
 This package provides the system emulator for Moxie boards.
 %endif
 
+%if 0%{?system_aarch64:1}
+%package %{system_aarch64}
+Summary: QEMU system emulator for AArch64
+Group: Development/Tools
+Requires: %{name}-common = %{epoch}:%{version}-%{release}
+%description %{system_aarch64}
+QEMU is a generic and open source processor emulator which achieves a good
+emulation speed by using dynamic translation.
+
+This package provides the system emulator for AArch64.
+%endif
+
+
 %ifarch %{kvm_archs}
 %package kvm-tools
 Summary: KVM debugging and diagnostics tools
@@ -706,20 +733,25 @@ CAC emulation development files.
     buildarch="%{kvm_target}-softmmu"
 %else
     buildarch="i386-softmmu x86_64-softmmu alpha-softmmu arm-softmmu \
-    cris-softmmu lm32-softmmu m68k-softmmu microblaze-softmmu \
-    microblazeel-softmmu mips-softmmu mipsel-softmmu mips64-softmmu \
-    mips64el-softmmu or32-softmmu ppc-softmmu ppcemb-softmmu ppc64-softmmu \
-    s390x-softmmu sh4-softmmu sh4eb-softmmu sparc-softmmu sparc64-softmmu \
-    xtensa-softmmu xtensaeb-softmmu unicore32-softmmu moxie-softmmu \
-    i386-linux-user x86_64-linux-user aarch64-linux-user alpha-linux-user \
-    arm-linux-user armeb-linux-user cris-linux-user m68k-linux-user \
-    microblaze-linux-user microblazeel-linux-user mips-linux-user \
-    mipsel-linux-user mips64-linux-user mips64el-linux-user \
-    mipsn32-linux-user mipsn32el-linux-user \
-    or32-linux-user ppc-linux-user ppc64-linux-user \
-    ppc64abi32-linux-user s390x-linux-user sh4-linux-user sh4eb-linux-user \
-    sparc-linux-user sparc64-linux-user sparc32plus-linux-user \
-    unicore32-linux-user"
+cris-softmmu lm32-softmmu m68k-softmmu microblaze-softmmu \
+microblazeel-softmmu mips-softmmu mipsel-softmmu mips64-softmmu \
+mips64el-softmmu or32-softmmu ppc-softmmu ppcemb-softmmu ppc64-softmmu \
+s390x-softmmu sh4-softmmu sh4eb-softmmu sparc-softmmu sparc64-softmmu \
+xtensa-softmmu xtensaeb-softmmu unicore32-softmmu moxie-softmmu \
+i386-linux-user x86_64-linux-user aarch64-linux-user alpha-linux-user \
+arm-linux-user armeb-linux-user cris-linux-user m68k-linux-user \
+microblaze-linux-user microblazeel-linux-user mips-linux-user \
+mipsel-linux-user mips64-linux-user mips64el-linux-user \
+mipsn32-linux-user mipsn32el-linux-user \
+or32-linux-user ppc-linux-user ppc64-linux-user \
+ppc64abi32-linux-user s390x-linux-user sh4-linux-user sh4eb-linux-user \
+sparc-linux-user sparc64-linux-user sparc32plus-linux-user \
+unicore32-linux-user"
+
+%if 0%{?system_aarch64:1}
+    buildarch="$buildarch aarch64-softmmu"
+%endif
+
 %endif
 
 # --build-id option is used for giving info to the debug packages.
@@ -777,7 +809,6 @@ sed -i.debug 's/"-g $CFLAGS"/"$CFLAGS"/g' configure
 %ifarch s390
     --enable-tcg-interpreter \
 %endif
-    --with-sdlabi="2.0" \
     --enable-quorum \
     "$@"
 
@@ -1424,6 +1455,18 @@ getent passwd qemu >/dev/null || \
 %{_mandir}/man1/qemu-system-moxie.1*
 %endif
 
+%if 0%{?system_aarch64:1}
+%files %{system_aarch64}
+%defattr(-,root,root)
+%{_bindir}/qemu-system-aarch64
+%{_datadir}/systemtap/tapset/qemu-system-aarch64.stp
+%{_mandir}/man1/qemu-system-aarch64.1*
+%ifarch aarch64
+%{?kvm_files:}
+%{?qemu_kvm_files:}
+%endif
+%endif
+
 %if %{without separate_kvm}
 %files img
 %defattr(-,root,root)
@@ -1450,6 +1493,10 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Mon Apr 21 2014 Cole Robinson <crobinso@redhat.com> - 2:2.0.0-2
+- Don't use SDL2 API support, it's incomplete
+- Build qemu-system-aarch64 only on aarch64 for now
+
 * Thu Apr 17 2014 Cole Robinson <crobinso@redhat.com> - 2:2.0.0-1
 - Update to 2.0.0 GA
 
