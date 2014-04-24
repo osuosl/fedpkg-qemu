@@ -1,0 +1,30 @@
+From b052d97f6c26ab7a24de40c3486a465816504016 Mon Sep 17 00:00:00 2001
+From: Dmitry Fleytman <dmitry@daynix.com>
+Date: Fri, 4 Apr 2014 12:45:22 +0300
+Subject: [PATCH] vmxnet3: validate queues configuration read on migration
+
+CVE-2013-4544
+
+Signed-off-by: Dmitry Fleytman <dmitry@daynix.com>
+Reported-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Reviewed-by: Dr. David Alan Gilbert <dgilbert@redhat.com>
+Message-id: 1396604722-11902-5-git-send-email-dmitry@daynix.com
+Signed-off-by: Peter Maydell <peter.maydell@linaro.org>
+(cherry picked from commit f12d048a523780dbda702027d4a91b62af1a08d7)
+---
+ hw/net/vmxnet3.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/hw/net/vmxnet3.c b/hw/net/vmxnet3.c
+index 20bd3c6..1bbea3b 100644
+--- a/hw/net/vmxnet3.c
++++ b/hw/net/vmxnet3.c
+@@ -2384,6 +2384,7 @@ static int vmxnet3_post_load(void *opaque, int version_id)
+         }
+     }
+ 
++    vmxnet3_validate_queues(s);
+     vmxnet3_validate_interrupts(s);
+ 
+     return 0;

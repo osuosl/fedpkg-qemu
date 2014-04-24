@@ -1,0 +1,32 @@
+From 862ef70def5d8413e32618739e2875e501fb4d43 Mon Sep 17 00:00:00 2001
+From: Kevin Wolf <kwolf@redhat.com>
+Date: Wed, 26 Mar 2014 13:05:35 +0100
+Subject: [PATCH] bochs: Fix bitmap offset calculation
+
+32 bit truncation could let us access the wrong offset in the image.
+
+Signed-off-by: Kevin Wolf <kwolf@redhat.com>
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+Reviewed-by: Max Reitz <mreitz@redhat.com>
+Signed-off-by: Stefan Hajnoczi <stefanha@redhat.com>
+(cherry picked from commit a9ba36a45dfac645a810c31ce15ab393b69d820a)
+---
+ block/bochs.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/block/bochs.c b/block/bochs.c
+index 10fbd39..6749a61 100644
+--- a/block/bochs.c
++++ b/block/bochs.c
+@@ -184,8 +184,9 @@ static int64_t seek_to_sector(BlockDriverState *bs, int64_t sector_num)
+ 	return -1; /* not allocated */
+     }
+ 
+-    bitmap_offset = s->data_offset + (512 * s->catalog_bitmap[extent_index] *
+-	(s->extent_blocks + s->bitmap_blocks));
++    bitmap_offset = s->data_offset +
++        (512 * (uint64_t) s->catalog_bitmap[extent_index] *
++        (s->extent_blocks + s->bitmap_blocks));
+ 
+     /* read in bitmap for current extent */
+     if (bdrv_pread(bs->file, bitmap_offset + (extent_offset / 8),

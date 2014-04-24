@@ -1,0 +1,37 @@
+From ffce9ca1dfd6b53ac773a9dc956978ca4cf8a7d4 Mon Sep 17 00:00:00 2001
+From: Fam Zheng <famz@redhat.com>
+Date: Wed, 26 Mar 2014 13:05:40 +0100
+Subject: [PATCH] curl: check data size before memcpy to local buffer.
+ (CVE-2014-0144)
+
+curl_read_cb is callback function for libcurl when data arrives. The
+data size passed in here is not guaranteed to be within the range of
+request we submitted, so we may overflow the guest IO buffer. Check the
+real size we have before memcpy to buffer to avoid overflow.
+
+Signed-off-by: Fam Zheng <famz@redhat.com>
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+Signed-off-by: Kevin Wolf <kwolf@redhat.com>
+Reviewed-by: Max Reitz <mreitz@redhat.com>
+Signed-off-by: Stefan Hajnoczi <stefanha@redhat.com>
+(cherry picked from commit 6d4b9e55fc625514a38d27cff4b9933f617fa7dc)
+---
+ block/curl.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/block/curl.c b/block/curl.c
+index 82d39ff..14ae7e5 100644
+--- a/block/curl.c
++++ b/block/curl.c
+@@ -136,6 +136,11 @@ static size_t curl_read_cb(void *ptr, size_t size, size_t nmemb, void *opaque)
+     if (!s || !s->orig_buf)
+         goto read_end;
+ 
++    if (s->buf_off >= s->buf_len) {
++        /* buffer full, read nothing */
++        return 0;
++    }
++    realsize = MIN(realsize, s->buf_len - s->buf_off);
+     memcpy(s->orig_buf + s->buf_off, ptr, realsize);
+     s->buf_off += realsize;
+ 

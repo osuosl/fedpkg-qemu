@@ -1,0 +1,78 @@
+From 26a8e469db49e98d805a502b01e1e46387a8098a Mon Sep 17 00:00:00 2001
+From: Kevin Wolf <kwolf@redhat.com>
+Date: Wed, 26 Mar 2014 13:05:50 +0100
+Subject: [PATCH] qcow2: Check new refcount table size on growth
+
+If the size becomes larger than what qcow2_open() would accept, fail the
+growing operation.
+
+Signed-off-by: Kevin Wolf <kwolf@redhat.com>
+Reviewed-by: Max Reitz <mreitz@redhat.com>
+Signed-off-by: Stefan Hajnoczi <stefanha@redhat.com>
+(cherry picked from commit 2b5d5953eec0cc541857c3df812bdf8421596ab2)
+
+Conflicts:
+	block/qcow2.c
+---
+ block/qcow2-refcount.c | 4 ++++
+ block/qcow2.c          | 4 +---
+ block/qcow2.h          | 9 +++++++++
+ 3 files changed, 14 insertions(+), 3 deletions(-)
+
+diff --git a/block/qcow2-refcount.c b/block/qcow2-refcount.c
+index 3e473bd..3cdcfb6 100644
+--- a/block/qcow2-refcount.c
++++ b/block/qcow2-refcount.c
+@@ -308,6 +308,10 @@ static int alloc_refcount_block(BlockDriverState *bs,
+     uint64_t refcount_block_clusters = 1 << (s->cluster_bits - REFCOUNT_SHIFT);
+     uint64_t blocks_used = DIV_ROUND_UP(cluster_index, refcount_block_clusters);
+ 
++    if (blocks_used > QCOW_MAX_REFTABLE_SIZE / sizeof(uint64_t)) {
++        return -EFBIG;
++    }
++
+     /* And now we need at least one block more for the new metadata */
+     uint64_t table_size = next_refcount_table_size(s, blocks_used + 1);
+     uint64_t last_table_size;
+diff --git a/block/qcow2.c b/block/qcow2.c
+index 6112859..4052c45 100644
+--- a/block/qcow2.c
++++ b/block/qcow2.c
+@@ -487,9 +487,7 @@ static int qcow2_open(BlockDriverState *bs, QDict *options, int flags)
+     s->refcount_table_size =
+         header.refcount_table_clusters << (s->cluster_bits - 3);
+ 
+-    if (header.refcount_table_clusters > (0x800000 >> s->cluster_bits)) {
+-        /* 8 MB refcount table is enough for 2 PB images at 64k cluster size
+-         * (128 GB for 512 byte clusters, 2 EB for 2 MB clusters) */
++    if (header.refcount_table_clusters > qcow2_max_refcount_clusters(s)) {
+         fprintf(stderr, "Reference count table too large");
+         ret = -EINVAL;
+         goto fail;
+diff --git a/block/qcow2.h b/block/qcow2.h
+index 1e1294c..e802c55 100644
+--- a/block/qcow2.h
++++ b/block/qcow2.h
+@@ -40,6 +40,10 @@
+ #define QCOW_MAX_CRYPT_CLUSTERS 32
+ #define QCOW_MAX_SNAPSHOTS 65536
+ 
++/* 8 MB refcount table is enough for 2 PB images at 64k cluster size
++ * (128 GB for 512 byte clusters, 2 EB for 2 MB clusters) */
++#define QCOW_MAX_REFTABLE_SIZE 0x800000
++
+ /* indicate that the refcount of the referenced cluster is exactly one. */
+ #define QCOW_OFLAG_COPIED     (1LL << 63)
+ /* indicate that the cluster is compressed (they never have the copied flag) */
+@@ -356,6 +360,11 @@ static inline int64_t qcow2_vm_state_offset(BDRVQcowState *s)
+ 	return (int64_t)s->l1_vm_state_index << (s->cluster_bits + s->l2_bits);
+ }
+ 
++static inline uint64_t qcow2_max_refcount_clusters(BDRVQcowState *s)
++{
++    return QCOW_MAX_REFTABLE_SIZE >> s->cluster_bits;
++}
++
+ static inline int qcow2_get_cluster_type(uint64_t l2_entry)
+ {
+     if (l2_entry & QCOW_OFLAG_COMPRESSED) {

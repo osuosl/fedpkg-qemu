@@ -1,0 +1,42 @@
+From 4606e72cd258bcc9ae59828c47e7ed50925a6a98 Mon Sep 17 00:00:00 2001
+From: Stefan Hajnoczi <stefanha@redhat.com>
+Date: Wed, 26 Mar 2014 13:05:57 +0100
+Subject: [PATCH] dmg: use appropriate types when reading chunks
+
+Use the right types instead of signed int:
+
+  size_t new_size;
+
+  This is a byte count for g_realloc() that is calculated from uint32_t
+  and size_t values.
+
+  uint32_t chunk_count;
+
+  Use the same type as s->n_chunks, which is used together with
+  chunk_count.
+
+This patch is a cleanup and does not fix bugs.
+
+Signed-off-by: Stefan Hajnoczi <stefanha@redhat.com>
+Signed-off-by: Kevin Wolf <kwolf@redhat.com>
+Reviewed-by: Max Reitz <mreitz@redhat.com>
+Signed-off-by: Stefan Hajnoczi <stefanha@redhat.com>
+(cherry picked from commit eb71803b041f55779ea10d860c0f66df285c68de)
+---
+ block/dmg.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/block/dmg.c b/block/dmg.c
+index 24f08ef..5650e73 100644
+--- a/block/dmg.c
++++ b/block/dmg.c
+@@ -160,7 +160,8 @@ static int dmg_open(BlockDriverState *bs, QDict *options, int flags)
+         }
+ 
+         if (type == 0x6d697368 && count >= 244) {
+-            int new_size, chunk_count;
++            size_t new_size;
++            uint32_t chunk_count;
+ 
+             offset += 4;
+             offset += 200;

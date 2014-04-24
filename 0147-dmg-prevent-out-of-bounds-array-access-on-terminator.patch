@@ -1,0 +1,34 @@
+From a4e71c7e314b03dc4dfad00db8daeb9bd3b50767 Mon Sep 17 00:00:00 2001
+From: Stefan Hajnoczi <stefanha@redhat.com>
+Date: Wed, 26 Mar 2014 13:05:55 +0100
+Subject: [PATCH] dmg: prevent out-of-bounds array access on terminator
+
+When a terminator is reached the base for offsets and sectors is stored.
+The following records that are processed will use this base value.
+
+If the first record we encounter is a terminator, then calculating the
+base values would result in out-of-bounds array accesses.  Don't do
+that.
+
+Signed-off-by: Stefan Hajnoczi <stefanha@redhat.com>
+Signed-off-by: Kevin Wolf <kwolf@redhat.com>
+Reviewed-by: Max Reitz <mreitz@redhat.com>
+Signed-off-by: Stefan Hajnoczi <stefanha@redhat.com>
+(cherry picked from commit 73ed27ec28a1dbebdd2ae792284151f029950fbe)
+---
+ block/dmg.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/block/dmg.c b/block/dmg.c
+index e8b88dc..cb4060c 100644
+--- a/block/dmg.c
++++ b/block/dmg.c
+@@ -181,7 +181,7 @@ static int dmg_open(BlockDriverState *bs, QDict *options, int flags)
+                 offset += 4;
+                 if (s->types[i] != 0x80000005 && s->types[i] != 1 &&
+                     s->types[i] != 2) {
+-                    if (s->types[i] == 0xffffffff) {
++                    if (s->types[i] == 0xffffffff && i > 0) {
+                         last_in_offset = s->offsets[i - 1] + s->lengths[i - 1];
+                         last_out_offset = s->sectors[i - 1] +
+                                           s->sectorcounts[i - 1];

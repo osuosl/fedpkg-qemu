@@ -1,0 +1,68 @@
+From ec5f34cfe586f6761d490e8e3b394f98fead3cf6 Mon Sep 17 00:00:00 2001
+From: Kevin Wolf <kwolf@redhat.com>
+Date: Wed, 26 Mar 2014 13:06:06 +0100
+Subject: [PATCH] qcow2: Check maximum L1 size in qcow2_snapshot_load_tmp()
+ (CVE-2014-0143)
+
+This avoids an unbounded allocation.
+
+Signed-off-by: Kevin Wolf <kwolf@redhat.com>
+Reviewed-by: Max Reitz <mreitz@redhat.com>
+Signed-off-by: Stefan Hajnoczi <stefanha@redhat.com>
+(cherry picked from commit 6a83f8b5bec6f59e56cc49bd49e4c3f8f805d56f)
+
+Conflicts:
+	block/qcow2.c
+	tests/qemu-iotests/080
+	tests/qemu-iotests/080.out
+---
+ block/qcow2-snapshot.c | 4 ++++
+ block/qcow2.c          | 4 +---
+ block/qcow2.h          | 4 ++++
+ 3 files changed, 9 insertions(+), 3 deletions(-)
+
+diff --git a/block/qcow2-snapshot.c b/block/qcow2-snapshot.c
+index dc8736a..d2c956c 100644
+--- a/block/qcow2-snapshot.c
++++ b/block/qcow2-snapshot.c
+@@ -622,6 +622,10 @@ int qcow2_snapshot_load_tmp(BlockDriverState *bs, const char *snapshot_name)
+     sn = &s->snapshots[snapshot_index];
+ 
+     /* Allocate and read in the snapshot's L1 table */
++    if (sn->l1_size > QCOW_MAX_L1_SIZE) {
++        fprintf(stderr, "Snapshot L1 table too large");
++        return -EFBIG;
++    }
+     new_l1_bytes = sn->l1_size * sizeof(uint64_t);
+     new_l1_table = g_malloc0(align_offset(new_l1_bytes, 512));
+ 
+diff --git a/block/qcow2.c b/block/qcow2.c
+index 151cde8..253d8c0 100644
+--- a/block/qcow2.c
++++ b/block/qcow2.c
+@@ -516,9 +516,7 @@ static int qcow2_open(BlockDriverState *bs, QDict *options, int flags)
+     }
+ 
+     /* read the level 1 table */
+-    if (header.l1_size > 0x2000000) {
+-        /* 32 MB L1 table is enough for 2 PB images at 64k cluster size
+-         * (128 GB for 512 byte clusters, 2 EB for 2 MB clusters) */
++    if (header.l1_size > QCOW_MAX_L1_SIZE) {
+         fprintf(stderr, "Active L1 table too large");
+         ret = -EFBIG;
+         goto fail;
+diff --git a/block/qcow2.h b/block/qcow2.h
+index baf62a0..0912488 100644
+--- a/block/qcow2.h
++++ b/block/qcow2.h
+@@ -44,6 +44,10 @@
+  * (128 GB for 512 byte clusters, 2 EB for 2 MB clusters) */
+ #define QCOW_MAX_REFTABLE_SIZE 0x800000
+ 
++/* 32 MB L1 table is enough for 2 PB images at 64k cluster size
++ * (128 GB for 512 byte clusters, 2 EB for 2 MB clusters) */
++#define QCOW_MAX_L1_SIZE 0x2000000
++
+ /* indicate that the refcount of the referenced cluster is exactly one. */
+ #define QCOW_OFLAG_COPIED     (1LL << 63)
+ /* indicate that the cluster is compressed (they never have the copied flag) */

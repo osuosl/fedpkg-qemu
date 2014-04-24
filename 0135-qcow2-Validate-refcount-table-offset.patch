@@ -1,0 +1,75 @@
+From 57e38333905d0c324fa5c9973f43251868c70f1f Mon Sep 17 00:00:00 2001
+From: Kevin Wolf <kwolf@redhat.com>
+Date: Wed, 26 Mar 2014 13:05:44 +0100
+Subject: [PATCH] qcow2: Validate refcount table offset
+
+The end of the refcount table must not exceed INT64_MAX so that integer
+overflows are avoided.
+
+Also check for misaligned refcount table. Such images are invalid and
+probably the result of data corruption. Error out to avoid further
+corruption.
+
+Signed-off-by: Kevin Wolf <kwolf@redhat.com>
+Reviewed-by: Max Reitz <mreitz@redhat.com>
+Signed-off-by: Stefan Hajnoczi <stefanha@redhat.com>
+(cherry picked from commit 8c7de28305a514d7f879fdfc677ca11fbf60d2e9)
+
+Conflicts:
+	tests/qemu-iotests/080
+	tests/qemu-iotests/080.out
+---
+ block/qcow2.c | 33 +++++++++++++++++++++++++++++++++
+ 1 file changed, 33 insertions(+)
+
+diff --git a/block/qcow2.c b/block/qcow2.c
+index 884262b..db35ffe 100644
+--- a/block/qcow2.c
++++ b/block/qcow2.c
+@@ -286,6 +286,32 @@ static int qcow2_check(BlockDriverState *bs, BdrvCheckResult *result,
+     return ret;
+ }
+ 
++static int validate_table_offset(BlockDriverState *bs, uint64_t offset,
++                                 uint64_t entries, size_t entry_len)
++{
++    BDRVQcowState *s = bs->opaque;
++    uint64_t size;
++
++    /* Use signed INT64_MAX as the maximum even for uint64_t header fields,
++     * because values will be passed to qemu functions taking int64_t. */
++    if (entries > INT64_MAX / entry_len) {
++        return -EINVAL;
++    }
++
++    size = entries * entry_len;
++
++    if (INT64_MAX - size < offset) {
++        return -EINVAL;
++    }
++
++    /* Tables must be cluster aligned */
++    if (offset & (s->cluster_size - 1)) {
++        return -EINVAL;
++    }
++
++    return 0;
++}
++
+ static QemuOptsList qcow2_runtime_opts = {
+     .name = "qcow2",
+     .head = QTAILQ_HEAD_INITIALIZER(qcow2_runtime_opts.head),
+@@ -468,6 +494,13 @@ static int qcow2_open(BlockDriverState *bs, QDict *options, int flags)
+         goto fail;
+     }
+ 
++    ret = validate_table_offset(bs, s->refcount_table_offset,
++                                s->refcount_table_size, sizeof(uint64_t));
++    if (ret < 0) {
++        fprintf(stderr, "Invalid reference count table offset");
++        goto fail;
++    }
++
+     s->snapshots_offset = header.snapshots_offset;
+     s->nb_snapshots = header.nb_snapshots;
+ 

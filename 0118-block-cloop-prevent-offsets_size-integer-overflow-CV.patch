@@ -1,0 +1,63 @@
+From 1d76b2c0c3d922ec0502cc09db7541ea374e7896 Mon Sep 17 00:00:00 2001
+From: Stefan Hajnoczi <stefanha@redhat.com>
+Date: Wed, 26 Mar 2014 13:05:26 +0100
+Subject: [PATCH] block/cloop: prevent offsets_size integer overflow
+ (CVE-2014-0143)
+
+The following integer overflow in offsets_size can lead to out-of-bounds
+memory stores when n_blocks has a huge value:
+
+    uint32_t n_blocks, offsets_size;
+    [...]
+    ret = bdrv_pread(bs->file, 128 + 4, &s->n_blocks, 4);
+    [...]
+    s->n_blocks = be32_to_cpu(s->n_blocks);
+
+    /* read offsets */
+    offsets_size = s->n_blocks * sizeof(uint64_t);
+    s->offsets = g_malloc(offsets_size);
+
+    [...]
+
+    for(i=0;i<s->n_blocks;i++) {
+        s->offsets[i] = be64_to_cpu(s->offsets[i]);
+
+offsets_size can be smaller than n_blocks due to integer overflow.
+Therefore s->offsets[] is too small when the for loop byteswaps offsets.
+
+This patch refuses to open files if offsets_size would overflow.
+
+Note that changing the type of offsets_size is not a fix since 32-bit
+hosts still only have 32-bit size_t.
+
+Signed-off-by: Stefan Hajnoczi <stefanha@redhat.com>
+Signed-off-by: Kevin Wolf <kwolf@redhat.com>
+Reviewed-by: Max Reitz <mreitz@redhat.com>
+Signed-off-by: Stefan Hajnoczi <stefanha@redhat.com>
+(cherry picked from commit 509a41bab5306181044b5fff02eadf96d9c8676a)
+
+Conflicts:
+	tests/qemu-iotests/075
+	tests/qemu-iotests/075.out
+---
+ block/cloop.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/block/cloop.c b/block/cloop.c
+index c2441b0..e20d0d8 100644
+--- a/block/cloop.c
++++ b/block/cloop.c
+@@ -98,6 +98,13 @@ static int cloop_open(BlockDriverState *bs, QDict *options, int flags)
+     s->n_blocks = be32_to_cpu(s->n_blocks);
+ 
+     /* read offsets */
++    if (s->n_blocks > UINT32_MAX / sizeof(uint64_t)) {
++        /* Prevent integer overflow */
++        fprintf(stderr, "n_blocks %u must be %zu or less",
++                   s->n_blocks,
++                   UINT32_MAX / sizeof(uint64_t));
++        return -EINVAL;
++    }
+     offsets_size = s->n_blocks * sizeof(uint64_t);
+     s->offsets = g_malloc(offsets_size);
+ 

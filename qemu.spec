@@ -139,7 +139,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.6.2
-Release: 1%{?dist}
+Release: 2%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -235,6 +235,67 @@ Patch0113: 0113-Change-gtk-quit-accelerator-to-ctrl-shift-q-bz-10623.patch
 Patch0114: 0114-scsi-Assign-cancel_io-vector-for-scsi_disk_emulate_o.patch
 Patch0115: 0115-virtio-scsi-Cleanup-of-I-Os-that-never-started.patch
 Patch0116: 0116-virtio-scsi-Prevent-assertion-on-missed-events.patch
+# Block/image format validation CVE-2014-0142 - 2014-0148 (bz #1078201,
+# bz #1086710, bz #1079140, bz #1086724, bz #1079240, bz #1086735, bz
+# #1078885, bz #1086720, bz #1078232, bz #1086713, bz #1078848, bz
+# #1086717, bz #1078212, bz #1086712)
+Patch0117: 0117-block-cloop-validate-block_size-header-field-CVE-201.patch
+Patch0118: 0118-block-cloop-prevent-offsets_size-integer-overflow-CV.patch
+Patch0119: 0119-block-cloop-refuse-images-with-huge-offsets-arrays-C.patch
+Patch0120: 0120-block-cloop-refuse-images-with-bogus-offsets-CVE-201.patch
+Patch0121: 0121-block-cloop-fix-offsets-size-off-by-one.patch
+Patch0122: 0122-bochs-Unify-header-structs-and-make-them-QEMU_PACKED.patch
+Patch0123: 0123-bochs-Use-unsigned-variables-for-offsets-and-sizes-C.patch
+Patch0124: 0124-bochs-Check-catalog_size-header-field-CVE-2014-0143.patch
+Patch0125: 0125-bochs-Check-extent_size-header-field-CVE-2014-0142.patch
+Patch0126: 0126-bochs-Fix-bitmap-offset-calculation.patch
+Patch0127: 0127-vpc-vhd-add-bounds-check-for-max_table_entries-and-b.patch
+Patch0128: 0128-vpc-Validate-block-size-CVE-2014-0142.patch
+Patch0129: 0129-vdi-add-bounds-checks-for-blocks_in_image-and-disk_s.patch
+Patch0130: 0130-vhdx-Bounds-checking-for-block_size-and-logical_sect.patch
+Patch0131: 0131-curl-check-data-size-before-memcpy-to-local-buffer.-.patch
+Patch0132: 0132-qcow2-Check-header_length-CVE-2014-0144.patch
+Patch0133: 0133-qcow2-Check-backing_file_offset-CVE-2014-0144.patch
+Patch0134: 0134-qcow2-Check-refcount-table-size-CVE-2014-0144.patch
+Patch0135: 0135-qcow2-Validate-refcount-table-offset.patch
+Patch0136: 0136-qcow2-Validate-snapshot-table-offset-size-CVE-2014-0.patch
+Patch0137: 0137-qcow2-Validate-active-L1-table-offset-and-size-CVE-2.patch
+Patch0138: 0138-qcow2-Fix-backing-file-name-length-check.patch
+Patch0139: 0139-qcow2-fix-offset-overflow-in-qcow2_alloc_clusters_at.patch
+Patch0140: 0140-qcow2-Don-t-rely-on-free_cluster_index-in-alloc_refc.patch
+Patch0141: 0141-qcow2-Avoid-integer-overflow-in-get_refcount-CVE-201.patch
+Patch0142: 0142-qcow2-Check-new-refcount-table-size-on-growth.patch
+Patch0143: 0143-qcow2-Fix-types-in-qcow2_alloc_clusters-and-alloc_cl.patch
+Patch0144: 0144-qcow2-Protect-against-some-integer-overflows-in-bdrv.patch
+Patch0145: 0145-qcow2-Fix-new-L1-table-size-check-CVE-2014-0143.patch
+Patch0146: 0146-dmg-coding-style-and-indentation-cleanup.patch
+Patch0147: 0147-dmg-prevent-out-of-bounds-array-access-on-terminator.patch
+Patch0148: 0148-dmg-drop-broken-bdrv_pread-loop.patch
+Patch0149: 0149-dmg-use-appropriate-types-when-reading-chunks.patch
+Patch0150: 0150-dmg-sanitize-chunk-length-and-sectorcount-CVE-2014-0.patch
+Patch0151: 0151-dmg-use-uint64_t-consistently-for-sectors-and-length.patch
+Patch0152: 0152-dmg-prevent-chunk-buffer-overflow-CVE-2014-0145.patch
+Patch0153: 0153-block-Limit-request-size-CVE-2014-0143.patch
+Patch0154: 0154-qcow2-Fix-copy_sectors-with-VM-state.patch
+Patch0155: 0155-qcow2-Fix-NULL-dereference-in-qcow2_open-error-path-.patch
+Patch0156: 0156-qcow2-Fix-L1-allocation-size-in-qcow2_snapshot_load_.patch
+Patch0157: 0157-qcow2-Check-maximum-L1-size-in-qcow2_snapshot_load_t.patch
+Patch0158: 0158-qcow2-Limit-snapshot-table-size.patch
+Patch0159: 0159-parallels-Fix-catalog-size-integer-overflow-CVE-2014.patch
+Patch0160: 0160-parallels-Sanity-check-for-s-tracks-CVE-2014-0142.patch
+
+# CVE-2014-0150: virtio-net: buffer overflow in virtio_net_handle_mac()
+# function (bz #1086775, bz #1078846)
+Patch0201: 0201-virtio-net-fix-guest-triggerable-buffer-overrun.patch
+# CVE-2013-4544: vmxnet3: bounds checking buffer overrun (bz #1087513,
+# bz #1087522)
+Patch0202: 0202-vmxnet3-validate-interrupt-indices-coming-from-guest.patch
+Patch0203: 0203-vmxnet3-validate-queues-configuration-coming-from-gu.patch
+Patch0204: 0204-vmxnet3-validate-interrupt-indices-read-on-migration.patch
+Patch0205: 0205-vmxnet3-validate-queues-configuration-read-on-migrat.patch
+# CVE-2014-2894: out of bounds buffer accesses, guest triggerable via
+# IDE SMART (bz #1087981, bz #1087971)
+Patch0206: 0206-ide-Correct-improper-smart-self-test-counter-reset-i.patch
 
 BuildRequires: SDL-devel
 BuildRequires: zlib-devel
@@ -802,6 +863,67 @@ CAC emulation development files.
 %patch0114 -p1
 %patch0115 -p1
 %patch0116 -p1
+# Block/image format validation CVE-2014-0142 - 2014-0148 (bz #1078201,
+# bz #1086710, bz #1079140, bz #1086724, bz #1079240, bz #1086735, bz
+# #1078885, bz #1086720, bz #1078232, bz #1086713, bz #1078848, bz
+# #1086717, bz #1078212, bz #1086712)
+%patch0117 -p1
+%patch0118 -p1
+%patch0119 -p1
+%patch0120 -p1
+%patch0121 -p1
+%patch0122 -p1
+%patch0123 -p1
+%patch0124 -p1
+%patch0125 -p1
+%patch0126 -p1
+%patch0127 -p1
+%patch0128 -p1
+%patch0129 -p1
+%patch0130 -p1
+%patch0131 -p1
+%patch0132 -p1
+%patch0133 -p1
+%patch0134 -p1
+%patch0135 -p1
+%patch0136 -p1
+%patch0137 -p1
+%patch0138 -p1
+%patch0139 -p1
+%patch0140 -p1
+%patch0141 -p1
+%patch0142 -p1
+%patch0143 -p1
+%patch0144 -p1
+%patch0145 -p1
+%patch0146 -p1
+%patch0147 -p1
+%patch0148 -p1
+%patch0149 -p1
+%patch0150 -p1
+%patch0151 -p1
+%patch0152 -p1
+%patch0153 -p1
+%patch0154 -p1
+%patch0155 -p1
+%patch0156 -p1
+%patch0157 -p1
+%patch0158 -p1
+%patch0159 -p1
+%patch0160 -p1
+
+# CVE-2014-0150: virtio-net: buffer overflow in virtio_net_handle_mac()
+# function (bz #1086775, bz #1078846)
+%patch0201 -p1
+# CVE-2013-4544: vmxnet3: bounds checking buffer overrun (bz #1087513,
+# bz #1087522)
+%patch0202 -p1
+%patch0203 -p1
+%patch0204 -p1
+%patch0205 -p1
+# CVE-2014-2894: out of bounds buffer accesses, guest triggerable via
+# IDE SMART (bz #1087981, bz #1087971)
+%patch0206 -p1
 
 
 %build
@@ -1509,6 +1631,18 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Thu Apr 24 2014 Cole Robinson <crobinso@redhat.com> - 2:1.6.2-2
+- Block/image format validation CVE-2014-0142 - 2014-0148 (bz #1078201, bz
+  #1086710, bz #1079140, bz #1086724, bz #1079240, bz #1086735, bz #1078885, bz
+  #1086720, bz #1078232, bz #1086713, bz #1078848, bz #1086717, bz #1078212, bz
+  #1086712)
+- CVE-2014-0150: virtio-net: buffer overflow in virtio_net_handle_mac()
+  function (bz #1086775, bz #1078846)
+- CVE-2013-4544: vmxnet3: bounds checking buffer overrun (bz #1087513, bz
+  #1087522)
+- CVE-2014-2894: out of bounds buffer accesses, guest triggerable via IDE
+  SMART (bz #1087981, bz #1087971)
+
 * Wed Mar 19 2014 Cole Robinson <crobinso@redhat.com> - 2:1.6.2-1
 - Fix bogus libcacard dep on gluster (bz #987441)
 - Fix mouse with -display gtk -vga qxl (bz #1051724)

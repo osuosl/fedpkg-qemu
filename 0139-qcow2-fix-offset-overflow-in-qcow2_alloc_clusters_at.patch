@@ -1,0 +1,47 @@
+From 3fd6496d4e7869d9e6b1563e34af427187323987 Mon Sep 17 00:00:00 2001
+From: Hu Tao <hutao@cn.fujitsu.com>
+Date: Sun, 26 Jan 2014 11:12:38 +0800
+Subject: [PATCH] qcow2: fix offset overflow in qcow2_alloc_clusters_at()
+
+When cluster size is big enough it can lead to an offset overflow
+in qcow2_alloc_clusters_at(). This patch fixes it.
+
+The allocation is stopped each time at L2 table boundary
+(see handle_alloc()), so the possible maximum bytes could be
+
+  2^(cluster_bits - 3 + cluster_bits)
+
+cluster_bits - 3 is used to compute the number of entry by L2
+and the additional cluster_bits is to take into account each
+clusters referenced by the L2 entries.
+
+so int is safe for cluster_bits<=17, unsafe otherwise.
+
+Signed-off-by: Hu Tao <hutao@cn.fujitsu.com>
+Reviewed-by: Max Reitz <mreitz@redhat.com>
+Reviewed-by: Benoit Canet <benoit@irqsave.net>
+Signed-off-by: Kevin Wolf <kwolf@redhat.com>
+(cherry picked from commit 33304ec9fa484e765c6249673e09e1b7d49c5b85)
+---
+ block/qcow2-refcount.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/block/qcow2-refcount.c b/block/qcow2-refcount.c
+index cd641c9..1308151 100644
+--- a/block/qcow2-refcount.c
++++ b/block/qcow2-refcount.c
+@@ -676,7 +676,13 @@ int qcow2_alloc_clusters_at(BlockDriverState *bs, uint64_t offset,
+     BDRVQcowState *s = bs->opaque;
+     uint64_t cluster_index;
+     uint64_t old_free_cluster_index;
+-    int i, refcount, ret;
++    uint64_t i;
++    int refcount, ret;
++
++    assert(nb_clusters >= 0);
++    if (nb_clusters == 0) {
++        return 0;
++    }
+ 
+     /* Check how many clusters there are free */
+     cluster_index = offset >> s->cluster_bits;

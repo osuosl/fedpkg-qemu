@@ -1,0 +1,47 @@
+From ed6cc104512967c5cf612972eb41ccb0f3f8a706 Mon Sep 17 00:00:00 2001
+From: Stefan Hajnoczi <stefanha@redhat.com>
+Date: Wed, 26 Mar 2014 13:05:27 +0100
+Subject: [PATCH] block/cloop: refuse images with huge offsets arrays
+ (CVE-2014-0144)
+
+Limit offsets_size to 512 MB so that:
+
+1. g_malloc() does not abort due to an unreasonable size argument.
+
+2. offsets_size does not overflow the bdrv_pread() int size argument.
+
+This limit imposes a maximum image size of 16 TB at 256 KB block size.
+
+Signed-off-by: Stefan Hajnoczi <stefanha@redhat.com>
+Signed-off-by: Kevin Wolf <kwolf@redhat.com>
+Reviewed-by: Max Reitz <mreitz@redhat.com>
+Signed-off-by: Stefan Hajnoczi <stefanha@redhat.com>
+(cherry picked from commit 7b103b36d6ef3b11827c203d3a793bf7da50ecd6)
+
+Conflicts:
+	tests/qemu-iotests/075
+	tests/qemu-iotests/075.out
+---
+ block/cloop.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/block/cloop.c b/block/cloop.c
+index e20d0d8..cf81c61 100644
+--- a/block/cloop.c
++++ b/block/cloop.c
+@@ -106,6 +106,15 @@ static int cloop_open(BlockDriverState *bs, QDict *options, int flags)
+         return -EINVAL;
+     }
+     offsets_size = s->n_blocks * sizeof(uint64_t);
++    if (offsets_size > 512 * 1024 * 1024) {
++        /* Prevent ridiculous offsets_size which causes memory allocation to
++         * fail or overflows bdrv_pread() size.  In practice the 512 MB
++         * offsets[] limit supports 16 TB images at 256 KB block size.
++         */
++        fprintf(stderr, "image requires too many offsets, "
++                   "try increasing block size");
++        return -EINVAL;
++    }
+     s->offsets = g_malloc(offsets_size);
+ 
+     ret = bdrv_pread(bs->file, 128 + 4 + 4, s->offsets, offsets_size);

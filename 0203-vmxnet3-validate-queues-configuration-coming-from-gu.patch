@@ -1,0 +1,55 @@
+From c45d9cbc1e915c9ed4c9c4ff9c12e3fb60cf7428 Mon Sep 17 00:00:00 2001
+From: Dmitry Fleytman <dmitry@daynix.com>
+Date: Fri, 4 Apr 2014 12:45:20 +0300
+Subject: [PATCH] vmxnet3: validate queues configuration coming from guest
+
+CVE-2013-4544
+
+Signed-off-by: Dmitry Fleytman <dmitry@daynix.com>
+Reported-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Reviewed-by: Dr. David Alan Gilbert <dgilbert@redhat.com>
+Message-id: 1396604722-11902-3-git-send-email-dmitry@daynix.com
+Signed-off-by: Peter Maydell <peter.maydell@linaro.org>
+(cherry picked from commit 9878d173f574df74bde0ff50b2f81009fbee81bb)
+---
+ hw/net/vmxnet3.c | 19 ++++++++++++++++++-
+ 1 file changed, 18 insertions(+), 1 deletion(-)
+
+diff --git a/hw/net/vmxnet3.c b/hw/net/vmxnet3.c
+index 6ae39a4..7325670 100644
+--- a/hw/net/vmxnet3.c
++++ b/hw/net/vmxnet3.c
+@@ -1330,6 +1330,23 @@ static void vmxnet3_validate_interrupts(VMXNET3State *s)
+     }
+ }
+ 
++static void vmxnet3_validate_queues(VMXNET3State *s)
++{
++    /*
++    * txq_num and rxq_num are total number of queues
++    * configured by guest. These numbers must not
++    * exceed corresponding maximal values.
++    */
++
++    if (s->txq_num > VMXNET3_DEVICE_MAX_TX_QUEUES) {
++        hw_error("Bad TX queues number: %d\n", s->txq_num);
++    }
++
++    if (s->rxq_num > VMXNET3_DEVICE_MAX_RX_QUEUES) {
++        hw_error("Bad RX queues number: %d\n", s->rxq_num);
++    }
++}
++
+ static void vmxnet3_activate_device(VMXNET3State *s)
+ {
+     int i;
+@@ -1375,7 +1392,7 @@ static void vmxnet3_activate_device(VMXNET3State *s)
+         VMXNET3_READ_DRV_SHARED8(s->drv_shmem, devRead.misc.numRxQueues);
+ 
+     VMW_CFPRN("Number of TX/RX queues %u/%u", s->txq_num, s->rxq_num);
+-    assert(s->txq_num <= VMXNET3_DEVICE_MAX_TX_QUEUES);
++    vmxnet3_validate_queues(s);
+ 
+     qdescr_table_pa =
+         VMXNET3_READ_DRV_SHARED64(s->drv_shmem, devRead.misc.queueDescPA);

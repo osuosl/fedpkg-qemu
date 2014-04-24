@@ -1,0 +1,49 @@
+From a0188429fb211a2e6c54a4589fb516156caa6cba Mon Sep 17 00:00:00 2001
+From: Kevin Wolf <kwolf@redhat.com>
+Date: Wed, 26 Mar 2014 13:06:04 +0100
+Subject: [PATCH] qcow2: Fix NULL dereference in qcow2_open() error path
+ (CVE-2014-0146)
+
+The qcow2 code assumes that s->snapshots is non-NULL if s->nb_snapshots
+!= 0. By having the initialisation of both fields separated in
+qcow2_open(), any error occuring in between would cause the error path
+to dereference NULL in qcow2_free_snapshots() if the image had any
+snapshots.
+
+Signed-off-by: Kevin Wolf <kwolf@redhat.com>
+Reviewed-by: Max Reitz <mreitz@redhat.com>
+Signed-off-by: Stefan Hajnoczi <stefanha@redhat.com>
+(cherry picked from commit 11b128f4062dd7f89b14abc8877ff20d41b28be9)
+
+Conflicts:
+	tests/qemu-iotests/080
+	tests/qemu-iotests/080.out
+---
+ block/qcow2.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/block/qcow2.c b/block/qcow2.c
+index 4052c45..151cde8 100644
+--- a/block/qcow2.c
++++ b/block/qcow2.c
+@@ -515,9 +515,6 @@ static int qcow2_open(BlockDriverState *bs, QDict *options, int flags)
+         goto fail;
+     }
+ 
+-    s->snapshots_offset = header.snapshots_offset;
+-    s->nb_snapshots = header.nb_snapshots;
+-
+     /* read the level 1 table */
+     if (header.l1_size > 0x2000000) {
+         /* 32 MB L1 table is enough for 2 PB images at 64k cluster size
+@@ -605,6 +602,10 @@ static int qcow2_open(BlockDriverState *bs, QDict *options, int flags)
+         bs->backing_file[len] = '\0';
+     }
+ 
++    /* Internal snapshots */
++    s->snapshots_offset = header.snapshots_offset;
++    s->nb_snapshots = header.nb_snapshots;
++
+     ret = qcow2_read_snapshots(bs);
+     if (ret < 0) {
+         goto fail;
