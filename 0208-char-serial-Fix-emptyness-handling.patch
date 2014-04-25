@@ -1,0 +1,38 @@
+From d1f1edc49f537fe9043fad52e06d6829cbadabe1 Mon Sep 17 00:00:00 2001
+From: Don Slutz <dslutz@verizon.com>
+Date: Tue, 18 Mar 2014 12:29:34 -0400
+Subject: [PATCH] char/serial: Fix emptyness handling
+
+The commit 88c1ee73d3231c74ff90bcfc084a7589670ec244
+char/serial: Fix emptyness check
+
+Still causes extra NULL byte(s) to be sent.
+
+So if the fifo is empty, do not send an extra NULL byte.
+
+Reviewed-by: Peter Crosthwaite <peter.crosthwaite@xilinx.com>
+Signed-off-by: Don Slutz <dslutz@verizon.com>
+Message-id: 1395160174-16006-1-git-send-email-dslutz@verizon.com
+Signed-off-by: Peter Maydell <peter.maydell@linaro.org>
+(cherry picked from commit dffacd4654ec8bf2898aed230852154c6ed755ed)
+---
+ hw/char/serial.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/hw/char/serial.c b/hw/char/serial.c
+index 2989ca2..6d10747 100644
+--- a/hw/char/serial.c
++++ b/hw/char/serial.c
+@@ -224,8 +224,10 @@ static gboolean serial_xmit(GIOChannel *chan, GIOCondition cond, void *opaque)
+ 
+     if (s->tsr_retry <= 0) {
+         if (s->fcr & UART_FCR_FE) {
+-            s->tsr = fifo8_is_empty(&s->xmit_fifo) ?
+-                        0 : fifo8_pop(&s->xmit_fifo);
++            if (fifo8_is_empty(&s->xmit_fifo)) {
++                return FALSE;
++            }
++            s->tsr = fifo8_pop(&s->xmit_fifo);
+             if (!s->xmit_fifo.num) {
+                 s->lsr |= UART_LSR_THRE;
+             }

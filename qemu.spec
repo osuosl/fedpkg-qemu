@@ -139,7 +139,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.6.2
-Release: 2%{?dist}
+Release: 3%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -296,6 +296,9 @@ Patch0205: 0205-vmxnet3-validate-queues-configuration-read-on-migrat.patch
 # CVE-2014-2894: out of bounds buffer accesses, guest triggerable via
 # IDE SMART (bz #1087981, bz #1087971)
 Patch0206: 0206-ide-Correct-improper-smart-self-test-counter-reset-i.patch
+# Fix guest startup crashes from autotest (bz #1081610)
+Patch0207: 0207-char-serial-Fix-emptyness-check.patch
+Patch0208: 0208-char-serial-Fix-emptyness-handling.patch
 
 BuildRequires: SDL-devel
 BuildRequires: zlib-devel
@@ -924,6 +927,9 @@ CAC emulation development files.
 # CVE-2014-2894: out of bounds buffer accesses, guest triggerable via
 # IDE SMART (bz #1087981, bz #1087971)
 %patch0206 -p1
+# Fix guest startup crashes from autotest (bz #1081610)
+%patch0207 -p1
+%patch0208 -p1
 
 
 %build
@@ -1631,6 +1637,9 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Fri Apr 25 2014 Cole Robinson <crobinso@redhat.com> - 2:1.6.2-3
+- Fix guest startup crashes from autotest (bz #1081610)
+
 * Thu Apr 24 2014 Cole Robinson <crobinso@redhat.com> - 2:1.6.2-2
 - Block/image format validation CVE-2014-0142 - 2014-0148 (bz #1078201, bz
   #1086710, bz #1079140, bz #1086724, bz #1079240, bz #1086735, bz #1078885, bz

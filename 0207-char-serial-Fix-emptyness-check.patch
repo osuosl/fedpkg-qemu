@@ -1,0 +1,30 @@
+From 29952434a3c7b41137241b6905cf4df2f43a357d Mon Sep 17 00:00:00 2001
+From: Peter Crosthwaite <peter.crosthwaite@xilinx.com>
+Date: Mon, 10 Feb 2014 22:49:35 -0800
+Subject: [PATCH] char/serial: Fix emptyness check
+
+This was guarding against a full fifo rather than an empty fifo when
+popping. Fix.
+
+Signed-off-by: Peter Crosthwaite <peter.crosthwaite@xilinx.com>
+Reviewed-by: Martin Kletzander <mkletzan@redhat.com>
+Reviewed-by: Dr. David Alan Gilbert <dgilbert@redhat.com>
+Signed-off-by: Michael Tokarev <mjt@tls.msk.ru>
+(cherry picked from commit 88c1ee73d3231c74ff90bcfc084a7589670ec244)
+---
+ hw/char/serial.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/hw/char/serial.c b/hw/char/serial.c
+index 6025592..2989ca2 100644
+--- a/hw/char/serial.c
++++ b/hw/char/serial.c
+@@ -224,7 +224,7 @@ static gboolean serial_xmit(GIOChannel *chan, GIOCondition cond, void *opaque)
+ 
+     if (s->tsr_retry <= 0) {
+         if (s->fcr & UART_FCR_FE) {
+-            s->tsr = fifo8_is_full(&s->xmit_fifo) ?
++            s->tsr = fifo8_is_empty(&s->xmit_fifo) ?
+                         0 : fifo8_pop(&s->xmit_fifo);
+             if (!s->xmit_fifo.num) {
+                 s->lsr |= UART_LSR_THRE;
