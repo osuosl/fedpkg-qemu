@@ -1051,7 +1051,7 @@ done
 # Disabled on aarch64 where it fails with several errors.  Will
 # investigate and fix when we have access to real hardware - RWMJ.
 # 2014-03-24: Suddenly failing on arm32 as well - crobinso
-%ifnarch aarch64 armv7hl
+%ifnarch aarch64
 make check
 %endif
 
