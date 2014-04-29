@@ -1,4 +1,4 @@
-From 29952434a3c7b41137241b6905cf4df2f43a357d Mon Sep 17 00:00:00 2001
+From 436055f9403c0134cdd333a9c3acef0c394d2102 Mon Sep 17 00:00:00 2001
 From: Peter Crosthwaite <peter.crosthwaite@xilinx.com>
 Date: Mon, 10 Feb 2014 22:49:35 -0800
 Subject: [PATCH] char/serial: Fix emptyness check

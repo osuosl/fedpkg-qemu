@@ -1,0 +1,40 @@
+From 0b838da99dfef17beaa843219d59c0646d857b2f Mon Sep 17 00:00:00 2001
+From: Christoffer Dall <christoffer.dall@linaro.org>
+Date: Fri, 31 Jan 2014 14:47:38 +0000
+Subject: [PATCH] arm_gic: Fix GICD_ICPENDR and GICD_ISPENDR writes
+
+Fix two bugs that would allow changing the state of SGIs through the
+ICPENDR and ISPENDRs.
+
+Signed-off-by: Christoffer Dall <christoffer.dall@linaro.org>
+Reviewed-by: Peter Maydell <peter.maydell@linaro.org>
+Signed-off-by: Peter Maydell <peter.maydell@linaro.org>
+(cherry picked from commit 5b0adce156216fb24dcc5f1683e8b686f3793fff)
+---
+ hw/intc/arm_gic.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/hw/intc/arm_gic.c b/hw/intc/arm_gic.c
+index 0ce11ac..62153fd 100644
+--- a/hw/intc/arm_gic.c
++++ b/hw/intc/arm_gic.c
+@@ -428,7 +428,7 @@ static void gic_dist_writeb(void *opaque, hwaddr offset,
+         if (irq >= s->num_irq)
+             goto bad_reg;
+         if (irq < GIC_NR_SGIS) {
+-            irq = 0;
++            value = 0;
+         }
+ 
+         for (i = 0; i < 8; i++) {
+@@ -441,6 +441,10 @@ static void gic_dist_writeb(void *opaque, hwaddr offset,
+         irq = (offset - 0x280) * 8 + GIC_BASE_IRQ;
+         if (irq >= s->num_irq)
+             goto bad_reg;
++        if (irq < GIC_NR_SGIS) {
++            value = 0;
++        }
++
+         for (i = 0; i < 8; i++) {
+             /* ??? This currently clears the pending bit for all CPUs, even
+                for per-CPU interrupts.  It's unclear whether this is the

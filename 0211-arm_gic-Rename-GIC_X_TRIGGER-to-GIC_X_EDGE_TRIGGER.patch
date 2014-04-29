@@ -1,0 +1,125 @@
+From f81cfc1c2ec7e20c86656784b28f27b46868f71e Mon Sep 17 00:00:00 2001
+From: Christoffer Dall <christoffer.dall@linaro.org>
+Date: Fri, 20 Dec 2013 22:09:32 -0800
+Subject: [PATCH] arm_gic: Rename GIC_X_TRIGGER to GIC_X_EDGE_TRIGGER
+
+TRIGGER can really mean mean anything (e.g. was it triggered, is it
+level-triggered, is it edge-triggered, etc.).  Rename to EDGE_TRIGGER to
+make the code comprehensible without looking up the data structure.
+
+Reviewed-by: Peter Maydell <peter.maydell@linaro.org>
+Signed-off-by: Christoffer Dall <christoffer.dall@linaro.org>
+Message-id: 1387606179-22709-2-git-send-email-christoffer.dall@linaro.org
+Signed-off-by: Peter Maydell <peter.maydell@linaro.org>
+(cherry picked from commit 04050c5c6aa6f9c086a63a30b182b996fb2d3d02)
+---
+ hw/intc/arm_gic.c                | 12 ++++++------
+ hw/intc/arm_gic_common.c         |  4 ++--
+ hw/intc/gic_internal.h           |  6 +++---
+ include/hw/intc/arm_gic_common.h |  2 +-
+ 4 files changed, 12 insertions(+), 12 deletions(-)
+
+diff --git a/hw/intc/arm_gic.c b/hw/intc/arm_gic.c
+index d431b7a..27c258a 100644
+--- a/hw/intc/arm_gic.c
++++ b/hw/intc/arm_gic.c
+@@ -128,7 +128,7 @@ static void gic_set_irq(void *opaque, int irq, int level)
+ 
+     if (level) {
+         GIC_SET_LEVEL(irq, cm);
+-        if (GIC_TEST_TRIGGER(irq) || GIC_TEST_ENABLED(irq, cm)) {
++        if (GIC_TEST_EDGE_TRIGGER(irq) || GIC_TEST_ENABLED(irq, cm)) {
+             DPRINTF("Set %d pending mask %x\n", irq, target);
+             GIC_SET_PENDING(irq, target);
+         }
+@@ -188,7 +188,7 @@ void gic_complete_irq(GICState *s, int cpu, int irq)
+         return; /* No active IRQ.  */
+     /* Mark level triggered interrupts as pending if they are still
+        raised.  */
+-    if (!GIC_TEST_TRIGGER(irq) && GIC_TEST_ENABLED(irq, cm)
++    if (!GIC_TEST_EDGE_TRIGGER(irq) && GIC_TEST_ENABLED(irq, cm)
+         && GIC_TEST_LEVEL(irq, cm) && (GIC_TARGET(irq) & cm) != 0) {
+         DPRINTF("Set %d pending mask %x\n", irq, cm);
+         GIC_SET_PENDING(irq, cm);
+@@ -311,7 +311,7 @@ static uint32_t gic_dist_readb(void *opaque, hwaddr offset)
+         for (i = 0; i < 4; i++) {
+             if (GIC_TEST_MODEL(irq + i))
+                 res |= (1 << (i * 2));
+-            if (GIC_TEST_TRIGGER(irq + i))
++            if (GIC_TEST_EDGE_TRIGGER(irq + i))
+                 res |= (2 << (i * 2));
+         }
+     } else if (offset < 0xfe0) {
+@@ -386,7 +386,7 @@ static void gic_dist_writeb(void *opaque, hwaddr offset,
+                 /* If a raised level triggered IRQ enabled then mark
+                    is as pending.  */
+                 if (GIC_TEST_LEVEL(irq + i, mask)
+-                        && !GIC_TEST_TRIGGER(irq + i)) {
++                        && !GIC_TEST_EDGE_TRIGGER(irq + i)) {
+                     DPRINTF("Set %d pending mask %x\n", irq + i, mask);
+                     GIC_SET_PENDING(irq + i, mask);
+                 }
+@@ -478,9 +478,9 @@ static void gic_dist_writeb(void *opaque, hwaddr offset,
+                 GIC_CLEAR_MODEL(irq + i);
+             }
+             if (value & (2 << (i * 2))) {
+-                GIC_SET_TRIGGER(irq + i);
++                GIC_SET_EDGE_TRIGGER(irq + i);
+             } else {
+-                GIC_CLEAR_TRIGGER(irq + i);
++                GIC_CLEAR_EDGE_TRIGGER(irq + i);
+             }
+         }
+     } else {
+diff --git a/hw/intc/arm_gic_common.c b/hw/intc/arm_gic_common.c
+index c765850..710607b 100644
+--- a/hw/intc/arm_gic_common.c
++++ b/hw/intc/arm_gic_common.c
+@@ -51,7 +51,7 @@ static const VMStateDescription vmstate_gic_irq_state = {
+         VMSTATE_UINT8(active, gic_irq_state),
+         VMSTATE_UINT8(level, gic_irq_state),
+         VMSTATE_BOOL(model, gic_irq_state),
+-        VMSTATE_BOOL(trigger, gic_irq_state),
++        VMSTATE_BOOL(edge_trigger, gic_irq_state),
+         VMSTATE_END_OF_LIST()
+     }
+ };
+@@ -126,7 +126,7 @@ static void arm_gic_common_reset(DeviceState *dev)
+     }
+     for (i = 0; i < 16; i++) {
+         GIC_SET_ENABLED(i, ALL_CPU_MASK);
+-        GIC_SET_TRIGGER(i);
++        GIC_SET_EDGE_TRIGGER(i);
+     }
+     if (s->num_cpu == 1) {
+         /* For uniprocessor GICs all interrupts always target the sole CPU */
+diff --git a/hw/intc/gic_internal.h b/hw/intc/gic_internal.h
+index 3989fd1..efac78d 100644
+--- a/hw/intc/gic_internal.h
++++ b/hw/intc/gic_internal.h
+@@ -44,9 +44,9 @@
+ #define GIC_SET_LEVEL(irq, cm) s->irq_state[irq].level = (cm)
+ #define GIC_CLEAR_LEVEL(irq, cm) s->irq_state[irq].level &= ~(cm)
+ #define GIC_TEST_LEVEL(irq, cm) ((s->irq_state[irq].level & (cm)) != 0)
+-#define GIC_SET_TRIGGER(irq) s->irq_state[irq].trigger = true
+-#define GIC_CLEAR_TRIGGER(irq) s->irq_state[irq].trigger = false
+-#define GIC_TEST_TRIGGER(irq) s->irq_state[irq].trigger
++#define GIC_SET_EDGE_TRIGGER(irq) s->irq_state[irq].edge_trigger = true
++#define GIC_CLEAR_EDGE_TRIGGER(irq) s->irq_state[irq].edge_trigger = false
++#define GIC_TEST_EDGE_TRIGGER(irq) (s->irq_state[irq].edge_trigger)
+ #define GIC_GET_PRIORITY(irq, cpu) (((irq) < GIC_INTERNAL) ?            \
+                                     s->priority1[irq][cpu] :            \
+                                     s->priority2[(irq) - GIC_INTERNAL])
+diff --git a/include/hw/intc/arm_gic_common.h b/include/hw/intc/arm_gic_common.h
+index 4f381bd..0d232df 100644
+--- a/include/hw/intc/arm_gic_common.h
++++ b/include/hw/intc/arm_gic_common.h
+@@ -37,7 +37,7 @@ typedef struct gic_irq_state {
+     uint8_t active;
+     uint8_t level;
+     bool model; /* 0 = N:N, 1 = 1:N */
+-    bool trigger; /* nonzero = edge triggered.  */
++    bool edge_trigger; /* true: edge-triggered, false: level-triggered  */
+ } gic_irq_state;
+ 
+ typedef struct GICState {

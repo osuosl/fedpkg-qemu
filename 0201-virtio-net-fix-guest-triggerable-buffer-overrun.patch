@@ -1,4 +1,4 @@
-From f1af654ef6ff248d17514f3bfd4681c884e8c3f5 Mon Sep 17 00:00:00 2001
+From 9694b35ea442e1ac2bcb72abe4f7dcc5f0542028 Mon Sep 17 00:00:00 2001
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Date: Fri, 11 Apr 2014 15:18:08 +0300
 Subject: [PATCH] virtio-net: fix guest-triggerable buffer overrun

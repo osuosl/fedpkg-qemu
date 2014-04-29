@@ -1,4 +1,4 @@
-From ec5f34cfe586f6761d490e8e3b394f98fead3cf6 Mon Sep 17 00:00:00 2001
+From 9e4cc665c88e8dd6c1986c49ccdc66ce93e9571c Mon Sep 17 00:00:00 2001
 From: Kevin Wolf <kwolf@redhat.com>
 Date: Wed, 26 Mar 2014 13:06:06 +0100
 Subject: [PATCH] qcow2: Check maximum L1 size in qcow2_snapshot_load_tmp()
@@ -37,7 +37,7 @@ index dc8736a..d2c956c 100644
      new_l1_table = g_malloc0(align_offset(new_l1_bytes, 512));
  
 diff --git a/block/qcow2.c b/block/qcow2.c
-index 151cde8..253d8c0 100644
+index c9beb01..5dfd5ec 100644
 --- a/block/qcow2.c
 +++ b/block/qcow2.c
 @@ -516,9 +516,7 @@ static int qcow2_open(BlockDriverState *bs, QDict *options, int flags)

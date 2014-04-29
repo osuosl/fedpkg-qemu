@@ -1,4 +1,4 @@
-From 4acd1cde7a2d9809cb5a25039e47552831c00fb2 Mon Sep 17 00:00:00 2001
+From 02b066b43aad381c755645a2cfe8779e14f2a720 Mon Sep 17 00:00:00 2001
 From: Kevin Wolf <kwolf@redhat.com>
 Date: Wed, 26 Mar 2014 13:05:52 +0100
 Subject: [PATCH] qcow2: Protect against some integer overflows in bdrv_check

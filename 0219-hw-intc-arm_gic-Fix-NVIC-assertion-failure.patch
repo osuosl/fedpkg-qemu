@@ -1,0 +1,32 @@
+From beadb779fa7edda184961c62cd18bff7848b8d27 Mon Sep 17 00:00:00 2001
+From: Peter Maydell <peter.maydell@linaro.org>
+Date: Thu, 20 Feb 2014 10:35:48 +0000
+Subject: [PATCH] hw/intc/arm_gic: Fix NVIC assertion failure
+
+Commit 40d225009ef accidentally changed the behaviour of
+gic_acknowledge_irq() for the NVIC. The NVIC doesn't have SGIs,
+so this meant we hit an assertion:
+  gic_acknowledge_irq: Assertion `s->sgi_pending[irq][cpu] != 0' failed.
+
+Return NVIC acknowledge-irq to its previous behaviour, like 11MPCore.
+
+Signed-off-by: Peter Maydell <peter.maydell@linaro.org>
+Reviewed-by: Christoffer Dall <christoffer.dall@linaro.org>
+(cherry picked from commit 873169022aa58daabd10979002f8009c7e5f3f05)
+---
+ hw/intc/arm_gic.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/hw/intc/arm_gic.c b/hw/intc/arm_gic.c
+index 9ca3f03..4e0628c 100644
+--- a/hw/intc/arm_gic.c
++++ b/hw/intc/arm_gic.c
+@@ -189,7 +189,7 @@ uint32_t gic_acknowledge_irq(GICState *s, int cpu)
+     }
+     s->last_active[irq][cpu] = s->running_irq[cpu];
+ 
+-    if (s->revision == REV_11MPCORE) {
++    if (s->revision == REV_11MPCORE || s->revision == REV_NVIC) {
+         /* Clear pending flags for both level and edge triggered interrupts.
+          * Level triggered IRQs will be reasserted once they become inactive.
+          */

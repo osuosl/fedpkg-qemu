@@ -1,4 +1,4 @@
-From a0188429fb211a2e6c54a4589fb516156caa6cba Mon Sep 17 00:00:00 2001
+From e2871c69c209fe1df4478a82682d82c444c7136f Mon Sep 17 00:00:00 2001
 From: Kevin Wolf <kwolf@redhat.com>
 Date: Wed, 26 Mar 2014 13:06:04 +0100
 Subject: [PATCH] qcow2: Fix NULL dereference in qcow2_open() error path
@@ -23,7 +23,7 @@ Conflicts:
  1 file changed, 4 insertions(+), 3 deletions(-)
 
 diff --git a/block/qcow2.c b/block/qcow2.c
-index 4052c45..151cde8 100644
+index af0a45c..c9beb01 100644
 --- a/block/qcow2.c
 +++ b/block/qcow2.c
 @@ -515,9 +515,6 @@ static int qcow2_open(BlockDriverState *bs, QDict *options, int flags)

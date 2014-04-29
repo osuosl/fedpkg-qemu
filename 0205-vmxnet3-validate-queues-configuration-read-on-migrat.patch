@@ -1,4 +1,4 @@
-From b052d97f6c26ab7a24de40c3486a465816504016 Mon Sep 17 00:00:00 2001
+From 0b10529e68cce027735be048044a414379f27568 Mon Sep 17 00:00:00 2001
 From: Dmitry Fleytman <dmitry@daynix.com>
 Date: Fri, 4 Apr 2014 12:45:22 +0300
 Subject: [PATCH] vmxnet3: validate queues configuration read on migration

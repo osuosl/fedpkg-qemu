@@ -139,7 +139,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.6.2
-Release: 3%{?dist}
+Release: 4%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -299,6 +299,18 @@ Patch0206: 0206-ide-Correct-improper-smart-self-test-counter-reset-i.patch
 # Fix guest startup crashes from autotest (bz #1081610)
 Patch0207: 0207-char-serial-Fix-emptyness-check.patch
 Patch0208: 0208-char-serial-Fix-emptyness-handling.patch
+# Fix arm sd warnings with latest kernel (bz #1091548)
+Patch0209: 0209-vmstate-Add-uint32-2D-array-support.patch
+Patch0210: 0210-arm_gic-Extract-headers-hw-intc-arm_gic-_common-.h.patch
+Patch0211: 0211-arm_gic-Rename-GIC_X_TRIGGER-to-GIC_X_EDGE_TRIGGER.patch
+Patch0212: 0212-hw-arm_gic-Introduce-gic_set_priority-function.patch
+Patch0213: 0213-arm_gic-Introduce-define-for-GIC_NR_SGIS.patch
+Patch0214: 0214-arm_gic-Fix-GICD_ICPENDR-and-GICD_ISPENDR-writes.patch
+Patch0215: 0215-arm_gic-Fix-GIC-pending-behavior.patch
+Patch0216: 0216-arm_gic-Keep-track-of-SGI-sources.patch
+Patch0217: 0217-arm_gic-Support-setting-getting-binary-point-reg.patch
+Patch0218: 0218-arm_gic-Add-GICC_APRn-state-to-the-GICState.patch
+Patch0219: 0219-hw-intc-arm_gic-Fix-NVIC-assertion-failure.patch
 
 BuildRequires: SDL-devel
 BuildRequires: zlib-devel
@@ -930,6 +942,18 @@ CAC emulation development files.
 # Fix guest startup crashes from autotest (bz #1081610)
 %patch0207 -p1
 %patch0208 -p1
+# Fix arm sd warnings with latest kernel (bz #1091548)
+%patch0209 -p1
+%patch0210 -p1
+%patch0211 -p1
+%patch0212 -p1
+%patch0213 -p1
+%patch0214 -p1
+%patch0215 -p1
+%patch0216 -p1
+%patch0217 -p1
+%patch0218 -p1
+%patch0219 -p1
 
 
 %build
@@ -1637,6 +1661,10 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Tue Apr 29 2014 Cole Robinson <crobinso@redhat.com> - 2:1.6.2-4
+- Fix arm sd warnings with latest kernel (bz #1091548)
+- Fix regression in CVE backport that affects openstack (thanks lbezdick)
+
 * Fri Apr 25 2014 Cole Robinson <crobinso@redhat.com> - 2:1.6.2-3
 - Fix guest startup crashes from autotest (bz #1081610)
 

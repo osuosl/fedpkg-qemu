@@ -1,4 +1,4 @@
-From a4e71c7e314b03dc4dfad00db8daeb9bd3b50767 Mon Sep 17 00:00:00 2001
+From 9498de028804a582535816f36abacf2f297ea592 Mon Sep 17 00:00:00 2001
 From: Stefan Hajnoczi <stefanha@redhat.com>
 Date: Wed, 26 Mar 2014 13:05:55 +0100
 Subject: [PATCH] dmg: prevent out-of-bounds array access on terminator

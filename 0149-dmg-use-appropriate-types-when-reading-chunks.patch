@@ -1,4 +1,4 @@
-From 4606e72cd258bcc9ae59828c47e7ed50925a6a98 Mon Sep 17 00:00:00 2001
+From 62298cd0354f1dfa8fe14a611064f8fc5ed43f0c Mon Sep 17 00:00:00 2001
 From: Stefan Hajnoczi <stefanha@redhat.com>
 Date: Wed, 26 Mar 2014 13:05:57 +0100
 Subject: [PATCH] dmg: use appropriate types when reading chunks

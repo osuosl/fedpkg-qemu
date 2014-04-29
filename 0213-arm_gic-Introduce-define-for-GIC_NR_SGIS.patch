@@ -1,0 +1,71 @@
+From 20b9341d38dc1882aef9fea3dcd3f4981c1c61b4 Mon Sep 17 00:00:00 2001
+From: Christoffer Dall <christoffer.dall@linaro.org>
+Date: Fri, 31 Jan 2014 14:47:38 +0000
+Subject: [PATCH] arm_gic: Introduce define for GIC_NR_SGIS
+
+Instead of hardcoding 16 various places in the code, use a define to
+make it more clear what is going on.
+
+Signed-off-by: Christoffer Dall <christoffer.dall@linaro.org>
+Reviewed-by: Peter Maydell <peter.maydell@linaro.org>
+Signed-off-by: Peter Maydell <peter.maydell@linaro.org>
+(cherry picked from commit 41ab7b55108e2699e7c2e77788465cb52a0b2c08)
+---
+ hw/intc/arm_gic.c                | 17 +++++++++++------
+ include/hw/intc/arm_gic_common.h |  1 +
+ 2 files changed, 12 insertions(+), 6 deletions(-)
+
+diff --git a/hw/intc/arm_gic.c b/hw/intc/arm_gic.c
+index 6c59650..0ce11ac 100644
+--- a/hw/intc/arm_gic.c
++++ b/hw/intc/arm_gic.c
+@@ -380,8 +380,10 @@ static void gic_dist_writeb(void *opaque, hwaddr offset,
+         irq = (offset - 0x100) * 8 + GIC_BASE_IRQ;
+         if (irq >= s->num_irq)
+             goto bad_reg;
+-        if (irq < 16)
+-          value = 0xff;
++        if (irq < GIC_NR_SGIS) {
++            value = 0xff;
++        }
++
+         for (i = 0; i < 8; i++) {
+             if (value & (1 << i)) {
+                 int mask =
+@@ -406,8 +408,10 @@ static void gic_dist_writeb(void *opaque, hwaddr offset,
+         irq = (offset - 0x180) * 8 + GIC_BASE_IRQ;
+         if (irq >= s->num_irq)
+             goto bad_reg;
+-        if (irq < 16)
+-          value = 0;
++        if (irq < GIC_NR_SGIS) {
++            value = 0;
++        }
++
+         for (i = 0; i < 8; i++) {
+             if (value & (1 << i)) {
+                 int cm = (irq < GIC_INTERNAL) ? (1 << cpu) : ALL_CPU_MASK;
+@@ -423,8 +427,9 @@ static void gic_dist_writeb(void *opaque, hwaddr offset,
+         irq = (offset - 0x200) * 8 + GIC_BASE_IRQ;
+         if (irq >= s->num_irq)
+             goto bad_reg;
+-        if (irq < 16)
+-          irq = 0;
++        if (irq < GIC_NR_SGIS) {
++            irq = 0;
++        }
+ 
+         for (i = 0; i < 8; i++) {
+             if (value & (1 << i)) {
+diff --git a/include/hw/intc/arm_gic_common.h b/include/hw/intc/arm_gic_common.h
+index 0d232df..8a2aa00 100644
+--- a/include/hw/intc/arm_gic_common.h
++++ b/include/hw/intc/arm_gic_common.h
+@@ -27,6 +27,7 @@
+ #define GIC_MAXIRQ 1020
+ /* First 32 are private to each CPU (SGIs and PPIs). */
+ #define GIC_INTERNAL 32
++#define GIC_NR_SGIS 16
+ /* Maximum number of possible CPU interfaces, determined by GIC architecture */
+ #define GIC_NCPU 8
+ 

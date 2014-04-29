@@ -1,0 +1,105 @@
+From 7700d225b357c66a6949834f069ea3949890119b Mon Sep 17 00:00:00 2001
+From: Christoffer Dall <christoffer.dall@linaro.org>
+Date: Mon, 18 Nov 2013 19:26:33 -0800
+Subject: [PATCH] arm_gic: Add GICC_APRn state to the GICState
+
+The GICC_APRn registers are not currently supported by the ARM GIC v2.0
+emulation.  This patch adds the missing state.
+
+Note that we also change the number of APRs to use a define GIC_NR_APRS
+based on the maximum number of preemption levels.  This patch also adds
+RAZ/WI accessors for the four registers on the emulated CPU interface.
+
+Reviewed-by: Peter Maydell <peter.maydell@linaro.org>
+Signed-off-by: Christoffer Dall <christoffer.dall@linaro.org>
+Signed-off-by: Peter Maydell <peter.maydell@linaro.org>
+(cherry picked from commit a9d477c4e3d614409a48d12f34624c2dd9f1ec2d)
+---
+ hw/intc/arm_gic.c                |  5 +++++
+ hw/intc/arm_gic_common.c         |  5 +++--
+ include/hw/intc/arm_gic_common.h | 19 +++++++++++++++++++
+ 3 files changed, 27 insertions(+), 2 deletions(-)
+
+diff --git a/hw/intc/arm_gic.c b/hw/intc/arm_gic.c
+index d31892d..9ca3f03 100644
+--- a/hw/intc/arm_gic.c
++++ b/hw/intc/arm_gic.c
+@@ -678,6 +678,8 @@ static uint32_t gic_cpu_read(GICState *s, int cpu, int offset)
+         return s->current_pending[cpu];
+     case 0x1c: /* Aliased Binary Point */
+         return s->abpr[cpu];
++    case 0xd0: case 0xd4: case 0xd8: case 0xdc:
++        return s->apr[(offset - 0xd0) / 4][cpu];
+     default:
+         qemu_log_mask(LOG_GUEST_ERROR,
+                       "gic_cpu_read: Bad offset %x\n", (int)offset);
+@@ -705,6 +707,9 @@ static void gic_cpu_write(GICState *s, int cpu, int offset, uint32_t value)
+             s->abpr[cpu] = (value & 0x7);
+         }
+         break;
++    case 0xd0: case 0xd4: case 0xd8: case 0xdc:
++        qemu_log_mask(LOG_UNIMP, "Writing APR not implemented\n");
++        break;
+     default:
+         qemu_log_mask(LOG_GUEST_ERROR,
+                       "gic_cpu_write: Bad offset %x\n", (int)offset);
+diff --git a/hw/intc/arm_gic_common.c b/hw/intc/arm_gic_common.c
+index 7966985..ec6286b 100644
+--- a/hw/intc/arm_gic_common.c
++++ b/hw/intc/arm_gic_common.c
+@@ -58,8 +58,8 @@ static const VMStateDescription vmstate_gic_irq_state = {
+ 
+ static const VMStateDescription vmstate_gic = {
+     .name = "arm_gic",
+-    .version_id = 6,
+-    .minimum_version_id = 6,
++    .version_id = 7,
++    .minimum_version_id = 7,
+     .pre_save = gic_pre_save,
+     .post_load = gic_post_load,
+     .fields = (VMStateField[]) {
+@@ -78,6 +78,7 @@ static const VMStateDescription vmstate_gic = {
+         VMSTATE_UINT16_ARRAY(current_pending, GICState, GIC_NCPU),
+         VMSTATE_UINT8_ARRAY(bpr, GICState, GIC_NCPU),
+         VMSTATE_UINT8_ARRAY(abpr, GICState, GIC_NCPU),
++        VMSTATE_UINT32_2DARRAY(apr, GICState, GIC_NR_APRS, GIC_NCPU),
+         VMSTATE_END_OF_LIST()
+     }
+ };
+diff --git a/include/hw/intc/arm_gic_common.h b/include/hw/intc/arm_gic_common.h
+index 983c3cf..89384c2 100644
+--- a/include/hw/intc/arm_gic_common.h
++++ b/include/hw/intc/arm_gic_common.h
+@@ -31,6 +31,9 @@
+ /* Maximum number of possible CPU interfaces, determined by GIC architecture */
+ #define GIC_NCPU 8
+ 
++#define MAX_NR_GROUP_PRIO 128
++#define GIC_NR_APRS (MAX_NR_GROUP_PRIO / 32)
++
+ typedef struct gic_irq_state {
+     /* The enable bits are only banked for per-cpu interrupts.  */
+     uint8_t enabled;
+@@ -75,6 +78,22 @@ typedef struct GICState {
+     uint8_t  bpr[GIC_NCPU];
+     uint8_t  abpr[GIC_NCPU];
+ 
++    /* The APR is implementation defined, so we choose a layout identical to
++     * the KVM ABI layout for QEMU's implementation of the gic:
++     * If an interrupt for preemption level X is active, then
++     *   APRn[X mod 32] == 0b1,  where n = X / 32
++     * otherwise the bit is clear.
++     *
++     * TODO: rewrite the interrupt acknowlege/complete routines to use
++     * the APR registers to track the necessary information to update
++     * s->running_priority[] on interrupt completion (ie completely remove
++     * last_active[][] and running_irq[]). This will be necessary if we ever
++     * want to support TCG<->KVM migration, or TCG guests which can
++     * do power management involving powering down and restarting
++     * the GIC.
++     */
++    uint32_t apr[GIC_NR_APRS][GIC_NCPU];
++
+     uint32_t num_cpu;
+ 
+     MemoryRegion iomem; /* Distributor */

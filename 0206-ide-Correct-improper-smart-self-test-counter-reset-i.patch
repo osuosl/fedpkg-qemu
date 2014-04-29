@@ -1,4 +1,4 @@
-From 1eea31fa88d954546c627ea9c43a1c2fd3222cf6 Mon Sep 17 00:00:00 2001
+From 282af5229f9eb38a322034289648619c4c780fd0 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Beno=C3=AEt=20Canet?= <benoit.canet@irqsave.net>
 Date: Sat, 12 Apr 2014 22:59:50 +0200
 Subject: [PATCH] ide: Correct improper smart self test counter reset in ide

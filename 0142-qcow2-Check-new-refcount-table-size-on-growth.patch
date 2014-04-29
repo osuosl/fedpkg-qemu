@@ -1,4 +1,4 @@
-From 26a8e469db49e98d805a502b01e1e46387a8098a Mon Sep 17 00:00:00 2001
+From a8f7f240d8a02c7bebcdfd912001588c1422619f Mon Sep 17 00:00:00 2001
 From: Kevin Wolf <kwolf@redhat.com>
 Date: Wed, 26 Mar 2014 13:05:50 +0100
 Subject: [PATCH] qcow2: Check new refcount table size on growth
@@ -35,7 +35,7 @@ index 3e473bd..3cdcfb6 100644
      uint64_t table_size = next_refcount_table_size(s, blocks_used + 1);
      uint64_t last_table_size;
 diff --git a/block/qcow2.c b/block/qcow2.c
-index 6112859..4052c45 100644
+index 5d45036..af0a45c 100644
 --- a/block/qcow2.c
 +++ b/block/qcow2.c
 @@ -487,9 +487,7 @@ static int qcow2_open(BlockDriverState *bs, QDict *options, int flags)

@@ -1,0 +1,313 @@
+From b7ad87a31916871d523a15981c658a45a6e44b40 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Andreas=20F=C3=A4rber?= <afaerber@suse.de>
+Date: Tue, 23 Jul 2013 03:37:49 +0200
+Subject: [PATCH] arm_gic: Extract headers hw/intc/arm_gic{,_common}.h
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Rename NCPU to GIC_NCPU and move GICState away from gic_internal.h.
+
+Reviewed-by: Peter Maydell <peter.maydell@linaro.org>
+Signed-off-by: Andreas Färber <afaerber@suse.de>
+(cherry picked from commit 83728796ad3f2ce7d6162c1cb894528b12915646)
+---
+ hw/intc/arm_gic_common.c         | 18 ++++----
+ hw/intc/gic_internal.h           | 80 +---------------------------------
+ include/hw/intc/arm_gic.h        | 42 ++++++++++++++++++
+ include/hw/intc/arm_gic_common.h | 92 ++++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 145 insertions(+), 87 deletions(-)
+ create mode 100644 include/hw/intc/arm_gic.h
+ create mode 100644 include/hw/intc/arm_gic_common.h
+
+diff --git a/hw/intc/arm_gic_common.c b/hw/intc/arm_gic_common.c
+index 709b5c2..c765850 100644
+--- a/hw/intc/arm_gic_common.c
++++ b/hw/intc/arm_gic_common.c
+@@ -64,17 +64,17 @@ static const VMStateDescription vmstate_gic = {
+     .post_load = gic_post_load,
+     .fields = (VMStateField[]) {
+         VMSTATE_BOOL(enabled, GICState),
+-        VMSTATE_BOOL_ARRAY(cpu_enabled, GICState, NCPU),
++        VMSTATE_BOOL_ARRAY(cpu_enabled, GICState, GIC_NCPU),
+         VMSTATE_STRUCT_ARRAY(irq_state, GICState, GIC_MAXIRQ, 1,
+                              vmstate_gic_irq_state, gic_irq_state),
+         VMSTATE_UINT8_ARRAY(irq_target, GICState, GIC_MAXIRQ),
+-        VMSTATE_UINT8_2DARRAY(priority1, GICState, GIC_INTERNAL, NCPU),
++        VMSTATE_UINT8_2DARRAY(priority1, GICState, GIC_INTERNAL, GIC_NCPU),
+         VMSTATE_UINT8_ARRAY(priority2, GICState, GIC_MAXIRQ - GIC_INTERNAL),
+-        VMSTATE_UINT16_2DARRAY(last_active, GICState, GIC_MAXIRQ, NCPU),
+-        VMSTATE_UINT16_ARRAY(priority_mask, GICState, NCPU),
+-        VMSTATE_UINT16_ARRAY(running_irq, GICState, NCPU),
+-        VMSTATE_UINT16_ARRAY(running_priority, GICState, NCPU),
+-        VMSTATE_UINT16_ARRAY(current_pending, GICState, NCPU),
++        VMSTATE_UINT16_2DARRAY(last_active, GICState, GIC_MAXIRQ, GIC_NCPU),
++        VMSTATE_UINT16_ARRAY(priority_mask, GICState, GIC_NCPU),
++        VMSTATE_UINT16_ARRAY(running_irq, GICState, GIC_NCPU),
++        VMSTATE_UINT16_ARRAY(running_priority, GICState, GIC_NCPU),
++        VMSTATE_UINT16_ARRAY(current_pending, GICState, GIC_NCPU),
+         VMSTATE_END_OF_LIST()
+     }
+ };
+@@ -84,9 +84,9 @@ static void arm_gic_common_realize(DeviceState *dev, Error **errp)
+     GICState *s = ARM_GIC_COMMON(dev);
+     int num_irq = s->num_irq;
+ 
+-    if (s->num_cpu > NCPU) {
++    if (s->num_cpu > GIC_NCPU) {
+         error_setg(errp, "requested %u CPUs exceeds GIC maximum %d",
+-                   s->num_cpu, NCPU);
++                   s->num_cpu, GIC_NCPU);
+         return;
+     }
+     s->num_irq += GIC_BASE_IRQ;
+diff --git a/hw/intc/gic_internal.h b/hw/intc/gic_internal.h
+index 1426437..3989fd1 100644
+--- a/hw/intc/gic_internal.h
++++ b/hw/intc/gic_internal.h
+@@ -21,16 +21,9 @@
+ #ifndef QEMU_ARM_GIC_INTERNAL_H
+ #define QEMU_ARM_GIC_INTERNAL_H
+ 
+-#include "hw/sysbus.h"
++#include "hw/intc/arm_gic.h"
+ 
+-/* Maximum number of possible interrupts, determined by the GIC architecture */
+-#define GIC_MAXIRQ 1020
+-/* First 32 are private to each CPU (SGIs and PPIs). */
+-#define GIC_INTERNAL 32
+-/* Maximum number of possible CPU interfaces, determined by GIC architecture */
+-#define NCPU 8
+-
+-#define ALL_CPU_MASK ((unsigned)(((1 << NCPU) - 1)))
++#define ALL_CPU_MASK ((unsigned)(((1 << GIC_NCPU) - 1)))
+ 
+ /* The NVIC has 16 internal vectors.  However these are not exposed
+    through the normal GIC interface.  */
+@@ -59,48 +52,6 @@
+                                     s->priority2[(irq) - GIC_INTERNAL])
+ #define GIC_TARGET(irq) s->irq_target[irq]
+ 
+-typedef struct gic_irq_state {
+-    /* The enable bits are only banked for per-cpu interrupts.  */
+-    uint8_t enabled;
+-    uint8_t pending;
+-    uint8_t active;
+-    uint8_t level;
+-    bool model; /* 0 = N:N, 1 = 1:N */
+-    bool trigger; /* nonzero = edge triggered.  */
+-} gic_irq_state;
+-
+-typedef struct GICState {
+-    /*< private >*/
+-    SysBusDevice parent_obj;
+-    /*< public >*/
+-
+-    qemu_irq parent_irq[NCPU];
+-    bool enabled;
+-    bool cpu_enabled[NCPU];
+-
+-    gic_irq_state irq_state[GIC_MAXIRQ];
+-    uint8_t irq_target[GIC_MAXIRQ];
+-    uint8_t priority1[GIC_INTERNAL][NCPU];
+-    uint8_t priority2[GIC_MAXIRQ - GIC_INTERNAL];
+-    uint16_t last_active[GIC_MAXIRQ][NCPU];
+-
+-    uint16_t priority_mask[NCPU];
+-    uint16_t running_irq[NCPU];
+-    uint16_t running_priority[NCPU];
+-    uint16_t current_pending[NCPU];
+-
+-    uint32_t num_cpu;
+-
+-    MemoryRegion iomem; /* Distributor */
+-    /* This is just so we can have an opaque pointer which identifies
+-     * both this GIC and which CPU interface we should be accessing.
+-     */
+-    struct GICState *backref[NCPU];
+-    MemoryRegion cpuiomem[NCPU+1]; /* CPU interfaces */
+-    uint32_t num_irq;
+-    uint32_t revision;
+-} GICState;
+-
+ /* The special cases for the revision property: */
+ #define REV_11MPCORE 0
+ #define REV_NVIC 0xffffffff
+@@ -111,31 +62,4 @@ void gic_complete_irq(GICState *s, int cpu, int irq);
+ void gic_update(GICState *s);
+ void gic_init_irqs_and_distributor(GICState *s, int num_irq);
+ 
+-#define TYPE_ARM_GIC_COMMON "arm_gic_common"
+-#define ARM_GIC_COMMON(obj) \
+-     OBJECT_CHECK(GICState, (obj), TYPE_ARM_GIC_COMMON)
+-#define ARM_GIC_COMMON_CLASS(klass) \
+-     OBJECT_CLASS_CHECK(ARMGICCommonClass, (klass), TYPE_ARM_GIC_COMMON)
+-#define ARM_GIC_COMMON_GET_CLASS(obj) \
+-     OBJECT_GET_CLASS(ARMGICCommonClass, (obj), TYPE_ARM_GIC_COMMON)
+-
+-typedef struct ARMGICCommonClass {
+-    SysBusDeviceClass parent_class;
+-    void (*pre_save)(GICState *s);
+-    void (*post_load)(GICState *s);
+-} ARMGICCommonClass;
+-
+-#define TYPE_ARM_GIC "arm_gic"
+-#define ARM_GIC(obj) \
+-     OBJECT_CHECK(GICState, (obj), TYPE_ARM_GIC)
+-#define ARM_GIC_CLASS(klass) \
+-     OBJECT_CLASS_CHECK(ARMGICClass, (klass), TYPE_ARM_GIC)
+-#define ARM_GIC_GET_CLASS(obj) \
+-     OBJECT_GET_CLASS(ARMGICClass, (obj), TYPE_ARM_GIC)
+-
+-typedef struct ARMGICClass {
+-    ARMGICCommonClass parent_class;
+-    DeviceRealize parent_realize;
+-} ARMGICClass;
+-
+ #endif /* !QEMU_ARM_GIC_INTERNAL_H */
+diff --git a/include/hw/intc/arm_gic.h b/include/hw/intc/arm_gic.h
+new file mode 100644
+index 0000000..0971e37
+--- /dev/null
++++ b/include/hw/intc/arm_gic.h
+@@ -0,0 +1,42 @@
++/*
++ * ARM GIC support
++ *
++ * Copyright (c) 2012 Linaro Limited
++ * Written by Peter Maydell
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation, either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License along
++ * with this program; if not, see <http://www.gnu.org/licenses/>.
++ */
++
++#ifndef HW_ARM_GIC_H
++#define HW_ARM_GIC_H
++
++#include "arm_gic_common.h"
++
++#define TYPE_ARM_GIC "arm_gic"
++#define ARM_GIC(obj) \
++     OBJECT_CHECK(GICState, (obj), TYPE_ARM_GIC)
++#define ARM_GIC_CLASS(klass) \
++     OBJECT_CLASS_CHECK(ARMGICClass, (klass), TYPE_ARM_GIC)
++#define ARM_GIC_GET_CLASS(obj) \
++     OBJECT_GET_CLASS(ARMGICClass, (obj), TYPE_ARM_GIC)
++
++typedef struct ARMGICClass {
++    /*< private >*/
++    ARMGICCommonClass parent_class;
++    /*< public >*/
++
++    DeviceRealize parent_realize;
++} ARMGICClass;
++
++#endif
+diff --git a/include/hw/intc/arm_gic_common.h b/include/hw/intc/arm_gic_common.h
+new file mode 100644
+index 0000000..4f381bd
+--- /dev/null
++++ b/include/hw/intc/arm_gic_common.h
+@@ -0,0 +1,92 @@
++/*
++ * ARM GIC support
++ *
++ * Copyright (c) 2012 Linaro Limited
++ * Written by Peter Maydell
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation, either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License along
++ * with this program; if not, see <http://www.gnu.org/licenses/>.
++ */
++
++#ifndef HW_ARM_GIC_COMMON_H
++#define HW_ARM_GIC_COMMON_H
++
++#include "hw/sysbus.h"
++
++/* Maximum number of possible interrupts, determined by the GIC architecture */
++#define GIC_MAXIRQ 1020
++/* First 32 are private to each CPU (SGIs and PPIs). */
++#define GIC_INTERNAL 32
++/* Maximum number of possible CPU interfaces, determined by GIC architecture */
++#define GIC_NCPU 8
++
++typedef struct gic_irq_state {
++    /* The enable bits are only banked for per-cpu interrupts.  */
++    uint8_t enabled;
++    uint8_t pending;
++    uint8_t active;
++    uint8_t level;
++    bool model; /* 0 = N:N, 1 = 1:N */
++    bool trigger; /* nonzero = edge triggered.  */
++} gic_irq_state;
++
++typedef struct GICState {
++    /*< private >*/
++    SysBusDevice parent_obj;
++    /*< public >*/
++
++    qemu_irq parent_irq[GIC_NCPU];
++    bool enabled;
++    bool cpu_enabled[GIC_NCPU];
++
++    gic_irq_state irq_state[GIC_MAXIRQ];
++    uint8_t irq_target[GIC_MAXIRQ];
++    uint8_t priority1[GIC_INTERNAL][GIC_NCPU];
++    uint8_t priority2[GIC_MAXIRQ - GIC_INTERNAL];
++    uint16_t last_active[GIC_MAXIRQ][GIC_NCPU];
++
++    uint16_t priority_mask[GIC_NCPU];
++    uint16_t running_irq[GIC_NCPU];
++    uint16_t running_priority[GIC_NCPU];
++    uint16_t current_pending[GIC_NCPU];
++
++    uint32_t num_cpu;
++
++    MemoryRegion iomem; /* Distributor */
++    /* This is just so we can have an opaque pointer which identifies
++     * both this GIC and which CPU interface we should be accessing.
++     */
++    struct GICState *backref[GIC_NCPU];
++    MemoryRegion cpuiomem[GIC_NCPU + 1]; /* CPU interfaces */
++    uint32_t num_irq;
++    uint32_t revision;
++} GICState;
++
++#define TYPE_ARM_GIC_COMMON "arm_gic_common"
++#define ARM_GIC_COMMON(obj) \
++     OBJECT_CHECK(GICState, (obj), TYPE_ARM_GIC_COMMON)
++#define ARM_GIC_COMMON_CLASS(klass) \
++     OBJECT_CLASS_CHECK(ARMGICCommonClass, (klass), TYPE_ARM_GIC_COMMON)
++#define ARM_GIC_COMMON_GET_CLASS(obj) \
++     OBJECT_GET_CLASS(ARMGICCommonClass, (obj), TYPE_ARM_GIC_COMMON)
++
++typedef struct ARMGICCommonClass {
++    /*< private >*/
++    SysBusDeviceClass parent_class;
++    /*< public >*/
++
++    void (*pre_save)(GICState *s);
++    void (*post_load)(GICState *s);
++} ARMGICCommonClass;
++
++#endif

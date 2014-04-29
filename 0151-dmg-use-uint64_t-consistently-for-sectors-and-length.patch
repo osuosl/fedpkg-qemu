@@ -1,4 +1,4 @@
-From f9a7348f91b3d5fc9256d39b513d97ae74a4d601 Mon Sep 17 00:00:00 2001
+From 0d669d4204fd80a65142aadc5363de811634ed05 Mon Sep 17 00:00:00 2001
 From: Stefan Hajnoczi <stefanha@redhat.com>
 Date: Wed, 26 Mar 2014 13:05:59 +0100
 Subject: [PATCH] dmg: use uint64_t consistently for sectors and lengths

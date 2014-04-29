@@ -1,0 +1,63 @@
+From 517ca103f039a560487d416359ef4c9338cbd833 Mon Sep 17 00:00:00 2001
+From: Christoffer Dall <christoffer.dall@linaro.org>
+Date: Fri, 20 Dec 2013 22:09:33 -0800
+Subject: [PATCH] hw: arm_gic: Introduce gic_set_priority function
+
+To make the code slightly cleaner to look at and make the save/restore
+code easier to understand, introduce this function to set the priority of
+interrupts.
+
+Reviewed-by: Peter Maydell <peter.maydell@linaro.org>
+Signed-off-by: Christoffer Dall <christoffer.dall@linaro.org>
+Message-id: 1387606179-22709-3-git-send-email-christoffer.dall@linaro.org
+Signed-off-by: Peter Maydell <peter.maydell@linaro.org>
+(cherry picked from commit 9df90ad078ec782d1339bd6879b6ea117f9759f7)
+---
+ hw/intc/arm_gic.c      | 15 ++++++++++-----
+ hw/intc/gic_internal.h |  1 +
+ 2 files changed, 11 insertions(+), 5 deletions(-)
+
+diff --git a/hw/intc/arm_gic.c b/hw/intc/arm_gic.c
+index 27c258a..6c59650 100644
+--- a/hw/intc/arm_gic.c
++++ b/hw/intc/arm_gic.c
+@@ -168,6 +168,15 @@ uint32_t gic_acknowledge_irq(GICState *s, int cpu)
+     return new_irq;
+ }
+ 
++void gic_set_priority(GICState *s, int cpu, int irq, uint8_t val)
++{
++    if (irq < GIC_INTERNAL) {
++        s->priority1[irq][cpu] = val;
++    } else {
++        s->priority2[(irq) - GIC_INTERNAL] = val;
++    }
++}
++
+ void gic_complete_irq(GICState *s, int cpu, int irq)
+ {
+     int update = 0;
+@@ -443,11 +452,7 @@ static void gic_dist_writeb(void *opaque, hwaddr offset,
+         irq = (offset - 0x400) + GIC_BASE_IRQ;
+         if (irq >= s->num_irq)
+             goto bad_reg;
+-        if (irq < GIC_INTERNAL) {
+-            s->priority1[irq][cpu] = value;
+-        } else {
+-            s->priority2[irq - GIC_INTERNAL] = value;
+-        }
++        gic_set_priority(s, cpu, irq, value);
+     } else if (offset < 0xc00) {
+         /* Interrupt CPU Target. RAZ/WI on uniprocessor GICs, with the
+          * annoying exception of the 11MPCore's GIC.
+diff --git a/hw/intc/gic_internal.h b/hw/intc/gic_internal.h
+index efac78d..8c02d58 100644
+--- a/hw/intc/gic_internal.h
++++ b/hw/intc/gic_internal.h
+@@ -61,5 +61,6 @@ uint32_t gic_acknowledge_irq(GICState *s, int cpu);
+ void gic_complete_irq(GICState *s, int cpu, int irq);
+ void gic_update(GICState *s);
+ void gic_init_irqs_and_distributor(GICState *s, int num_irq);
++void gic_set_priority(GICState *s, int cpu, int irq, uint8_t val);
+ 
+ #endif /* !QEMU_ARM_GIC_INTERNAL_H */

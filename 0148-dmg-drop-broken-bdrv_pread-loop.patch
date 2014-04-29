@@ -1,4 +1,4 @@
-From a3cbb678e63ee098936eee820a0bc9901d1c4406 Mon Sep 17 00:00:00 2001
+From 7fe86d938be67ed6856c73985f4a1cf035a0399e Mon Sep 17 00:00:00 2001
 From: Stefan Hajnoczi <stefanha@redhat.com>
 Date: Wed, 26 Mar 2014 13:05:56 +0100
 Subject: [PATCH] dmg: drop broken bdrv_pread() loop

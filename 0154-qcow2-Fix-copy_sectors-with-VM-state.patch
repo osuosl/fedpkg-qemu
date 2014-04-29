@@ -1,4 +1,4 @@
-From 56ffaa11b81f1a38282f2e78e8248fe24d4be37a Mon Sep 17 00:00:00 2001
+From 342d5cf06f79a6d1de9575e8fb99ae714b43371c Mon Sep 17 00:00:00 2001
 From: Kevin Wolf <kwolf@redhat.com>
 Date: Wed, 26 Mar 2014 13:06:03 +0100
 Subject: [PATCH] qcow2: Fix copy_sectors() with VM state

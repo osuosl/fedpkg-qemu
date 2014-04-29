@@ -1,4 +1,4 @@
-From c85b5240d01ae594864bb5c3f353cd8cf6333c3e Mon Sep 17 00:00:00 2001
+From 87e8497708f3aec3f065aed5096b4ac32b01f17e Mon Sep 17 00:00:00 2001
 From: Kevin Wolf <kwolf@redhat.com>
 Date: Wed, 26 Mar 2014 13:06:05 +0100
 Subject: [PATCH] qcow2: Fix L1 allocation size in qcow2_snapshot_load_tmp()

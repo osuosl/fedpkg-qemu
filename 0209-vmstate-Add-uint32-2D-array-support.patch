@@ -1,0 +1,35 @@
+From ccf50e25b0c111f58be8c2084220410dd2a7e22a Mon Sep 17 00:00:00 2001
+From: Christoffer Dall <christoffer.dall@linaro.org>
+Date: Fri, 20 Sep 2013 20:35:06 +0100
+Subject: [PATCH] vmstate: Add uint32 2D-array support
+
+Add support for saving VMState of 2D arrays of uint32 values.
+
+Reviewed-by: Peter Maydell <peter.maydell@linaro.org>
+Signed-off-by: Christoffer Dall <christoffer.dall@linaro.org>
+Signed-off-by: Peter Maydell <peter.maydell@linaro.org>
+(cherry picked from commit a1b1d277cdaac98f25be249e7819aac781a35530)
+---
+ include/migration/vmstate.h | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/include/migration/vmstate.h b/include/migration/vmstate.h
+index 1c31b5d..e5538c7 100644
+--- a/include/migration/vmstate.h
++++ b/include/migration/vmstate.h
+@@ -633,9 +633,15 @@ extern const VMStateInfo vmstate_info_bitmap;
+ #define VMSTATE_UINT32_ARRAY_V(_f, _s, _n, _v)                        \
+     VMSTATE_ARRAY(_f, _s, _n, _v, vmstate_info_uint32, uint32_t)
+ 
++#define VMSTATE_UINT32_2DARRAY_V(_f, _s, _n1, _n2, _v)                \
++    VMSTATE_2DARRAY(_f, _s, _n1, _n2, _v, vmstate_info_uint32, uint32_t)
++
+ #define VMSTATE_UINT32_ARRAY(_f, _s, _n)                              \
+     VMSTATE_UINT32_ARRAY_V(_f, _s, _n, 0)
+ 
++#define VMSTATE_UINT32_2DARRAY(_f, _s, _n1, _n2)                      \
++    VMSTATE_UINT32_2DARRAY_V(_f, _s, _n1, _n2, 0)
++
+ #define VMSTATE_UINT64_ARRAY_V(_f, _s, _n, _v)                        \
+     VMSTATE_ARRAY(_f, _s, _n, _v, vmstate_info_uint64, uint64_t)
+ 

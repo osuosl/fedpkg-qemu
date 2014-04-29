@@ -1,4 +1,4 @@
-From 265b10ea4a26d30ef9d1e083a96b420d659a2705 Mon Sep 17 00:00:00 2001
+From 78c951e761e8ce7b8503750bc0fc7ff4d70c4926 Mon Sep 17 00:00:00 2001
 From: Kevin Wolf <kwolf@redhat.com>
 Date: Fri, 28 Mar 2014 18:06:31 +0100
 Subject: [PATCH] qcow2: Don't rely on free_cluster_index in
@@ -35,8 +35,8 @@ Conflicts:
 	tests/qemu-iotests/080.out
 ---
  block/qcow2-refcount.c | 72 ++++++++++++++++++++++++++------------------------
- block/qcow2.c          |  9 ++++---
- 2 files changed, 42 insertions(+), 39 deletions(-)
+ block/qcow2.c          | 11 ++++----
+ 2 files changed, 43 insertions(+), 40 deletions(-)
 
 diff --git a/block/qcow2-refcount.c b/block/qcow2-refcount.c
 index 1308151..d784dd6 100644
@@ -188,9 +188,18 @@ index 1308151..d784dd6 100644
  }
  
 diff --git a/block/qcow2.c b/block/qcow2.c
-index 10bfaaf..6112859 100644
+index 10bfaaf..5d45036 100644
 --- a/block/qcow2.c
 +++ b/block/qcow2.c
+@@ -1385,7 +1385,7 @@ static int qcow2_create2(const char *filename, int64_t total_size,
+      */
+     BlockDriverState* bs;
+     QCowHeader *header;
+-    uint8_t* refcount_table;
++    uint64_t* refcount_table;
+     int ret;
+ 
+     ret = bdrv_create_file(filename, options);
 @@ -1431,9 +1431,10 @@ static int qcow2_create2(const char *filename, int64_t total_size,
          goto out;
      }
