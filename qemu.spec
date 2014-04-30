@@ -45,7 +45,7 @@
 %global SLOF_gittagdate 20130430
 
 %if %{without separate_kvm}
-%global kvm_archs %{ix86} x86_64 ppc64 s390x armv7hl
+%global kvm_archs %{ix86} x86_64 ppc64 s390x armv7hl aarch64
 %else
 %global kvm_archs %{ix86} ppc64 s390x armv7hl
 %endif
@@ -158,7 +158,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 2.0.0
-Release: 2%{?dist}
+Release: 3%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -1493,6 +1493,9 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Wed Apr 30 2014 Peter Robinson <pbrobinson@fedoraproject.org> 2:2.0.0-3
+- Fix aarch64 build
+
 * Mon Apr 21 2014 Cole Robinson <crobinso@redhat.com> - 2:2.0.0-2
 - Don't use SDL2 API support, it's incomplete
 - Build qemu-system-aarch64 only on aarch64 for now
