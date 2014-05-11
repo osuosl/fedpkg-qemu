@@ -139,7 +139,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.6.2
-Release: 4%{?dist}
+Release: 5%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -311,6 +311,31 @@ Patch0216: 0216-arm_gic-Keep-track-of-SGI-sources.patch
 Patch0217: 0217-arm_gic-Support-setting-getting-binary-point-reg.patch
 Patch0218: 0218-arm_gic-Add-GICC_APRn-state-to-the-GICState.patch
 Patch0219: 0219-hw-intc-arm_gic-Fix-NVIC-assertion-failure.patch
+
+# Migration CVEs: CVE-2014-0182 etc.
+Patch0301: 0301-vmstate-add-VMS_MUST_EXIST.patch
+Patch0302: 0302-vmstate-add-VMSTATE_VALIDATE.patch
+Patch0303: 0303-virtio-net-fix-buffer-overflow-on-invalid-state-load.patch
+Patch0304: 0304-virtio-net-out-of-bounds-buffer-write-on-invalid-sta.patch
+Patch0305: 0305-virtio-out-of-bounds-buffer-write-on-invalid-state-l.patch
+Patch0306: 0306-ahci-fix-buffer-overrun-on-invalid-state-load.patch
+Patch0307: 0307-hpet-fix-buffer-overrun-on-invalid-state-load.patch
+Patch0308: 0308-hw-pci-pcie_aer.c-fix-buffer-overruns-on-invalid-sta.patch
+Patch0309: 0309-pl022-fix-buffer-overun-on-invalid-state-load.patch
+Patch0310: 0310-vmstate-fix-buffer-overflow-in-target-arm-machine.c.patch
+Patch0311: 0311-virtio-avoid-buffer-overrun-on-incoming-migration.patch
+Patch0312: 0312-virtio-validate-num_sg-when-mapping.patch
+Patch0313: 0313-pxa2xx-avoid-buffer-overrun-on-incoming-migration.patch
+Patch0314: 0314-ssd0323-fix-buffer-overun-on-invalid-state-load.patch
+Patch0315: 0315-tsc210x-fix-buffer-overrun-on-invalid-state-load.patch
+Patch0316: 0316-zaurus-fix-buffer-overrun-on-invalid-state-load.patch
+Patch0317: 0317-virtio-scsi-fix-buffer-overrun-on-invalid-state-load.patch
+Patch0318: 0318-vmstate-s-VMSTATE_INT32_LE-VMSTATE_INT32_POSITIVE_LE.patch
+Patch0319: 0319-usb-sanity-check-setup_index-setup_len-in-post_load.patch
+Patch0320: 0320-ssi-sd-fix-buffer-overrun-on-invalid-state-load.patch
+Patch0321: 0321-openpic-avoid-buffer-overrun-on-incoming-migration.patch
+Patch0322: 0322-virtio-net-out-of-bounds-buffer-write-on-load.patch
+Patch0323: 0323-virtio-validate-config_len-on-load.patch
 
 BuildRequires: SDL-devel
 BuildRequires: zlib-devel
@@ -954,6 +979,31 @@ CAC emulation development files.
 %patch0217 -p1
 %patch0218 -p1
 %patch0219 -p1
+
+# Migration CVEs: CVE-2014-0182 etc.
+%patch0301 -p1
+%patch0302 -p1
+%patch0303 -p1
+%patch0304 -p1
+%patch0305 -p1
+%patch0306 -p1
+%patch0307 -p1
+%patch0308 -p1
+%patch0309 -p1
+%patch0310 -p1
+%patch0311 -p1
+%patch0312 -p1
+%patch0313 -p1
+%patch0314 -p1
+%patch0315 -p1
+%patch0316 -p1
+%patch0317 -p1
+%patch0318 -p1
+%patch0319 -p1
+%patch0320 -p1
+%patch0321 -p1
+%patch0322 -p1
+%patch0323 -p1
 
 
 %build
@@ -1661,6 +1711,9 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Sun May 11 2014 Cole Robinson <crobinso@redhat.com> - 2:1.6.2-5
+- Migration CVEs: CVE-2014-0182 etc.
+
 * Tue Apr 29 2014 Cole Robinson <crobinso@redhat.com> - 2:1.6.2-4
 - Fix arm sd warnings with latest kernel (bz #1091548)
 - Fix regression in CVE backport that affects openstack (thanks lbezdick)
