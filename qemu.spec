@@ -158,7 +158,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 2.0.0
-Release: 3%{?dist}
+Release: 4%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -201,6 +201,30 @@ Source13: qemu-kvm.sh
 # Change gtk quit accelerator to ctrl+shift+q (bz #1062393)
 # Patches queued for 2.1
 Patch0001: 0001-Change-gtk-quit-accelerator-to-ctrl-shift-q-bz-10623.patch
+# Migration CVEs: CVE-2014-0182 etc.
+Patch0002: 0002-vmstate-add-VMS_MUST_EXIST.patch
+Patch0003: 0003-vmstate-add-VMSTATE_VALIDATE.patch
+Patch0004: 0004-virtio-net-fix-buffer-overflow-on-invalid-state-load.patch
+Patch0005: 0005-virtio-net-out-of-bounds-buffer-write-on-invalid-sta.patch
+Patch0006: 0006-virtio-out-of-bounds-buffer-write-on-invalid-state-l.patch
+Patch0007: 0007-ahci-fix-buffer-overrun-on-invalid-state-load.patch
+Patch0008: 0008-hpet-fix-buffer-overrun-on-invalid-state-load.patch
+Patch0009: 0009-hw-pci-pcie_aer.c-fix-buffer-overruns-on-invalid-sta.patch
+Patch0010: 0010-pl022-fix-buffer-overun-on-invalid-state-load.patch
+Patch0011: 0011-vmstate-fix-buffer-overflow-in-target-arm-machine.c.patch
+Patch0012: 0012-virtio-avoid-buffer-overrun-on-incoming-migration.patch
+Patch0013: 0013-virtio-validate-num_sg-when-mapping.patch
+Patch0014: 0014-pxa2xx-avoid-buffer-overrun-on-incoming-migration.patch
+Patch0015: 0015-ssd0323-fix-buffer-overun-on-invalid-state-load.patch
+Patch0016: 0016-tsc210x-fix-buffer-overrun-on-invalid-state-load.patch
+Patch0017: 0017-zaurus-fix-buffer-overrun-on-invalid-state-load.patch
+Patch0018: 0018-virtio-scsi-fix-buffer-overrun-on-invalid-state-load.patch
+Patch0019: 0019-vmstate-s-VMSTATE_INT32_LE-VMSTATE_INT32_POSITIVE_LE.patch
+Patch0020: 0020-usb-sanity-check-setup_index-setup_len-in-post_load.patch
+Patch0021: 0021-ssi-sd-fix-buffer-overrun-on-invalid-state-load.patch
+Patch0022: 0022-openpic-avoid-buffer-overrun-on-incoming-migration.patch
+Patch0023: 0023-virtio-net-out-of-bounds-buffer-write-on-load.patch
+Patch0024: 0024-virtio-validate-config_len-on-load.patch
 
 BuildRequires: SDL-devel
 BuildRequires: zlib-devel
@@ -726,6 +750,30 @@ CAC emulation development files.
 # Change gtk quit accelerator to ctrl+shift+q (bz #1062393)
 # Patches queued for 2.1
 %patch0001 -p1
+# Migration CVEs: CVE-2014-0182 etc.
+%patch0002 -p1
+%patch0003 -p1
+%patch0004 -p1
+%patch0005 -p1
+%patch0006 -p1
+%patch0007 -p1
+%patch0008 -p1
+%patch0009 -p1
+%patch0010 -p1
+%patch0011 -p1
+%patch0012 -p1
+%patch0013 -p1
+%patch0014 -p1
+%patch0015 -p1
+%patch0016 -p1
+%patch0017 -p1
+%patch0018 -p1
+%patch0019 -p1
+%patch0020 -p1
+%patch0021 -p1
+%patch0022 -p1
+%patch0023 -p1
+%patch0024 -p1
 
 
 %build
@@ -1493,6 +1541,9 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Sun May 11 2014 Cole Robinson <crobinso@redhat.com> - 2:2.0.0-4
+- Migration CVEs: CVE-2014-0182 etc.
+
 * Wed Apr 30 2014 Peter Robinson <pbrobinson@fedoraproject.org> 2:2.0.0-3
 - Fix aarch64 build
 

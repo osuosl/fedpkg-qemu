@@ -1,4 +1,4 @@
-From 6b4fcd4bb73c86c7754bcc912a557ba62180ae0b Mon Sep 17 00:00:00 2001
+From 9d8e4e500dca987531be3666422f17c9486940b2 Mon Sep 17 00:00:00 2001
 From: Cole Robinson <crobinso@redhat.com>
 Date: Wed, 19 Mar 2014 14:57:27 -0400
 Subject: [PATCH] Change gtk quit accelerator to ctrl+shift+q (bz 1062393)
