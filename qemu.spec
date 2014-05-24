@@ -158,7 +158,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 2.0.0
-Release: 4%{?dist}
+Release: 5%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -1099,7 +1099,8 @@ done
 # Disabled on aarch64 where it fails with several errors.  Will
 # investigate and fix when we have access to real hardware - RWMJ.
 # 2014-03-24: Suddenly failing on arm32 as well - crobinso
-%ifnarch aarch64
+# 2014-05-24: disable test on s390 (#1100971) - DH
+%ifnarch aarch64 s390
 make check
 %endif
 
@@ -1541,6 +1542,9 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Sat May 24 2014 Dan Horák <dan[at]danny.cz> - 2:2.0.0-5
+- Disable tests on s390 (#1100971)
+
 * Sun May 11 2014 Cole Robinson <crobinso@redhat.com> - 2:2.0.0-4
 - Migration CVEs: CVE-2014-0182 etc.
 
