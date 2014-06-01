@@ -139,7 +139,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.6.2
-Release: 5%{?dist}
+Release: 6%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -336,6 +336,17 @@ Patch0320: 0320-ssi-sd-fix-buffer-overrun-on-invalid-state-load.patch
 Patch0321: 0321-openpic-avoid-buffer-overrun-on-incoming-migration.patch
 Patch0322: 0322-virtio-net-out-of-bounds-buffer-write-on-load.patch
 Patch0323: 0323-virtio-validate-config_len-on-load.patch
+
+# QCOW1 validation CVEs: CVE-2014-0222, CVE-2014-0223 (bz #1097232, bz
+# #1097238, bz #1097222, bz #1097216)
+Patch0401: 0401-qcow1-Make-padding-in-the-header-explicit.patch
+Patch0402: 0402-qcow1-Check-maximum-cluster-size.patch
+Patch0403: 0403-qcow1-Validate-L2-table-size-CVE-2014-0222.patch
+Patch0404: 0404-qcow1-Validate-image-size-CVE-2014-0223.patch
+Patch0405: 0405-qcow1-Stricter-backing-file-length-check.patch
+# CVE-2014-3461: Issues in USB post load checks (bz #1097260, bz
+# #1096821)
+Patch0406: 0406-usb-fix-up-post-load-checks.patch
 
 BuildRequires: SDL-devel
 BuildRequires: zlib-devel
@@ -1004,6 +1015,17 @@ CAC emulation development files.
 %patch0321 -p1
 %patch0322 -p1
 %patch0323 -p1
+
+# QCOW1 validation CVEs: CVE-2014-0222, CVE-2014-0223 (bz #1097232, bz
+# #1097238, bz #1097222, bz #1097216)
+%patch0401 -p1
+%patch0402 -p1
+%patch0403 -p1
+%patch0404 -p1
+%patch0405 -p1
+# CVE-2014-3461: Issues in USB post load checks (bz #1097260, bz
+# #1096821)
+%patch0406 -p1
 
 
 %build
@@ -1711,6 +1733,11 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Sat May 31 2014 Cole Robinson <crobinso@redhat.com> - 2:1.6.2-6
+- QCOW1 validation CVEs: CVE-2014-0222, CVE-2014-0223 (bz #1097232, bz
+  #1097238, bz #1097222, bz #1097216)
+- CVE-2014-3461: Issues in USB post load checks (bz #1097260, bz #1096821)
+
 * Sun May 11 2014 Cole Robinson <crobinso@redhat.com> - 2:1.6.2-5
 - Migration CVEs: CVE-2014-0182 etc.
 
