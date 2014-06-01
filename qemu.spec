@@ -226,6 +226,17 @@ Patch0022: 0022-openpic-avoid-buffer-overrun-on-incoming-migration.patch
 Patch0023: 0023-virtio-net-out-of-bounds-buffer-write-on-load.patch
 Patch0024: 0024-virtio-validate-config_len-on-load.patch
 
+# QCOW1 validation CVEs: CVE-2014-0222, CVE-2014-0223 (bz #1097232, bz
+# #1097238, bz #1097222, bz #1097216)
+Patch0101: 0101-qcow1-Make-padding-in-the-header-explicit.patch
+Patch0102: 0102-qcow1-Check-maximum-cluster-size.patch
+Patch0103: 0103-qcow1-Validate-L2-table-size-CVE-2014-0222.patch
+Patch0104: 0104-qcow1-Validate-image-size-CVE-2014-0223.patch
+Patch0105: 0105-qcow1-Stricter-backing-file-length-check.patch
+# CVE-2014-3461: Issues in USB post load checks (bz #1097260, bz
+# #1096821)
+Patch0106: 0106-usb-fix-up-post-load-checks.patch
+
 BuildRequires: SDL-devel
 BuildRequires: zlib-devel
 BuildRequires: which
@@ -775,6 +786,17 @@ CAC emulation development files.
 %patch0023 -p1
 %patch0024 -p1
 
+# QCOW1 validation CVEs: CVE-2014-0222, CVE-2014-0223 (bz #1097232, bz
+# #1097238, bz #1097222, bz #1097216)
+%patch0101 -p1
+%patch0102 -p1
+%patch0103 -p1
+%patch0104 -p1
+%patch0105 -p1
+# CVE-2014-3461: Issues in USB post load checks (bz #1097260, bz
+# #1096821)
+%patch0106 -p1
+
 
 %build
 %if %{with kvmonly}
@@ -1099,8 +1121,7 @@ done
 # Disabled on aarch64 where it fails with several errors.  Will
 # investigate and fix when we have access to real hardware - RWMJ.
 # 2014-03-24: Suddenly failing on arm32 as well - crobinso
-# 2014-05-24: disable test on s390 (#1100971) - DH
-%ifnarch aarch64 s390
+%ifnarch aarch64
 make check
 %endif
 
@@ -1542,8 +1563,10 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
-* Sat May 24 2014 Dan Horák <dan[at]danny.cz> - 2:2.0.0-5
-- Disable tests on s390 (#1100971)
+* Sat May 31 2014 Cole Robinson <crobinso@redhat.com> - 2:2.0.0-5
+- QCOW1 validation CVEs: CVE-2014-0222, CVE-2014-0223 (bz #1097232, bz
+  #1097238, bz #1097222, bz #1097216)
+- CVE-2014-3461: Issues in USB post load checks (bz #1097260, bz #1096821)
 
 * Sun May 11 2014 Cole Robinson <crobinso@redhat.com> - 2:2.0.0-4
 - Migration CVEs: CVE-2014-0182 etc.
