@@ -158,7 +158,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 2.0.0
-Release: 6%{?dist}
+Release: 7%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -236,6 +236,18 @@ Patch0105: 0105-qcow1-Stricter-backing-file-length-check.patch
 # CVE-2014-3461: Issues in USB post load checks (bz #1097260, bz
 # #1096821)
 Patch0106: 0106-usb-fix-up-post-load-checks.patch
+# Don't use libtool on dtrace, fixes rawhide build (bz #1106968)
+Patch0107: 0107-trace-add-pid-field-to-simpletrace-record.patch
+Patch0108: 0108-simpletrace-add-support-for-trace-record-pid-field.patch
+Patch0109: 0109-trace-Replace-error-with-warning-if-event-is-not-def.patch
+Patch0110: 0110-do-not-call-g_thread_init-for-glib-2.31.patch
+Patch0111: 0111-glib-move-g_poll-replacement-into-glib-compat.h.patch
+Patch0112: 0112-glib-fix-g_poll-early-timeout-on-windows.patch
+Patch0113: 0113-glib-compat.h-add-new-thread-API-emulation-on-top-of.patch
+Patch0114: 0114-libcacard-replace-pstrcpy-with-memcpy.patch
+Patch0115: 0115-libcacard-g_malloc-cleanups.patch
+Patch0116: 0116-vscclient-use-glib-thread-primitives-not-qemu.patch
+Patch0117: 0117-libcacard-replace-qemu-thread-primitives-with-glib-o.patch
 
 BuildRequires: SDL-devel
 BuildRequires: zlib-devel
@@ -796,6 +808,18 @@ CAC emulation development files.
 # CVE-2014-3461: Issues in USB post load checks (bz #1097260, bz
 # #1096821)
 %patch0106 -p1
+# Don't use libtool on dtrace, fixes rawhide build (bz #1106968)
+%patch0107 -p1
+%patch0108 -p1
+%patch0109 -p1
+%patch0110 -p1
+%patch0111 -p1
+%patch0112 -p1
+%patch0113 -p1
+%patch0114 -p1
+%patch0115 -p1
+%patch0116 -p1
+%patch0117 -p1
 
 
 %build
@@ -1563,6 +1587,9 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Sun Jun 15 2014 Cole Robinson <crobinso@redhat.com> - 2:2.0.0-7
+- Don't use libtool on dtrace, fixes rawhide build (bz #1106968)
+
 * Sun Jun 08 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2:2.0.0-6
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_21_Mass_Rebuild
 
