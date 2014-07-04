@@ -154,11 +154,10 @@
 %define with_xen 1
 %endif
 
-
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
-Version: 2.0.0
-Release: 7%{?dist}
+Version: 2.1.0
+Release: 0.1.rc0%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -173,7 +172,8 @@ ExclusiveArch: %{kvm_archs}
 %define _smp_mflags %{nil}
 %endif
 
-Source0: http://wiki.qemu-project.org/download/%{name}-%{version}.tar.bz2
+#Source0: http://wiki.qemu-project.org/download/%{name}-%{version}.tar.bz2
+Source0: http://wiki.qemu-project.org/download/%{name}-%{version}-rc0.tar.bz2
 
 Source1: qemu.binfmt
 
@@ -197,57 +197,6 @@ Source12: bridge.conf
 
 # qemu-kvm back compat wrapper
 Source13: qemu-kvm.sh
-
-# Change gtk quit accelerator to ctrl+shift+q (bz #1062393)
-# Patches queued for 2.1
-Patch0001: 0001-Change-gtk-quit-accelerator-to-ctrl-shift-q-bz-10623.patch
-# Migration CVEs: CVE-2014-0182 etc.
-Patch0002: 0002-vmstate-add-VMS_MUST_EXIST.patch
-Patch0003: 0003-vmstate-add-VMSTATE_VALIDATE.patch
-Patch0004: 0004-virtio-net-fix-buffer-overflow-on-invalid-state-load.patch
-Patch0005: 0005-virtio-net-out-of-bounds-buffer-write-on-invalid-sta.patch
-Patch0006: 0006-virtio-out-of-bounds-buffer-write-on-invalid-state-l.patch
-Patch0007: 0007-ahci-fix-buffer-overrun-on-invalid-state-load.patch
-Patch0008: 0008-hpet-fix-buffer-overrun-on-invalid-state-load.patch
-Patch0009: 0009-hw-pci-pcie_aer.c-fix-buffer-overruns-on-invalid-sta.patch
-Patch0010: 0010-pl022-fix-buffer-overun-on-invalid-state-load.patch
-Patch0011: 0011-vmstate-fix-buffer-overflow-in-target-arm-machine.c.patch
-Patch0012: 0012-virtio-avoid-buffer-overrun-on-incoming-migration.patch
-Patch0013: 0013-virtio-validate-num_sg-when-mapping.patch
-Patch0014: 0014-pxa2xx-avoid-buffer-overrun-on-incoming-migration.patch
-Patch0015: 0015-ssd0323-fix-buffer-overun-on-invalid-state-load.patch
-Patch0016: 0016-tsc210x-fix-buffer-overrun-on-invalid-state-load.patch
-Patch0017: 0017-zaurus-fix-buffer-overrun-on-invalid-state-load.patch
-Patch0018: 0018-virtio-scsi-fix-buffer-overrun-on-invalid-state-load.patch
-Patch0019: 0019-vmstate-s-VMSTATE_INT32_LE-VMSTATE_INT32_POSITIVE_LE.patch
-Patch0020: 0020-usb-sanity-check-setup_index-setup_len-in-post_load.patch
-Patch0021: 0021-ssi-sd-fix-buffer-overrun-on-invalid-state-load.patch
-Patch0022: 0022-openpic-avoid-buffer-overrun-on-incoming-migration.patch
-Patch0023: 0023-virtio-net-out-of-bounds-buffer-write-on-load.patch
-Patch0024: 0024-virtio-validate-config_len-on-load.patch
-
-# QCOW1 validation CVEs: CVE-2014-0222, CVE-2014-0223 (bz #1097232, bz
-# #1097238, bz #1097222, bz #1097216)
-Patch0101: 0101-qcow1-Make-padding-in-the-header-explicit.patch
-Patch0102: 0102-qcow1-Check-maximum-cluster-size.patch
-Patch0103: 0103-qcow1-Validate-L2-table-size-CVE-2014-0222.patch
-Patch0104: 0104-qcow1-Validate-image-size-CVE-2014-0223.patch
-Patch0105: 0105-qcow1-Stricter-backing-file-length-check.patch
-# CVE-2014-3461: Issues in USB post load checks (bz #1097260, bz
-# #1096821)
-Patch0106: 0106-usb-fix-up-post-load-checks.patch
-# Don't use libtool on dtrace, fixes rawhide build (bz #1106968)
-Patch0107: 0107-trace-add-pid-field-to-simpletrace-record.patch
-Patch0108: 0108-simpletrace-add-support-for-trace-record-pid-field.patch
-Patch0109: 0109-trace-Replace-error-with-warning-if-event-is-not-def.patch
-Patch0110: 0110-do-not-call-g_thread_init-for-glib-2.31.patch
-Patch0111: 0111-glib-move-g_poll-replacement-into-glib-compat.h.patch
-Patch0112: 0112-glib-fix-g_poll-early-timeout-on-windows.patch
-Patch0113: 0113-glib-compat.h-add-new-thread-API-emulation-on-top-of.patch
-Patch0114: 0114-libcacard-replace-pstrcpy-with-memcpy.patch
-Patch0115: 0115-libcacard-g_malloc-cleanups.patch
-Patch0116: 0116-vscclient-use-glib-thread-primitives-not-qemu.patch
-Patch0117: 0117-libcacard-replace-qemu-thread-primitives-with-glib-o.patch
 
 BuildRequires: SDL-devel
 BuildRequires: zlib-devel
@@ -343,7 +292,10 @@ BuildRequires: iasl
 %if %{with_xen}
 BuildRequires: xen-devel
 %endif
-
+%ifarch %{ix86} x86_64
+# memdev hostmem backend added in 2.1
+Requires: numactl-devel
+%endif
 
 %if 0%{?user:1}
 Requires: %{name}-%{user} = %{epoch}:%{version}-%{release}
@@ -768,58 +720,7 @@ CAC emulation development files.
 
 
 %prep
-%setup -q
-
-# Change gtk quit accelerator to ctrl+shift+q (bz #1062393)
-# Patches queued for 2.1
-%patch0001 -p1
-# Migration CVEs: CVE-2014-0182 etc.
-%patch0002 -p1
-%patch0003 -p1
-%patch0004 -p1
-%patch0005 -p1
-%patch0006 -p1
-%patch0007 -p1
-%patch0008 -p1
-%patch0009 -p1
-%patch0010 -p1
-%patch0011 -p1
-%patch0012 -p1
-%patch0013 -p1
-%patch0014 -p1
-%patch0015 -p1
-%patch0016 -p1
-%patch0017 -p1
-%patch0018 -p1
-%patch0019 -p1
-%patch0020 -p1
-%patch0021 -p1
-%patch0022 -p1
-%patch0023 -p1
-%patch0024 -p1
-
-# QCOW1 validation CVEs: CVE-2014-0222, CVE-2014-0223 (bz #1097232, bz
-# #1097238, bz #1097222, bz #1097216)
-%patch0101 -p1
-%patch0102 -p1
-%patch0103 -p1
-%patch0104 -p1
-%patch0105 -p1
-# CVE-2014-3461: Issues in USB post load checks (bz #1097260, bz
-# #1096821)
-%patch0106 -p1
-# Don't use libtool on dtrace, fixes rawhide build (bz #1106968)
-%patch0107 -p1
-%patch0108 -p1
-%patch0109 -p1
-%patch0110 -p1
-%patch0111 -p1
-%patch0112 -p1
-%patch0113 -p1
-%patch0114 -p1
-%patch0115 -p1
-%patch0116 -p1
-%patch0117 -p1
+%setup -q -n %{name}-%{version}-rc0
 
 
 %build
@@ -837,7 +738,7 @@ arm-linux-user armeb-linux-user cris-linux-user m68k-linux-user \
 microblaze-linux-user microblazeel-linux-user mips-linux-user \
 mipsel-linux-user mips64-linux-user mips64el-linux-user \
 mipsn32-linux-user mipsn32el-linux-user \
-or32-linux-user ppc-linux-user ppc64-linux-user \
+or32-linux-user ppc-linux-user ppc64-linux-user ppc64le-linux-user \
 ppc64abi32-linux-user s390x-linux-user sh4-linux-user sh4eb-linux-user \
 sparc-linux-user sparc64-linux-user sparc32plus-linux-user \
 unicore32-linux-user"
@@ -858,6 +759,10 @@ buildldflags="VL_LDFLAGS=-Wl,--build-id"
 sed -i.debug 's/"-g $CFLAGS"/"$CFLAGS"/g' configure
 %endif
 
+
+# As of qemu 2.1, --enable-trace-backends supports multiple backends,
+# but there's a performance impact for non-dtrace so we don't use them
+
 ./configure \
     --prefix=%{_prefix} \
     --libdir=%{_libdir} \
@@ -873,7 +778,6 @@ sed -i.debug 's/"-g $CFLAGS"/"$CFLAGS"/g' configure
     --audio-drv-list=pa,sdl,alsa,oss \
     --enable-trace-backend=dtrace \
     --enable-kvm \
-    --enable-tpm \
 %if %{with_xen}
     --enable-xen \
 %else
@@ -903,7 +807,6 @@ sed -i.debug 's/"-g $CFLAGS"/"$CFLAGS"/g' configure
 %ifarch s390
     --enable-tcg-interpreter \
 %endif
-    --enable-quorum \
     "$@"
 
 echo "config-host.mak contents:"
@@ -1291,6 +1194,7 @@ getent passwd qemu >/dev/null || \
 %{_bindir}/qemu-ppc
 %{_bindir}/qemu-ppc64
 %{_bindir}/qemu-ppc64abi32
+%{_bindir}/qemu-ppc64le
 %{_bindir}/qemu-s390x
 %{_bindir}/qemu-sh4
 %{_bindir}/qemu-sh4eb
@@ -1318,6 +1222,7 @@ getent passwd qemu >/dev/null || \
 %{_datadir}/systemtap/tapset/qemu-ppc.stp
 %{_datadir}/systemtap/tapset/qemu-ppc64.stp
 %{_datadir}/systemtap/tapset/qemu-ppc64abi32.stp
+%{_datadir}/systemtap/tapset/qemu-ppc64le.stp
 %{_datadir}/systemtap/tapset/qemu-s390x.stp
 %{_datadir}/systemtap/tapset/qemu-sh4.stp
 %{_datadir}/systemtap/tapset/qemu-sh4eb.stp
@@ -1587,6 +1492,9 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Fri Jul 04 2014 Cole Robinson <crobinso@redhat.com> - 2:2.1.0-0.1.rc0
+- Update to qemu 2.1-rc0
+
 * Sun Jun 15 2014 Cole Robinson <crobinso@redhat.com> - 2:2.0.0-7
 - Don't use libtool on dtrace, fixes rawhide build (bz #1106968)
 
