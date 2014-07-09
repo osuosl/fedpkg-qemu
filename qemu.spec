@@ -157,7 +157,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 2.1.0
-Release: 0.1.rc0%{?dist}
+Release: 0.2.rc1%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -173,7 +173,7 @@ ExclusiveArch: %{kvm_archs}
 %endif
 
 #Source0: http://wiki.qemu-project.org/download/%{name}-%{version}.tar.bz2
-Source0: http://wiki.qemu-project.org/download/%{name}-%{version}-rc0.tar.bz2
+Source0: http://wiki.qemu-project.org/download/%{name}-%{version}-rc1.tar.bz2
 
 Source1: qemu.binfmt
 
@@ -198,7 +198,7 @@ Source12: bridge.conf
 # qemu-kvm back compat wrapper
 Source13: qemu-kvm.sh
 
-BuildRequires: SDL-devel
+BuildRequires: SDL2-devel
 BuildRequires: zlib-devel
 BuildRequires: which
 BuildRequires: chrpath
@@ -720,7 +720,7 @@ CAC emulation development files.
 
 
 %prep
-%setup -q -n %{name}-%{version}-rc0
+%setup -q -n %{name}-%{version}-rc1
 
 
 %build
@@ -778,6 +778,7 @@ sed -i.debug 's/"-g $CFLAGS"/"$CFLAGS"/g' configure
     --audio-drv-list=pa,sdl,alsa,oss \
     --enable-trace-backend=dtrace \
     --enable-kvm \
+    --with-sdlabi="2.0" \
 %if %{with_xen}
     --enable-xen \
 %else
@@ -896,6 +897,7 @@ rm -rf ${RPM_BUILD_ROOT}%{_datadir}/%{name}/petalogix*.dtb
 rm -f ${RPM_BUILD_ROOT}%{_datadir}/%{name}/bamboo.dtb
 rm -f ${RPM_BUILD_ROOT}%{_datadir}/%{name}/ppc_rom.bin
 rm -f ${RPM_BUILD_ROOT}%{_datadir}/%{name}/spapr-rtas.bin
+rm -f ${RPM_BUILD_ROOT}%{_datadir}/%{name}/u-boot.e500
 %endif
 %if 0%{!?system_s390x:1}
 rm -rf ${RPM_BUILD_ROOT}%{_datadir}/%{name}/s390-zipl.rom
@@ -1421,6 +1423,7 @@ getent passwd qemu >/dev/null || \
 %{_datadir}/%{name}/bamboo.dtb
 %{_datadir}/%{name}/ppc_rom.bin
 %{_datadir}/%{name}/spapr-rtas.bin
+%{_datadir}/%{name}/u-boot.e500
 %ifarch ppc64
 %{?kvm_files:}
 %{?qemu_kvm_files:}
@@ -1492,6 +1495,13 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Wed Jul 09 2014 Cole Robinson <crobinso@redhat.com> - 2:2.1.0-0.2.rc1
+- Update to qemu-2.1.0-rc1
+- Enable SDL2 frontend, it's improved recently
+- Fix drive-mirror segfaults if source size is not cluster-aligned (bz
+  #1114791)
+- Fix crash with virtio-blk hotunplug (bz #1117181)
+
 * Fri Jul 04 2014 Cole Robinson <crobinso@redhat.com> - 2:2.1.0-0.1.rc0
 - Update to qemu 2.1-rc0
 
