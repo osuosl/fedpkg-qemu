@@ -47,7 +47,7 @@
 %if %{without separate_kvm}
 %global kvm_archs %{ix86} x86_64 ppc64 s390x armv7hl aarch64
 %else
-%global kvm_archs %{ix86} ppc64 s390x armv7hl
+%global kvm_archs %{ix86} ppc64 s390x armv7hl aarch64
 %endif
 %if %{with exclusive_x86_64}
 %global kvm_archs x86_64
@@ -137,12 +137,7 @@
 %global system_aarch64   system-aarch64
 %endif
 
-# Only build qemu-system-aarch64 on aarch64 for now
-%ifnarch aarch64
-%undefine system_aarch64
-%endif
-
-# libfdt is only needed to build ARM, Microblaze or PPC emulators
+# libfdt is only needed to build ARM, aarch64, Microblaze or PPC emulators
 %if 0%{?system_aarch64:1}%{?system_arm:1}%{?system_microblaze:1}%{?system_ppc:1}
 %global need_fdt      1
 %endif
@@ -157,7 +152,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 2.1.0
-Release: 0.2.rc1%{?dist}
+Release: 0.3.rc1%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -292,7 +287,7 @@ BuildRequires: iasl
 %if %{with_xen}
 BuildRequires: xen-devel
 %endif
-%ifarch %{ix86} x86_64
+%ifarch %{ix86} x86_64 aarch64
 # memdev hostmem backend added in 2.1
 Requires: numactl-devel
 %endif
@@ -1047,11 +1042,11 @@ for f in $RPM_BUILD_ROOT%{_bindir}/* $RPM_BUILD_ROOT%{_libdir}/* \
 done
 
 %check
-# Disabled on aarch64 where it fails with several errors.  Will
-# investigate and fix when we have access to real hardware - RWMJ.
-# 2014-03-24: Suddenly failing on arm32 as well - crobinso
-%ifnarch aarch64
-make check
+# Run check on all arches, don't currently fail build on ARM
+%ifnarch %{arm} aarch64
+make check V=1
+%else
+make check V=1 ||:
 %endif
 
 # Sanity-check current kernel can boot on this qemu.
@@ -1059,6 +1054,9 @@ make check
 %if 0%{?fedora} >= 20
 %ifarch %{arm}
 hostqemu=arm-softmmu/qemu-system-arm
+%endif
+%ifarch aarch64
+hostqemu=arm-softmmu/qemu-system-aarch64
 %endif
 %ifarch %{ix86}
 hostqemu=i386-softmmu/qemu-system-i386
@@ -1495,6 +1493,10 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Mon Jul 14 2014 Peter Robinson <pbrobinson@fedoraproject.org> 2:2.1.0-0.3.rc1
+- Build qemu-system-aarch64 on all arches
+- Run check on ARM arches, just don't fail the build ATM
+
 * Wed Jul 09 2014 Cole Robinson <crobinso@redhat.com> - 2:2.1.0-0.2.rc1
 - Update to qemu-2.1.0-rc1
 - Enable SDL2 frontend, it's improved recently
