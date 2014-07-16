@@ -152,7 +152,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 2.1.0
-Release: 0.3.rc1%{?dist}
+Release: 0.4.rc2%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -168,7 +168,7 @@ ExclusiveArch: %{kvm_archs}
 %endif
 
 #Source0: http://wiki.qemu-project.org/download/%{name}-%{version}.tar.bz2
-Source0: http://wiki.qemu-project.org/download/%{name}-%{version}-rc1.tar.bz2
+Source0: http://wiki.qemu-project.org/download/%{name}-%{version}-rc2.tar.bz2
 
 Source1: qemu.binfmt
 
@@ -715,7 +715,7 @@ CAC emulation development files.
 
 
 %prep
-%setup -q -n %{name}-%{version}-rc1
+%setup -q -n %{name}-%{version}-rc2
 
 
 %build
@@ -1493,6 +1493,9 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Wed Jul 16 2014 Cole Robinson <crobinso@redhat.com> 2:2.1.0-0.4.rc2
+- Update to qemu-2.1.0-rc2
+
 * Mon Jul 14 2014 Peter Robinson <pbrobinson@fedoraproject.org> 2:2.1.0-0.3.rc1
 - Build qemu-system-aarch64 on all arches
 - Run check on ARM arches, just don't fail the build ATM
