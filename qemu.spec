@@ -139,7 +139,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.6.2
-Release: 6%{?dist}
+Release: 7%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -1733,6 +1733,9 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Thu Jul 17 2014 Rex Dieter <rdieter@fedoraproject.org> - 2:1.6.2-7
+- rebuild (for pulseaudio, bug #1117683)
+
 * Sat May 31 2014 Cole Robinson <crobinso@redhat.com> - 2:1.6.2-6
 - QCOW1 validation CVEs: CVE-2014-0222, CVE-2014-0223 (bz #1097232, bz
   #1097238, bz #1097222, bz #1097216)
