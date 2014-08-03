@@ -152,7 +152,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 2.1.0
-Release: 0.5.rc3%{?dist}
+Release: 1%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -167,8 +167,7 @@ ExclusiveArch: %{kvm_archs}
 %define _smp_mflags %{nil}
 %endif
 
-#Source0: http://wiki.qemu-project.org/download/%{name}-%{version}.tar.bz2
-Source0: http://wiki.qemu-project.org/download/%{name}-%{version}-rc3.tar.bz2
+Source0: http://wiki.qemu-project.org/download/%{name}-%{version}.tar.bz2
 
 Source1: qemu.binfmt
 
@@ -715,7 +714,7 @@ CAC emulation development files.
 
 
 %prep
-%setup -q -n %{name}-%{version}-rc3
+%setup -q
 
 
 %build
@@ -1493,6 +1492,9 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Sun Aug  3 2014 Richard W.M. Jones <rjones@redhat.com> 2:2.1.0-1
+- Update to qemu 2.1.0 final released version.
+
 * Fri Jul 25 2014 Cole Robinson <crobinso@redhat.com> 2:2.1.0-0.5.rc3
 - Update to qemu-2.1.0-rc3
 
