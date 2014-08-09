@@ -192,6 +192,9 @@ Source12: bridge.conf
 # qemu-kvm back compat wrapper
 Source13: qemu-kvm.sh
 
+Patch1: 0001-loader-Add-load_image_gzipped-function.patch
+Patch2: 0002-aarch64-Allow-kernel-option-to-take-a-gzip-compresse.patch
+
 BuildRequires: SDL2-devel
 BuildRequires: zlib-devel
 BuildRequires: which
@@ -715,6 +718,9 @@ CAC emulation development files.
 
 %prep
 %setup -q
+
+%patch1 -p1
+%patch2 -p1
 
 
 %build
@@ -1494,13 +1500,16 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Wed Aug 20 2014 Richard W.M. Jones <rjones@redhat.com> 2:2.1.0-5
+- Add patch for aarch64 which uncompresses -kernel parameter (in arm.next).
+
 * Mon Aug 18 2014 Dan Horák <dan[at]danny.cz> - 2:2.1.0-4
 - Don't fail build due failing tests on s390 (#1100971)
 
 * Sun Aug 17 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2:2.1.0-3
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_21_22_Mass_Rebuild
 
-* Sun Aug  3 2014 Richard W.M. Jones <rjones@redhat.com> 2:2.1.0-2
+* Sun Aug 03 2014 Richard W.M. Jones <rjones@redhat.com> 2:2.1.0-2
 - Update to qemu 2.1.0 final released version.
 - Drop optimization flags when compiling on aarch64 (see RHBZ#1126199).
 
