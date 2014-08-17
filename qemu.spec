@@ -152,7 +152,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 2.1.0
-Release: 2%{?dist}
+Release: 3%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -1494,6 +1494,9 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Sun Aug 17 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2:2.1.0-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_21_22_Mass_Rebuild
+
 * Sun Aug  3 2014 Richard W.M. Jones <rjones@redhat.com> 2:2.1.0-2
 - Update to qemu 2.1.0 final released version.
 - Drop optimization flags when compiling on aarch64 (see RHBZ#1126199).
