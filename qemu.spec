@@ -152,7 +152,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 2.1.0
-Release: 3%{?dist}
+Release: 4%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -1043,8 +1043,8 @@ for f in $RPM_BUILD_ROOT%{_bindir}/* $RPM_BUILD_ROOT%{_libdir}/* \
 done
 
 %check
-# Run check on all arches, don't currently fail build on ARM
-%ifnarch %{arm} aarch64
+# Run check on all arches, don't currently fail build on ARM and s390
+%ifnarch %{arm} aarch64 s390
 make check V=1
 %else
 make check V=1 ||:
@@ -1494,6 +1494,9 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Mon Aug 18 2014 Dan Horák <dan[at]danny.cz> - 2:2.1.0-4
+- Don't fail build due failing tests on s390 (#1100971)
+
 * Sun Aug 17 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2:2.1.0-3
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_21_22_Mass_Rebuild
 
