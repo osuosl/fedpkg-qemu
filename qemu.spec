@@ -192,8 +192,16 @@ Source12: bridge.conf
 # qemu-kvm back compat wrapper
 Source13: qemu-kvm.sh
 
+# Upstream commit: 235e74afcb85285a8e35e75f0cb6e6811267bb75
 Patch1: 0001-loader-Add-load_image_gzipped-function.patch
+# Upstream commit: 6f5d3cbe8892367026526a7deed0ceecc700a7ad
 Patch2: 0002-aarch64-Allow-kernel-option-to-take-a-gzip-compresse.patch
+# Upstream commit: 212aefaa53d142baa9a22f5aadd2e72eb916c0c0
+Patch3: 0001-block.curl-adding-timeout-option.patch
+# Upstream commit: a94f83d94fdf907680f068f1be7ad13d1f697067
+Patch4: 0001-curl-Allow-a-cookie-or-cookies-to-be-sent-with-http-.patch
+# Upstream commit: a2f468e48f8b6559ec9123e94948bc373b788941
+Patch5: 0001-curl-Don-t-deref-NULL-pointer-in-call-to-aio_poll.patch
 
 BuildRequires: SDL2-devel
 BuildRequires: zlib-devel
@@ -721,6 +729,9 @@ CAC emulation development files.
 
 %patch1 -p1
 %patch2 -p1
+%patch3 -p1
+%patch4 -p1
+%patch5 -p1
 
 
 %build
@@ -1500,6 +1511,13 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Wed Sep  3 2014 Richard W.M. Jones <rjones@redhat.com> 2:2.1.0-6
+- Add upstream patches to:
+  * Fix crash in curl driver.
+  * Add curl timeout option.
+  * Add curl cookie option.
+- Add upstream commit hashes to patches.
+
 * Wed Aug 20 2014 Richard W.M. Jones <rjones@redhat.com> 2:2.1.0-5
 - Add patch for aarch64 which uncompresses -kernel parameter (in arm.next).
 
