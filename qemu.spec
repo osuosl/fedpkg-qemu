@@ -139,7 +139,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.6.2
-Release: 7%{?dist}
+Release: 8%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -347,6 +347,16 @@ Patch0405: 0405-qcow1-Stricter-backing-file-length-check.patch
 # CVE-2014-3461: Issues in USB post load checks (bz #1097260, bz
 # #1096821)
 Patch0406: 0406-usb-fix-up-post-load-checks.patch
+# Fix spice audio playback sample rate (bz #1129961)
+Patch0407: 0407-Add-the-ability-to-vary-Spice-playback-and-record-ra.patch
+# Fix virtio-blk migration incompatibility caused by CVE backport (bz
+# #1115604)
+Patch0408: 0408-Allow-mismatched-virtio-config-len.patch
+# CVE-2014-3615 Fix crash when guest sets high resolution (bz #1139121,
+# bz #1139115)
+Patch0409: 0409-vbe-make-bochs-dispi-interface-return-the-correct-me.patch
+Patch0410: 0410-vbe-rework-sanity-checks.patch
+Patch0411: 0411-spice-make-sure-we-don-t-overflow-ssd-buf.patch
 
 BuildRequires: SDL-devel
 BuildRequires: zlib-devel
@@ -1026,6 +1036,16 @@ CAC emulation development files.
 # CVE-2014-3461: Issues in USB post load checks (bz #1097260, bz
 # #1096821)
 %patch0406 -p1
+# Fix spice audio playback sample rate (bz #1129961)
+%patch0407 -p1
+# Fix virtio-blk migration incompatibility caused by CVE backport (bz
+# #1115604)
+%patch0408 -p1
+# CVE-2014-3615 Fix crash when guest sets high resolution (bz #1139121,
+# bz #1139115)
+%patch0409 -p1
+%patch0410 -p1
+%patch0411 -p1
 
 
 %build
@@ -1733,6 +1753,13 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Mon Sep 08 2014 Cole Robinson <crobinso@redhat.com> - 2:1.6.2-8
+- Fix spice audio playback sample rate (bz #1129961)
+- Fix virtio-blk migration incompatibility caused by CVE backport (bz
+  #1115604)
+- CVE-2014-3615 Fix crash when guest sets high resolution (bz #1139121, bz
+  #1139115)
+
 * Thu Jul 17 2014 Rex Dieter <rdieter@fedoraproject.org> - 2:1.6.2-7
 - rebuild (for pulseaudio, bug #1117683)
 
