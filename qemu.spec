@@ -151,8 +151,8 @@
 
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
-Version: 2.1.0
-Release: 6%{?dist}
+Version: 2.1.1
+Release: 1%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -192,16 +192,13 @@ Source12: bridge.conf
 # qemu-kvm back compat wrapper
 Source13: qemu-kvm.sh
 
-# Upstream commit: 235e74afcb85285a8e35e75f0cb6e6811267bb75
-Patch1: 0001-loader-Add-load_image_gzipped-function.patch
-# Upstream commit: 6f5d3cbe8892367026526a7deed0ceecc700a7ad
-Patch2: 0002-aarch64-Allow-kernel-option-to-take-a-gzip-compresse.patch
-# Upstream commit: 212aefaa53d142baa9a22f5aadd2e72eb916c0c0
-Patch3: 0001-block.curl-adding-timeout-option.patch
-# Upstream commit: a94f83d94fdf907680f068f1be7ad13d1f697067
-Patch4: 0001-curl-Allow-a-cookie-or-cookies-to-be-sent-with-http-.patch
-# Upstream commit: a2f468e48f8b6559ec9123e94948bc373b788941
-Patch5: 0001-curl-Don-t-deref-NULL-pointer-in-call-to-aio_poll.patch
+# Allow aarch64 to boot compressed kernel
+Patch0001: 0001-loader-Add-load_image_gzipped-function.patch
+Patch0002: 0002-aarch64-Allow-kernel-option-to-take-a-gzip-compresse.patch
+# Fix crash in curl driver
+Patch0003: 0003-block.curl-adding-timeout-option.patch
+Patch0004: 0004-curl-Allow-a-cookie-or-cookies-to-be-sent-with-http-.patch
+Patch0005: 0005-curl-Don-t-deref-NULL-pointer-in-call-to-aio_poll.patch
 
 BuildRequires: SDL2-devel
 BuildRequires: zlib-devel
@@ -727,11 +724,13 @@ CAC emulation development files.
 %prep
 %setup -q
 
-%patch1 -p1
-%patch2 -p1
-%patch3 -p1
-%patch4 -p1
-%patch5 -p1
+# Allow aarch64 to boot compressed kernel
+%patch0001 -p1
+%patch0002 -p1
+# Fix crash in curl driver
+%patch0003 -p1
+%patch0004 -p1
+%patch0005 -p1
 
 
 %build
@@ -1511,6 +1510,12 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Thu Sep 11 2014 Cole Robinson <crobinso@redhat.com> - 2:2.1.1-1
+- Rebased to version 2.1.1
+- CVE-2014-5388: out of bounds memory access (bz #1132962, bz #1132956)
+- CVE-2014-3615 crash when guest sets high resolution (bz #1139121, bz
+  #1139115)
+
 * Wed Sep  3 2014 Richard W.M. Jones <rjones@redhat.com> 2:2.1.0-6
 - Add upstream patches to:
   * Fix crash in curl driver.

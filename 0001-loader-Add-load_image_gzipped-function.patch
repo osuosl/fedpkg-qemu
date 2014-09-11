@@ -1,7 +1,7 @@
-From ddf2a3a69486376897ae654c8f1f0aa8cbae6c24 Mon Sep 17 00:00:00 2001
+From 031f135c71ab705914f378d19067d1f1f25e744f Mon Sep 17 00:00:00 2001
 From: "Richard W.M. Jones" <rjones@redhat.com>
-Date: Mon, 4 Aug 2014 12:25:08 +0100
-Subject: [PATCH 1/2] loader: Add load_image_gzipped function.
+Date: Tue, 19 Aug 2014 18:56:28 +0100
+Subject: [PATCH] loader: Add load_image_gzipped function.
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -11,13 +11,20 @@ gzipped.  It is uncompressed before storing it in guest memory.
 
 Signed-off-by: Richard W.M. Jones <rjones@redhat.com>
 Reviewed-by: Alex Bennée <alex.bennee@linaro.org>
+Reviewed-by: Peter Crosthwaite <peter.crosthwaite@xilinx.com>
+Reviewed-by: Alex Bennée <alex.bennee@linaro.org>
+Message-id: 1407831259-2115-2-git-send-email-rjones@redhat.com
+[PMM: removed stray space before ')']
+Signed-off-by: Peter Maydell <peter.maydell@linaro.org>
+
+(cherry picked from commit 235e74afcb85285a8e35e75f0cb6e6811267bb75)
 ---
  hw/core/loader.c    | 48 ++++++++++++++++++++++++++++++++++++++++++++++++
  include/hw/loader.h |  1 +
  2 files changed, 49 insertions(+)
 
 diff --git a/hw/core/loader.c b/hw/core/loader.c
-index 2bf6b8f..83136e8 100644
+index 2bf6b8f..0fde699 100644
 --- a/hw/core/loader.c
 +++ b/hw/core/loader.c
 @@ -577,6 +577,54 @@ int load_ramdisk(const char *filename, hwaddr addr, uint64_t max_sz)
@@ -47,7 +54,7 @@ index 2bf6b8f..83136e8 100644
 +    /* Is it a gzip-compressed file? */
 +    if (len < 2 ||
 +        compressed_data[0] != 0x1f ||
-+        compressed_data[1] != 0x8b ) {
++        compressed_data[1] != 0x8b) {
 +        goto out;
 +    }
 +
@@ -87,6 +94,3 @@ index 796cbf9..00c9117 100644
  
  #define ELF_LOAD_FAILED       -1
  #define ELF_LOAD_NOT_ELF      -2
--- 
-2.0.4
-

@@ -1,7 +1,7 @@
-From fc77c3116f7e4b3400e576c51e73ade2edee350a Mon Sep 17 00:00:00 2001
+From 0f688b169496a2f85fe092eae3f385511946bf3f Mon Sep 17 00:00:00 2001
 From: "Richard W.M. Jones" <rjones@redhat.com>
-Date: Tue, 29 Jul 2014 23:32:31 +0100
-Subject: [PATCH 2/2] aarch64: Allow -kernel option to take a gzip-compressed
+Date: Tue, 19 Aug 2014 18:56:28 +0100
+Subject: [PATCH] aarch64: Allow -kernel option to take a gzip-compressed
  kernel.
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -25,36 +25,25 @@ Currently this is only done when emulating aarch64.
 
 Signed-off-by: Richard W.M. Jones <rjones@redhat.com>
 Reviewed-by: Alex Bennée <alex.bennee@linaro.org>
+Reviewed-by: Peter Crosthwaite <peter.crosthwaite@xilinx.com>
+Reviewed-by: Alex Bennée <alex.bennee@linaro.org>
+Message-id: 1407831259-2115-3-git-send-email-rjones@redhat.com
+Signed-off-by: Peter Maydell <peter.maydell@linaro.org>
+(cherry picked from commit 6f5d3cbe8892367026526a7deed0ceecc700a7ad)
 ---
- hw/arm/boot.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ hw/arm/boot.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
 diff --git a/hw/arm/boot.c b/hw/arm/boot.c
-index 1241761..c71c4d5 100644
+index 3d1f4a2..b7d60aa 100644
 --- a/hw/arm/boot.c
 +++ b/hw/arm/boot.c
-@@ -448,6 +448,7 @@ static void do_cpu_reset(void *opaque)
- void arm_load_kernel(ARMCPU *cpu, struct arm_boot_info *info)
- {
-     CPUState *cs = CPU(cpu);
-+    int allow_compressed_kernels = 0;
-     int kernel_size;
-     int initrd_size;
-     int is_linux = 0;
-@@ -469,6 +470,7 @@ void arm_load_kernel(ARMCPU *cpu, struct arm_boot_info *info)
-         primary_loader = bootloader_aarch64;
-         kernel_load_offset = KERNEL64_LOAD_ADDR;
-         elf_machine = EM_AARCH64;
-+        allow_compressed_kernels = 1;
-     } else {
-         primary_loader = bootloader;
-         kernel_load_offset = KERNEL_LOAD_ADDR;
-@@ -514,6 +516,13 @@ void arm_load_kernel(ARMCPU *cpu, struct arm_boot_info *info)
+@@ -510,6 +510,13 @@ void arm_load_kernel(ARMCPU *cpu, struct arm_boot_info *info)
          kernel_size = load_uimage(info->kernel_filename, &entry, NULL,
                                    &is_linux);
      }
 +    /* On aarch64, it's the bootloader's job to uncompress the kernel. */
-+    if (allow_compressed_kernels && kernel_size < 0) {
++    if (arm_feature(&cpu->env, ARM_FEATURE_AARCH64) && kernel_size < 0) {
 +        entry = info->loader_start + kernel_load_offset;
 +        kernel_size = load_image_gzipped(info->kernel_filename, entry,
 +                                         info->ram_size - kernel_load_offset);
@@ -63,6 +52,3 @@ index 1241761..c71c4d5 100644
      if (kernel_size < 0) {
          entry = info->loader_start + kernel_load_offset;
          kernel_size = load_image_targphys(info->kernel_filename, entry,
--- 
-2.0.4
-

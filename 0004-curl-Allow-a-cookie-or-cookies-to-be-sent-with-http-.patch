@@ -1,4 +1,4 @@
-From a94f83d94fdf907680f068f1be7ad13d1f697067 Mon Sep 17 00:00:00 2001
+From dde3e0ef0b9f2ffd68b6bd348ccb46d8fb35f84c Mon Sep 17 00:00:00 2001
 From: "Richard W.M. Jones" <rjones@redhat.com>
 Date: Fri, 29 Aug 2014 16:03:12 +0100
 Subject: [PATCH] curl: Allow a cookie or cookies to be sent with http/https
@@ -24,13 +24,14 @@ disk size: unavailable
 
 Signed-off-by: Richard W.M. Jones <rjones@redhat.com>
 Signed-off-by: Stefan Hajnoczi <stefanha@redhat.com>
+(cherry picked from commit a94f83d94fdf907680f068f1be7ad13d1f697067)
 ---
  block/curl.c    | 16 ++++++++++++++++
  qemu-options.hx |  5 +++++
  2 files changed, 21 insertions(+)
 
 diff --git a/block/curl.c b/block/curl.c
-index 2698ae3..9051bc0 100644
+index 6f45547..537e257 100644
 --- a/block/curl.c
 +++ b/block/curl.c
 @@ -73,6 +73,7 @@ static CURLMcode __curl_multi_socket_action(CURLM *multi_handle,
@@ -97,7 +98,7 @@ index 2698ae3..9051bc0 100644
      g_free(s->url);
      qemu_opts_del(opts);
      return -EINVAL;
-@@ -695,6 +710,7 @@ static void curl_close(BlockDriverState *bs)
+@@ -689,6 +704,7 @@ static void curl_close(BlockDriverState *bs)
      DPRINTF("CURL: Close\n");
      curl_detach_aio_context(bs);
  
@@ -106,7 +107,7 @@ index 2698ae3..9051bc0 100644
  }
  
 diff --git a/qemu-options.hx b/qemu-options.hx
-index 52d56f4..5479cf5 100644
+index dcb008b..53b6171 100644
 --- a/qemu-options.hx
 +++ b/qemu-options.hx
 @@ -2352,6 +2352,11 @@ multiple of 512 bytes. It defaults to 256k.
@@ -121,6 +122,3 @@ index 52d56f4..5479cf5 100644
  @item timeout
  Set the timeout in seconds of the CURL connection. This timeout is the time
  that CURL waits for a response from the remote server to get the size of the
--- 
-2.0.4
-

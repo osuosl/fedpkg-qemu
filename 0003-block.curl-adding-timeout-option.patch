@@ -1,4 +1,4 @@
-From 212aefaa53d142baa9a22f5aadd2e72eb916c0c0 Mon Sep 17 00:00:00 2001
+From 04ca8ab4dfca981ab0f1f6744286e8a84e0fccca Mon Sep 17 00:00:00 2001
 From: Daniel Henrique Barboza <danielhb@linux.vnet.ibm.com>
 Date: Wed, 13 Aug 2014 12:44:27 -0300
 Subject: [PATCH] block.curl: adding 'timeout' option
@@ -17,13 +17,14 @@ Signed-off-by: Daniel Henrique Barboza <danielhb@linux.vnet.ibm.com>
 Reviewed-by: Benoit Canet <benoit.canet@nodalink.com>
 Tested-by: Richard W.M. Jones <rjones@redhat.com>
 Signed-off-by: Stefan Hajnoczi <stefanha@redhat.com>
+(cherry picked from commit 212aefaa53d142baa9a22f5aadd2e72eb916c0c0)
 ---
  block/curl.c    | 13 ++++++++++++-
  qemu-options.hx | 10 ++++++++--
  2 files changed, 20 insertions(+), 3 deletions(-)
 
 diff --git a/block/curl.c b/block/curl.c
-index d4b85d2..2698ae3 100644
+index 79ff2f1..6f45547 100644
 --- a/block/curl.c
 +++ b/block/curl.c
 @@ -63,6 +63,7 @@ static CURLMcode __curl_multi_socket_action(CURLM *multi_handle,
@@ -82,7 +83,7 @@ index d4b85d2..2698ae3 100644
  
      file = qemu_opt_get(opts, CURL_BLOCK_OPT_URL);
 diff --git a/qemu-options.hx b/qemu-options.hx
-index c573dd8..52d56f4 100644
+index 1549625..dcb008b 100644
 --- a/qemu-options.hx
 +++ b/qemu-options.hx
 @@ -2351,6 +2351,11 @@ multiple of 512 bytes. It defaults to 256k.
@@ -110,6 +111,3 @@ index c573dd8..52d56f4 100644
  
  qemu-system-x86_64 -drive file=/tmp/test.qcow2
  @end example
--- 
-2.0.4
-

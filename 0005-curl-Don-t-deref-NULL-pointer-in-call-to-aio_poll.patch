@@ -1,4 +1,4 @@
-From a2f468e48f8b6559ec9123e94948bc373b788941 Mon Sep 17 00:00:00 2001
+From 1ea3e3a38b5bdb144a7206654c51f8f4768077f3 Mon Sep 17 00:00:00 2001
 From: "Richard W.M. Jones" <rjones@redhat.com>
 Date: Thu, 28 Aug 2014 09:04:21 +0100
 Subject: [PATCH] curl: Don't deref NULL pointer in call to aio_poll.
@@ -30,12 +30,13 @@ Signed-off-by: Richard W.M. Jones <rjones@redhat.com>
 Reviewed-by: Paolo Bonzini <pbonzini@redhat.com>
 Reviewed-by: Benoît Canet <benoit.canet@nodalink.com>
 Signed-off-by: Stefan Hajnoczi <stefanha@redhat.com>
+(cherry picked from commit a2f468e48f8b6559ec9123e94948bc373b788941)
 ---
  block/curl.c | 8 ++++----
  1 file changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/block/curl.c b/block/curl.c
-index 9051bc0..0258339 100644
+index 537e257..d28b701 100644
 --- a/block/curl.c
 +++ b/block/curl.c
 @@ -357,7 +357,7 @@ static void curl_multi_timeout_do(void *arg)
@@ -74,6 +75,3 @@ index 9051bc0..0258339 100644
      if (!state) {
          acb->common.cb(acb->common.opaque, -EIO);
          qemu_aio_release(acb);
--- 
-2.0.4
-
