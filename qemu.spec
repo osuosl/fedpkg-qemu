@@ -215,7 +215,7 @@ BuildRequires: pulseaudio-libs-devel
 BuildRequires: libiscsi-devel
 BuildRequires: ncurses-devel
 BuildRequires: libattr-devel
-%if 0%{?have_usbredir:1}
+%if 0%{?have_usbredir}
 BuildRequires: usbredir-devel >= 0.5.2
 %endif
 BuildRequires: texinfo
