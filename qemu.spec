@@ -1517,7 +1517,7 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
-* Fri Sep 27 2014 Richard W.M. Jones <rjones@redhat.com> - 2:2.1.2-2
+* Fri Sep 26 2014 Richard W.M. Jones <rjones@redhat.com> - 2:2.1.2-2
 - Add Requires seabios >= 1.7.5, otherwise Windows virtio booting does
   not work.
 
