@@ -1,4 +1,4 @@
-From 04ca8ab4dfca981ab0f1f6744286e8a84e0fccca Mon Sep 17 00:00:00 2001
+From 5331434dbb2a1959a8a8d153fd4553ae434cc464 Mon Sep 17 00:00:00 2001
 From: Daniel Henrique Barboza <danielhb@linux.vnet.ibm.com>
 Date: Wed, 13 Aug 2014 12:44:27 -0300
 Subject: [PATCH] block.curl: adding 'timeout' option

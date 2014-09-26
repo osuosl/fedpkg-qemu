@@ -1,4 +1,4 @@
-From dde3e0ef0b9f2ffd68b6bd348ccb46d8fb35f84c Mon Sep 17 00:00:00 2001
+From 4b3a1a47188c5df308d51048a8a0de630c45d12c Mon Sep 17 00:00:00 2001
 From: "Richard W.M. Jones" <rjones@redhat.com>
 Date: Fri, 29 Aug 2014 16:03:12 +0100
 Subject: [PATCH] curl: Allow a cookie or cookies to be sent with http/https

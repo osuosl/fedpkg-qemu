@@ -151,8 +151,8 @@
 
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
-Version: 2.1.1
-Release: 2%{?dist}
+Version: 2.1.2
+Release: 1%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -200,11 +200,8 @@ Patch0003: 0003-block.curl-adding-timeout-option.patch
 Patch0004: 0004-curl-Allow-a-cookie-or-cookies-to-be-sent-with-http-.patch
 Patch0005: 0005-curl-Don-t-deref-NULL-pointer-in-call-to-aio_poll.patch
 # Fix crash on migration/snapshot (bz #1144490)
-Patch0006: 0006-virtio-net-drop-assert-on-vm-stop.patch
-Patch0007: 0007-Revert-virtio-don-t-call-device-on-vm_running.patch
-Patch0008: 0008-virtio-pci-enable-bus-master-for-old-guests.patch
-Patch0009: 0009-virtio-pci-fix-migration-for-pci-bus-master.patch
-Patch0010: 0010-pc-leave-more-space-for-BIOS-allocations.patch
+Patch0006: 0006-virtio-pci-enable-bus-master-for-old-guests.patch
+Patch0007: 0007-virtio-pci-fix-migration-for-pci-bus-master.patch
 
 BuildRequires: SDL2-devel
 BuildRequires: zlib-devel
@@ -740,9 +737,6 @@ CAC emulation development files.
 # Fix crash on migration/snapshot (bz #1144490)
 %patch0006 -p1
 %patch0007 -p1
-%patch0008 -p1
-%patch0009 -p1
-%patch0010 -p1
 
 
 %build
@@ -1522,6 +1516,10 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Fri Sep 26 2014 Cole Robinson <crobinso@redhat.com> - 2:2.1.2-1
+- Rebased to version 2.1.2
+- CVE-2014-3640 qemu: slirp: NULL pointer (bz #1144821, bz #1144818)
+
 * Sun Sep 21 2014 Cole Robinson <crobinso@redhat.com> - 2:2.1.1-2
 - Fix crash on migration/snapshot (bz #1144490)
 

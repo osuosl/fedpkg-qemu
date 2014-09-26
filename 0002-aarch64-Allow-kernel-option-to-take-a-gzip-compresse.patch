@@ -1,4 +1,4 @@
-From 0f688b169496a2f85fe092eae3f385511946bf3f Mon Sep 17 00:00:00 2001
+From f06e2812a6813c8c93fee50bd8beb5ae5d8cb871 Mon Sep 17 00:00:00 2001
 From: "Richard W.M. Jones" <rjones@redhat.com>
 Date: Tue, 19 Aug 2014 18:56:28 +0100
 Subject: [PATCH] aarch64: Allow -kernel option to take a gzip-compressed
