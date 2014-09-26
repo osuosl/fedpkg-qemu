@@ -152,7 +152,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 2.1.2
-Release: 1%{?dist}
+Release: 2%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -475,8 +475,9 @@ Requires: %{name}-common = %{epoch}:%{version}-%{release}
 Provides: kvm = 85
 Obsoletes: kvm < 85
 Requires: seavgabios-bin
-# First version that ships bios-256k.bin
-Requires: seabios-bin >= 1.7.4-3
+# virtio-blk booting is broken for Windows guests
+# if you mix seabios 1.7.4 and qemu 2.1.x
+Requires: seabios-bin >= 1.7.5
 Requires: sgabios-bin
 Requires: ipxe-roms-qemu >= 20130517-2.gitc4bce43
 %if 0%{?have_seccomp:1}
@@ -1516,6 +1517,10 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Fri Sep 27 2014 Richard W.M. Jones <rjones@redhat.com> - 2:2.1.2-2
+- Add Requires seabios >= 1.7.5, otherwise Windows virtio booting does
+  not work.
+
 * Fri Sep 26 2014 Cole Robinson <crobinso@redhat.com> - 2:2.1.2-1
 - Rebased to version 2.1.2
 - CVE-2014-3640 qemu: slirp: NULL pointer (bz #1144821, bz #1144818)
