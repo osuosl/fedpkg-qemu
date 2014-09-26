@@ -139,7 +139,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.6.2
-Release: 8%{?dist}
+Release: 9%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -357,6 +357,8 @@ Patch0408: 0408-Allow-mismatched-virtio-config-len.patch
 Patch0409: 0409-vbe-make-bochs-dispi-interface-return-the-correct-me.patch
 Patch0410: 0410-vbe-rework-sanity-checks.patch
 Patch0411: 0411-spice-make-sure-we-don-t-overflow-ssd-buf.patch
+# CVE-2014-3640 qemu: slirp: NULL pointer (bz #1144821, bz #1144818)
+Patch0412: 0412-slirp-udp-fix-NULL-pointer-dereference-because-of-un.patch
 
 BuildRequires: SDL-devel
 BuildRequires: zlib-devel
@@ -1046,6 +1048,8 @@ CAC emulation development files.
 %patch0409 -p1
 %patch0410 -p1
 %patch0411 -p1
+# CVE-2014-3640 qemu: slirp: NULL pointer (bz #1144821, bz #1144818)
+%patch0412 -p1
 
 
 %build
@@ -1753,6 +1757,9 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Fri Sep 26 2014 Cole Robinson <crobinso@redhat.com> - 2:1.6.2-9
+- CVE-2014-3640 qemu: slirp: NULL pointer (bz #1144821, bz #1144818)
+
 * Mon Sep 08 2014 Cole Robinson <crobinso@redhat.com> - 2:1.6.2-8
 - Fix spice audio playback sample rate (bz #1129961)
 - Fix virtio-blk migration incompatibility caused by CVE backport (bz
