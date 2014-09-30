@@ -45,9 +45,9 @@
 %global SLOF_gittagdate 20130430
 
 %if %{without separate_kvm}
-%global kvm_archs %{ix86} x86_64 ppc64 s390x armv7hl aarch64
+%global kvm_archs %{ix86} x86_64 ppc64 ppc64le s390x armv7hl aarch64
 %else
-%global kvm_archs %{ix86} ppc64 s390x armv7hl aarch64
+%global kvm_archs %{ix86} ppc64 ppc64le s390x armv7hl aarch64
 %endif
 %if %{with exclusive_x86_64}
 %global kvm_archs x86_64
@@ -88,7 +88,7 @@
 %global kvm_target    x86_64
 %global need_qemu_kvm 1
 %endif
-%ifarch ppc64
+%ifarch ppc64 ppc64le
 %global system_ppc    kvm
 %global kvm_package   system-ppc
 %global kvm_target    ppc64
@@ -152,7 +152,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 2.1.2
-Release: 2%{?dist}
+Release: 3%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -994,7 +994,7 @@ for i in dummy \
 %ifnarch m68k
     qemu-m68k \
 %endif
-%ifnarch ppc ppc64
+%ifnarch ppc ppc64 ppc64le
     qemu-ppc qemu-ppc64abi32 qemu-ppc64 \
 %endif
 %ifnarch sparc sparc64
@@ -1446,7 +1446,7 @@ getent passwd qemu >/dev/null || \
 %{_datadir}/%{name}/ppc_rom.bin
 %{_datadir}/%{name}/spapr-rtas.bin
 %{_datadir}/%{name}/u-boot.e500
-%ifarch ppc64
+%ifarch ppc64 ppc64le
 %{?kvm_files:}
 %{?qemu_kvm_files:}
 %endif
@@ -1517,6 +1517,9 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Tue Sep 30 2014 Dan Horák <dan[at]danny.cz - 2:2.1.2-3
+- Enable KVM on ppc64le
+
 * Fri Sep 26 2014 Richard W.M. Jones <rjones@redhat.com> - 2:2.1.2-2
 - Add Requires seabios >= 1.7.5, otherwise Windows virtio booting does
   not work.
