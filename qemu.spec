@@ -1517,7 +1517,7 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
-* Tue Sep 30 2014 Dan Horák <dan[at]danny.cz - 2:2.1.2-3
+* Tue Sep 30 2014 Dan Horák <dan[at]danny.cz> - 2:2.1.2-3
 - Enable KVM on ppc64le
 
 * Fri Sep 26 2014 Richard W.M. Jones <rjones@redhat.com> - 2:2.1.2-2
