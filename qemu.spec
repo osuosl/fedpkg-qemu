@@ -152,7 +152,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 2.1.2
-Release: 3%{?dist}
+Release: 4%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -202,6 +202,8 @@ Patch0005: 0005-curl-Don-t-deref-NULL-pointer-in-call-to-aio_poll.patch
 # Fix crash on migration/snapshot (bz #1144490)
 Patch0006: 0006-virtio-pci-enable-bus-master-for-old-guests.patch
 Patch0007: 0007-virtio-pci-fix-migration-for-pci-bus-master.patch
+# Fix PPC virtio regression (bz #1144490)
+Patch0008: 0008-Revert-virtio-pci-fix-migration-for-pci-bus-master.patch
 
 BuildRequires: SDL2-devel
 BuildRequires: zlib-devel
@@ -738,6 +740,8 @@ CAC emulation development files.
 # Fix crash on migration/snapshot (bz #1144490)
 %patch0006 -p1
 %patch0007 -p1
+# Fix PPC virtio regression (bz #1144490)
+%patch0008 -p1
 
 
 %build
@@ -1517,6 +1521,9 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Mon Oct 06 2014 Cole Robinson <crobinso@redhat.com> - 2:2.1.2-4
+- Fix PPC virtio regression (bz #1144490)
+
 * Tue Sep 30 2014 Dan Horák <dan[at]danny.cz> - 2:2.1.2-3
 - Enable KVM on ppc64le
 
