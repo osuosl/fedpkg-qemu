@@ -155,7 +155,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 2.0.0
-Release: 1%{?dist}.2
+Release: 1%{?dist}.3
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -473,13 +473,12 @@ Requires: %{name}-common = %{epoch}:%{version}-%{release}
 Provides: kvm = 85
 Obsoletes: kvm < 85
 Requires: seavgabios-bin
-%if 0%{?rhel}
-Requires: seabios-bin
-%else
 # First version that ships bios-256k.bin
+%if 0%{?rhel}
+Requires: sgabios-bin >= 1.7.2.2-5
+%else
 Requires: seabios-bin >= 1.7.4-3
 %endif
-Requires: sgabios-bin
 #Requires: ipxe-roms-qemu >= 20130517-2.gitc4bce43
 Requires: ipxe-roms-qemu
 %if 0%{?have_seccomp:1}
@@ -948,8 +947,8 @@ rom_link ../seavgabios/vgabios-qxl.bin vgabios-qxl.bin
 rom_link ../seavgabios/vgabios-stdvga.bin vgabios-stdvga.bin
 rom_link ../seavgabios/vgabios-vmware.bin vgabios-vmware.bin
 rom_link ../seabios/bios.bin bios.bin
-%if 0%{?rhel} == 0
 rom_link ../seabios/bios-256k.bin bios-256k.bin
+%if 0%{?rhel} == 0
 rom_link ../seabios/acpi-dsdt.aml acpi-dsdt.aml
 rom_link ../seabios/q35-acpi-dsdt.aml q35-acpi-dsdt.aml
 %endif
@@ -1262,9 +1261,7 @@ getent passwd qemu >/dev/null || \
 %{_datadir}/%{name}/q35-acpi-dsdt.aml
 %endif
 %{_datadir}/%{name}/bios.bin
-%if 0%{?rhel} == 0
 %{_datadir}/%{name}/bios-256k.bin
-%endif
 %{_datadir}/%{name}/sgabios.bin
 %{_datadir}/%{name}/linuxboot.bin
 %{_datadir}/%{name}/multiboot.bin
@@ -1504,6 +1501,9 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Fri Oct 10 2014 Lubomir Rintel <lkundrak@v3.sk> - 2:2.0.0-1.3
+- Bring back the bios-256k.bin link
+
 * Fri Oct 10 2014 Lubomir Rintel <lkundrak@v3.sk> - 2:2.0.0-1.2
 - Avoid broken symbolic links (bz #1114432)
 
