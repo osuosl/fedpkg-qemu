@@ -155,7 +155,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 2.0.0
-Release: 1%{?dist}.1
+Release: 1%{?dist}.2
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -473,8 +473,12 @@ Requires: %{name}-common = %{epoch}:%{version}-%{release}
 Provides: kvm = 85
 Obsoletes: kvm < 85
 Requires: seavgabios-bin
+%if 0%{?rhel}
+Requires: seabios-bin
+%else
 # First version that ships bios-256k.bin
-#Requires: seabios-bin >= 1.7.4-3
+Requires: seabios-bin >= 1.7.4-3
+%endif
 Requires: sgabios-bin
 #Requires: ipxe-roms-qemu >= 20130517-2.gitc4bce43
 Requires: ipxe-roms-qemu
@@ -923,7 +927,9 @@ rm -rf ${RPM_BUILD_ROOT}%{_datadir}/%{name}/sgabios.bin
 # for other paths, yet.
 pxe_link() {
   ln -s ../ipxe/$2.rom %{buildroot}%{_datadir}/%{name}/pxe-$1.rom
+%if 0%{?rhel} == 0
   ln -s ../ipxe.efi/$2.rom %{buildroot}%{_datadir}/%{name}/efi-$1.rom
+%endif
 }
 
 pxe_link e1000 8086100e
@@ -942,9 +948,11 @@ rom_link ../seavgabios/vgabios-qxl.bin vgabios-qxl.bin
 rom_link ../seavgabios/vgabios-stdvga.bin vgabios-stdvga.bin
 rom_link ../seavgabios/vgabios-vmware.bin vgabios-vmware.bin
 rom_link ../seabios/bios.bin bios.bin
+%if 0%{?rhel} == 0
 rom_link ../seabios/bios-256k.bin bios-256k.bin
 rom_link ../seabios/acpi-dsdt.aml acpi-dsdt.aml
 rom_link ../seabios/q35-acpi-dsdt.aml q35-acpi-dsdt.aml
+%endif
 rom_link ../sgabios/sgabios.bin sgabios.bin
 %endif
 
@@ -1249,10 +1257,14 @@ getent passwd qemu >/dev/null || \
 %{_mandir}/man1/qemu-system-i386.1*
 %{_mandir}/man1/qemu-system-x86_64.1*
 %endif
+%if 0%{?rhel} == 0
 %{_datadir}/%{name}/acpi-dsdt.aml
 %{_datadir}/%{name}/q35-acpi-dsdt.aml
+%endif
 %{_datadir}/%{name}/bios.bin
+%if 0%{?rhel} == 0
 %{_datadir}/%{name}/bios-256k.bin
+%endif
 %{_datadir}/%{name}/sgabios.bin
 %{_datadir}/%{name}/linuxboot.bin
 %{_datadir}/%{name}/multiboot.bin
@@ -1263,15 +1275,17 @@ getent passwd qemu >/dev/null || \
 %{_datadir}/%{name}/vgabios-stdvga.bin
 %{_datadir}/%{name}/vgabios-vmware.bin
 %{_datadir}/%{name}/pxe-e1000.rom
-%{_datadir}/%{name}/efi-e1000.rom
 %{_datadir}/%{name}/pxe-virtio.rom
-%{_datadir}/%{name}/efi-virtio.rom
 %{_datadir}/%{name}/pxe-pcnet.rom
-%{_datadir}/%{name}/efi-pcnet.rom
 %{_datadir}/%{name}/pxe-rtl8139.rom
-%{_datadir}/%{name}/efi-rtl8139.rom
 %{_datadir}/%{name}/pxe-ne2k_pci.rom
+%if 0%{?rhel} == 0
+%{_datadir}/%{name}/efi-e1000.rom
+%{_datadir}/%{name}/efi-virtio.rom
+%{_datadir}/%{name}/efi-pcnet.rom
+%{_datadir}/%{name}/efi-rtl8139.rom
 %{_datadir}/%{name}/efi-ne2k_pci.rom
+%endif
 %config(noreplace) %{_sysconfdir}/qemu/target-x86_64.conf
 %if %{without separate_kvm}
 %ifarch %{ix86} x86_64
@@ -1490,6 +1504,9 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Fri Oct 10 2014 Lubomir Rintel <lkundrak@v3.sk> - 2:2.0.0-1.2
+- Avoid broken symbolic links (bz #1114432)
+
 * Fri Apr 18 2014 Lubomir Rintel <lkundrak@v3.sk> - 2:2.0.0-1.1
 - Build for EPEL7
 
