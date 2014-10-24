@@ -152,7 +152,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 2.1.2
-Release: 4%{?dist}
+Release: 5%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -301,7 +301,7 @@ BuildRequires: xen-devel
 %endif
 %ifarch %{ix86} x86_64 aarch64
 # memdev hostmem backend added in 2.1
-Requires: numactl-devel
+BuildRequires: numactl-devel
 %endif
 
 %if 0%{?user:1}
@@ -1521,6 +1521,9 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Fri Oct 24 2014 Danel P. Berrange <berrange@redhat.com> - 2:2.1.2-5
+- Fix dep on numactl-devel to be build time not install time
+
 * Mon Oct 06 2014 Cole Robinson <crobinso@redhat.com> - 2:2.1.2-4
 - Fix PPC virtio regression (bz #1144490)
 
