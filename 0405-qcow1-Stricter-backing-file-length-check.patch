@@ -1,4 +1,3 @@
-From 1c108dfb4997c510d944c2fecc5b7eff7949f2af Mon Sep 17 00:00:00 2001
 From: Kevin Wolf <kwolf@redhat.com>
 Date: Thu, 8 May 2014 13:35:09 +0200
 Subject: [PATCH] qcow1: Stricter backing file length check

@@ -1,4 +1,3 @@
-From e55fb1cb78833b8da4d22ef7ea8eea33b9ebcaf9 Mon Sep 17 00:00:00 2001
 From: Kevin Wolf <kwolf@redhat.com>
 Date: Wed, 26 Mar 2014 13:05:32 +0100
 Subject: [PATCH] bochs: Use unsigned variables for offsets and sizes

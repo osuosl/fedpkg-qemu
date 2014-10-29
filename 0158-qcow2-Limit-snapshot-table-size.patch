@@ -1,4 +1,3 @@
-From 51b8dca866a1b77a9803ee3b56e059f8e7795dd8 Mon Sep 17 00:00:00 2001
 From: Kevin Wolf <kwolf@redhat.com>
 Date: Wed, 26 Mar 2014 13:06:07 +0100
 Subject: [PATCH] qcow2: Limit snapshot table size

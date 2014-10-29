@@ -139,7 +139,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.6.2
-Release: 9%{?dist}
+Release: 10%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -359,6 +359,16 @@ Patch0410: 0410-vbe-rework-sanity-checks.patch
 Patch0411: 0411-spice-make-sure-we-don-t-overflow-ssd-buf.patch
 # CVE-2014-3640 qemu: slirp: NULL pointer (bz #1144821, bz #1144818)
 Patch0412: 0412-slirp-udp-fix-NULL-pointer-dereference-because-of-un.patch
+# CVE-2014-7815 vnc: insufficient bits_per_pixel from the client
+# sanitization (bz #1157647, bz #1157641)
+Patch0413: 0413-vnc-sanitize-bits_per_pixel-from-the-client.patch
+# CVE-2014-3689 vmware_vga: insufficient parameter validation in
+# rectangle functions (bz #1153038, bz #1153035)
+Patch0414: 0414-vmware-vga-CVE-2014-3689-turn-off-hw-accel.patch
+Patch0415: 0415-vmware-vga-add-vmsvga_verify_rect.patch
+Patch0416: 0416-vmware-vga-use-vmsvga_verify_rect-in-vmsvga_update_r.patch
+Patch0417: 0417-vmware-vga-use-vmsvga_verify_rect-in-vmsvga_copy_rec.patch
+Patch0418: 0418-vmware-vga-use-vmsvga_verify_rect-in-vmsvga_fill_rec.patch
 
 BuildRequires: SDL-devel
 BuildRequires: zlib-devel
@@ -1050,6 +1060,16 @@ CAC emulation development files.
 %patch0411 -p1
 # CVE-2014-3640 qemu: slirp: NULL pointer (bz #1144821, bz #1144818)
 %patch0412 -p1
+# CVE-2014-7815 vnc: insufficient bits_per_pixel from the client
+# sanitization (bz #1157647, bz #1157641)
+%patch0413 -p1
+# CVE-2014-3689 vmware_vga: insufficient parameter validation in
+# rectangle functions (bz #1153038, bz #1153035)
+%patch0414 -p1
+%patch0415 -p1
+%patch0416 -p1
+%patch0417 -p1
+%patch0418 -p1
 
 
 %build
@@ -1757,6 +1777,12 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Wed Oct 29 2014 Cole Robinson <crobinso@redhat.com> - 2:1.6.2-10
+- CVE-2014-7815 vnc: insufficient bits_per_pixel from the client sanitization
+  (bz #1157647, bz #1157641)
+- CVE-2014-3689 vmware_vga: insufficient parameter validation in rectangle
+  functions (bz #1153038, bz #1153035)
+
 * Fri Sep 26 2014 Cole Robinson <crobinso@redhat.com> - 2:1.6.2-9
 - CVE-2014-3640 qemu: slirp: NULL pointer (bz #1144821, bz #1144818)
 

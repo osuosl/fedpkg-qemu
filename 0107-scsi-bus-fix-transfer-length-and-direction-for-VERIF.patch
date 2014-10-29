@@ -1,4 +1,3 @@
-From d6f315b934c7b0311899636a1d90f01e94ebcaeb Mon Sep 17 00:00:00 2001
 From: Paolo Bonzini <pbonzini@redhat.com>
 Date: Thu, 28 Nov 2013 11:01:13 +0100
 Subject: [PATCH] scsi-bus: fix transfer length and direction for VERIFY

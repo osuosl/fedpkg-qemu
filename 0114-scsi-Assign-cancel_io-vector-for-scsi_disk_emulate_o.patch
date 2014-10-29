@@ -1,4 +1,3 @@
-From fcaec0080923656c3607bd4d5eccc5d05c468dda Mon Sep 17 00:00:00 2001
 From: Paolo Bonzini <pbonzini@redhat.com>
 Date: Wed, 15 Jan 2014 10:35:36 +0100
 Subject: [PATCH] scsi: Assign cancel_io vector for scsi_disk_emulate_ops

@@ -1,4 +1,3 @@
-From aa1e5b8649b8055722bf987d76322a1a1b46c407 Mon Sep 17 00:00:00 2001
 From: Eric Farman <farman@linux.vnet.ibm.com>
 Date: Tue, 14 Jan 2014 14:16:25 -0500
 Subject: [PATCH] virtio-scsi: Cleanup of I/Os that never started

@@ -1,4 +1,3 @@
-From e2871c69c209fe1df4478a82682d82c444c7136f Mon Sep 17 00:00:00 2001
 From: Kevin Wolf <kwolf@redhat.com>
 Date: Wed, 26 Mar 2014 13:06:04 +0100
 Subject: [PATCH] qcow2: Fix NULL dereference in qcow2_open() error path

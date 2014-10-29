@@ -1,4 +1,3 @@
-From a2f8a1cc86f620317010f4ce12331235bde47a1c Mon Sep 17 00:00:00 2001
 From: Gerd Hoffmann <kraxel@redhat.com>
 Date: Tue, 26 Aug 2014 15:35:23 +0200
 Subject: [PATCH] vbe: rework sanity checks

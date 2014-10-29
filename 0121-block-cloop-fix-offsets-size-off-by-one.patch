@@ -1,4 +1,3 @@
-From af26019bf167d71fc3a8e5d46865a4c53d58e976 Mon Sep 17 00:00:00 2001
 From: Stefan Hajnoczi <stefanha@redhat.com>
 Date: Wed, 26 Mar 2014 13:05:29 +0100
 Subject: [PATCH] block/cloop: fix offsets[] size off-by-one

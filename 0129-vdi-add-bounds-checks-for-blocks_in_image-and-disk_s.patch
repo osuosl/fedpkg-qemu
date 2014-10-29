@@ -1,4 +1,3 @@
-From ae25d949d7d500e2b59cd442e914c828823a5f2c Mon Sep 17 00:00:00 2001
 From: Jeff Cody <jcody@redhat.com>
 Date: Fri, 28 Mar 2014 11:42:24 -0400
 Subject: [PATCH] vdi: add bounds checks for blocks_in_image and disk_size

@@ -1,4 +1,3 @@
-From df1f28c754a7cf71139360ab3bbfa204b65949aa Mon Sep 17 00:00:00 2001
 From: Jeff Cody <jcody@redhat.com>
 Date: Wed, 26 Mar 2014 13:05:36 +0100
 Subject: [PATCH] vpc/vhd: add bounds check for max_table_entries and

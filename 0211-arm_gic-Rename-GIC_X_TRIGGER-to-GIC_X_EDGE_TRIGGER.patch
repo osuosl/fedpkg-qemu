@@ -1,4 +1,3 @@
-From f81cfc1c2ec7e20c86656784b28f27b46868f71e Mon Sep 17 00:00:00 2001
 From: Christoffer Dall <christoffer.dall@linaro.org>
 Date: Fri, 20 Dec 2013 22:09:32 -0800
 Subject: [PATCH] arm_gic: Rename GIC_X_TRIGGER to GIC_X_EDGE_TRIGGER

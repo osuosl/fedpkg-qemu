@@ -1,4 +1,3 @@
-From a954dcaa5006710dffec91cb140fa1b5eabced7e Mon Sep 17 00:00:00 2001
 From: Gerd Hoffmann <kraxel@redhat.com>
 Date: Wed, 3 Sep 2014 15:50:08 +0200
 Subject: [PATCH] spice: make sure we don't overflow ssd->buf

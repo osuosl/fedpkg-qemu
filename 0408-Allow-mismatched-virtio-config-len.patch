@@ -1,4 +1,3 @@
-From 99159a10ae89685a03751d4b576a3602e0c17554 Mon Sep 17 00:00:00 2001
 From: "Dr. David Alan Gilbert" <dgilbert@redhat.com>
 Date: Fri, 27 Jun 2014 20:02:48 +0100
 Subject: [PATCH] Allow mismatched virtio config-len

@@ -1,4 +1,3 @@
-From ff175461008f3f782c8976b8ad898120b88bc846 Mon Sep 17 00:00:00 2001
 From: Paolo Bonzini <pbonzini@redhat.com>
 Date: Tue, 13 Aug 2013 00:02:18 +0200
 Subject: [PATCH] isapc: disable kvmvapic

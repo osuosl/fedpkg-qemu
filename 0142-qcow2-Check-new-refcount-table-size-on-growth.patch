@@ -1,4 +1,3 @@
-From a8f7f240d8a02c7bebcdfd912001588c1422619f Mon Sep 17 00:00:00 2001
 From: Kevin Wolf <kwolf@redhat.com>
 Date: Wed, 26 Mar 2014 13:05:50 +0100
 Subject: [PATCH] qcow2: Check new refcount table size on growth

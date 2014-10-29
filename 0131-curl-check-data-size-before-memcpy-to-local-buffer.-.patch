@@ -1,4 +1,3 @@
-From ffce9ca1dfd6b53ac773a9dc956978ca4cf8a7d4 Mon Sep 17 00:00:00 2001
 From: Fam Zheng <famz@redhat.com>
 Date: Wed, 26 Mar 2014 13:05:40 +0100
 Subject: [PATCH] curl: check data size before memcpy to local buffer.

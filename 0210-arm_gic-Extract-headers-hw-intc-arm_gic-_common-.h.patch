@@ -1,4 +1,3 @@
-From b7ad87a31916871d523a15981c658a45a6e44b40 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Andreas=20F=C3=A4rber?= <afaerber@suse.de>
 Date: Tue, 23 Jul 2013 03:37:49 +0200
 Subject: [PATCH] arm_gic: Extract headers hw/intc/arm_gic{,_common}.h

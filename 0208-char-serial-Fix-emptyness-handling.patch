@@ -1,4 +1,3 @@
-From dde12083417266a1a723c9a491c26258f837963f Mon Sep 17 00:00:00 2001
 From: Don Slutz <dslutz@verizon.com>
 Date: Tue, 18 Mar 2014 12:29:34 -0400
 Subject: [PATCH] char/serial: Fix emptyness handling

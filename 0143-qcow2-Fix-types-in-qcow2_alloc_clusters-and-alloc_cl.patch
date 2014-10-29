@@ -1,4 +1,3 @@
-From 26eabe580a600558dc45dd0fbe189c646349cf45 Mon Sep 17 00:00:00 2001
 From: Kevin Wolf <kwolf@redhat.com>
 Date: Wed, 26 Mar 2014 13:05:51 +0100
 Subject: [PATCH] qcow2: Fix types in qcow2_alloc_clusters and

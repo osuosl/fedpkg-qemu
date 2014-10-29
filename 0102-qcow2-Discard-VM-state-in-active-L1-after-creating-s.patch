@@ -1,4 +1,3 @@
-From 08af434ab2532e22edc79898c6958ad6c44d10e1 Mon Sep 17 00:00:00 2001
 From: Kevin Wolf <kwolf@redhat.com>
 Date: Fri, 6 Sep 2013 12:32:26 +0200
 Subject: [PATCH] qcow2: Discard VM state in active L1 after creating snapshot

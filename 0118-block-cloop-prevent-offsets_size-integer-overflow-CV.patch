@@ -1,4 +1,3 @@
-From 1d76b2c0c3d922ec0502cc09db7541ea374e7896 Mon Sep 17 00:00:00 2001
 From: Stefan Hajnoczi <stefanha@redhat.com>
 Date: Wed, 26 Mar 2014 13:05:26 +0100
 Subject: [PATCH] block/cloop: prevent offsets_size integer overflow

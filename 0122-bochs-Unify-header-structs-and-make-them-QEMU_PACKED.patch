@@ -1,4 +1,3 @@
-From 46aa5fa683fa4ae7805192b38043e50b43ff44f7 Mon Sep 17 00:00:00 2001
 From: Kevin Wolf <kwolf@redhat.com>
 Date: Wed, 26 Mar 2014 13:05:31 +0100
 Subject: [PATCH] bochs: Unify header structs and make them QEMU_PACKED

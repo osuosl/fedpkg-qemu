@@ -1,4 +1,3 @@
-From beadb779fa7edda184961c62cd18bff7848b8d27 Mon Sep 17 00:00:00 2001
 From: Peter Maydell <peter.maydell@linaro.org>
 Date: Thu, 20 Feb 2014 10:35:48 +0000
 Subject: [PATCH] hw/intc/arm_gic: Fix NVIC assertion failure

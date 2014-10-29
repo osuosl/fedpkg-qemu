@@ -1,4 +1,3 @@
-From 4e31c89ca161180c62c66ec457fcd3d57efc0d86 Mon Sep 17 00:00:00 2001
 From: Jeremy White <jwhite@codeweavers.com>
 Date: Thu, 2 Jan 2014 09:25:56 -0600
 Subject: [PATCH] Add the ability to vary Spice playback and record rates, to

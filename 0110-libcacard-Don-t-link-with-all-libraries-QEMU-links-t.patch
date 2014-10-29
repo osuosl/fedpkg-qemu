@@ -1,4 +1,3 @@
-From 61ec7dc46f8acad7ea6be4ba1993048f7404b0e3 Mon Sep 17 00:00:00 2001
 From: Christophe Fergeau <cfergeau@redhat.com>
 Date: Thu, 30 Jan 2014 14:56:49 +0100
 Subject: [PATCH] libcacard: Don't link with all libraries QEMU links to

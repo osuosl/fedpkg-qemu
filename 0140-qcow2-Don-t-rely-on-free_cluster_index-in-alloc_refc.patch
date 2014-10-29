@@ -1,4 +1,3 @@
-From 78c951e761e8ce7b8503750bc0fc7ff4d70c4926 Mon Sep 17 00:00:00 2001
 From: Kevin Wolf <kwolf@redhat.com>
 Date: Fri, 28 Mar 2014 18:06:31 +0100
 Subject: [PATCH] qcow2: Don't rely on free_cluster_index in

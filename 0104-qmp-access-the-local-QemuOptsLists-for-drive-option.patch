@@ -1,4 +1,3 @@
-From ef8acf5e5e525f5c757b57f9f3f0b3727459b6ad Mon Sep 17 00:00:00 2001
 From: Amos Kong <akong@redhat.com>
 Date: Fri, 15 Nov 2013 18:53:14 +0100
 Subject: [PATCH] qmp: access the local QemuOptsLists for drive option

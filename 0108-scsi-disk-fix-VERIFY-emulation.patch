@@ -1,4 +1,3 @@
-From ae768bf8d6f15a3cce8edf4602d86352beab506a Mon Sep 17 00:00:00 2001
 From: Paolo Bonzini <pbonzini@redhat.com>
 Date: Thu, 28 Nov 2013 11:18:56 +0100
 Subject: [PATCH] scsi-disk: fix VERIFY emulation

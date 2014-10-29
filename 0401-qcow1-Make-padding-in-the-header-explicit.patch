@@ -1,4 +1,3 @@
-From a62cd901b526bd7bc8bddd8c6a2140cf2570bb09 Mon Sep 17 00:00:00 2001
 From: Kevin Wolf <kwolf@redhat.com>
 Date: Wed, 7 May 2014 16:56:10 +0200
 Subject: [PATCH] qcow1: Make padding in the header explicit

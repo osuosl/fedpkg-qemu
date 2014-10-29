@@ -1,4 +1,3 @@
-From 6158b4394ba67d1f488cb743ec3f4acb06c270e4 Mon Sep 17 00:00:00 2001
 From: Paolo Bonzini <pbonzini@redhat.com>
 Date: Thu, 2 May 2013 11:38:39 +0200
 Subject: [PATCH] qdev: switch reset to post-order
