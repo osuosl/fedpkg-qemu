@@ -152,7 +152,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 2.1.2
-Release: 5%{?dist}
+Release: 6%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -204,6 +204,16 @@ Patch0006: 0006-virtio-pci-enable-bus-master-for-old-guests.patch
 Patch0007: 0007-virtio-pci-fix-migration-for-pci-bus-master.patch
 # Fix PPC virtio regression (bz #1144490)
 Patch0008: 0008-Revert-virtio-pci-fix-migration-for-pci-bus-master.patch
+# CVE-2014-7815 vnc: insufficient bits_per_pixel from the client
+# sanitization (bz #1157647, bz #1157641)
+Patch0009: 0009-vnc-sanitize-bits_per_pixel-from-the-client.patch
+# CVE-2014-3689 vmware_vga: insufficient parameter validation in
+# rectangle functions (bz #1153038, bz #1153035)
+Patch0010: 0010-vmware-vga-CVE-2014-3689-turn-off-hw-accel.patch
+Patch0011: 0011-vmware-vga-add-vmsvga_verify_rect.patch
+Patch0012: 0012-vmware-vga-use-vmsvga_verify_rect-in-vmsvga_update_r.patch
+Patch0013: 0013-vmware-vga-use-vmsvga_verify_rect-in-vmsvga_copy_rec.patch
+Patch0014: 0014-vmware-vga-use-vmsvga_verify_rect-in-vmsvga_fill_rec.patch
 
 BuildRequires: SDL2-devel
 BuildRequires: zlib-devel
@@ -742,6 +752,16 @@ CAC emulation development files.
 %patch0007 -p1
 # Fix PPC virtio regression (bz #1144490)
 %patch0008 -p1
+# CVE-2014-7815 vnc: insufficient bits_per_pixel from the client
+# sanitization (bz #1157647, bz #1157641)
+%patch0009 -p1
+# CVE-2014-3689 vmware_vga: insufficient parameter validation in
+# rectangle functions (bz #1153038, bz #1153035)
+%patch0010 -p1
+%patch0011 -p1
+%patch0012 -p1
+%patch0013 -p1
+%patch0014 -p1
 
 
 %build
@@ -1521,6 +1541,12 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Wed Oct 29 2014 Cole Robinson <crobinso@redhat.com> - 2:2.1.2-6
+- CVE-2014-7815 vnc: insufficient bits_per_pixel from the client sanitization
+  (bz #1157647, bz #1157641)
+- CVE-2014-3689 vmware_vga: insufficient parameter validation in rectangle
+  functions (bz #1153038, bz #1153035)
+
 * Fri Oct 24 2014 Danel P. Berrange <berrange@redhat.com> - 2:2.1.2-5
 - Fix dep on numactl-devel to be build time not install time
 

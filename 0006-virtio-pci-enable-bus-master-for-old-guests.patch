@@ -1,4 +1,3 @@
-From a9862ff2c205aa289b62abcb7ddd03c7630f5c7a Mon Sep 17 00:00:00 2001
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Date: Thu, 11 Sep 2014 18:45:33 +0200
 Subject: [PATCH] virtio-pci: enable bus master for old guests
