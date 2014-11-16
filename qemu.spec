@@ -135,6 +135,7 @@
 %global system_unicore32   system-unicore32
 %global system_moxie   system-moxie
 %global system_aarch64   system-aarch64
+%global system_tricore   system-tricore
 %endif
 
 # libfdt is only needed to build ARM, aarch64, Microblaze or PPC emulators
@@ -151,8 +152,8 @@
 
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
-Version: 2.1.2
-Release: 6%{?dist}
+Version: 2.2.0
+Release: 0.1.rc1%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -167,7 +168,7 @@ ExclusiveArch: %{kvm_archs}
 %define _smp_mflags %{nil}
 %endif
 
-Source0: http://wiki.qemu-project.org/download/%{name}-%{version}.tar.bz2
+Source0: http://wiki.qemu-project.org/download/%{name}-%{version}-rc1.tar.bz2
 
 Source1: qemu.binfmt
 
@@ -191,29 +192,6 @@ Source12: bridge.conf
 
 # qemu-kvm back compat wrapper
 Source13: qemu-kvm.sh
-
-# Allow aarch64 to boot compressed kernel
-Patch0001: 0001-loader-Add-load_image_gzipped-function.patch
-Patch0002: 0002-aarch64-Allow-kernel-option-to-take-a-gzip-compresse.patch
-# Fix crash in curl driver
-Patch0003: 0003-block.curl-adding-timeout-option.patch
-Patch0004: 0004-curl-Allow-a-cookie-or-cookies-to-be-sent-with-http-.patch
-Patch0005: 0005-curl-Don-t-deref-NULL-pointer-in-call-to-aio_poll.patch
-# Fix crash on migration/snapshot (bz #1144490)
-Patch0006: 0006-virtio-pci-enable-bus-master-for-old-guests.patch
-Patch0007: 0007-virtio-pci-fix-migration-for-pci-bus-master.patch
-# Fix PPC virtio regression (bz #1144490)
-Patch0008: 0008-Revert-virtio-pci-fix-migration-for-pci-bus-master.patch
-# CVE-2014-7815 vnc: insufficient bits_per_pixel from the client
-# sanitization (bz #1157647, bz #1157641)
-Patch0009: 0009-vnc-sanitize-bits_per_pixel-from-the-client.patch
-# CVE-2014-3689 vmware_vga: insufficient parameter validation in
-# rectangle functions (bz #1153038, bz #1153035)
-Patch0010: 0010-vmware-vga-CVE-2014-3689-turn-off-hw-accel.patch
-Patch0011: 0011-vmware-vga-add-vmsvga_verify_rect.patch
-Patch0012: 0012-vmware-vga-use-vmsvga_verify_rect-in-vmsvga_update_r.patch
-Patch0013: 0013-vmware-vga-use-vmsvga_verify_rect-in-vmsvga_copy_rec.patch
-Patch0014: 0014-vmware-vga-use-vmsvga_verify_rect-in-vmsvga_fill_rec.patch
 
 BuildRequires: SDL2-devel
 BuildRequires: zlib-devel
@@ -367,6 +345,9 @@ Requires: %{name}-%{system_moxie} = %{epoch}:%{version}-%{release}
 %endif
 %if 0%{?system_aarch64:1}
 Requires: %{name}-%{system_aarch64} = %{epoch}:%{version}-%{release}
+%endif
+%if 0%{?system_tricore:1}
+Requires: %{name}-%{system_tricore} = %{epoch}:%{version}-%{release}
 %endif
 %if %{without separate_kvm}
 Requires: %{name}-img = %{epoch}:%{version}-%{release}
@@ -700,6 +681,18 @@ emulation speed by using dynamic translation.
 This package provides the system emulator for AArch64.
 %endif
 
+%if 0%{?system_tricore:1}
+%package %{system_tricore}
+Summary: QEMU system emulator for tricore
+Group: Development/Tools
+Requires: %{name}-common = %{epoch}:%{version}-%{release}
+%description %{system_tricore}
+QEMU is a generic and open source processor emulator which achieves a good
+emulation speed by using dynamic translation.
+
+This package provides the system emulator for Tricore.
+%endif
+
 
 %ifarch %{kvm_archs}
 %package kvm-tools
@@ -738,31 +731,7 @@ CAC emulation development files.
 
 
 %prep
-%setup -q
-
-# Allow aarch64 to boot compressed kernel
-%patch0001 -p1
-%patch0002 -p1
-# Fix crash in curl driver
-%patch0003 -p1
-%patch0004 -p1
-%patch0005 -p1
-# Fix crash on migration/snapshot (bz #1144490)
-%patch0006 -p1
-%patch0007 -p1
-# Fix PPC virtio regression (bz #1144490)
-%patch0008 -p1
-# CVE-2014-7815 vnc: insufficient bits_per_pixel from the client
-# sanitization (bz #1157647, bz #1157641)
-%patch0009 -p1
-# CVE-2014-3689 vmware_vga: insufficient parameter validation in
-# rectangle functions (bz #1153038, bz #1153035)
-%patch0010 -p1
-%patch0011 -p1
-%patch0012 -p1
-%patch0013 -p1
-%patch0014 -p1
-
+%setup -q -n qemu-2.2.0-rc1
 
 %build
 %if %{with kvmonly}
@@ -774,6 +743,7 @@ microblazeel-softmmu mips-softmmu mipsel-softmmu mips64-softmmu \
 mips64el-softmmu or32-softmmu ppc-softmmu ppcemb-softmmu ppc64-softmmu \
 s390x-softmmu sh4-softmmu sh4eb-softmmu sparc-softmmu sparc64-softmmu \
 xtensa-softmmu xtensaeb-softmmu unicore32-softmmu moxie-softmmu \
+tricore-softmmu \
 i386-linux-user x86_64-linux-user aarch64-linux-user alpha-linux-user \
 arm-linux-user armeb-linux-user cris-linux-user m68k-linux-user \
 microblaze-linux-user microblazeel-linux-user mips-linux-user \
@@ -1191,6 +1161,7 @@ getent passwd qemu >/dev/null || \
 %{_datadir}/%{name}/qemu-icon.bmp
 %{_datadir}/%{name}/qemu_logo_no_text.svg
 %{_datadir}/%{name}/keymaps/
+%{_datadir}/%{name}/trace-events
 %{_mandir}/man1/qemu.1*
 %{_mandir}/man1/virtfs-proxy-helper.1*
 %{_bindir}/virtfs-proxy-helper
@@ -1250,34 +1221,21 @@ getent passwd qemu >/dev/null || \
 %{_bindir}/qemu-sparc32plus
 %{_bindir}/qemu-sparc64
 %{_bindir}/qemu-unicore32
-%{_datadir}/systemtap/tapset/qemu-i386.stp
-%{_datadir}/systemtap/tapset/qemu-x86_64.stp
-%{_datadir}/systemtap/tapset/qemu-aarch64.stp
-%{_datadir}/systemtap/tapset/qemu-alpha.stp
-%{_datadir}/systemtap/tapset/qemu-arm.stp
-%{_datadir}/systemtap/tapset/qemu-armeb.stp
-%{_datadir}/systemtap/tapset/qemu-cris.stp
-%{_datadir}/systemtap/tapset/qemu-m68k.stp
-%{_datadir}/systemtap/tapset/qemu-microblaze.stp
-%{_datadir}/systemtap/tapset/qemu-microblazeel.stp
-%{_datadir}/systemtap/tapset/qemu-mips.stp
-%{_datadir}/systemtap/tapset/qemu-mipsel.stp
-%{_datadir}/systemtap/tapset/qemu-mips64.stp
-%{_datadir}/systemtap/tapset/qemu-mips64el.stp
-%{_datadir}/systemtap/tapset/qemu-mipsn32.stp
-%{_datadir}/systemtap/tapset/qemu-mipsn32el.stp
-%{_datadir}/systemtap/tapset/qemu-or32.stp
-%{_datadir}/systemtap/tapset/qemu-ppc.stp
-%{_datadir}/systemtap/tapset/qemu-ppc64.stp
-%{_datadir}/systemtap/tapset/qemu-ppc64abi32.stp
-%{_datadir}/systemtap/tapset/qemu-ppc64le.stp
-%{_datadir}/systemtap/tapset/qemu-s390x.stp
-%{_datadir}/systemtap/tapset/qemu-sh4.stp
-%{_datadir}/systemtap/tapset/qemu-sh4eb.stp
-%{_datadir}/systemtap/tapset/qemu-sparc.stp
-%{_datadir}/systemtap/tapset/qemu-sparc32plus.stp
-%{_datadir}/systemtap/tapset/qemu-sparc64.stp
-%{_datadir}/systemtap/tapset/qemu-unicore32.stp
+%{_datadir}/systemtap/tapset/qemu-i386*.stp
+%{_datadir}/systemtap/tapset/qemu-x86_64*.stp
+%{_datadir}/systemtap/tapset/qemu-aarch64*.stp
+%{_datadir}/systemtap/tapset/qemu-alpha*.stp
+%{_datadir}/systemtap/tapset/qemu-arm*.stp
+%{_datadir}/systemtap/tapset/qemu-cris*.stp
+%{_datadir}/systemtap/tapset/qemu-m68k*.stp
+%{_datadir}/systemtap/tapset/qemu-microblaze*.stp
+%{_datadir}/systemtap/tapset/qemu-mips*.stp
+%{_datadir}/systemtap/tapset/qemu-or32*.stp
+%{_datadir}/systemtap/tapset/qemu-ppc*.stp
+%{_datadir}/systemtap/tapset/qemu-s390x*.stp
+%{_datadir}/systemtap/tapset/qemu-sh4*.stp
+%{_datadir}/systemtap/tapset/qemu-sparc*.stp
+%{_datadir}/systemtap/tapset/qemu-unicore32*.stp
 %endif
 
 %if 0%{?system_x86:1}
@@ -1286,8 +1244,8 @@ getent passwd qemu >/dev/null || \
 %if %{without kvmonly}
 %{_bindir}/qemu-system-i386
 %{_bindir}/qemu-system-x86_64
-%{_datadir}/systemtap/tapset/qemu-system-i386.stp
-%{_datadir}/systemtap/tapset/qemu-system-x86_64.stp
+%{_datadir}/systemtap/tapset/qemu-system-i386*.stp
+%{_datadir}/systemtap/tapset/qemu-system-x86_64*.stp
 %{_mandir}/man1/qemu-system-i386.1*
 %{_mandir}/man1/qemu-system-x86_64.1*
 %endif
@@ -1333,7 +1291,7 @@ getent passwd qemu >/dev/null || \
 %files %{system_alpha}
 %defattr(-,root,root)
 %{_bindir}/qemu-system-alpha
-%{_datadir}/systemtap/tapset/qemu-system-alpha.stp
+%{_datadir}/systemtap/tapset/qemu-system-alpha*.stp
 %{_mandir}/man1/qemu-system-alpha.1*
 %{_datadir}/%{name}/palcode-clipper
 %endif
@@ -1342,7 +1300,7 @@ getent passwd qemu >/dev/null || \
 %files %{system_arm}
 %defattr(-,root,root)
 %{_bindir}/qemu-system-arm
-%{_datadir}/systemtap/tapset/qemu-system-arm.stp
+%{_datadir}/systemtap/tapset/qemu-system-arm*.stp
 %{_mandir}/man1/qemu-system-arm.1*
 %if %{without separate_kvm}
 %ifarch armv7hl
@@ -1360,10 +1318,7 @@ getent passwd qemu >/dev/null || \
 %{_bindir}/qemu-system-mipsel
 %{_bindir}/qemu-system-mips64
 %{_bindir}/qemu-system-mips64el
-%{_datadir}/systemtap/tapset/qemu-system-mips.stp
-%{_datadir}/systemtap/tapset/qemu-system-mipsel.stp
-%{_datadir}/systemtap/tapset/qemu-system-mips64el.stp
-%{_datadir}/systemtap/tapset/qemu-system-mips64.stp
+%{_datadir}/systemtap/tapset/qemu-system-mips*.stp
 %{_mandir}/man1/qemu-system-mips.1*
 %{_mandir}/man1/qemu-system-mipsel.1*
 %{_mandir}/man1/qemu-system-mips64el.1*
@@ -1374,7 +1329,7 @@ getent passwd qemu >/dev/null || \
 %files %{system_cris}
 %defattr(-,root,root)
 %{_bindir}/qemu-system-cris
-%{_datadir}/systemtap/tapset/qemu-system-cris.stp
+%{_datadir}/systemtap/tapset/qemu-system-cris*.stp
 %{_mandir}/man1/qemu-system-cris.1*
 %endif
 
@@ -1382,7 +1337,7 @@ getent passwd qemu >/dev/null || \
 %files %{system_lm32}
 %defattr(-,root,root)
 %{_bindir}/qemu-system-lm32
-%{_datadir}/systemtap/tapset/qemu-system-lm32.stp
+%{_datadir}/systemtap/tapset/qemu-system-lm32*.stp
 %{_mandir}/man1/qemu-system-lm32.1*
 %endif
 
@@ -1390,7 +1345,7 @@ getent passwd qemu >/dev/null || \
 %files %{system_m68k}
 %defattr(-,root,root)
 %{_bindir}/qemu-system-m68k
-%{_datadir}/systemtap/tapset/qemu-system-m68k.stp
+%{_datadir}/systemtap/tapset/qemu-system-m68k*.stp
 %{_mandir}/man1/qemu-system-m68k.1*
 %endif
 
@@ -1399,8 +1354,7 @@ getent passwd qemu >/dev/null || \
 %defattr(-,root,root)
 %{_bindir}/qemu-system-microblaze
 %{_bindir}/qemu-system-microblazeel
-%{_datadir}/systemtap/tapset/qemu-system-microblaze.stp
-%{_datadir}/systemtap/tapset/qemu-system-microblazeel.stp
+%{_datadir}/systemtap/tapset/qemu-system-microblaze*.stp
 %{_mandir}/man1/qemu-system-microblaze.1*
 %{_mandir}/man1/qemu-system-microblazeel.1*
 %{_datadir}/%{name}/petalogix*.dtb
@@ -1410,7 +1364,7 @@ getent passwd qemu >/dev/null || \
 %files %{system_or32}
 %defattr(-,root,root)
 %{_bindir}/qemu-system-or32
-%{_datadir}/systemtap/tapset/qemu-system-or32.stp
+%{_datadir}/systemtap/tapset/qemu-system-or32*.stp
 %{_mandir}/man1/qemu-system-or32.1*
 %endif
 
@@ -1418,7 +1372,7 @@ getent passwd qemu >/dev/null || \
 %files %{system_s390x}
 %defattr(-,root,root)
 %{_bindir}/qemu-system-s390x
-%{_datadir}/systemtap/tapset/qemu-system-s390x.stp
+%{_datadir}/systemtap/tapset/qemu-system-s390x*.stp
 %{_mandir}/man1/qemu-system-s390x.1*
 %{_datadir}/%{name}/s390-zipl.rom
 %{_datadir}/%{name}/s390-ccw.img
@@ -1433,8 +1387,7 @@ getent passwd qemu >/dev/null || \
 %defattr(-,root,root)
 %{_bindir}/qemu-system-sh4
 %{_bindir}/qemu-system-sh4eb
-%{_datadir}/systemtap/tapset/qemu-system-sh4.stp
-%{_datadir}/systemtap/tapset/qemu-system-sh4eb.stp
+%{_datadir}/systemtap/tapset/qemu-system-sh4*.stp
 %{_mandir}/man1/qemu-system-sh4.1*
 %{_mandir}/man1/qemu-system-sh4eb.1*
 %endif
@@ -1444,8 +1397,7 @@ getent passwd qemu >/dev/null || \
 %defattr(-,root,root)
 %{_bindir}/qemu-system-sparc
 %{_bindir}/qemu-system-sparc64
-%{_datadir}/systemtap/tapset/qemu-system-sparc.stp
-%{_datadir}/systemtap/tapset/qemu-system-sparc64.stp
+%{_datadir}/systemtap/tapset/qemu-system-sparc*.stp
 %{_mandir}/man1/qemu-system-sparc.1*
 %{_mandir}/man1/qemu-system-sparc64.1*
 %{_datadir}/%{name}/QEMU,tcx.bin
@@ -1459,9 +1411,9 @@ getent passwd qemu >/dev/null || \
 %{_bindir}/qemu-system-ppc
 %{_bindir}/qemu-system-ppc64
 %{_bindir}/qemu-system-ppcemb
-%{_datadir}/systemtap/tapset/qemu-system-ppc.stp
-%{_datadir}/systemtap/tapset/qemu-system-ppc64.stp
-%{_datadir}/systemtap/tapset/qemu-system-ppcemb.stp
+%{_datadir}/systemtap/tapset/qemu-system-ppc*.stp
+%{_datadir}/systemtap/tapset/qemu-system-ppc64*.stp
+%{_datadir}/systemtap/tapset/qemu-system-ppcemb*.stp
 %{_mandir}/man1/qemu-system-ppc.1*
 %{_mandir}/man1/qemu-system-ppc64.1*
 %{_mandir}/man1/qemu-system-ppcemb.1*
@@ -1480,7 +1432,7 @@ getent passwd qemu >/dev/null || \
 %files %{system_unicore32}
 %defattr(-,root,root)
 %{_bindir}/qemu-system-unicore32
-%{_datadir}/systemtap/tapset/qemu-system-unicore32.stp
+%{_datadir}/systemtap/tapset/qemu-system-unicore32*.stp
 %{_mandir}/man1/qemu-system-unicore32.1*
 %endif
 
@@ -1489,8 +1441,7 @@ getent passwd qemu >/dev/null || \
 %defattr(-,root,root)
 %{_bindir}/qemu-system-xtensa
 %{_bindir}/qemu-system-xtensaeb
-%{_datadir}/systemtap/tapset/qemu-system-xtensa.stp
-%{_datadir}/systemtap/tapset/qemu-system-xtensaeb.stp
+%{_datadir}/systemtap/tapset/qemu-system-xtensa*.stp
 %{_mandir}/man1/qemu-system-xtensa.1*
 %{_mandir}/man1/qemu-system-xtensaeb.1*
 %endif
@@ -1499,7 +1450,7 @@ getent passwd qemu >/dev/null || \
 %files %{system_moxie}
 %defattr(-,root,root)
 %{_bindir}/qemu-system-moxie
-%{_datadir}/systemtap/tapset/qemu-system-moxie.stp
+%{_datadir}/systemtap/tapset/qemu-system-moxie*.stp
 %{_mandir}/man1/qemu-system-moxie.1*
 %endif
 
@@ -1507,12 +1458,20 @@ getent passwd qemu >/dev/null || \
 %files %{system_aarch64}
 %defattr(-,root,root)
 %{_bindir}/qemu-system-aarch64
-%{_datadir}/systemtap/tapset/qemu-system-aarch64.stp
+%{_datadir}/systemtap/tapset/qemu-system-aarch64*.stp
 %{_mandir}/man1/qemu-system-aarch64.1*
 %ifarch aarch64
 %{?kvm_files:}
 %{?qemu_kvm_files:}
 %endif
+%endif
+
+%if 0%{?system_tricore:1}
+%files %{system_tricore}
+%defattr(-,root,root)
+%{_bindir}/qemu-system-tricore
+%{_datadir}/systemtap/tapset/qemu-system-tricore*.stp
+%{_mandir}/man1/qemu-system-tricore.1*
 %endif
 
 %if %{without separate_kvm}
@@ -1541,6 +1500,9 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Sat Nov 15 2014 Cole Robinson <crobinso@redhat.com> - 2:2.2.0-0.1.rc1
+- Update to qemu-2.2.0-rc1
+
 * Wed Oct 29 2014 Cole Robinson <crobinso@redhat.com> - 2:2.1.2-6
 - CVE-2014-7815 vnc: insufficient bits_per_pixel from the client sanitization
   (bz #1157647, bz #1157641)
