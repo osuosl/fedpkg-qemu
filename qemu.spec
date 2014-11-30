@@ -139,7 +139,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.6.2
-Release: 10%{?dist}
+Release: 11%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -369,6 +369,12 @@ Patch0415: 0415-vmware-vga-add-vmsvga_verify_rect.patch
 Patch0416: 0416-vmware-vga-use-vmsvga_verify_rect-in-vmsvga_update_r.patch
 Patch0417: 0417-vmware-vga-use-vmsvga_verify_rect-in-vmsvga_copy_rec.patch
 Patch0418: 0418-vmware-vga-use-vmsvga_verify_rect-in-vmsvga_fill_rec.patch
+# Fix SLES11 migration issue (bz #1109427)
+Patch0419: 0419-kvmclock-Ensure-time-in-migration-never-goes-backwar.patch
+Patch0420: 0420-kvmclock-Ensure-proper-env-tsc-value-for-kvmclock_cu.patch
+# CVE-2014-7840: insufficient parameter validation during ram load (bz
+# #1163080)
+Patch0421: 0421-migration-fix-parameter-validation-on-ram-load.patch
 
 BuildRequires: SDL-devel
 BuildRequires: zlib-devel
@@ -1070,6 +1076,12 @@ CAC emulation development files.
 %patch0416 -p1
 %patch0417 -p1
 %patch0418 -p1
+# Fix SLES11 migration issue (bz #1109427)
+%patch0419 -p1
+%patch0420 -p1
+# CVE-2014-7840: insufficient parameter validation during ram load (bz
+# #1163080)
+%patch0421 -p1
 
 
 %build
@@ -1777,6 +1789,11 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Sun Nov 30 2014 Cole Robinson <crobinso@redhat.com> - 2:1.6.2-11
+- Fix SLES11 migration issue (bz #1109427)
+- CVE-2014-7840: insufficient parameter validation during ram load (bz
+  #1163080)
+
 * Wed Oct 29 2014 Cole Robinson <crobinso@redhat.com> - 2:1.6.2-10
 - CVE-2014-7815 vnc: insufficient bits_per_pixel from the client sanitization
   (bz #1157647, bz #1157641)
