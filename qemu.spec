@@ -370,11 +370,13 @@ Patch0416: 0416-vmware-vga-use-vmsvga_verify_rect-in-vmsvga_update_r.patch
 Patch0417: 0417-vmware-vga-use-vmsvga_verify_rect-in-vmsvga_copy_rec.patch
 Patch0418: 0418-vmware-vga-use-vmsvga_verify_rect-in-vmsvga_fill_rec.patch
 # Fix SLES11 migration issue (bz #1109427)
-Patch0419: 0419-kvmclock-Ensure-time-in-migration-never-goes-backwar.patch
-Patch0420: 0420-kvmclock-Ensure-proper-env-tsc-value-for-kvmclock_cu.patch
+Patch0419: 0419-kvm-run-cpu-state-synchronization-on-target-vcpu-thr.patch
+Patch0420: 0420-Introduce-cpu_clean_all_dirty.patch
+Patch0421: 0421-kvmclock-Ensure-time-in-migration-never-goes-backwar.patch
+Patch0422: 0422-kvmclock-Ensure-proper-env-tsc-value-for-kvmclock_cu.patch
 # CVE-2014-7840: insufficient parameter validation during ram load (bz
 # #1163080)
-Patch0421: 0421-migration-fix-parameter-validation-on-ram-load.patch
+Patch0423: 0423-migration-fix-parameter-validation-on-ram-load.patch
 
 BuildRequires: SDL-devel
 BuildRequires: zlib-devel
@@ -1079,9 +1081,11 @@ CAC emulation development files.
 # Fix SLES11 migration issue (bz #1109427)
 %patch0419 -p1
 %patch0420 -p1
+%patch0421 -p1
+%patch0422 -p1
 # CVE-2014-7840: insufficient parameter validation during ram load (bz
 # #1163080)
-%patch0421 -p1
+%patch0423 -p1
 
 
 %build

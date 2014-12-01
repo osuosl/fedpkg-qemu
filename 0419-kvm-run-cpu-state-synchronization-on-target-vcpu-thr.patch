@@ -1,0 +1,59 @@
+From: David Hildenbrand <dahi@linux.vnet.ibm.com>
+Date: Wed, 20 Aug 2014 14:55:25 +0200
+Subject: [PATCH] kvm: run cpu state synchronization on target vcpu thread
+
+As already done for kvm_cpu_synchronize_state(), let's trigger
+kvm_arch_put_registers() via run_on_cpu() for kvm_cpu_synchronize_post_reset()
+and kvm_cpu_synchronize_post_init().
+
+This way, we make sure that the register synchronizing ioctls are
+called from the proper vcpu thread; this avoids calls to
+synchronize_rcu() in the kernel.
+
+Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+(cherry picked from commit c8e2085d8e7a64d753eb2a43e4aeae674a99d2ff)
+---
+ kvm-all.c | 18 ++++++++++++++++--
+ 1 file changed, 16 insertions(+), 2 deletions(-)
+
+diff --git a/kvm-all.c b/kvm-all.c
+index 716860f..783b8ec 100644
+--- a/kvm-all.c
++++ b/kvm-all.c
+@@ -1599,18 +1599,32 @@ void kvm_cpu_synchronize_state(CPUState *cpu)
+     }
+ }
+ 
+-void kvm_cpu_synchronize_post_reset(CPUState *cpu)
++static void do_kvm_cpu_synchronize_post_reset(void *arg)
+ {
++    CPUState *cpu = arg;
++
+     kvm_arch_put_registers(cpu, KVM_PUT_RESET_STATE);
+     cpu->kvm_vcpu_dirty = false;
+ }
+ 
+-void kvm_cpu_synchronize_post_init(CPUState *cpu)
++void kvm_cpu_synchronize_post_reset(CPUState *cpu)
++{
++    run_on_cpu(cpu, do_kvm_cpu_synchronize_post_reset, cpu);
++}
++
++static void do_kvm_cpu_synchronize_post_init(void *arg)
+ {
++    CPUState *cpu = arg;
++
+     kvm_arch_put_registers(cpu, KVM_PUT_FULL_STATE);
+     cpu->kvm_vcpu_dirty = false;
+ }
+ 
++void kvm_cpu_synchronize_post_init(CPUState *cpu)
++{
++    run_on_cpu(cpu, do_kvm_cpu_synchronize_post_init, cpu);
++}
++
+ int kvm_cpu_exec(CPUState *cpu)
+ {
+     struct kvm_run *run = cpu->kvm_run;
