@@ -152,7 +152,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 2.1.2
-Release: 6%{?dist}
+Release: 7%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -214,6 +214,17 @@ Patch0011: 0011-vmware-vga-add-vmsvga_verify_rect.patch
 Patch0012: 0012-vmware-vga-use-vmsvga_verify_rect-in-vmsvga_update_r.patch
 Patch0013: 0013-vmware-vga-use-vmsvga_verify_rect-in-vmsvga_copy_rec.patch
 Patch0014: 0014-vmware-vga-use-vmsvga_verify_rect-in-vmsvga_fill_rec.patch
+# Fix qemu-img convert corruption for unflushed files (bz #1167249)
+Patch0015: 0015-block-raw-posix-Fix-disk-corruption-in-try_fiemap.patch
+Patch0016: 0016-block-raw-posix-use-seek_hole-ahead-of-fiemap.patch
+# Fix SLES11 migration issue (bz #1109427)
+Patch0017: 0017-kvm-run-cpu-state-synchronization-on-target-vcpu-thr.patch
+Patch0018: 0018-Introduce-cpu_clean_all_dirty.patch
+Patch0019: 0019-kvmclock-Ensure-time-in-migration-never-goes-backwar.patch
+Patch0020: 0020-kvmclock-Ensure-proper-env-tsc-value-for-kvmclock_cu.patch
+# CVE-2014-7840: insufficient parameter validation during ram load (bz
+# #1163080)
+Patch0021: 0021-migration-fix-parameter-validation-on-ram-load.patch
 
 BuildRequires: SDL2-devel
 BuildRequires: zlib-devel
@@ -762,6 +773,17 @@ CAC emulation development files.
 %patch0012 -p1
 %patch0013 -p1
 %patch0014 -p1
+# Fix qemu-img convert corruption for unflushed files (bz #1167249)
+%patch0015 -p1
+%patch0016 -p1
+# Fix SLES11 migration issue (bz #1109427)
+%patch0017 -p1
+%patch0018 -p1
+%patch0019 -p1
+%patch0020 -p1
+# CVE-2014-7840: insufficient parameter validation during ram load (bz
+# #1163080)
+%patch0021 -p1
 
 
 %build
@@ -1541,6 +1563,12 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Sun Nov 30 2014 Cole Robinson <crobinso@redhat.com> - 2:2.1.2-7
+- Fix qemu-img convert corruption for unflushed files (bz #1167249)
+- Fix SLES11 migration issue (bz #1109427)
+- CVE-2014-7840: insufficient parameter validation during ram load (bz
+  #1163080)
+
 * Wed Oct 29 2014 Cole Robinson <crobinso@redhat.com> - 2:2.1.2-6
 - CVE-2014-7815 vnc: insufficient bits_per_pixel from the client sanitization
   (bz #1157647, bz #1157641)
