@@ -139,7 +139,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.6.2
-Release: 11%{?dist}
+Release: 12%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -377,6 +377,9 @@ Patch0422: 0422-kvmclock-Ensure-proper-env-tsc-value-for-kvmclock_cu.patch
 # CVE-2014-7840: insufficient parameter validation during ram load (bz
 # #1163080)
 Patch0423: 0423-migration-fix-parameter-validation-on-ram-load.patch
+# Fix qemu-img convert corruption for unflushed files (bz #1167249)
+Patch0424: 0424-block-raw-posix-Fix-disk-corruption-in-try_fiemap.patch
+Patch0425: 0425-raw-posix-Drop-fiemap.patch
 
 BuildRequires: SDL-devel
 BuildRequires: zlib-devel
@@ -1086,6 +1089,9 @@ CAC emulation development files.
 # CVE-2014-7840: insufficient parameter validation during ram load (bz
 # #1163080)
 %patch0423 -p1
+# Fix qemu-img convert corruption for unflushed files (bz #1167249)
+%patch0424 -p1
+%patch0425 -p1
 
 
 %build
@@ -1793,6 +1799,9 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Tue Dec 09 2014 Cole Robinson <crobinso@redhat.com> - 2:1.6.2-12
+- Fix qemu-img convert corruption for unflushed files (bz #1167249)
+
 * Sun Nov 30 2014 Cole Robinson <crobinso@redhat.com> - 2:1.6.2-11
 - Fix SLES11 migration issue (bz #1109427)
 - CVE-2014-7840: insufficient parameter validation during ram load (bz

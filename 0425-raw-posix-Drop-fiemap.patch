@@ -1,0 +1,75 @@
+From: Cole Robinson <crobinso@redhat.com>
+Date: Tue, 9 Dec 2014 07:46:06 -0500
+Subject: [PATCH] raw-posix: Drop fiemap
+
+Current fiemap code can cause disk corruption:
+
+https://bugzilla.redhat.com/show_bug.cgi?id=1167249
+
+Corruption was fixed upstream with:
+
+http://git.qemu.org/?p=qemu.git;a=commit;h=38c4d0aea3e1264c86e282d99560330adf2b6e25
+http://git.qemu.org/?p=qemu.git;a=commit;h=7c15903789953ead14a417882657d52dc0c19a24
+
+But they don't apply cleanly to qemu 1.6. Just delete the fiemap code
+which was done upstream later with c4875e5b2216cf5427459e619b10f75083565792
+
+Non-upstream for reasons listed above
+---
+ block/raw-posix.c | 36 +-----------------------------------
+ 1 file changed, 1 insertion(+), 35 deletions(-)
+
+diff --git a/block/raw-posix.c b/block/raw-posix.c
+index a6e13fb..26ce466 100644
+--- a/block/raw-posix.c
++++ b/block/raw-posix.c
+@@ -56,9 +56,6 @@
+ #include <linux/fd.h>
+ #include <linux/fs.h>
+ #endif
+-#ifdef CONFIG_FIEMAP
+-#include <linux/fiemap.h>
+-#endif
+ #ifdef CONFIG_FALLOCATE_PUNCH_HOLE
+ #include <linux/falloc.h>
+ #endif
+@@ -1098,38 +1095,7 @@ static int coroutine_fn raw_co_is_allocated(BlockDriverState *bs,
+ 
+     start = sector_num * BDRV_SECTOR_SIZE;
+ 
+-#ifdef CONFIG_FIEMAP
+-
+-    BDRVRawState *s = bs->opaque;
+-    struct {
+-        struct fiemap fm;
+-        struct fiemap_extent fe;
+-    } f;
+-
+-    f.fm.fm_start = start;
+-    f.fm.fm_length = (int64_t)nb_sectors * BDRV_SECTOR_SIZE;
+-    f.fm.fm_flags = FIEMAP_FLAG_SYNC;
+-    f.fm.fm_extent_count = 1;
+-    f.fm.fm_reserved = 0;
+-    if (ioctl(s->fd, FS_IOC_FIEMAP, &f) == -1) {
+-        /* Assume everything is allocated.  */
+-        *pnum = nb_sectors;
+-        return 1;
+-    }
+-
+-    if (f.fm.fm_mapped_extents == 0) {
+-        /* No extents found, data is beyond f.fm.fm_start + f.fm.fm_length.
+-         * f.fm.fm_start + f.fm.fm_length must be clamped to the file size!
+-         */
+-        off_t length = lseek(s->fd, 0, SEEK_END);
+-        hole = f.fm.fm_start;
+-        data = MIN(f.fm.fm_start + f.fm.fm_length, length);
+-    } else {
+-        data = f.fe.fe_logical;
+-        hole = f.fe.fe_logical + f.fe.fe_length;
+-    }
+-
+-#elif defined SEEK_HOLE && defined SEEK_DATA
++#if defined SEEK_HOLE && defined SEEK_DATA
+ 
+     BDRVRawState *s = bs->opaque;
+ 
