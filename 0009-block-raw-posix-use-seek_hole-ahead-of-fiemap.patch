@@ -29,10 +29,10 @@ Signed-off-by: Kevin Wolf <kwolf@redhat.com>
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/block/raw-posix.c b/block/raw-posix.c
-index 9fbc3eb..75c9507 100644
+index 8f6c923..50d29e7 100644
 --- a/block/raw-posix.c
 +++ b/block/raw-posix.c
-@@ -1508,9 +1508,9 @@ static int64_t coroutine_fn raw_co_get_block_status(BlockDriverState *bs,
+@@ -1509,9 +1509,9 @@ static int64_t coroutine_fn raw_co_get_block_status(BlockDriverState *bs,
  
      start = sector_num * BDRV_SECTOR_SIZE;
  

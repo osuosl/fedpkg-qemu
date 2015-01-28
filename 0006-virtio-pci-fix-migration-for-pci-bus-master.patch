@@ -32,7 +32,7 @@ Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
  1 file changed, 20 insertions(+), 19 deletions(-)
 
 diff --git a/hw/virtio/virtio-pci.c b/hw/virtio/virtio-pci.c
-index 58ebbcf..c19c4d6 100644
+index ba675fe..ec582fe 100644
 --- a/hw/virtio/virtio-pci.c
 +++ b/hw/virtio/virtio-pci.c
 @@ -86,9 +86,6 @@
@@ -106,7 +106,7 @@ index 58ebbcf..c19c4d6 100644
          }
          virtio_pci_start_ioeventfd(proxy);
      } else {
-@@ -1043,7 +1045,6 @@ static void virtio_pci_reset(DeviceState *qdev)
+@@ -1044,7 +1046,6 @@ static void virtio_pci_reset(DeviceState *qdev)
      virtio_pci_stop_ioeventfd(proxy);
      virtio_bus_reset(bus);
      msix_unuse_all_vectors(&proxy->pci_dev);

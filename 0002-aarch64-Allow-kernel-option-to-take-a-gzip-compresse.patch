@@ -34,12 +34,12 @@ Signed-off-by: Peter Maydell <peter.maydell@linaro.org>
  1 file changed, 7 insertions(+)
 
 diff --git a/hw/arm/boot.c b/hw/arm/boot.c
-index 3d1f4a2..b7d60aa 100644
+index 50b6c5c..4bad4e6 100644
 --- a/hw/arm/boot.c
 +++ b/hw/arm/boot.c
 @@ -510,6 +510,13 @@ void arm_load_kernel(ARMCPU *cpu, struct arm_boot_info *info)
          kernel_size = load_uimage(info->kernel_filename, &entry, NULL,
-                                   &is_linux);
+                                   &is_linux, NULL, NULL);
      }
 +    /* On aarch64, it's the bootloader's job to uncompress the kernel. */
 +    if (arm_feature(&cpu->env, ARM_FEATURE_AARCH64) && kernel_size < 0) {
