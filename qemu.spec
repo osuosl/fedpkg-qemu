@@ -153,7 +153,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 2.2.0
-Release: 1%{?dist}
+Release: 2%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -781,6 +781,7 @@ sed -i.debug 's/"-g $CFLAGS"/"$CFLAGS"/g' configure
     --interp-prefix=%{_prefix}/qemu-%%M \
     --localstatedir=%{_localstatedir} \
     --libexecdir=%{_libexecdir} \
+    --with-pkgversion=%{name}-%{version}-%{release} \
     --disable-strip \
 %ifnarch aarch64
     --extra-ldflags="$extraldflags -pie -Wl,-z,relro -Wl,-z,now" \
@@ -1500,6 +1501,9 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Wed Jan 28 2015 Daniel P. Berrange <berrange@redhat.com> - 2:2.2.0-2
+- Pass package information to configure
+
 * Tue Dec 09 2014 Cole Robinson <crobinso@redhat.com> - 2:2.2.0-1
 - Rebased to version 2.2.0
 
