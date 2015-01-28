@@ -152,7 +152,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 2.1.2
-Release: 7%{?dist}
+Release: 8%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -833,6 +833,7 @@ sed -i.debug 's/"-g $CFLAGS"/"$CFLAGS"/g' configure
     --interp-prefix=%{_prefix}/qemu-%%M \
     --localstatedir=%{_localstatedir} \
     --libexecdir=%{_libexecdir} \
+    --with-pkgversion=%{name}-%{version}-%{release} \
     --disable-strip \
 %ifnarch aarch64
     --extra-ldflags="$extraldflags -pie -Wl,-z,relro -Wl,-z,now" \
@@ -1563,6 +1564,9 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Wed Jan 28 2015 Daniel P. Berrange <berrange@redhat.com> - 2:2.1.2-8
+- Pass package information to configure
+
 * Sun Nov 30 2014 Cole Robinson <crobinso@redhat.com> - 2:2.1.2-7
 - Fix qemu-img convert corruption for unflushed files (bz #1167249)
 - Fix SLES11 migration issue (bz #1109427)
