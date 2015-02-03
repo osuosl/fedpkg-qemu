@@ -193,6 +193,8 @@ Source12: bridge.conf
 # qemu-kvm back compat wrapper
 Source13: qemu-kvm.sh
 
+Patch0001: 0001-libcacard-stop-linking-against-every-single-3rd-part.patch
+
 BuildRequires: SDL2-devel
 BuildRequires: zlib-devel
 BuildRequires: which
@@ -732,6 +734,7 @@ CAC emulation development files.
 
 %prep
 %setup -q -n qemu-2.2.0
+%patch0001 -p1
 
 %build
 %if %{with kvmonly}
@@ -1504,6 +1507,7 @@ getent passwd qemu >/dev/null || \
 * Tue Feb  3 2015 Daniel P. Berrange <berrange@redhat.com> - 2:2.2.0-3
 - Rebuild for changed xen soname
 - Temporarily disable SPICE to break circular build-dep on libcacard
+- Stop libcacard linking against the entire world
 
 * Wed Jan 28 2015 Daniel P. Berrange <berrange@redhat.com> - 2:2.2.0-2
 - Pass package information to configure
