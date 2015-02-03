@@ -25,7 +25,7 @@
 %bcond_without kvmonly          # enabled
 %bcond_without exclusive_x86_64 # enabled
 %bcond_with    rbd              # disabled
-%bcond_without spice            # enabled
+%bcond_with    spice            # disabled
 %bcond_without seccomp          # enabled
 %bcond_with    xfsprogs         # disabled
 %bcond_with    separate_kvm     # disabled - for EPEL
@@ -35,7 +35,7 @@
 %bcond_with    kvmonly          # disabled
 %bcond_with    exclusive_x86_64 # disabled
 %bcond_without rbd              # enabled
-%bcond_without spice            # enabled
+%bcond_with    spice            # disabled
 %bcond_without seccomp          # enabled
 %bcond_without xfsprogs         # enabled
 %bcond_with    separate_kvm     # disabled
@@ -1503,6 +1503,7 @@ getent passwd qemu >/dev/null || \
 %changelog
 * Tue Feb  3 2015 Daniel P. Berrange <berrange@redhat.com> - 2:2.2.0-3
 - Rebuild for changed xen soname
+- Temporarily disable SPICE to break circular build-dep on libcacard
 
 * Wed Jan 28 2015 Daniel P. Berrange <berrange@redhat.com> - 2:2.2.0-2
 - Pass package information to configure
