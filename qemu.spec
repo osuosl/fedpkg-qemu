@@ -25,7 +25,7 @@
 %bcond_without kvmonly          # enabled
 %bcond_without exclusive_x86_64 # enabled
 %bcond_with    rbd              # disabled
-%bcond_with    spice            # disabled
+%bcond_without spice            # enabled
 %bcond_without seccomp          # enabled
 %bcond_with    xfsprogs         # disabled
 %bcond_with    separate_kvm     # disabled - for EPEL
@@ -35,7 +35,7 @@
 %bcond_with    kvmonly          # disabled
 %bcond_with    exclusive_x86_64 # disabled
 %bcond_without rbd              # enabled
-%bcond_with    spice            # disabled
+%bcond_without spice            # enabled
 %bcond_without seccomp          # enabled
 %bcond_without xfsprogs         # enabled
 %bcond_with    separate_kvm     # disabled
@@ -153,7 +153,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 2.2.0
-Release: 3%{?dist}
+Release: 4%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -1504,6 +1504,9 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Tue Feb  3 2015 Daniel P. Berrange <berrange@redhat.com> - 2:2.2.0-4
+- Re-enable SPICE after previous build fixes circular dep
+
 * Tue Feb  3 2015 Daniel P. Berrange <berrange@redhat.com> - 2:2.2.0-3
 - Rebuild for changed xen soname
 - Temporarily disable SPICE to break circular build-dep on libcacard
