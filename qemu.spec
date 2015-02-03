@@ -153,7 +153,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 2.2.0
-Release: 2%{?dist}
+Release: 3%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -1501,6 +1501,9 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Tue Feb  3 2015 Daniel P. Berrange <berrange@redhat.com> - 2:2.2.0-3
+- Rebuild for changed xen soname
+
 * Wed Jan 28 2015 Daniel P. Berrange <berrange@redhat.com> - 2:2.2.0-2
 - Pass package information to configure
 
