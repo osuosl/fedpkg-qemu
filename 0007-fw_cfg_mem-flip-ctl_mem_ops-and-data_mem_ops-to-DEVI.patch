@@ -1,0 +1,56 @@
+From 172d29b5a320c8d656072db24e94ea21d1a5ed75 Mon Sep 17 00:00:00 2001
+From: Laszlo Ersek <lersek@redhat.com>
+Date: Mon, 22 Dec 2014 13:11:38 +0100
+Subject: [PATCH 07/15] fw_cfg_mem: flip ctl_mem_ops and data_mem_ops to
+ DEVICE_BIG_ENDIAN
+
+The standalone selector port (fw_cfg_ctl_mem_ops) is only used by big
+endian guests to date (*), hence this change doesn't regress them. Paolo
+and Alex have suggested / requested an explicit DEVICE_BIG_ENDIAN setting
+here, for clarity.
+
+(*) git grep -l fw_cfg_init_mem
+
+    hw/nvram/fw_cfg.c
+    hw/ppc/mac_newworld.c
+    hw/ppc/mac_oldworld.c
+    hw/sparc/sun4m.c
+    include/hw/nvram/fw_cfg.h
+
+The standalone data port (fw_cfg_data_mem_ops) has max_access_size 1 (for
+now), hence changing its endianness doesn't change behavior for existing
+guest code.
+
+Signed-off-by: Laszlo Ersek <lersek@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Message-id: 1419250305-31062-5-git-send-email-pbonzini@redhat.com
+Signed-off-by: Peter Maydell <peter.maydell@linaro.org>
+(cherry picked from commit d789c84547abaaf82828b20998aee618b9327261)
+---
+ hw/nvram/fw_cfg.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/hw/nvram/fw_cfg.c b/hw/nvram/fw_cfg.c
+index 8deb860..910ae14 100644
+--- a/hw/nvram/fw_cfg.c
++++ b/hw/nvram/fw_cfg.c
+@@ -332,14 +332,14 @@ static bool fw_cfg_comb_valid(void *opaque, hwaddr addr,
+ 
+ static const MemoryRegionOps fw_cfg_ctl_mem_ops = {
+     .write = fw_cfg_ctl_mem_write,
+-    .endianness = DEVICE_NATIVE_ENDIAN,
++    .endianness = DEVICE_BIG_ENDIAN,
+     .valid.accepts = fw_cfg_ctl_mem_valid,
+ };
+ 
+ static const MemoryRegionOps fw_cfg_data_mem_ops = {
+     .read = fw_cfg_data_mem_read,
+     .write = fw_cfg_data_mem_write,
+-    .endianness = DEVICE_NATIVE_ENDIAN,
++    .endianness = DEVICE_BIG_ENDIAN,
+     .valid = {
+         .min_access_size = 1,
+         .max_access_size = 1,
+-- 
+2.1.0
+

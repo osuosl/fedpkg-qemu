@@ -1,0 +1,47 @@
+From dfcc3acd2510e5adc3dbb67c83a131bf5fb017ec Mon Sep 17 00:00:00 2001
+From: Laszlo Ersek <lersek@redhat.com>
+Date: Mon, 22 Dec 2014 13:11:37 +0100
+Subject: [PATCH 06/15] fw_cfg_mem: max access size and region size are the
+ same for data register
+
+Make it clear that the maximum access size to the MMIO data register
+determines the full size of the memory region.
+
+Currently the max access size is 1.
+
+This patch doesn't change behavior.
+
+Signed-off-by: Laszlo Ersek <lersek@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Message-id: 1419250305-31062-4-git-send-email-pbonzini@redhat.com
+Signed-off-by: Peter Maydell <peter.maydell@linaro.org>
+(cherry picked from commit 86099db3823fec1800225f89544014a98b227ed9)
+---
+ hw/nvram/fw_cfg.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/hw/nvram/fw_cfg.c b/hw/nvram/fw_cfg.c
+index c48bc6e..8deb860 100644
+--- a/hw/nvram/fw_cfg.c
++++ b/hw/nvram/fw_cfg.c
+@@ -31,7 +31,6 @@
+ #include "qemu/config-file.h"
+ 
+ #define FW_CFG_SIZE 2
+-#define FW_CFG_DATA_SIZE 1
+ #define FW_CFG_NAME "fw_cfg"
+ #define FW_CFG_PATH "/machine/" FW_CFG_NAME
+ 
+@@ -694,7 +693,8 @@ static void fw_cfg_mem_realize(DeviceState *dev, Error **errp)
+     sysbus_init_mmio(sbd, &s->ctl_iomem);
+ 
+     memory_region_init_io(&s->data_iomem, OBJECT(s), &fw_cfg_data_mem_ops,
+-                          FW_CFG(s), "fwcfg.data", FW_CFG_DATA_SIZE);
++                          FW_CFG(s), "fwcfg.data",
++                          fw_cfg_data_mem_ops.valid.max_access_size);
+     sysbus_init_mmio(sbd, &s->data_iomem);
+ }
+ 
+-- 
+2.1.0
+

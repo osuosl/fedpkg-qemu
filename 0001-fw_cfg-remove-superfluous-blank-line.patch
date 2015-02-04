@@ -1,0 +1,27 @@
+From f4a88b45ad11265d39f17efdf2f54f6a48043655 Mon Sep 17 00:00:00 2001
+From: Gonglei <arei.gonglei@huawei.com>
+Date: Mon, 8 Dec 2014 19:52:41 +0800
+Subject: [PATCH 01/15] fw_cfg: remove superfluous blank line
+
+Signed-off-by: Gonglei <arei.gonglei@huawei.com>
+Signed-off-by: Michael Tokarev <mjt@tls.msk.ru>
+(cherry picked from commit d504fb4cecdb7c6f3b18c4d83296e84b6e970595)
+---
+ hw/nvram/fw_cfg.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/hw/nvram/fw_cfg.c b/hw/nvram/fw_cfg.c
+index a7122ee..c4b78ed 100644
+--- a/hw/nvram/fw_cfg.c
++++ b/hw/nvram/fw_cfg.c
+@@ -621,7 +621,6 @@ static void fw_cfg_realize(DeviceState *dev, Error **errp)
+     FWCfgState *s = FW_CFG(dev);
+     SysBusDevice *sbd = SYS_BUS_DEVICE(dev);
+ 
+-
+     if (s->ctl_iobase + 1 == s->data_iobase) {
+         sysbus_add_io(sbd, s->ctl_iobase, &s->comb_iomem);
+     } else {
+-- 
+2.1.0
+

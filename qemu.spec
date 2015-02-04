@@ -153,7 +153,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 2.2.0
-Release: 4%{?dist}
+Release: 5%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -193,7 +193,24 @@ Source12: bridge.conf
 # qemu-kvm back compat wrapper
 Source13: qemu-kvm.sh
 
-Patch0001: 0001-libcacard-stop-linking-against-every-single-3rd-part.patch
+Patch0000: 0001-libcacard-stop-linking-against-every-single-3rd-part.patch
+
+# Add UEFI support for aarch64.  Upstream in qemu > 2.2.0.
+Patch0001: 0001-fw_cfg-remove-superfluous-blank-line.patch
+Patch0002: 0002-hw-arm-boot-fix-uninitialized-scalar-variable-warnin.patch
+Patch0003: 0003-Sort-include-qemu-typedefs.h.patch
+Patch0004: 0004-fw_cfg-hard-separation-between-the-MMIO-and-I-O-port.patch
+Patch0005: 0005-fw_cfg-move-boards-to-fw_cfg_init_io-fw_cfg_init_mem.patch
+Patch0006: 0006-fw_cfg_mem-max-access-size-and-region-size-are-the-s.patch
+Patch0007: 0007-fw_cfg_mem-flip-ctl_mem_ops-and-data_mem_ops-to-DEVI.patch
+Patch0008: 0008-exec-allows-8-byte-accesses-in-subpage_ops.patch
+Patch0009: 0009-fw_cfg_mem-introduce-the-data_width-property.patch
+Patch0010: 0010-fw_cfg_mem-expose-the-data_width-property-with-fw_cf.patch
+Patch0011: 0011-arm-add-fw_cfg-to-virt-board.patch
+Patch0012: 0012-hw-loader-split-out-load_image_gzipped_buffer.patch
+Patch0013: 0013-hw-arm-pass-pristine-kernel-image-to-guest-firmware-.patch
+Patch0014: 0014-hw-arm-virt-enable-passing-of-EFI-stubbed-kernel-to-.patch
+Patch0015: 0015-fw_cfg-fix-endianness-in-fw_cfg_data_mem_read-_write.patch
 
 BuildRequires: SDL2-devel
 BuildRequires: zlib-devel
@@ -734,7 +751,22 @@ CAC emulation development files.
 
 %prep
 %setup -q -n qemu-2.2.0
+%patch0000 -p1
 %patch0001 -p1
+%patch0002 -p1
+%patch0003 -p1
+%patch0004 -p1
+%patch0005 -p1
+%patch0006 -p1
+%patch0007 -p1
+%patch0008 -p1
+%patch0009 -p1
+%patch0010 -p1
+%patch0011 -p1
+%patch0012 -p1
+%patch0013 -p1
+%patch0014 -p1
+%patch0015 -p1
 
 %build
 %if %{with kvmonly}
@@ -1504,6 +1536,9 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Wed Feb  4 2015 Richard W.M. Jones <rjones@redhat.com> - 2:2.2.0-5
+- Add UEFI support for aarch64.
+
 * Tue Feb  3 2015 Daniel P. Berrange <berrange@redhat.com> - 2:2.2.0-4
 - Re-enable SPICE after previous build fixes circular dep
 

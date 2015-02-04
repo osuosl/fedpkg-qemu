@@ -1,0 +1,176 @@
+From b627b2d476b3677e35d06bdc9fac26678fb92484 Mon Sep 17 00:00:00 2001
+From: Laszlo Ersek <lersek@redhat.com>
+Date: Fri, 16 Jan 2015 11:54:30 +0000
+Subject: [PATCH 15/15] fw_cfg: fix endianness in fw_cfg_data_mem_read() /
+ _write()
+
+(1) Let's contemplate what device endianness means, for a memory mapped
+device register (independently of QEMU -- that is, on physical hardware).
+
+It determines the byte order that the device will put on the data bus when
+the device is producing a *numerical value* for the CPU. This byte order
+may differ from the CPU's own byte order, therefore when software wants to
+consume the *numerical value*, it may have to swap the byte order first.
+
+For example, suppose we have a device that exposes in a 2-byte register
+the number of sheep we have to count before falling asleep. If the value
+is decimal 37 (0x0025), then a big endian register will produce [0x00,
+0x25], while a little endian register will produce [0x25, 0x00].
+
+If the device register is big endian, but the CPU is little endian, the
+numerical value will read as 0x2500 (decimal 9472), which software has to
+byte swap before use.
+
+However... if we ask the device about who stole our herd of sheep, and it
+answers "XY", then the byte representation coming out of the register must
+be [0x58, 0x59], regardless of the device register's endianness for
+numeric values. And, software needs to copy these bytes into a string
+field regardless of the CPU's own endianness.
+
+(2) QEMU's device register accessor functions work with *numerical values*
+exclusively, not strings:
+
+The emulated register's read accessor function returns the numerical value
+(eg. 37 decimal, 0x0025) as a *host-encoded* uint64_t. QEMU translates
+this value for the guest to the endianness of the emulated device register
+(which is recorded in MemoryRegionOps.endianness). Then guest code must
+translate the numerical value from device register to guest CPU
+endianness, before including it in any computation (see (1)).
+
+(3) However, the data register of the fw_cfg device shall transfer strings
+*only* -- that is, opaque blobs. Interpretation of any given blob is
+subject to further agreement -- it can be an integer in an independently
+determined byte order, or a genuine string, or an array of structs of
+integers (in some byte order) and fixed size strings, and so on.
+
+Because register emulation in QEMU is integer-preserving, not
+string-preserving (see (2)), we have to jump through a few hoops.
+
+(3a) We defined the memory mapped fw_cfg data register as
+DEVICE_BIG_ENDIAN.
+
+The particular choice is not really relevant -- we picked BE only for
+consistency with the control register, which *does* transfer integers --
+but our choice affects how we must host-encode values from fw_cfg strings.
+
+(3b) Since we want the fw_cfg string "XY" to appear as the [0x58, 0x59]
+array on the data register, *and* we picked DEVICE_BIG_ENDIAN, we must
+compose the host (== C language) value 0x5859 in the read accessor
+function.
+
+(3c) When the guest performs the read access, the immediate uint16_t value
+will be 0x5958 (in LE guests) and 0x5859 (in BE guests). However, the
+uint16_t value does not matter. The only thing that matters is the byte
+pattern [0x58, 0x59], which the guest code must copy into the target
+string *without* any byte-swapping.
+
+(4) Now I get to explain where I screwed up. :(
+
+When we decided for big endian *integer* representation in the MMIO data
+register -- see (3a) --, I mindlessly added an indiscriminate
+byte-swizzling step to the (little endian) guest firmware.
+
+This was a grave error -- it violates (3c) --, but I didn't realize it. I
+only saw that the code I otherwise intended for fw_cfg_data_mem_read():
+
+    value = 0;
+    for (i = 0; i < size; ++i) {
+        value = (value << 8) | fw_cfg_read(s);
+    }
+
+didn't produce the expected result in the guest.
+
+In true facepalm style, instead of blaming my guest code (which violated
+(3c)), I blamed my host code (which was correct). Ultimately, I coded
+ldX_he_p() into fw_cfg_data_mem_read(), because that happened to work.
+
+Obviously (...in retrospect) that was wrong. Only because my host happened
+to be LE, ldX_he_p() composed the (otherwise incorrect) host value 0x5958
+from the fw_cfg string "XY". And that happened to compensate for the bogus
+indiscriminate byte-swizzling in my guest code.
+
+Clearly the current code leaks the host endianness through to the guest,
+which is wrong. Any device should work the same regardless of host
+endianness.
+
+The solution is to compose the host-endian representation (2) of the big
+endian interpretation (3a, 3b) of the fw_cfg string, and to drop the wrong
+byte-swizzling in the guest (3c).
+
+Brown paper bag time for me.
+
+Signed-off-by: Laszlo Ersek <lersek@redhat.com>
+Message-id: 1420024880-15416-1-git-send-email-lersek@redhat.com
+Reviewed-by: Peter Maydell <peter.maydell@linaro.org>
+Signed-off-by: Peter Maydell <peter.maydell@linaro.org>
+(cherry picked from commit 36b62ae6a58f9a588fd33be9386e18a2b90103f5)
+---
+ hw/nvram/fw_cfg.c | 41 +++++++----------------------------------
+ 1 file changed, 7 insertions(+), 34 deletions(-)
+
+diff --git a/hw/nvram/fw_cfg.c b/hw/nvram/fw_cfg.c
+index fcdf821..78a37be 100644
+--- a/hw/nvram/fw_cfg.c
++++ b/hw/nvram/fw_cfg.c
+@@ -287,51 +287,24 @@ static uint64_t fw_cfg_data_mem_read(void *opaque, hwaddr addr,
+                                      unsigned size)
+ {
+     FWCfgState *s = opaque;
+-    uint8_t buf[8];
++    uint64_t value = 0;
+     unsigned i;
+ 
+     for (i = 0; i < size; ++i) {
+-        buf[i] = fw_cfg_read(s);
++        value = (value << 8) | fw_cfg_read(s);
+     }
+-    switch (size) {
+-    case 1:
+-        return buf[0];
+-    case 2:
+-        return lduw_he_p(buf);
+-    case 4:
+-        return (uint32_t)ldl_he_p(buf);
+-    case 8:
+-        return ldq_he_p(buf);
+-    }
+-    abort();
++    return value;
+ }
+ 
+ static void fw_cfg_data_mem_write(void *opaque, hwaddr addr,
+                                   uint64_t value, unsigned size)
+ {
+     FWCfgState *s = opaque;
+-    uint8_t buf[8];
+-    unsigned i;
++    unsigned i = size;
+ 
+-    switch (size) {
+-    case 1:
+-        buf[0] = value;
+-        break;
+-    case 2:
+-        stw_he_p(buf, value);
+-        break;
+-    case 4:
+-        stl_he_p(buf, value);
+-        break;
+-    case 8:
+-        stq_he_p(buf, value);
+-        break;
+-    default:
+-        abort();
+-    }
+-    for (i = 0; i < size; ++i) {
+-        fw_cfg_write(s, buf[i]);
+-    }
++    do {
++        fw_cfg_write(s, value >> (8 * --i));
++    } while (i);
+ }
+ 
+ static bool fw_cfg_data_mem_valid(void *opaque, hwaddr addr,
+-- 
+2.1.0
+

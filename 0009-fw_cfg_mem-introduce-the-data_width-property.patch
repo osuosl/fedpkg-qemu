@@ -1,0 +1,168 @@
+From 5e7e3b47666b777f3bf44cd91d87130f8ca1a7c1 Mon Sep 17 00:00:00 2001
+From: Laszlo Ersek <lersek@redhat.com>
+Date: Mon, 22 Dec 2014 13:11:40 +0100
+Subject: [PATCH 09/15] fw_cfg_mem: introduce the "data_width" property
+
+The "data_width" property is capable of changing the maximum valid access
+size to the MMIO data register, and resizes the memory region similarly,
+at device realization time.
+
+The default value of "data_memwidth" is set so that we don't yet diverge
+from "fw_cfg_data_mem_ops".
+
+Most of the fw_cfg_mem users will stick with the default, and for them we
+should continue using the statically allocated "fw_cfg_data_mem_ops". This
+is beneficial for debugging because gdb can resolve pointers referencing
+static objects to the names of those objects.
+
+Signed-off-by: Laszlo Ersek <lersek@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Message-id: 1419250305-31062-7-git-send-email-pbonzini@redhat.com
+Signed-off-by: Peter Maydell <peter.maydell@linaro.org>
+(cherry picked from commit cfaadf0e89e7c2a47462d5f96390c9a9b4de037c)
+---
+ hw/nvram/fw_cfg.c | 79 +++++++++++++++++++++++++++++++++++++++++++++++++++----
+ 1 file changed, 74 insertions(+), 5 deletions(-)
+
+diff --git a/hw/nvram/fw_cfg.c b/hw/nvram/fw_cfg.c
+index 910ae14..2950d68 100644
+--- a/hw/nvram/fw_cfg.c
++++ b/hw/nvram/fw_cfg.c
+@@ -77,6 +77,8 @@ struct FWCfgMemState {
+     /*< public >*/
+ 
+     MemoryRegion ctl_iomem, data_iomem;
++    uint32_t data_width;
++    MemoryRegionOps wide_data_ops;
+ };
+ 
+ #define JPG_FILE 0
+@@ -284,13 +286,58 @@ static uint8_t fw_cfg_read(FWCfgState *s)
+ static uint64_t fw_cfg_data_mem_read(void *opaque, hwaddr addr,
+                                      unsigned size)
+ {
+-    return fw_cfg_read(opaque);
++    FWCfgState *s = opaque;
++    uint8_t buf[8];
++    unsigned i;
++
++    for (i = 0; i < size; ++i) {
++        buf[i] = fw_cfg_read(s);
++    }
++    switch (size) {
++    case 1:
++        return buf[0];
++    case 2:
++        return lduw_he_p(buf);
++    case 4:
++        return (uint32_t)ldl_he_p(buf);
++    case 8:
++        return ldq_he_p(buf);
++    }
++    abort();
+ }
+ 
+ static void fw_cfg_data_mem_write(void *opaque, hwaddr addr,
+                                   uint64_t value, unsigned size)
+ {
+-    fw_cfg_write(opaque, (uint8_t)value);
++    FWCfgState *s = opaque;
++    uint8_t buf[8];
++    unsigned i;
++
++    switch (size) {
++    case 1:
++        buf[0] = value;
++        break;
++    case 2:
++        stw_he_p(buf, value);
++        break;
++    case 4:
++        stl_he_p(buf, value);
++        break;
++    case 8:
++        stq_he_p(buf, value);
++        break;
++    default:
++        abort();
++    }
++    for (i = 0; i < size; ++i) {
++        fw_cfg_write(s, buf[i]);
++    }
++}
++
++static bool fw_cfg_data_mem_valid(void *opaque, hwaddr addr,
++                                  unsigned size, bool is_write)
++{
++    return addr == 0;
+ }
+ 
+ static void fw_cfg_ctl_mem_write(void *opaque, hwaddr addr,
+@@ -343,6 +390,7 @@ static const MemoryRegionOps fw_cfg_data_mem_ops = {
+     .valid = {
+         .min_access_size = 1,
+         .max_access_size = 1,
++        .accepts = fw_cfg_data_mem_valid,
+     },
+ };
+ 
+@@ -621,6 +669,9 @@ FWCfgState *fw_cfg_init_mem(hwaddr ctl_addr, hwaddr data_addr)
+     SysBusDevice *sbd;
+ 
+     dev = qdev_create(NULL, TYPE_FW_CFG_MEM);
++    qdev_prop_set_uint32(dev, "data_width",
++                         fw_cfg_data_mem_ops.valid.max_access_size);
++
+     fw_cfg_init1(dev);
+ 
+     sbd = SYS_BUS_DEVICE(dev);
+@@ -683,18 +734,35 @@ static const TypeInfo fw_cfg_io_info = {
+ };
+ 
+ 
++static Property fw_cfg_mem_properties[] = {
++    DEFINE_PROP_UINT32("data_width", FWCfgMemState, data_width, -1),
++    DEFINE_PROP_END_OF_LIST(),
++};
++
+ static void fw_cfg_mem_realize(DeviceState *dev, Error **errp)
+ {
+     FWCfgMemState *s = FW_CFG_MEM(dev);
+     SysBusDevice *sbd = SYS_BUS_DEVICE(dev);
++    const MemoryRegionOps *data_ops = &fw_cfg_data_mem_ops;
+ 
+     memory_region_init_io(&s->ctl_iomem, OBJECT(s), &fw_cfg_ctl_mem_ops,
+                           FW_CFG(s), "fwcfg.ctl", FW_CFG_SIZE);
+     sysbus_init_mmio(sbd, &s->ctl_iomem);
+ 
+-    memory_region_init_io(&s->data_iomem, OBJECT(s), &fw_cfg_data_mem_ops,
+-                          FW_CFG(s), "fwcfg.data",
+-                          fw_cfg_data_mem_ops.valid.max_access_size);
++    if (s->data_width > data_ops->valid.max_access_size) {
++        /* memberwise copy because the "old_mmio" member is const */
++        s->wide_data_ops.read       = data_ops->read;
++        s->wide_data_ops.write      = data_ops->write;
++        s->wide_data_ops.endianness = data_ops->endianness;
++        s->wide_data_ops.valid      = data_ops->valid;
++        s->wide_data_ops.impl       = data_ops->impl;
++
++        s->wide_data_ops.valid.max_access_size = s->data_width;
++        s->wide_data_ops.impl.max_access_size  = s->data_width;
++        data_ops = &s->wide_data_ops;
++    }
++    memory_region_init_io(&s->data_iomem, OBJECT(s), data_ops, FW_CFG(s),
++                          "fwcfg.data", data_ops->valid.max_access_size);
+     sysbus_init_mmio(sbd, &s->data_iomem);
+ }
+ 
+@@ -703,6 +771,7 @@ static void fw_cfg_mem_class_init(ObjectClass *klass, void *data)
+     DeviceClass *dc = DEVICE_CLASS(klass);
+ 
+     dc->realize = fw_cfg_mem_realize;
++    dc->props = fw_cfg_mem_properties;
+ }
+ 
+ static const TypeInfo fw_cfg_mem_info = {
+-- 
+2.1.0
+

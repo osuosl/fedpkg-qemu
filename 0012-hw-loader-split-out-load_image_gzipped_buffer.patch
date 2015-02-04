@@ -1,0 +1,101 @@
+From 29736faa92d5e4b4242786ee583ce339263d6adb Mon Sep 17 00:00:00 2001
+From: Laszlo Ersek <lersek@redhat.com>
+Date: Mon, 22 Dec 2014 13:11:43 +0100
+Subject: [PATCH 12/15] hw/loader: split out load_image_gzipped_buffer()
+
+In the next patch we'd like to reuse the image decompression facility
+without installing the output as a ROM at a specific guest-phys address.
+
+In addition, expose LOAD_IMAGE_MAX_GUNZIP_BYTES, because that's a
+straightforward "max_sz" argument for the new load_image_gzipped_buffer().
+
+Signed-off-by: Laszlo Ersek <lersek@redhat.com>
+Reviewed-by: Peter Maydell <peter.maydell@linaro.org>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Message-id: 1419250305-31062-10-git-send-email-pbonzini@redhat.com
+Signed-off-by: Peter Maydell <peter.maydell@linaro.org>
+(cherry picked from commit 7d48a0f7217474899c5f5920b21f4cfdf4efa8d1)
+---
+ hw/core/loader.c    | 30 +++++++++++++++++++++---------
+ include/hw/loader.h |  9 +++++++++
+ 2 files changed, 30 insertions(+), 9 deletions(-)
+
+diff --git a/hw/core/loader.c b/hw/core/loader.c
+index 7527fd3..f2b34da 100644
+--- a/hw/core/loader.c
++++ b/hw/core/loader.c
+@@ -614,14 +614,9 @@ int load_ramdisk(const char *filename, hwaddr addr, uint64_t max_sz)
+                             NULL, NULL);
+ }
+ 
+-/* This simply prevents g_malloc in the function below from allocating
+- * a huge amount of memory, by placing a limit on the maximum
+- * uncompressed image size that load_image_gzipped will read.
+- */
+-#define LOAD_IMAGE_MAX_GUNZIP_BYTES (256 << 20)
+-
+-/* Load a gzip-compressed kernel. */
+-int load_image_gzipped(const char *filename, hwaddr addr, uint64_t max_sz)
++/* Load a gzip-compressed kernel to a dynamically allocated buffer. */
++int load_image_gzipped_buffer(const char *filename, uint64_t max_sz,
++                              uint8_t **buffer)
+ {
+     uint8_t *compressed_data = NULL;
+     uint8_t *data = NULL;
+@@ -653,8 +648,11 @@ int load_image_gzipped(const char *filename, hwaddr addr, uint64_t max_sz)
+         goto out;
+     }
+ 
+-    rom_add_blob_fixed(filename, data, bytes, addr);
++    /* trim to actual size and return to caller */
++    *buffer = g_realloc(data, bytes);
+     ret = bytes;
++    /* ownership has been transferred to caller */
++    data = NULL;
+ 
+  out:
+     g_free(compressed_data);
+@@ -662,6 +660,20 @@ int load_image_gzipped(const char *filename, hwaddr addr, uint64_t max_sz)
+     return ret;
+ }
+ 
++/* Load a gzip-compressed kernel. */
++int load_image_gzipped(const char *filename, hwaddr addr, uint64_t max_sz)
++{
++    int bytes;
++    uint8_t *data;
++
++    bytes = load_image_gzipped_buffer(filename, max_sz, &data);
++    if (bytes != -1) {
++        rom_add_blob_fixed(filename, data, bytes, addr);
++        g_free(data);
++    }
++    return bytes;
++}
++
+ /*
+  * Functions for reboot-persistent memory regions.
+  *  - used for vga bios and option roms.
+diff --git a/include/hw/loader.h b/include/hw/loader.h
+index 6481639..8997620 100644
+--- a/include/hw/loader.h
++++ b/include/hw/loader.h
+@@ -16,6 +16,15 @@ int load_image(const char *filename, uint8_t *addr); /* deprecated */
+ ssize_t load_image_size(const char *filename, void *addr, size_t size);
+ int load_image_targphys(const char *filename, hwaddr,
+                         uint64_t max_sz);
++
++/* This is the limit on the maximum uncompressed image size that
++ * load_image_gzipped_buffer() and load_image_gzipped() will read. It prevents
++ * g_malloc() in those functions from allocating a huge amount of memory.
++ */
++#define LOAD_IMAGE_MAX_GUNZIP_BYTES (256 << 20)
++
++int load_image_gzipped_buffer(const char *filename, uint64_t max_sz,
++                              uint8_t **buffer);
+ int load_image_gzipped(const char *filename, hwaddr addr, uint64_t max_sz);
+ 
+ #define ELF_LOAD_FAILED       -1
+-- 
+2.1.0
+

@@ -1,0 +1,139 @@
+From 6b9b5f3220b48bab7340fa7cae6ee021280fa9f1 Mon Sep 17 00:00:00 2001
+From: Laszlo Ersek <lersek@redhat.com>
+Date: Mon, 22 Dec 2014 13:11:36 +0100
+Subject: [PATCH 05/15] fw_cfg: move boards to fw_cfg_init_io() /
+ fw_cfg_init_mem()
+
+This allows us to drop the fw_cfg_init() shim and to enforce the possible
+mappings at compile time.
+
+Signed-off-by: Laszlo Ersek <lersek@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Message-id: 1419250305-31062-3-git-send-email-pbonzini@redhat.com
+Signed-off-by: Peter Maydell <peter.maydell@linaro.org>
+(cherry picked from commit 66708822cd3007ae1ec5104d274a861148725e7a)
+---
+ hw/i386/pc.c              |  4 ++--
+ hw/nvram/fw_cfg.c         | 14 --------------
+ hw/ppc/mac_newworld.c     |  2 +-
+ hw/ppc/mac_oldworld.c     |  2 +-
+ hw/sparc/sun4m.c          |  2 +-
+ hw/sparc64/sun4u.c        |  2 +-
+ include/hw/nvram/fw_cfg.h |  2 --
+ 7 files changed, 6 insertions(+), 22 deletions(-)
+
+diff --git a/hw/i386/pc.c b/hw/i386/pc.c
+index f31d55e..f60965f 100644
+--- a/hw/i386/pc.c
++++ b/hw/i386/pc.c
+@@ -648,7 +648,7 @@ static FWCfgState *bochs_bios_init(void)
+     int i, j;
+     unsigned int apic_id_limit = pc_apic_id_limit(max_cpus);
+ 
+-    fw_cfg = fw_cfg_init(BIOS_CFG_IOPORT, BIOS_CFG_IOPORT + 1, 0, 0);
++    fw_cfg = fw_cfg_init_io(BIOS_CFG_IOPORT);
+     /* FW_CFG_MAX_CPUS is a bit confusing/problematic on x86:
+      *
+      * SeaBIOS needs FW_CFG_MAX_CPUS for CPU hotplug, but the CPU hotplug
+@@ -1169,7 +1169,7 @@ FWCfgState *xen_load_linux(const char *kernel_filename,
+ 
+     assert(kernel_filename != NULL);
+ 
+-    fw_cfg = fw_cfg_init(BIOS_CFG_IOPORT, BIOS_CFG_IOPORT + 1, 0, 0);
++    fw_cfg = fw_cfg_init_io(BIOS_CFG_IOPORT);
+     rom_set_fw(fw_cfg);
+ 
+     load_linux(fw_cfg, kernel_filename, initrd_filename,
+diff --git a/hw/nvram/fw_cfg.c b/hw/nvram/fw_cfg.c
+index ab7bfff..c48bc6e 100644
+--- a/hw/nvram/fw_cfg.c
++++ b/hw/nvram/fw_cfg.c
+@@ -632,20 +632,6 @@ FWCfgState *fw_cfg_init_mem(hwaddr ctl_addr, hwaddr data_addr)
+ }
+ 
+ 
+-FWCfgState *fw_cfg_init(uint32_t ctl_port, uint32_t data_port,
+-                        hwaddr crl_addr, hwaddr data_addr)
+-{
+-    if (ctl_port + 1 == data_port && crl_addr == 0 && data_addr == 0) {
+-        return fw_cfg_init_io(ctl_port);
+-    }
+-    if (ctl_port == 0 && data_port == 0 && crl_addr != 0 && data_addr != 0) {
+-        return fw_cfg_init_mem(crl_addr, data_addr);
+-    }
+-    assert(false);
+-    return NULL;
+-}
+-
+-
+ FWCfgState *fw_cfg_find(void)
+ {
+     return FW_CFG(object_resolve_path(FW_CFG_PATH, NULL));
+diff --git a/hw/ppc/mac_newworld.c b/hw/ppc/mac_newworld.c
+index 89aee71..5dac389 100644
+--- a/hw/ppc/mac_newworld.c
++++ b/hw/ppc/mac_newworld.c
+@@ -454,7 +454,7 @@ static void ppc_core99_init(MachineState *machine)
+     pmac_format_nvram_partition(nvr, 0x2000);
+     /* No PCI init: the BIOS will do it */
+ 
+-    fw_cfg = fw_cfg_init(0, 0, CFG_ADDR, CFG_ADDR + 2);
++    fw_cfg = fw_cfg_init_mem(CFG_ADDR, CFG_ADDR + 2);
+     fw_cfg_add_i16(fw_cfg, FW_CFG_MAX_CPUS, (uint16_t)max_cpus);
+     fw_cfg_add_i32(fw_cfg, FW_CFG_ID, 1);
+     fw_cfg_add_i64(fw_cfg, FW_CFG_RAM_SIZE, (uint64_t)ram_size);
+diff --git a/hw/ppc/mac_oldworld.c b/hw/ppc/mac_oldworld.c
+index 32c21a4..41fefb7 100644
+--- a/hw/ppc/mac_oldworld.c
++++ b/hw/ppc/mac_oldworld.c
+@@ -314,7 +314,7 @@ static void ppc_heathrow_init(MachineState *machine)
+ 
+     /* No PCI init: the BIOS will do it */
+ 
+-    fw_cfg = fw_cfg_init(0, 0, CFG_ADDR, CFG_ADDR + 2);
++    fw_cfg = fw_cfg_init_mem(CFG_ADDR, CFG_ADDR + 2);
+     fw_cfg_add_i16(fw_cfg, FW_CFG_MAX_CPUS, (uint16_t)max_cpus);
+     fw_cfg_add_i32(fw_cfg, FW_CFG_ID, 1);
+     fw_cfg_add_i64(fw_cfg, FW_CFG_RAM_SIZE, (uint64_t)ram_size);
+diff --git a/hw/sparc/sun4m.c b/hw/sparc/sun4m.c
+index 8273199..a12d3c4 100644
+--- a/hw/sparc/sun4m.c
++++ b/hw/sparc/sun4m.c
+@@ -1084,7 +1084,7 @@ static void sun4m_hw_init(const struct sun4m_hwdef *hwdef,
+         ecc_init(hwdef->ecc_base, slavio_irq[28],
+                  hwdef->ecc_version);
+ 
+-    fw_cfg = fw_cfg_init(0, 0, CFG_ADDR, CFG_ADDR + 2);
++    fw_cfg = fw_cfg_init_mem(CFG_ADDR, CFG_ADDR + 2);
+     fw_cfg_add_i16(fw_cfg, FW_CFG_MAX_CPUS, (uint16_t)max_cpus);
+     fw_cfg_add_i32(fw_cfg, FW_CFG_ID, 1);
+     fw_cfg_add_i64(fw_cfg, FW_CFG_RAM_SIZE, (uint64_t)ram_size);
+diff --git a/hw/sparc64/sun4u.c b/hw/sparc64/sun4u.c
+index f42112c..49fb678 100644
+--- a/hw/sparc64/sun4u.c
++++ b/hw/sparc64/sun4u.c
+@@ -892,7 +892,7 @@ static void sun4uv_init(MemoryRegion *address_space_mem,
+                            graphic_width, graphic_height, graphic_depth,
+                            (uint8_t *)&nd_table[0].macaddr);
+ 
+-    fw_cfg = fw_cfg_init(BIOS_CFG_IOPORT, BIOS_CFG_IOPORT + 1, 0, 0);
++    fw_cfg = fw_cfg_init_io(BIOS_CFG_IOPORT);
+     fw_cfg_add_i16(fw_cfg, FW_CFG_MAX_CPUS, (uint16_t)max_cpus);
+     fw_cfg_add_i32(fw_cfg, FW_CFG_ID, 1);
+     fw_cfg_add_i64(fw_cfg, FW_CFG_RAM_SIZE, (uint64_t)ram_size);
+diff --git a/include/hw/nvram/fw_cfg.h b/include/hw/nvram/fw_cfg.h
+index fcc88ea..a99586e 100644
+--- a/include/hw/nvram/fw_cfg.h
++++ b/include/hw/nvram/fw_cfg.h
+@@ -78,8 +78,6 @@ void fw_cfg_add_file_callback(FWCfgState *s, const char *filename,
+                               void *data, size_t len);
+ void *fw_cfg_modify_file(FWCfgState *s, const char *filename, void *data,
+                          size_t len);
+-FWCfgState *fw_cfg_init(uint32_t ctl_port, uint32_t data_port,
+-                        hwaddr crl_addr, hwaddr data_addr);
+ FWCfgState *fw_cfg_init_io(uint32_t iobase);
+ FWCfgState *fw_cfg_init_mem(hwaddr ctl_addr, hwaddr data_addr);
+ 
+-- 
+2.1.0
+

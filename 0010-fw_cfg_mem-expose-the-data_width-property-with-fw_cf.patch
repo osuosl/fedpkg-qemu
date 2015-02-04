@@ -1,0 +1,99 @@
+From 870ed93bb6c35e821031bbc3a3a297d0e60c67ab Mon Sep 17 00:00:00 2001
+From: Laszlo Ersek <lersek@redhat.com>
+Date: Mon, 22 Dec 2014 13:11:41 +0100
+Subject: [PATCH 10/15] fw_cfg_mem: expose the "data_width" property with
+ fw_cfg_init_mem_wide()
+
+We rebase fw_cfg_init_mem() to the new function for compatibility with
+current callers.
+
+The behavior of the (big endian) multi-byte data reads is best shown
+with a qtest session.  Here, we are reading the first six bytes of
+the UUID
+
+    $ arm-softmmu/qemu-system-arm -M virt -machine accel=qtest \
+         -qtest stdio -uuid 4600cb32-38ec-4b2f-8acb-81c6ea54f2d8
+>>> writew 0x9020008 0x0200
+<<< OK
+>>> readl 0x9020000
+<<< OK 0x000000004600cb32
+
+Remember this is big endian.  On big endian machines, it is stored
+directly as 0x46 0x00 0xcb 0x32.
+
+On a little endian machine, we have to first swap it, so that it becomes
+0x32cb0046.  When written to memory, it becomes 0x46 0x00 0xcb 0x32
+again.
+
+Reading byte-by-byte works too, of course:
+
+>>> readb 0x9020000
+<<< OK 0x0000000000000038
+>>> readb 0x9020000
+<<< OK 0x00000000000000ec
+
+Here only a single byte is read at a time, so they are read in order
+similar to the 1-byte data port that is already in PPC and SPARC
+machines.
+
+Signed-off-by: Laszlo Ersek <lersek@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Message-id: 1419250305-31062-8-git-send-email-pbonzini@redhat.com
+Signed-off-by: Peter Maydell <peter.maydell@linaro.org>
+(cherry picked from commit 6c87e3d5967a1d731b5f591a8f0ee6c319c14ca8)
+---
+ hw/nvram/fw_cfg.c         | 12 +++++++++---
+ include/hw/nvram/fw_cfg.h |  2 ++
+ 2 files changed, 11 insertions(+), 3 deletions(-)
+
+diff --git a/hw/nvram/fw_cfg.c b/hw/nvram/fw_cfg.c
+index 2950d68..fcdf821 100644
+--- a/hw/nvram/fw_cfg.c
++++ b/hw/nvram/fw_cfg.c
+@@ -663,14 +663,14 @@ FWCfgState *fw_cfg_init_io(uint32_t iobase)
+     return FW_CFG(dev);
+ }
+ 
+-FWCfgState *fw_cfg_init_mem(hwaddr ctl_addr, hwaddr data_addr)
++FWCfgState *fw_cfg_init_mem_wide(hwaddr ctl_addr, hwaddr data_addr,
++                                 uint32_t data_width)
+ {
+     DeviceState *dev;
+     SysBusDevice *sbd;
+ 
+     dev = qdev_create(NULL, TYPE_FW_CFG_MEM);
+-    qdev_prop_set_uint32(dev, "data_width",
+-                         fw_cfg_data_mem_ops.valid.max_access_size);
++    qdev_prop_set_uint32(dev, "data_width", data_width);
+ 
+     fw_cfg_init1(dev);
+ 
+@@ -681,6 +681,12 @@ FWCfgState *fw_cfg_init_mem(hwaddr ctl_addr, hwaddr data_addr)
+     return FW_CFG(dev);
+ }
+ 
++FWCfgState *fw_cfg_init_mem(hwaddr ctl_addr, hwaddr data_addr)
++{
++    return fw_cfg_init_mem_wide(ctl_addr, data_addr,
++                                fw_cfg_data_mem_ops.valid.max_access_size);
++}
++
+ 
+ FWCfgState *fw_cfg_find(void)
+ {
+diff --git a/include/hw/nvram/fw_cfg.h b/include/hw/nvram/fw_cfg.h
+index a99586e..6d8a8ac 100644
+--- a/include/hw/nvram/fw_cfg.h
++++ b/include/hw/nvram/fw_cfg.h
+@@ -80,6 +80,8 @@ void *fw_cfg_modify_file(FWCfgState *s, const char *filename, void *data,
+                          size_t len);
+ FWCfgState *fw_cfg_init_io(uint32_t iobase);
+ FWCfgState *fw_cfg_init_mem(hwaddr ctl_addr, hwaddr data_addr);
++FWCfgState *fw_cfg_init_mem_wide(hwaddr ctl_addr, hwaddr data_addr,
++                                 uint32_t data_width);
+ 
+ FWCfgState *fw_cfg_find(void);
+ 
+-- 
+2.1.0
+

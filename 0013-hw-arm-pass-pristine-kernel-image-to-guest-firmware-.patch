@@ -1,0 +1,192 @@
+From a4510adeb278b6781b16a5cc61cc5b7f00612130 Mon Sep 17 00:00:00 2001
+From: Laszlo Ersek <lersek@redhat.com>
+Date: Mon, 22 Dec 2014 13:11:44 +0100
+Subject: [PATCH 13/15] hw/arm: pass pristine kernel image to guest firmware
+ over fw_cfg
+
+Introduce the new boolean field "arm_boot_info.firmware_loaded". When this
+field is set, it means that the portion of guest DRAM that the VCPU
+normally starts to execute, or the pflash chip that the VCPU normally
+starts to execute, has been populated by board-specific code with
+full-fledged guest firmware code, before the board calls
+arm_load_kernel().
+
+Simultaneously, "arm_boot_info.firmware_loaded" guarantees that the board
+code has set up the global firmware config instance, for arm_load_kernel()
+to find with fw_cfg_find().
+
+Guest kernel (-kernel) and guest firmware (-bios, -pflash) has always been
+possible to specify independently on the command line. The following cases
+should be considered:
+
+nr  -bios    -pflash  -kernel  description
+             unit#0
+--  -------  -------  -------  -------------------------------------------
+1   present  present  absent   Board code rejects this case, -bios and
+    present  present  present  -pflash unit#0 are exclusive. Left intact
+                               by this patch.
+
+2   absent   absent   present  Traditional kernel loading, with qemu's
+                               minimal board firmware. Left intact by this
+                               patch.
+
+3   absent   present  absent   Preexistent case for booting guest firmware
+    present  absent   absent   loaded with -bios or -pflash. Left intact
+                               by this patch.
+
+4   absent   absent   absent   Preexistent case for not loading any
+                               firmware or kernel up-front. Left intact by
+                               this patch.
+
+5   present  absent   present  New case introduced by this patch: kernel
+    absent   present  present  image is passed to externally loaded
+                               firmware in unmodified form, using fw_cfg.
+
+An easy way to see that this patch doesn't interfere with existing cases
+is to realize that "info->firmware_loaded" is constant zero at this point.
+Which makes the "outer" condition unchanged, and the "inner" condition
+(with the fw_cfg-related code) dead.
+
+Signed-off-by: Laszlo Ersek <lersek@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Message-id: 1419250305-31062-11-git-send-email-pbonzini@redhat.com
+Signed-off-by: Peter Maydell <peter.maydell@linaro.org>
+(cherry picked from commit 07abe45c4814d42f3aca879d7932c5bc90d98bdf)
+---
+ hw/arm/boot.c        | 88 +++++++++++++++++++++++++++++++++++++++++++++++++---
+ include/hw/arm/arm.h |  5 +++
+ 2 files changed, 88 insertions(+), 5 deletions(-)
+
+diff --git a/hw/arm/boot.c b/hw/arm/boot.c
+index e6a3c5b..17bdaee 100644
+--- a/hw/arm/boot.c
++++ b/hw/arm/boot.c
+@@ -478,6 +478,55 @@ static void do_cpu_reset(void *opaque)
+     }
+ }
+ 
++/**
++ * load_image_to_fw_cfg() - Load an image file into an fw_cfg entry identified
++ *                          by key.
++ * @fw_cfg:         The firmware config instance to store the data in.
++ * @size_key:       The firmware config key to store the size of the loaded
++ *                  data under, with fw_cfg_add_i32().
++ * @data_key:       The firmware config key to store the loaded data under,
++ *                  with fw_cfg_add_bytes().
++ * @image_name:     The name of the image file to load. If it is NULL, the
++ *                  function returns without doing anything.
++ * @try_decompress: Whether the image should be decompressed (gunzipped) before
++ *                  adding it to fw_cfg. If decompression fails, the image is
++ *                  loaded as-is.
++ *
++ * In case of failure, the function prints an error message to stderr and the
++ * process exits with status 1.
++ */
++static void load_image_to_fw_cfg(FWCfgState *fw_cfg, uint16_t size_key,
++                                 uint16_t data_key, const char *image_name,
++                                 bool try_decompress)
++{
++    size_t size = -1;
++    uint8_t *data;
++
++    if (image_name == NULL) {
++        return;
++    }
++
++    if (try_decompress) {
++        size = load_image_gzipped_buffer(image_name,
++                                         LOAD_IMAGE_MAX_GUNZIP_BYTES, &data);
++    }
++
++    if (size == (size_t)-1) {
++        gchar *contents;
++        gsize length;
++
++        if (!g_file_get_contents(image_name, &contents, &length, NULL)) {
++            fprintf(stderr, "failed to load \"%s\"\n", image_name);
++            exit(1);
++        }
++        size = length;
++        data = (uint8_t *)contents;
++    }
++
++    fw_cfg_add_i32(fw_cfg, size_key, size);
++    fw_cfg_add_bytes(fw_cfg, data_key, data, size);
++}
++
+ void arm_load_kernel(ARMCPU *cpu, struct arm_boot_info *info)
+ {
+     CPUState *cs;
+@@ -500,19 +549,48 @@ void arm_load_kernel(ARMCPU *cpu, struct arm_boot_info *info)
+     }
+ 
+     /* Load the kernel.  */
+-    if (!info->kernel_filename) {
++    if (!info->kernel_filename || info->firmware_loaded) {
+ 
+         if (have_dtb(info)) {
+-            /* If we have a device tree blob, but no kernel to supply it to,
+-             * copy it to the base of RAM for a bootloader to pick up.
++            /* If we have a device tree blob, but no kernel to supply it to (or
++             * the kernel is supposed to be loaded by the bootloader), copy the
++             * DTB to the base of RAM for the bootloader to pick up.
+              */
+             if (load_dtb(info->loader_start, info, 0) < 0) {
+                 exit(1);
+             }
+         }
+ 
+-        /* If no kernel specified, do nothing; we will start from address 0
+-         * (typically a boot ROM image) in the same way as hardware.
++        if (info->kernel_filename) {
++            FWCfgState *fw_cfg;
++            bool try_decompressing_kernel;
++
++            fw_cfg = fw_cfg_find();
++            try_decompressing_kernel = arm_feature(&cpu->env,
++                                                   ARM_FEATURE_AARCH64);
++
++            /* Expose the kernel, the command line, and the initrd in fw_cfg.
++             * We don't process them here at all, it's all left to the
++             * firmware.
++             */
++            load_image_to_fw_cfg(fw_cfg,
++                                 FW_CFG_KERNEL_SIZE, FW_CFG_KERNEL_DATA,
++                                 info->kernel_filename,
++                                 try_decompressing_kernel);
++            load_image_to_fw_cfg(fw_cfg,
++                                 FW_CFG_INITRD_SIZE, FW_CFG_INITRD_DATA,
++                                 info->initrd_filename, false);
++
++            if (info->kernel_cmdline) {
++                fw_cfg_add_i32(fw_cfg, FW_CFG_CMDLINE_SIZE,
++                               strlen(info->kernel_cmdline) + 1);
++                fw_cfg_add_string(fw_cfg, FW_CFG_CMDLINE_DATA,
++                                  info->kernel_cmdline);
++            }
++        }
++
++        /* We will start from address 0 (typically a boot ROM image) in the
++         * same way as hardware.
+          */
+         return;
+     }
+diff --git a/include/hw/arm/arm.h b/include/hw/arm/arm.h
+index cefc9e6..dd69d66 100644
+--- a/include/hw/arm/arm.h
++++ b/include/hw/arm/arm.h
+@@ -66,6 +66,11 @@ struct arm_boot_info {
+     hwaddr initrd_start;
+     hwaddr initrd_size;
+     hwaddr entry;
++
++    /* Boot firmware has been loaded, typically at address 0, with -bios or
++     * -pflash. It also implies that fw_cfg_find() will succeed.
++     */
++    bool firmware_loaded;
+ };
+ void arm_load_kernel(ARMCPU *cpu, struct arm_boot_info *info);
+ 
+-- 
+2.1.0
+

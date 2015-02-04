@@ -1,0 +1,45 @@
+From 366ca14a9ae8210540a7e4f6bb034b4f0d1c458d Mon Sep 17 00:00:00 2001
+From: zhanghailiang <zhang.zhanghailiang@huawei.com>
+Date: Thu, 11 Dec 2014 12:07:53 +0000
+Subject: [PATCH 02/15] hw/arm/boot: fix uninitialized scalar variable warning
+ reported by coverity
+
+Coverity reports the 'size' may be used uninitialized, but that can't happen,
+because the caller has checked "if (binfo->dtb_filename || binfo->get_dtb)"
+before call 'load_dtb'.
+
+Here we simply remove the 'if (binfo->get_dtb)' to satisfy coverity.
+
+Signed-off-by: zhanghailiang <zhang.zhanghailiang@huawei.com>
+Message-id: 1416826240-12368-1-git-send-email-zhang.zhanghailiang@huawei.com
+Signed-off-by: Peter Maydell <peter.maydell@linaro.org>
+(cherry picked from commit a554ecb49d0021fd8bb0fd4f2f6be807b3c8b54f)
+---
+ hw/arm/boot.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/hw/arm/boot.c b/hw/arm/boot.c
+index 0014c34..e6a3c5b 100644
+--- a/hw/arm/boot.c
++++ b/hw/arm/boot.c
+@@ -329,6 +329,8 @@ static void set_kernel_args_old(const struct arm_boot_info *info)
+  * Returns: the size of the device tree image on success,
+  *          0 if the image size exceeds the limit,
+  *          -1 on errors.
++ *
++ * Note: Must not be called unless have_dtb(binfo) is true.
+  */
+ static int load_dtb(hwaddr addr, const struct arm_boot_info *binfo,
+                     hwaddr addr_limit)
+@@ -352,7 +354,7 @@ static int load_dtb(hwaddr addr, const struct arm_boot_info *binfo,
+             goto fail;
+         }
+         g_free(filename);
+-    } else if (binfo->get_dtb) {
++    } else {
+         fdt = binfo->get_dtb(binfo, &size);
+         if (!fdt) {
+             fprintf(stderr, "Board was unable to create a dtb blob\n");
+-- 
+2.1.0
+

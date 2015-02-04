@@ -1,0 +1,36 @@
+From 6eaafa0eea15df4439488b535f4d53216e720857 Mon Sep 17 00:00:00 2001
+From: Laszlo Ersek <lersek@redhat.com>
+Date: Mon, 22 Dec 2014 13:11:45 +0100
+Subject: [PATCH 14/15] hw/arm/virt: enable passing of EFI-stubbed kernel to
+ guest UEFI firmware
+
+The virt board already ensures mutual exclusion between -bios and -pflash
+unit#0; we only need to set "bootinfo.firmware_loaded", introduced in the
+previous patch, if either of those options was used to load the guest
+firmware.
+
+Signed-off-by: Laszlo Ersek <lersek@redhat.com>
+Reviewed-by: Peter Maydell <peter.maydell@linaro.org>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Message-id: 1419250305-31062-12-git-send-email-pbonzini@redhat.com
+Signed-off-by: Peter Maydell <peter.maydell@linaro.org>
+(cherry picked from commit aa351061dbb0e3054db11c00a69395785c4186c8)
+---
+ hw/arm/virt.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/hw/arm/virt.c b/hw/arm/virt.c
+index 8af4aa0..29fbdc1 100644
+--- a/hw/arm/virt.c
++++ b/hw/arm/virt.c
+@@ -633,6 +633,7 @@ static void machvirt_init(MachineState *machine)
+     vbi->bootinfo.board_id = -1;
+     vbi->bootinfo.loader_start = vbi->memmap[VIRT_MEM].base;
+     vbi->bootinfo.get_dtb = machvirt_dtb;
++    vbi->bootinfo.firmware_loaded = bios_name || drive_get(IF_PFLASH, 0, 0);
+     arm_load_kernel(ARM_CPU(first_cpu), &vbi->bootinfo);
+ }
+ 
+-- 
+2.1.0
+

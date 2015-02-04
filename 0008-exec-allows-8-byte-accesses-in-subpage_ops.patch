@@ -1,0 +1,73 @@
+From cdea522fe22d3996228c1b5a80b8d6e959da91aa Mon Sep 17 00:00:00 2001
+From: Paolo Bonzini <pbonzini@redhat.com>
+Date: Mon, 22 Dec 2014 13:11:39 +0100
+Subject: [PATCH 08/15] exec: allows 8-byte accesses in subpage_ops
+
+Otherwise fw_cfg accesses are split into 4-byte ones before they reach the
+fw_cfg ops / handlers.
+
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Laszlo Ersek <lersek@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Message-id: 1419250305-31062-6-git-send-email-pbonzini@redhat.com
+Signed-off-by: Peter Maydell <peter.maydell@linaro.org>
+(cherry picked from commit ff6cff7554be06e95f8d712f66cd16bd6681c746)
+---
+ exec.c | 13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
+
+diff --git a/exec.c b/exec.c
+index 71ac104..dee9543 100644
+--- a/exec.c
++++ b/exec.c
+@@ -1768,7 +1768,7 @@ static uint64_t subpage_read(void *opaque, hwaddr addr,
+                              unsigned len)
+ {
+     subpage_t *subpage = opaque;
+-    uint8_t buf[4];
++    uint8_t buf[8];
+ 
+ #if defined(DEBUG_SUBPAGE)
+     printf("%s: subpage %p len %u addr " TARGET_FMT_plx "\n", __func__,
+@@ -1782,6 +1782,8 @@ static uint64_t subpage_read(void *opaque, hwaddr addr,
+         return lduw_p(buf);
+     case 4:
+         return ldl_p(buf);
++    case 8:
++        return ldq_p(buf);
+     default:
+         abort();
+     }
+@@ -1791,7 +1793,7 @@ static void subpage_write(void *opaque, hwaddr addr,
+                           uint64_t value, unsigned len)
+ {
+     subpage_t *subpage = opaque;
+-    uint8_t buf[4];
++    uint8_t buf[8];
+ 
+ #if defined(DEBUG_SUBPAGE)
+     printf("%s: subpage %p len %u addr " TARGET_FMT_plx
+@@ -1808,6 +1810,9 @@ static void subpage_write(void *opaque, hwaddr addr,
+     case 4:
+         stl_p(buf, value);
+         break;
++    case 8:
++        stq_p(buf, value);
++        break;
+     default:
+         abort();
+     }
+@@ -1830,6 +1835,10 @@ static bool subpage_accepts(void *opaque, hwaddr addr,
+ static const MemoryRegionOps subpage_ops = {
+     .read = subpage_read,
+     .write = subpage_write,
++    .impl.min_access_size = 1,
++    .impl.max_access_size = 8,
++    .valid.min_access_size = 1,
++    .valid.max_access_size = 8,
+     .valid.accepts = subpage_accepts,
+     .endianness = DEVICE_NATIVE_ENDIAN,
+ };
+-- 
+2.1.0
+
