@@ -152,7 +152,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 2.1.3
-Release: 1%{?dist}
+Release: 2%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -205,6 +205,8 @@ Patch0007: 0007-Revert-virtio-pci-fix-migration-for-pci-bus-master.patch
 # Fix qemu-img convert corruption for unflushed files (bz #1167249)
 Patch0008: 0008-block-raw-posix-Fix-disk-corruption-in-try_fiemap.patch
 Patch0009: 0009-block-raw-posix-use-seek_hole-ahead-of-fiemap.patch
+# Fix USB host assignment (bz #1187749)
+Patch0010: 0010-usb-host-fix-usb_host_speed_compat-tyops.patch
 
 BuildRequires: SDL2-devel
 BuildRequires: zlib-devel
@@ -744,6 +746,8 @@ CAC emulation development files.
 # Fix qemu-img convert corruption for unflushed files (bz #1167249)
 %patch0008 -p1
 %patch0009 -p1
+# Fix USB host assignment (bz #1187749)
+%patch0010 -p1
 
 
 %build
@@ -1524,6 +1528,9 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Sat Feb 07 2015 Cole Robinson <crobinso@redhat.com> - 2:2.1.3-2
+- Fix USB host assignment (bz #1187749)
+
 * Wed Jan 28 2015 Cole Robinson <crobinso@redhat.com> - 2:2.1.3-1
 - Rebased to version 2.1.3
 
