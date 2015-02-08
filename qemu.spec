@@ -139,7 +139,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 1.6.2
-Release: 12%{?dist}
+Release: 13%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -380,6 +380,11 @@ Patch0423: 0423-migration-fix-parameter-validation-on-ram-load.patch
 # Fix qemu-img convert corruption for unflushed files (bz #1167249)
 Patch0424: 0424-block-raw-posix-Fix-disk-corruption-in-try_fiemap.patch
 Patch0425: 0425-raw-posix-Drop-fiemap.patch
+# Fix qemu_bh_schedule race condition (bz #1165315)
+Patch0426: 0426-aio-fix-qemu_bh_schedule-bh-ctx-race-condition.patch
+# CVE-2014-8106: cirrus: insufficient blit region checks
+Patch0427: 0427-cirrus-fix-blit-region-check.patch
+Patch0428: 0428-cirrus-don-t-overflow-CirrusVGAState-cirrus_bltbuf.patch
 
 BuildRequires: SDL-devel
 BuildRequires: zlib-devel
@@ -1092,6 +1097,11 @@ CAC emulation development files.
 # Fix qemu-img convert corruption for unflushed files (bz #1167249)
 %patch0424 -p1
 %patch0425 -p1
+# Fix qemu_bh_schedule race condition (bz #1165315)
+%patch0426 -p1
+# CVE-2014-8106: cirrus: insufficient blit region checks
+%patch0427 -p1
+%patch0428 -p1
 
 
 %build
@@ -1799,6 +1809,10 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Sat Feb 07 2015 Cole Robinson <crobinso@redhat.com> - 2:1.6.2-13
+- Fix qemu_bh_schedule race condition (bz #1165315)
+- CVE-2014-8106: cirrus: insufficient blit region checks
+
 * Tue Dec 09 2014 Cole Robinson <crobinso@redhat.com> - 2:1.6.2-12
 - Fix qemu-img convert corruption for unflushed files (bz #1167249)
 
