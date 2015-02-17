@@ -56,7 +56,7 @@
 
 %global have_usbredir 1
 
-%ifarch %{ix86} x86_64
+%ifarch %{ix86} x86_64 %{arm} aarch64
 %if %{with seccomp}
 %global have_seccomp 1
 %endif
@@ -493,7 +493,7 @@ Requires: seabios-bin >= 1.7.5
 Requires: sgabios-bin
 Requires: ipxe-roms-qemu >= 20130517-2.gitc4bce43
 %if 0%{?have_seccomp:1}
-Requires: libseccomp >= 1.0.0
+Requires: libseccomp >= 2.1.0
 %endif
 
 %description %{system_x86}
@@ -1549,6 +1549,7 @@ getent passwd qemu >/dev/null || \
   'relocation R_X86_64_PC32 against undefined symbol' errors.
 - Add a hopefully temporary hack so that -fPIC is used to build
   NSS files in libcacard.
+- Enable seccomp on ARM (thanks: Peter Robinson).
 
 * Wed Feb  4 2015 Richard W.M. Jones <rjones@redhat.com> - 2:2.2.0-5
 - Add UEFI support for aarch64.
