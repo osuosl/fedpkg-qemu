@@ -153,7 +153,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 2.2.0
-Release: 5%{?dist}
+Release: 6%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -820,7 +820,7 @@ sed -i.debug 's/"-g $CFLAGS"/"$CFLAGS"/g' configure
     --disable-strip \
 %ifnarch aarch64
     --extra-ldflags="$extraldflags -pie -Wl,-z,relro -Wl,-z,now" \
-    --extra-cflags="%{optflags} -fPIE -DPIE" \
+    --extra-cflags="%{optflags} -fPIE -DPIE -fPIC" \
 %endif
     --disable-werror \
     --target-list="$buildarch" \
@@ -863,6 +863,14 @@ echo "config-host.mak contents:"
 echo "==="
 cat config-host.mak
 echo "==="
+
+# These is some problem upstream where libcacard is not built
+# with --extra-cflags the first time, but if you remove some
+# files and rerun make, lo and behold --extra-cflags is used.
+# Hence the following hack:
+make V=1 %{?_smp_mflags} $buildldflags ||:
+rm ./libcacard/vcard_emul_nss.o ./libcacard/.libs/vcard_emul_nss.o
+# End of hack.
 
 make V=1 %{?_smp_mflags} $buildldflags
 
@@ -1536,6 +1544,12 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Tue Feb 17 2015 Richard W.M. Jones <rjones@redhat.com> - 2:2.2.0-6
+- Add -fPIC flag to build to avoid
+  'relocation R_X86_64_PC32 against undefined symbol' errors.
+- Add a hopefully temporary hack so that -fPIC is used to build
+  NSS files in libcacard.
+
 * Wed Feb  4 2015 Richard W.M. Jones <rjones@redhat.com> - 2:2.2.0-5
 - Add UEFI support for aarch64.
 
