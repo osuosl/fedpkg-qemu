@@ -155,7 +155,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 2.0.0
-Release: 1%{?dist}.3
+Release: 1%{?dist}.4
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -201,6 +201,9 @@ Source13: qemu-kvm.sh
 # Change gtk quit accelerator to ctrl+shift+q (bz #1062393)
 # Patches queued for 2.1
 Patch0001: 0001-Change-gtk-quit-accelerator-to-ctrl-shift-q-bz-10623.patch
+
+# EPEL specific patches
+Patch6661: 0001-pxe-always-use-non-efi-roms.patch
 
 %if 0%{?rhel}
 BuildRequires: SDL-devel
@@ -719,6 +722,9 @@ CAC emulation development files.
 # Change gtk quit accelerator to ctrl+shift+q (bz #1062393)
 # Patches queued for 2.1
 %patch0001 -p1
+
+# EPEL patches
+%patch6661 -p1
 
 
 %build
@@ -1501,6 +1507,9 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Thu Feb 26 2015 Lubomir Rintel <lkundrak@v3.sk> - 2:2.0.0-1.4
+- Avoid using EFI boot ROMs, el7 ipxe does not ship them
+
 * Fri Oct 10 2014 Lubomir Rintel <lkundrak@v3.sk> - 2:2.0.0-1.3
 - Bring back the bios-256k.bin link
 
