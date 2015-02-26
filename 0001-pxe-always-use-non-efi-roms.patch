@@ -1,0 +1,82 @@
+From 9cc96b9353238598cc70f4938c403f7d0dcaa994 Mon Sep 17 00:00:00 2001
+From: Lubomir Rintel <lkundrak@v3.sk>
+Date: Thu, 26 Feb 2015 10:02:13 +0100
+Subject: [PATCH] pxe: always use non-efi roms
+
+We don't ship efi versions.
+---
+ hw/net/e1000.c         | 2 +-
+ hw/net/ne2000.c        | 2 +-
+ hw/net/pcnet-pci.c     | 2 +-
+ hw/net/rtl8139.c       | 2 +-
+ hw/virtio/virtio-pci.c | 2 +-
+ 5 files changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/hw/net/e1000.c b/hw/net/e1000.c
+index 8387443..6e28e0f 100644
+--- a/hw/net/e1000.c
++++ b/hw/net/e1000.c
+@@ -1571,7 +1571,7 @@ static void e1000_class_init(ObjectClass *klass, void *data)
+ 
+     k->init = pci_e1000_init;
+     k->exit = pci_e1000_uninit;
+-    k->romfile = "efi-e1000.rom";
++    k->romfile = "pxe-e1000.rom";
+     k->vendor_id = PCI_VENDOR_ID_INTEL;
+     k->device_id = E1000_DEVID;
+     k->revision = 0x03;
+diff --git a/hw/net/ne2000.c b/hw/net/ne2000.c
+index 4c32e9e..12cf3ed 100644
+--- a/hw/net/ne2000.c
++++ b/hw/net/ne2000.c
+@@ -767,7 +767,7 @@ static void ne2000_class_init(ObjectClass *klass, void *data)
+ 
+     k->init = pci_ne2000_init;
+     k->exit = pci_ne2000_exit;
+-    k->romfile = "efi-ne2k_pci.rom",
++    k->romfile = "pxe-ne2k_pci.rom",
+     k->vendor_id = PCI_VENDOR_ID_REALTEK;
+     k->device_id = PCI_DEVICE_ID_REALTEK_8029;
+     k->class_id = PCI_CLASS_NETWORK_ETHERNET;
+diff --git a/hw/net/pcnet-pci.c b/hw/net/pcnet-pci.c
+index 6a5d806..945fff4 100644
+--- a/hw/net/pcnet-pci.c
++++ b/hw/net/pcnet-pci.c
+@@ -359,7 +359,7 @@ static void pcnet_class_init(ObjectClass *klass, void *data)
+ 
+     k->init = pci_pcnet_init;
+     k->exit = pci_pcnet_uninit;
+-    k->romfile = "efi-pcnet.rom",
++    k->romfile = "pxe-pcnet.rom",
+     k->vendor_id = PCI_VENDOR_ID_AMD;
+     k->device_id = PCI_DEVICE_ID_AMD_LANCE;
+     k->revision = 0x10;
+diff --git a/hw/net/rtl8139.c b/hw/net/rtl8139.c
+index 5329f44..4be91a1 100644
+--- a/hw/net/rtl8139.c
++++ b/hw/net/rtl8139.c
+@@ -3560,7 +3560,7 @@ static void rtl8139_class_init(ObjectClass *klass, void *data)
+ 
+     k->init = pci_rtl8139_init;
+     k->exit = pci_rtl8139_uninit;
+-    k->romfile = "efi-rtl8139.rom";
++    k->romfile = "pxe-rtl8139.rom";
+     k->vendor_id = PCI_VENDOR_ID_REALTEK;
+     k->device_id = PCI_DEVICE_ID_REALTEK_8139;
+     k->revision = RTL8139_PCI_REVID; /* >=0x20 is for 8139C+ */
+diff --git a/hw/virtio/virtio-pci.c b/hw/virtio/virtio-pci.c
+index ce97514..d815b0e 100644
+--- a/hw/virtio/virtio-pci.c
++++ b/hw/virtio/virtio-pci.c
+@@ -1445,7 +1445,7 @@ static void virtio_net_pci_class_init(ObjectClass *klass, void *data)
+     PCIDeviceClass *k = PCI_DEVICE_CLASS(klass);
+     VirtioPCIClass *vpciklass = VIRTIO_PCI_CLASS(klass);
+ 
+-    k->romfile = "efi-virtio.rom";
++    k->romfile = "pxe-virtio.rom";
+     k->vendor_id = PCI_VENDOR_ID_REDHAT_QUMRANET;
+     k->device_id = PCI_DEVICE_ID_VIRTIO_NET;
+     k->revision = VIRTIO_PCI_ABI_VERSION;
+-- 
+2.1.0
+
