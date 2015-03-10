@@ -1,6 +1,7 @@
+From 1b66fe241d9609fed79ee1583e6425833a1d7d9e Mon Sep 17 00:00:00 2001
 From: Tony Breeds <tony@bakeyournoodle.com>
 Date: Fri, 26 Sep 2014 09:14:12 +1000
-Subject: [PATCH] block/raw-posix: use seek_hole ahead of fiemap
+Subject: [PATCH 09/11] block/raw-posix: use seek_hole ahead of fiemap
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -44,3 +45,6 @@ index 8f6c923..50d29e7 100644
          if (ret < 0) {
              /* Assume everything is allocated. */
              data = 0;
+-- 
+2.1.0
+

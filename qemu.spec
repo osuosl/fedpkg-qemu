@@ -152,7 +152,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 2.1.3
-Release: 2%{?dist}
+Release: 3%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -207,6 +207,8 @@ Patch0008: 0008-block-raw-posix-Fix-disk-corruption-in-try_fiemap.patch
 Patch0009: 0009-block-raw-posix-use-seek_hole-ahead-of-fiemap.patch
 # Fix USB host assignment (bz #1187749)
 Patch0010: 0010-usb-host-fix-usb_host_speed_compat-tyops.patch
+# Fix  qemu-img error (bz #1200043)
+Patch0011: 0011-block-Fix-max-nb_sectors-in-bdrv_make_zero.patch
 
 BuildRequires: SDL2-devel
 BuildRequires: zlib-devel
@@ -748,6 +750,8 @@ CAC emulation development files.
 %patch0009 -p1
 # Fix USB host assignment (bz #1187749)
 %patch0010 -p1
+# Fix qemu-img error (bz #1200043)
+%patch0011 -p1
 
 
 %build
@@ -1528,6 +1532,9 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Tue Mar 10 2015 Haïkel Guémar <hguemar@fedoraproject.org> - 2:2.1.3-3
+- Backport upstream patch fixing some qemu-img conversion errors (RHBZ#1200043)
+
 * Sat Feb 07 2015 Cole Robinson <crobinso@redhat.com> - 2:2.1.3-2
 - Fix USB host assignment (bz #1187749)
 

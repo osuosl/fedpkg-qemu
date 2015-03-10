@@ -1,6 +1,7 @@
+From 61fa004b207d01de98cd2aac6fe7b553da6fe079 Mon Sep 17 00:00:00 2001
 From: "Richard W.M. Jones" <rjones@redhat.com>
 Date: Thu, 28 Aug 2014 09:04:21 +0100
-Subject: [PATCH] curl: Don't deref NULL pointer in call to aio_poll.
+Subject: [PATCH 05/11] curl: Don't deref NULL pointer in call to aio_poll.
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -74,3 +75,6 @@ index 537e257..d28b701 100644
      if (!state) {
          acb->common.cb(acb->common.opaque, -EIO);
          qemu_aio_release(acb);
+-- 
+2.1.0
+

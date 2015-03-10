@@ -1,6 +1,7 @@
+From af316039d3f1818463e8d5f8f4e5eaf19a2c7b55 Mon Sep 17 00:00:00 2001
 From: Tony Breeds <tony@bakeyournoodle.com>
 Date: Fri, 26 Sep 2014 09:14:11 +1000
-Subject: [PATCH] block/raw-posix: Fix disk corruption in try_fiemap
+Subject: [PATCH 08/11] block/raw-posix: Fix disk corruption in try_fiemap
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -39,3 +40,6 @@ index efa5686..8f6c923 100644
      f.fm.fm_extent_count = 1;
      f.fm.fm_reserved = 0;
      if (ioctl(s->fd, FS_IOC_FIEMAP, &f) == -1) {
+-- 
+2.1.0
+

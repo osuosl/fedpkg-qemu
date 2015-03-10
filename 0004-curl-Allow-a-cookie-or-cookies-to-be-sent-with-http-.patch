@@ -1,7 +1,8 @@
+From db1048a84b2cbf57809a5fcaebd567e8e9a209e4 Mon Sep 17 00:00:00 2001
 From: "Richard W.M. Jones" <rjones@redhat.com>
 Date: Fri, 29 Aug 2014 16:03:12 +0100
-Subject: [PATCH] curl: Allow a cookie or cookies to be sent with http/https
- requests.
+Subject: [PATCH 04/11] curl: Allow a cookie or cookies to be sent with
+ http/https requests.
 
 In order to access VMware ESX efficiently, we need to send a session
 cookie.  This patch is very simple and just allows you to send that
@@ -121,3 +122,6 @@ index dcb008b..53b6171 100644
  @item timeout
  Set the timeout in seconds of the CURL connection. This timeout is the time
  that CURL waits for a response from the remote server to get the size of the
+-- 
+2.1.0
+

@@ -1,6 +1,7 @@
+From 799d9c41ae5fd105e1467863dd912f8fd4e970bf Mon Sep 17 00:00:00 2001
 From: Daniel Henrique Barboza <danielhb@linux.vnet.ibm.com>
 Date: Wed, 13 Aug 2014 12:44:27 -0300
-Subject: [PATCH] block.curl: adding 'timeout' option
+Subject: [PATCH 03/11] block.curl: adding 'timeout' option
 
 The curl hardcoded timeout (5 seconds) sometimes is not long
 enough depending on the remote server configuration and network
@@ -110,3 +111,6 @@ index 1549625..dcb008b 100644
  
  qemu-system-x86_64 -drive file=/tmp/test.qcow2
  @end example
+-- 
+2.1.0
+

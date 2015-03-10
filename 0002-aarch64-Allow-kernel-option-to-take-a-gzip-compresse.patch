@@ -1,6 +1,7 @@
+From e96a3d72b1f869ee3bf0bdbb4a3ca8f9ae4de144 Mon Sep 17 00:00:00 2001
 From: "Richard W.M. Jones" <rjones@redhat.com>
 Date: Tue, 19 Aug 2014 18:56:28 +0100
-Subject: [PATCH] aarch64: Allow -kernel option to take a gzip-compressed
+Subject: [PATCH 02/11] aarch64: Allow -kernel option to take a gzip-compressed
  kernel.
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,3 +52,6 @@ index 50b6c5c..4bad4e6 100644
      if (kernel_size < 0) {
          entry = info->loader_start + kernel_load_offset;
          kernel_size = load_image_targphys(info->kernel_filename, entry,
+-- 
+2.1.0
+
