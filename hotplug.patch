@@ -1,0 +1,4432 @@
+From 24805d0c28282c535d2bfdd4ad50f49fa4f42473 Mon Sep 17 00:00:00 2001
+From: Michael Roth <mdroth@linux.vnet.ibm.com>
+Date: Tue, 16 Dec 2014 18:52:09 -0600
+Subject: [PATCH 01/28] docs: add sPAPR hotplug/dynamic-reconfiguration
+ documentation
+
+This adds a general overview of hotplug/dynamic-reconfiguration
+for sPAPR/pSeries guest.
+
+As specified in PAPR+ v2.7.
+
+Signed-off-by: Michael Roth <mdroth@linux.vnet.ibm.com>
+Reviewed-by: David Gibson <david@gibson.dropbear.id.au>
+---
+ docs/specs/ppc-spapr-hotplug.txt | 287 +++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 287 insertions(+)
+ create mode 100644 docs/specs/ppc-spapr-hotplug.txt
+
+diff --git a/docs/specs/ppc-spapr-hotplug.txt b/docs/specs/ppc-spapr-hotplug.txt
+new file mode 100644
+index 0000000..d35771c
+--- /dev/null
++++ b/docs/specs/ppc-spapr-hotplug.txt
+@@ -0,0 +1,287 @@
++= sPAPR Dynamic Reconfiguration =
++
++sPAPR/"pseries" guests make use of a facility called dynamic-reconfiguration
++to handle hotplugging of dynamic "physical" resources like PCI cards, or
++"logical"/paravirtual resources like memory, CPUs, and "physical"
++host-bridges, which are generally managed by the host/hypervisor and provided
++to guests as virtualized resources. The specifics of dynamic-reconfiguration
++are documented extensively in PAPR+ v2.7, Section 13.1. This document
++provides a summary of that information as it applies to the implementation
++within QEMU.
++
++== Dynamic-reconfiguration Connectors ==
++
++To manage hotplug/unplug of these resources, a firmware abstraction known as
++a Dynamic Resource Connector (DRC) is used to assign a particular dynamic
++resource to the guest, and provide an interface for the guest to manage
++configuration/removal of the resource associated with it.
++
++== Device-tree description of DRCs ==
++
++A set of 4 Open Firmware device tree array properties are used to describe
++the name/index/power-domain/type of each DRC allocated to a guest at
++boot-time. There may be multiple sets of these arrays, rooted at different
++paths in the device tree depending on the type of resource the DRCs manage.
++
++In some cases, the DRCs themselves may be provided by a dynamic resource,
++such as the DRCs managing PCI slots on a hotplugged PHB. In this case the
++arrays would be fetched as part of the device tree retrieval interfaces
++for hotplugged resources described under "Guest->Host interface".
++
++The array properties are described below. Each entry/element in an array
++describes the DRC identified by the element in the corresponding position
++of ibm,drc-indexes:
++
++ibm,drc-names:
++  first 4-bytes: BE-encoded integer denoting the number of entries
++  each entry: a NULL-terminated <name> string encoded as a byte array
++
++  <name> values for logical/virtual resources are defined in PAPR+ v2.7,
++  Section 13.5.2.4, and basically consist of the type of the resource
++  followed by a space and a numerical value that's unique across resources
++  of that type.
++
++  <name> values for "physical" resources such as PCI or VIO devices are
++  defined as being "location codes", which are the "location labels" of
++  each encapsulating device, starting from the chassis down to the
++  individual slot for the device, concatenated by a hyphen. This provides
++  a mapping of resources to a physical location in a chassis for debugging
++  purposes. For QEMU, this mapping is less important, so we assign a
++  location code that conforms to naming specifications, but is simply a
++  location label for the slot by itself to simplify the implementation.
++  The naming convention for location labels is documented in detail in
++  PAPR+ v2.7, Section 12.3.1.5, and in our case amounts to using "C<n>"
++  for PCI/VIO device slots, where <n> is unique across all PCI/VIO
++  device slots.
++
++ibm,drc-indexes:
++  first 4-bytes: BE-encoded integer denoting the number of entries
++  each 4-byte entry: BE-encoded <index> integer that is unique across all DRCs
++    in the machine
++
++  <index> is arbitrary, but in the case of QEMU we try to maintain the
++  convention used to assign them to pSeries guests on pHyp:
++
++    bit[31:28]: integer encoding of <type>, where <type> is:
++                  1 for CPU resource
++                  2 for PHB resource
++                  3 for VIO resource
++                  4 for PCI resource
++                  8 for Memory resource
++    bit[27:0]: integer encoding of <id>, where <id> is unique across
++                 all resources of specified type
++
++ibm,drc-power-domains:
++  first 4-bytes: BE-encoded integer denoting the number of entries
++  each 4-byte entry: 32-bit, BE-encoded <index> integer that specifies the
++    power domain the resource will be assigned to. In the case of QEMU
++    we associated all resources with a "live insertion" domain, where the
++    power is assumed to be managed automatically. The integer value for
++    this domain is a special value of -1.
++
++
++ibm,drc-types:
++  first 4-bytes: BE-encoded integer denoting the number of entries
++  each entry: a NULL-terminated <type> string encoded as a byte array
++
++  <type> is assigned as follows:
++    "CPU" for a CPU
++    "PHB" for a physical host-bridge
++    "SLOT" for a VIO slot
++    "28" for a PCI slot
++    "MEM" for memory resource
++
++== Guest->Host interface to manage dynamic resources ==
++
++Each DRC is given a globally unique DRC Index, and resources associated with
++a particular DRC are configured/managed by the guest via a number of RTAS
++calls which reference individual DRCs based on the DRC index. This can be
++considered the guest->host interface.
++
++rtas-set-power-level:
++  arg[0]: integer identifying power domain
++  arg[1]: new power level for the domain, 0-100
++  output[0]: status, 0 on success
++  output[1]: power level after command
++
++  Set the power level for a specified power domain
++
++rtas-get-power-level:
++  arg[0]: integer identifying power domain
++  output[0]: status, 0 on success
++  output[1]: current power level
++
++  Get the power level for a specified power domain
++
++rtas-set-indicator:
++  arg[0]: integer identifying sensor/indicator type
++  arg[1]: index of sensor, for DR-related sensors this is generally the
++          DRC index
++  arg[2]: desired sensor value
++  output[0]: status, 0 on success
++
++  Set the state of an indicator or sensor. For the purpose of this document we
++  focus on the indicator/sensor types associated with a DRC. The types are:
++
++    9001: isolation-state, controls/indicates whether a device has been made
++          accessible to a guest
++
++          supported sensor values:
++            0: isolate, device is made unaccessible by guest OS
++            1: unisolate, device is made available to guest OS
++
++    9002: dr-indicator, controls "visual" indicator associated with device
++
++          supported sensor values:
++            0: inactive, resource may be safely removed
++            1: active, resource is in use and cannot be safely removed
++            2: identify, used to visually identify slot for interactive hotplug
++            3: action, in most cases, used in the same manner as identify
++
++    9003: allocation-state, generally only used for "logical" DR resources to
++          request the allocation/deallocation of a resource prior to acquiring
++          it via isolation-state->unisolate, or after releasing it via
++          isolation-state->isolate, respectively. for "physical" DR (like PCI
++          hotplug/unplug) the pre-allocation of the resource is implied and
++          this sensor is unused.
++
++          supported sensor values:
++            0: unusable, tell firmware/system the resource can be
++               unallocated/reclaimed and added back to the system resource pool
++            1: usable, request the resource be allocated/reserved for use by
++               guest OS
++            2: exchange, used to allocate a spare resource to use for fail-over
++               in certain situations. unused in QEMU
++            3: recover, used to reclaim a previously allocated resource that's
++               not currently allocated to the guest OS. unused in QEMU
++
++rtas-get-sensor-state:
++  arg[0]: integer identifying sensor/indicator type
++  arg[1]: index of sensor, for DR-related sensors this is generally the
++          DRC index
++  output[0]: status, 0 on success
++
++  Used to read an indicator or sensor value.
++
++  For DR-related operations, the only noteworthy sensor is dr-entity-sense,
++  which has a type value of 9003, as allocation-state does in the case of
++  rtas-set-indicator. The semantics/encodings of the sensor values are distinct
++  however:
++
++  supported sensor values for dr-entity-sense (9003) sensor:
++    0: empty,
++         for physical resources: DRC/slot is empty
++         for logical resources: unused
++    1: present,
++         for physical resources: DRC/slot is populated with a device/resource
++         for logical resources: resource has been allocated to the DRC
++    2: unusable,
++         for physical resources: unused
++         for logical resources: DRC has no resource allocated to it
++    3: exchange,
++         for physical resources: unused
++         for logical resources: resource available for exchange (see
++           allocation-state sensor semantics above)
++    4: recovery,
++         for physical resources: unused
++         for logical resources: resource available for recovery (see
++           allocation-state sensor semantics above)
++
++rtas-ibm-configure-connector:
++  arg[0]: guest physical address of 4096-byte work area buffer
++  arg[1]: 0, or address of additional 4096-byte work area buffer. only non-zero
++          if a prior RTAS response indicated a need for additional memory
++  output[0]: status:
++               0: completed transmittal of device-tree node
++               1: instruct guest to prepare for next DT sibling node
++               2: instruct guest to prepare for next DT child node
++               3: instruct guest to prepare for next DT property
++               4: instruct guest to ascend to parent DT node
++               5: instruct guest to provide additional work-area buffer
++                  via arg[1]
++            990x: instruct guest that operation took too long and to try
++                  again later
++
++  Used to fetch an OF device-tree description of the resource associated with
++  a particular DRC. The DRC index is encoded in the first 4-bytes of the first
++  work area buffer.
++
++  Work area layout, using 4-byte offsets:
++    wa[0]: DRC index of the DRC to fetch device-tree nodes from
++    wa[1]: 0 (hard-coded)
++    wa[2]: for next-sibling/next-child response:
++             wa offset of null-terminated string denoting the new node's name
++           for next-property response:
++             wa offset of null-terminated string denoting new property's name
++    wa[3]: for next-property response (unused otherwise):
++             byte-length of new property's value
++    wa[4]: for next-property response (unused otherwise):
++             new property's value, encoded as an OFDT-compatible byte array
++
++== hotplug/unplug events ==
++
++For most DR operations, the hypervisor will issue host->guest add/remove events
++using the EPOW/check-exception notification framework, where the host issues a
++check-exception interrupt, then provides an RTAS event log via an
++rtas-check-exception call issued by the guest in response. This framework is
++documented by PAPR+ v2.7, and already use in by QEMU for generating powerdown
++requests via EPOW events.
++
++For DR, this framework has been extended to include hotplug events, which were
++previously unneeded due to direct manipulation of DR-related guest userspace
++tools by host-level management such as an HMC. This level of management is not
++applicable to PowerKVM, hence the reason for extending the notification
++framework to support hotplug events.
++
++Note that these events are not yet formally part of the PAPR+ specification,
++but support for this format has already been implemented in DR-related
++guest tools such as powerpc-utils/librtas, as well as kernel patches that have
++been submitted to handle in-kernel processing of memory/cpu-related hotplug
++events[1], and is planned for formal inclusion is PAPR+ specification. The
++hotplug-specific payload is QEMU implemented as follows (with all values
++encoded in big-endian format):
++
++struct rtas_event_log_v6_hp {
++#define SECTION_ID_HOTPLUG              0x4850 /* HP */
++    struct section_header {
++        uint16_t section_id;            /* set to SECTION_ID_HOTPLUG */
++        uint16_t section_length;        /* sizeof(rtas_event_log_v6_hp),
++                                         * plus the length of the DRC name
++                                         * if a DRC name identifier is
++                                         * specified for hotplug_identifier
++                                         */
++        uint8_t section_version;        /* version 1 */
++        uint8_t section_subtype;        /* unused */
++        uint16_t creator_component_id;  /* unused */
++    } hdr;
++#define RTAS_LOG_V6_HP_TYPE_CPU         1
++#define RTAS_LOG_V6_HP_TYPE_MEMORY      2
++#define RTAS_LOG_V6_HP_TYPE_SLOT        3
++#define RTAS_LOG_V6_HP_TYPE_PHB         4
++#define RTAS_LOG_V6_HP_TYPE_PCI         5
++    uint8_t hotplug_type;               /* type of resource/device */
++#define RTAS_LOG_V6_HP_ACTION_ADD       1
++#define RTAS_LOG_V6_HP_ACTION_REMOVE    2
++    uint8_t hotplug_action;             /* action (add/remove) */
++#define RTAS_LOG_V6_HP_ID_DRC_NAME      1
++#define RTAS_LOG_V6_HP_ID_DRC_INDEX     2
++#define RTAS_LOG_V6_HP_ID_DRC_COUNT     3
++    uint8_t hotplug_identifier;         /* type of the resource identifier,
++                                         * which serves as the discriminator
++                                         * for the 'drc' union field below
++                                         */
++    uint8_t reserved;
++    union {
++        uint32_t index;                 /* DRC index of resource to take action
++                                         * on
++                                         */
++        uint32_t count;                 /* number of DR resources to take
++                                         * action on (guest chooses which)
++                                         */
++        char name[1];                   /* string representing the name of the
++                                         * DRC to take action on
++                                         */
++    } drc;
++} QEMU_PACKED;
++
++[1] http://thread.gmane.org/gmane.linux.ports.ppc.embedded/75350/focus=106867
+-- 
+1.9.3
+
+
+From f23a88f79d7792e17ab85963f0e58bb3194bd18c Mon Sep 17 00:00:00 2001
+From: Michael Roth <mdroth@linux.vnet.ibm.com>
+Date: Sun, 12 Oct 2014 18:48:24 -0500
+Subject: [PATCH 02/28] spapr_drc: initial implementation of sPAPRDRConnector
+ device
+
+This device emulates a firmware abstraction used by pSeries guests to
+manage hotplug/dynamic-reconfiguration of host-bridges, PCI devices,
+memory, and CPUs. It is conceptually similar to an SHPC device,
+complete with LED indicators to identify individual slots to physical
+physical users and indicate when it is safe to remove a device. In
+some cases it is also used to manage virtualized resources, such a
+memory, CPUs, and physical-host bridges, which in the case of pSeries
+guests are virtualized resources where the physical components are
+managed by the host.
+
+Guests communicate with these DR Connectors using RTAS calls,
+generally by addressing the unique DRC index associated with a
+particular connector for a particular resource. For introspection
+purposes we expose this state initially as QOM properties, and
+in subsequent patches will introduce the RTAS calls that make use of
+it. This constitutes to the 'guest' interface.
+
+On the QEMU side we provide an attach/detach interface to associate
+or cleanup a DeviceState with a particular sPAPRDRConnector in
+response to hotplug/unplug, respectively. This constitutes the
+'physical' interface to the DR Connector.
+
+Signed-off-by: Michael Roth <mdroth@linux.vnet.ibm.com>
+Reviewed-by: David Gibson <david@gibson.dropbear.id.au>
+---
+ hw/ppc/Makefile.objs       |   2 +-
+ hw/ppc/spapr_drc.c         | 585 +++++++++++++++++++++++++++++++++++++++++++++
+ include/hw/ppc/spapr_drc.h | 205 ++++++++++++++++
+ 3 files changed, 791 insertions(+), 1 deletion(-)
+ create mode 100644 hw/ppc/spapr_drc.c
+ create mode 100644 include/hw/ppc/spapr_drc.h
+
+diff --git a/hw/ppc/Makefile.objs b/hw/ppc/Makefile.objs
+index edd44d0..ab0feeb 100644
+--- a/hw/ppc/Makefile.objs
++++ b/hw/ppc/Makefile.objs
+@@ -3,7 +3,7 @@ obj-y += ppc.o ppc_booke.o
+ # IBM pSeries (sPAPR)
+ obj-$(CONFIG_PSERIES) += spapr.o spapr_vio.o spapr_events.o
+ obj-$(CONFIG_PSERIES) += spapr_hcall.o spapr_iommu.o spapr_rtas.o
+-obj-$(CONFIG_PSERIES) += spapr_pci.o
++obj-$(CONFIG_PSERIES) += spapr_pci.o spapr_drc.o
+ ifeq ($(CONFIG_PCI)$(CONFIG_PSERIES)$(CONFIG_LINUX), yyy)
+ obj-y += spapr_pci_vfio.o
+ endif
+diff --git a/hw/ppc/spapr_drc.c b/hw/ppc/spapr_drc.c
+new file mode 100644
+index 0000000..bf22e1d
+--- /dev/null
++++ b/hw/ppc/spapr_drc.c
+@@ -0,0 +1,585 @@
++/*
++ * QEMU SPAPR Dynamic Reconfiguration Connector Implementation
++ *
++ * Copyright IBM Corp. 2014
++ *
++ * Authors:
++ *  Michael Roth      <mdroth@linux.vnet.ibm.com>
++ *
++ * This work is licensed under the terms of the GNU GPL, version 2 or later.
++ * See the COPYING file in the top-level directory.
++ */
++
++#include "hw/ppc/spapr_drc.h"
++#include "qom/object.h"
++#include "hw/qdev.h"
++#include "qapi/visitor.h"
++#include "qemu/error-report.h"
++
++/* #define DEBUG_SPAPR_DRC */
++
++#ifdef DEBUG_SPAPR_DRC
++#define DPRINTF(fmt, ...) \
++    do { fprintf(stderr, fmt, ## __VA_ARGS__); } while (0)
++#define DPRINTFN(fmt, ...) \
++    do { DPRINTF(fmt, ## __VA_ARGS__); fprintf(stderr, "\n"); } while (0)
++#else
++#define DPRINTF(fmt, ...) \
++    do { } while (0)
++#define DPRINTFN(fmt, ...) \
++    do { } while (0)
++#endif
++
++#define DRC_CONTAINER_PATH "/dr-connector"
++#define DRC_INDEX_TYPE_SHIFT 28
++#define DRC_INDEX_ID_MASK (~(~0 << DRC_INDEX_TYPE_SHIFT))
++
++static sPAPRDRConnectorTypeShift get_type_shift(sPAPRDRConnectorType type)
++{
++    uint32_t shift = 0;
++
++    /* make sure this isn't SPAPR_DR_CONNECTOR_TYPE_ANY, or some
++     * other wonky value.
++     */
++    g_assert(is_power_of_2(type));
++
++    while (type != (1 << shift)) {
++        shift++;
++    }
++    return shift;
++}
++
++static uint32_t get_index(sPAPRDRConnector *drc)
++{
++    /* no set format for a drc index: it only needs to be globally
++     * unique. this is how we encode the DRC type on bare-metal
++     * however, so might as well do that here
++     */
++    return (get_type_shift(drc->type) << DRC_INDEX_TYPE_SHIFT) |
++            (drc->id & DRC_INDEX_ID_MASK);
++}
++
++static int set_isolation_state(sPAPRDRConnector *drc,
++                               sPAPRDRIsolationState state)
++{
++    sPAPRDRConnectorClass *drck = SPAPR_DR_CONNECTOR_GET_CLASS(drc);
++
++    DPRINTFN("drc: %x, set_isolation_state: %x", get_index(drc), state);
++
++    drc->isolation_state = state;
++
++    if (drc->isolation_state == SPAPR_DR_ISOLATION_STATE_ISOLATED) {
++        /* if we're awaiting release, but still in an unconfigured state,
++         * it's likely the guest is still in the process of configuring
++         * the device and is transitioning the devices to an ISOLATED
++         * state as a part of that process. so we only complete the
++         * removal when this transition happens for a device in a
++         * configured state, as suggested by the state diagram from
++         * PAPR+ 2.7, 13.4
++         */
++        if (drc->awaiting_release && drc->ccs.configured) {
++            DPRINTFN("finalizing device removal");
++            drck->detach(drc, DEVICE(drc->dev), drc->detach_cb,
++                         drc->detach_cb_opaque, NULL);
++        } else if (!drc->ccs.configured) {
++            DPRINTFN("deferring device removal on unconfigured device\n");
++        }
++        drc->ccs.fdt_offset = drc->ccs.fdt_start_offset;
++        drc->ccs.fdt_depth = 0;
++        drc->ccs.configured = false;
++    }
++
++    return 0;
++}
++
++static int set_indicator_state(sPAPRDRConnector *drc,
++                               sPAPRDRIndicatorState state)
++{
++    DPRINTFN("drc: %x, set_indicator_state: %x", get_index(drc), state);
++    drc->indicator_state = state;
++    return 0;
++}
++
++static int set_allocation_state(sPAPRDRConnector *drc,
++                                sPAPRDRAllocationState state)
++{
++    DPRINTFN("drc: %x, set_allocation_state: %x", get_index(drc), state);
++    drc->allocation_state = state;
++    return 0;
++}
++
++static uint32_t get_type(sPAPRDRConnector *drc)
++{
++    return drc->type;
++}
++
++static const char *get_name(sPAPRDRConnector *drc)
++{
++    return drc->name;
++}
++
++/*
++ * dr-entity-sense sensor value
++ * returned via get-sensor-state RTAS calls
++ * as expected by state diagram in PAPR+ 2.7, 13.4
++ * based on the current allocation/indicator/power states
++ * for the DR connector.
++ */
++static sPAPRDREntitySense entity_sense(sPAPRDRConnector *drc)
++{
++    if (drc->dev) {
++        if (drc->type != SPAPR_DR_CONNECTOR_TYPE_PCI &&
++            drc->allocation_state == SPAPR_DR_ALLOCATION_STATE_UNUSABLE) {
++            /* for logical DR, we return a state of UNUSABLE
++             * iff the allocation state UNUSABLE.
++             * Otherwise, report the state as USABLE/PRESENT,
++             * as we would for PCI.
++             */
++            return SPAPR_DR_ENTITY_SENSE_UNUSABLE;
++        }
++
++        /* this assumes all PCI devices are assigned to
++         * a 'live insertion' power domain, where QEMU
++         * manages power state automatically as opposed
++         * to the guest. present, non-PCI resources are
++         * unaffected by power state.
++         */
++        return SPAPR_DR_ENTITY_SENSE_PRESENT;
++    }
++
++    if (drc->type == SPAPR_DR_CONNECTOR_TYPE_PCI) {
++        /* PCI devices, and only PCI devices, use EMPTY
++         * in cases where we'd otherwise use UNUSABLE
++         */
++        return SPAPR_DR_ENTITY_SENSE_EMPTY;
++    }
++    return SPAPR_DR_ENTITY_SENSE_UNUSABLE;
++}
++
++static sPAPRDRCCResponse configure_connector_common(sPAPRDRCCState *ccs,
++                            char **name, const struct fdt_property **prop,
++                            int *prop_len)
++{
++    sPAPRDRCCResponse resp = SPAPR_DR_CC_RESPONSE_CONTINUE;
++    int fdt_offset_next;
++
++    *name = NULL;
++    *prop = NULL;
++    *prop_len = 0;
++
++    if (!ccs->fdt) {
++        return SPAPR_DR_CC_RESPONSE_ERROR;
++    }
++
++    while (resp == SPAPR_DR_CC_RESPONSE_CONTINUE) {
++        const char *name_cur;
++        uint32_t tag;
++        int name_cur_len;
++
++        tag = fdt_next_tag(ccs->fdt, ccs->fdt_offset, &fdt_offset_next);
++        switch (tag) {
++        case FDT_BEGIN_NODE:
++            ccs->fdt_depth++;
++            name_cur = fdt_get_name(ccs->fdt, ccs->fdt_offset, &name_cur_len);
++            *name = g_strndup(name_cur, name_cur_len);
++            resp = SPAPR_DR_CC_RESPONSE_NEXT_CHILD;
++            break;
++        case FDT_END_NODE:
++            ccs->fdt_depth--;
++            if (ccs->fdt_depth == 0) {
++                resp = SPAPR_DR_CC_RESPONSE_SUCCESS;
++                ccs->configured = true;
++            } else {
++                resp = SPAPR_DR_CC_RESPONSE_PREV_PARENT;
++            }
++            break;
++        case FDT_PROP:
++            *prop = fdt_get_property_by_offset(ccs->fdt, ccs->fdt_offset,
++                                               prop_len);
++            name_cur = fdt_string(ccs->fdt, fdt32_to_cpu((*prop)->nameoff));
++            *name = g_strdup(name_cur);
++            resp = SPAPR_DR_CC_RESPONSE_NEXT_PROPERTY;
++            break;
++        case FDT_END:
++            resp = SPAPR_DR_CC_RESPONSE_ERROR;
++            break;
++        default:
++            ccs->fdt_offset = fdt_offset_next;
++        }
++    }
++
++    ccs->fdt_offset = fdt_offset_next;
++    return resp;
++}
++
++static sPAPRDRCCResponse configure_connector(sPAPRDRConnector *drc,
++                                             char **name,
++                                             const struct fdt_property **prop,
++                                             int *prop_len)
++{
++    return configure_connector_common(&drc->ccs, name, prop, prop_len);
++}
++
++static void prop_get_index(Object *obj, Visitor *v, void *opaque,
++                                  const char *name, Error **errp)
++{
++    sPAPRDRConnector *drc = SPAPR_DR_CONNECTOR(obj);
++    sPAPRDRConnectorClass *drck = SPAPR_DR_CONNECTOR_GET_CLASS(drc);
++    uint32_t value = (uint32_t)drck->get_index(drc);
++    visit_type_uint32(v, &value, name, errp);
++}
++
++static void prop_get_type(Object *obj, Visitor *v, void *opaque,
++                          const char *name, Error **errp)
++{
++    sPAPRDRConnector *drc = SPAPR_DR_CONNECTOR(obj);
++    sPAPRDRConnectorClass *drck = SPAPR_DR_CONNECTOR_GET_CLASS(drc);
++    uint32_t value = (uint32_t)drck->get_type(drc);
++    visit_type_uint32(v, &value, name, errp);
++}
++
++static char *prop_get_name(Object *obj, Error **errp)
++{
++    sPAPRDRConnector *drc = SPAPR_DR_CONNECTOR(obj);
++    sPAPRDRConnectorClass *drck = SPAPR_DR_CONNECTOR_GET_CLASS(drc);
++    return g_strdup(drck->get_name(drc));
++}
++
++static void prop_get_entity_sense(Object *obj, Visitor *v, void *opaque,
++                                  const char *name, Error **errp)
++{
++    sPAPRDRConnector *drc = SPAPR_DR_CONNECTOR(obj);
++    sPAPRDRConnectorClass *drck = SPAPR_DR_CONNECTOR_GET_CLASS(drc);
++    uint32_t value = (uint32_t)drck->entity_sense(drc);
++    visit_type_uint32(v, &value, name, errp);
++}
++
++static void prop_get_fdt(Object *obj, Visitor *v, void *opaque,
++                        const char *name, Error **errp)
++{
++    sPAPRDRConnector *drc = SPAPR_DR_CONNECTOR(obj);
++    sPAPRDRCCState ccs = { 0 };
++    sPAPRDRCCResponse resp;
++
++    ccs.fdt = drc->ccs.fdt;
++    ccs.fdt_offset = ccs.fdt_start_offset = drc->ccs.fdt_start_offset;
++
++    do {
++        char *name = NULL;
++        const struct fdt_property *prop = NULL;
++        int prop_len;
++
++        resp = configure_connector_common(&ccs, &name, &prop, &prop_len);
++
++        switch (resp) {
++        case SPAPR_DR_CC_RESPONSE_NEXT_CHILD:
++            visit_start_struct(v, NULL, NULL, name, 0, NULL);
++            break;
++        case SPAPR_DR_CC_RESPONSE_PREV_PARENT:
++            visit_end_struct(v, NULL);
++            break;
++        case SPAPR_DR_CC_RESPONSE_NEXT_PROPERTY: {
++            int i;
++            visit_start_list(v, name, NULL);
++            for (i = 0; i < prop_len; i++) {
++                visit_type_uint8(v, (uint8_t *)&prop->data[i], NULL, NULL);
++            }
++            visit_end_list(v, NULL);
++            break;
++        }
++        default:
++            resp = SPAPR_DR_CC_RESPONSE_SUCCESS;
++            break;
++        }
++
++        g_free(name);
++    } while (resp != SPAPR_DR_CC_RESPONSE_SUCCESS &&
++             resp != SPAPR_DR_CC_RESPONSE_ERROR);
++
++    g_assert(resp != SPAPR_DR_CC_RESPONSE_ERROR);
++}
++
++static void attach(sPAPRDRConnector *drc, DeviceState *d, void *fdt,
++                   int fdt_start_offset, bool coldplug, Error **errp)
++{
++    DPRINTFN("drc: %x, attach", get_index(drc));
++
++    if (drc->isolation_state != SPAPR_DR_ISOLATION_STATE_ISOLATED) {
++        error_setg(errp, "an attached device is still awaiting release");
++        return;
++    }
++    g_assert(drc->allocation_state == SPAPR_DR_ALLOCATION_STATE_UNUSABLE);
++    g_assert(fdt || coldplug);
++
++    /* NOTE: setting initial isolation state to UNISOLATED means we can't
++     * detach unless guest has a userspace/kernel that moves this state
++     * back to ISOLATED in response to an unplug event, or this is done
++     * manually by the admin prior. if we force things while the guest
++     * may be accessing the device, we can easily crash the guest, so we
++     * we defer completion of removal in such cases to the reset() hook.
++     */
++    drc->isolation_state = SPAPR_DR_ISOLATION_STATE_UNISOLATED;
++    drc->allocation_state = SPAPR_DR_ALLOCATION_STATE_USABLE;
++    drc->indicator_state = SPAPR_DR_INDICATOR_STATE_ACTIVE;
++
++    drc->dev = d;
++    drc->ccs.fdt = fdt;
++    drc->ccs.fdt_offset = drc->ccs.fdt_start_offset = fdt_start_offset;
++    drc->ccs.fdt_depth = 0;
++    drc->ccs.configured = false;
++
++    object_property_add_link(OBJECT(drc), "device",
++                             object_get_typename(OBJECT(drc->dev)),
++                             (Object **)(&drc->dev),
++                             NULL, 0, NULL);
++}
++
++static void detach(sPAPRDRConnector *drc, DeviceState *d,
++                   spapr_drc_detach_cb *detach_cb,
++                   void *detach_cb_opaque, Error **errp)
++{
++    DPRINTFN("drc: %x, detach", get_index(drc));
++
++    drc->detach_cb = detach_cb;
++    drc->detach_cb_opaque = detach_cb_opaque;
++
++    if (drc->isolation_state != SPAPR_DR_ISOLATION_STATE_ISOLATED) {
++        DPRINTFN("awaiting transition to isolated state before removal");
++        drc->awaiting_release = true;
++        return;
++    }
++
++    drc->allocation_state = SPAPR_DR_ALLOCATION_STATE_UNUSABLE;
++    drc->indicator_state = SPAPR_DR_INDICATOR_STATE_INACTIVE;
++
++    if (drc->detach_cb) {
++        drc->detach_cb(drc->dev, drc->detach_cb_opaque);
++    }
++
++    drc->awaiting_release = false;
++    g_free(drc->ccs.fdt);
++    drc->ccs.fdt = NULL;
++    drc->ccs.fdt_offset = drc->ccs.fdt_start_offset = drc->ccs.fdt_depth = 0;
++    object_property_del(OBJECT(drc), "device", NULL);
++    drc->dev = NULL;
++    drc->detach_cb = NULL;
++    drc->detach_cb_opaque = NULL;
++}
++
++static bool release_pending(sPAPRDRConnector *drc)
++{
++    return drc->awaiting_release;
++}
++
++static void reset(DeviceState *d)
++{
++    sPAPRDRConnector *drc = SPAPR_DR_CONNECTOR(d);
++    sPAPRDRConnectorClass *drck = SPAPR_DR_CONNECTOR_GET_CLASS(drc);
++
++    DPRINTFN("drc reset: %x", drck->get_index(drc));
++    /* immediately upon reset we can safely assume DRCs whose devices are pending
++     * removal can be safely removed, and that they will subsequently be left in
++     * an ISOLATED state. move the DRC to this state in these cases (which will in
++     * turn complete any pending device removals)
++     */
++    if (drc->awaiting_release) {
++        drck->set_isolation_state(drc, SPAPR_DR_ISOLATION_STATE_ISOLATED);
++        /* generally this should also finalize the removal, but if the device
++         * hasn't yet been configured we normally defer removal under the
++         * assumption that this transition is taking place as part of device
++         * configuration. so check if we're still waiting after this, and
++         * force removal if we are
++         */
++        if (drc->awaiting_release) {
++            drck->detach(drc, DEVICE(drc->dev), drc->detach_cb,
++                         drc->detach_cb_opaque, NULL);
++        }
++    }
++}
++
++static void realize(DeviceState *d, Error **errp)
++{
++    sPAPRDRConnector *drc = SPAPR_DR_CONNECTOR(d);
++    sPAPRDRConnectorClass *drck = SPAPR_DR_CONNECTOR_GET_CLASS(drc);
++    Object *root_container;
++    char link_name[256];
++    gchar *child_name;
++    Error *err = NULL;
++
++    DPRINTFN("drc realize: %x", drck->get_index(drc));
++    /* NOTE: we do this as part of realize/unrealize due to the fact
++     * that the guest will communicate with the DRC via RTAS calls
++     * referencing the global DRC index. By unlinking the DRC
++     * from DRC_CONTAINER_PATH/<drc_index> we effectively make it
++     * inaccessible by the guest, since lookups rely on this path
++     * existing in the composition tree
++     */
++    root_container = container_get(object_get_root(), DRC_CONTAINER_PATH);
++    snprintf(link_name, sizeof(link_name), "%x", drck->get_index(drc));
++    child_name = object_get_canonical_path_component(OBJECT(drc));
++    DPRINTFN("drc child name: %s", child_name);
++    object_property_add_alias(root_container, link_name,
++                              drc->owner, child_name, &err);
++    if (err) {
++        error_report("%s", error_get_pretty(err));
++        error_free(err);
++        object_unref(OBJECT(drc));
++    }
++    DPRINTFN("drc realize complete");
++}
++
++static void unrealize(DeviceState *d, Error **errp)
++{
++    sPAPRDRConnector *drc = SPAPR_DR_CONNECTOR(d);
++    sPAPRDRConnectorClass *drck = SPAPR_DR_CONNECTOR_GET_CLASS(drc);
++    Object *root_container;
++    char name[256];
++    Error *err = NULL;
++
++    DPRINTFN("drc unrealize: %x", drck->get_index(drc));
++    root_container = container_get(object_get_root(), DRC_CONTAINER_PATH);
++    snprintf(name, sizeof(name), "%x", drck->get_index(drc));
++    object_property_del(root_container, name, &err);
++    if (err) {
++        error_report("%s", error_get_pretty(err));
++        error_free(err);
++        object_unref(OBJECT(drc));
++    }
++}
++
++sPAPRDRConnector *spapr_dr_connector_new(Object *owner,
++                                         sPAPRDRConnectorType type,
++                                         uint32_t id)
++{
++    sPAPRDRConnector *drc =
++        SPAPR_DR_CONNECTOR(object_new(TYPE_SPAPR_DR_CONNECTOR));
++
++    g_assert(type);
++
++    drc->type = type;
++    drc->id = id;
++    drc->owner = owner;
++    object_property_add_child(owner, "dr-connector[*]", OBJECT(drc), NULL);
++    object_property_set_bool(OBJECT(drc), true, "realized", NULL);
++
++    /* human-readable name for a DRC to encode into the DT
++     * description. this is mainly only used within a guest in place
++     * of the unique DRC index.
++     *
++     * in the case of VIO/PCI devices, it corresponds to a
++     * "location code" that maps a logical device/function (DRC index)
++     * to a physical (or virtual in the case of VIO) location in the
++     * system by chaining together the "location label" for each
++     * encapsulating component.
++     *
++     * since this is more to do with diagnosing physical hardware
++     * issues than guest compatibility, we choose location codes/DRC
++     * names that adhere to the documented format, but avoid encoding
++     * the entire topology information into the label/code, instead
++     * just using the location codes based on the labels for the
++     * endpoints (VIO/PCI adaptor connectors), which is basically
++     * just "C" followed by an integer ID.
++     *
++     * DRC names as documented by PAPR+ v2.7, 13.5.2.4
++     * location codes as documented by PAPR+ v2.7, 12.3.1.5
++     */
++    switch (drc->type) {
++    case SPAPR_DR_CONNECTOR_TYPE_CPU:
++        drc->name = g_strdup_printf("CPU %d", id);
++        break;
++    case SPAPR_DR_CONNECTOR_TYPE_PHB:
++        drc->name = g_strdup_printf("PHB %d", id);
++        break;
++    case SPAPR_DR_CONNECTOR_TYPE_VIO:
++    case SPAPR_DR_CONNECTOR_TYPE_PCI:
++        drc->name = g_strdup_printf("C%d", id);
++        break;
++    case SPAPR_DR_CONNECTOR_TYPE_LMB:
++        drc->name = g_strdup_printf("LMB %d", id);
++        break;
++    default:
++        g_assert(false);
++    }
++
++    return drc;
++}
++
++static void spapr_dr_connector_instance_init(Object *obj)
++{
++    sPAPRDRConnector *drc = SPAPR_DR_CONNECTOR(obj);
++
++    object_property_add_uint32_ptr(obj, "isolation-state",
++                                   &drc->isolation_state, NULL);
++    object_property_add_uint32_ptr(obj, "indicator-state",
++                                   &drc->indicator_state, NULL);
++    object_property_add_uint32_ptr(obj, "allocation-state",
++                                   &drc->allocation_state, NULL);
++    object_property_add_uint32_ptr(obj, "id", &drc->id, NULL);
++    object_property_add(obj, "index", "uint32", prop_get_index,
++                        NULL, NULL, NULL, NULL);
++    object_property_add(obj, "connector_type", "uint32", prop_get_type,
++                        NULL, NULL, NULL, NULL);
++    object_property_add_str(obj, "name", prop_get_name, NULL, NULL);
++    object_property_add(obj, "entity-sense", "uint32", prop_get_entity_sense,
++                        NULL, NULL, NULL, NULL);
++    object_property_add(obj, "fdt", "struct", prop_get_fdt,
++                        NULL, NULL, NULL, NULL);
++}
++
++static void spapr_dr_connector_class_init(ObjectClass *k, void *data)
++{
++    DeviceClass *dk = DEVICE_CLASS(k);
++    sPAPRDRConnectorClass *drck = SPAPR_DR_CONNECTOR_CLASS(k);
++
++    dk->reset = reset;
++    dk->realize = realize;
++    dk->unrealize = unrealize;
++    drck->set_isolation_state = set_isolation_state;
++    drck->set_indicator_state = set_indicator_state;
++    drck->set_allocation_state = set_allocation_state;
++    drck->get_index = get_index;
++    drck->get_type = get_type;
++    drck->get_name = get_name;
++    drck->entity_sense = entity_sense;
++    drck->configure_connector = configure_connector;
++    drck->attach = attach;
++    drck->detach = detach;
++    drck->release_pending = release_pending;
++}
++
++static const TypeInfo spapr_dr_connector_info = {
++    .name          = TYPE_SPAPR_DR_CONNECTOR,
++    .parent        = TYPE_DEVICE,
++    .instance_size = sizeof(sPAPRDRConnector),
++    .instance_init = spapr_dr_connector_instance_init,
++    .class_size    = sizeof(sPAPRDRConnectorClass),
++    .class_init    = spapr_dr_connector_class_init,
++};
++
++static void spapr_drc_register_types(void)
++{
++    type_register_static(&spapr_dr_connector_info);
++}
++
++type_init(spapr_drc_register_types)
++
++/* helper functions for external users */
++
++sPAPRDRConnector *spapr_dr_connector_by_index(uint32_t index)
++{
++    Object *obj;
++    char name[256];
++
++    snprintf(name, sizeof(name), "%s/%x", DRC_CONTAINER_PATH, index);
++    obj = object_resolve_path(name, NULL);
++
++    return !obj ? NULL : SPAPR_DR_CONNECTOR(obj);
++}
++
++sPAPRDRConnector *spapr_dr_connector_by_id(sPAPRDRConnectorType type,
++                                           uint32_t id)
++{
++    return spapr_dr_connector_by_index(
++            (get_type_shift(type) << DRC_INDEX_TYPE_SHIFT) |
++            (id & DRC_INDEX_ID_MASK));
++}
+diff --git a/include/hw/ppc/spapr_drc.h b/include/hw/ppc/spapr_drc.h
+new file mode 100644
+index 0000000..ece8e09
+--- /dev/null
++++ b/include/hw/ppc/spapr_drc.h
+@@ -0,0 +1,205 @@
++/*
++ * QEMU SPAPR Dynamic Reconfiguration Connector Implementation
++ *
++ * Copyright IBM Corp. 2014
++ *
++ * Authors:
++ *  Michael Roth      <mdroth@linux.vnet.ibm.com>
++ *
++ * This work is licensed under the terms of the GNU GPL, version 2 or later.
++ * See the COPYING file in the top-level directory.
++ */
++#if !defined(__HW_SPAPR_DRC_H__)
++#define __HW_SPAPR_DRC_H__
++
++#include "qom/object.h"
++#include "hw/qdev.h"
++#include "libfdt.h"
++
++#define TYPE_SPAPR_DR_CONNECTOR "spapr-dr-connector"
++#define SPAPR_DR_CONNECTOR_GET_CLASS(obj) \
++        OBJECT_GET_CLASS(sPAPRDRConnectorClass, obj, TYPE_SPAPR_DR_CONNECTOR)
++#define SPAPR_DR_CONNECTOR_CLASS(klass) \
++        OBJECT_CLASS_CHECK(sPAPRDRConnectorClass, klass, \
++                           TYPE_SPAPR_DR_CONNECTOR)
++#define SPAPR_DR_CONNECTOR(obj) OBJECT_CHECK(sPAPRDRConnector, (obj), \
++                                             TYPE_SPAPR_DR_CONNECTOR)
++
++/*
++ * Various hotplug types managed by sPAPRDRConnector
++ *
++ * these are somewhat arbitrary, but to make things easier
++ * when generating DRC indexes later we've aligned the bit
++ * positions with the values used to assign DRC indexes on
++ * pSeries. we use those values as bit shifts to allow for
++ * the OR'ing of these values in various QEMU routines, but
++ * for values exposed to the guest (via DRC indexes for
++ * instance) we will use the shift amounts.
++ */
++typedef enum {
++    SPAPR_DR_CONNECTOR_TYPE_SHIFT_CPU = 1,
++    SPAPR_DR_CONNECTOR_TYPE_SHIFT_PHB = 2,
++    SPAPR_DR_CONNECTOR_TYPE_SHIFT_VIO = 3,
++    SPAPR_DR_CONNECTOR_TYPE_SHIFT_PCI = 4,
++    SPAPR_DR_CONNECTOR_TYPE_SHIFT_LMB = 8,
++} sPAPRDRConnectorTypeShift;
++
++typedef enum {
++    SPAPR_DR_CONNECTOR_TYPE_ANY = ~0,
++    SPAPR_DR_CONNECTOR_TYPE_CPU = 1 << SPAPR_DR_CONNECTOR_TYPE_SHIFT_CPU,
++    SPAPR_DR_CONNECTOR_TYPE_PHB = 1 << SPAPR_DR_CONNECTOR_TYPE_SHIFT_PHB,
++    SPAPR_DR_CONNECTOR_TYPE_VIO = 1 << SPAPR_DR_CONNECTOR_TYPE_SHIFT_VIO,
++    SPAPR_DR_CONNECTOR_TYPE_PCI = 1 << SPAPR_DR_CONNECTOR_TYPE_SHIFT_PCI,
++    SPAPR_DR_CONNECTOR_TYPE_LMB = 1 << SPAPR_DR_CONNECTOR_TYPE_SHIFT_LMB,
++} sPAPRDRConnectorType;
++
++/*
++ * set via set-indicator RTAS calls
++ * as documented by PAPR+ 2.7 13.5.3.4, Table 177
++ *
++ * isolated: put device under firmware control
++ * unisolated: claim OS control of device (may or may not be in use)
++ */
++typedef enum {
++    SPAPR_DR_ISOLATION_STATE_ISOLATED   = 0,
++    SPAPR_DR_ISOLATION_STATE_UNISOLATED = 1
++} sPAPRDRIsolationState;
++
++/*
++ * set via set-indicator RTAS calls
++ * as documented by PAPR+ 2.7 13.5.3.4, Table 177
++ *
++ * unusable: mark device as unavailable to OS
++ * usable: mark device as available to OS
++ * exchange: (currently unused)
++ * recover: (currently unused)
++ */
++typedef enum {
++    SPAPR_DR_ALLOCATION_STATE_UNUSABLE  = 0,
++    SPAPR_DR_ALLOCATION_STATE_USABLE    = 1,
++    SPAPR_DR_ALLOCATION_STATE_EXCHANGE  = 2,
++    SPAPR_DR_ALLOCATION_STATE_RECOVER   = 3
++} sPAPRDRAllocationState;
++
++/*
++ * LED/visual indicator state
++ *
++ * set via set-indicator RTAS calls
++ * as documented by PAPR+ 2.7 13.5.3.4, Table 177,
++ * and PAPR+ 2.7 13.5.4.1, Table 180
++ *
++ * inactive: hotpluggable entity inactive and safely removable
++ * active: hotpluggable entity in use and not safely removable
++ * identify: (currently unused)
++ * action: (currently unused)
++ */
++typedef enum {
++    SPAPR_DR_INDICATOR_STATE_INACTIVE   = 0,
++    SPAPR_DR_INDICATOR_STATE_ACTIVE     = 1,
++    SPAPR_DR_INDICATOR_STATE_IDENTIFY   = 2,
++    SPAPR_DR_INDICATOR_STATE_ACTION     = 3,
++} sPAPRDRIndicatorState;
++
++/*
++ * returned via get-sensor-state RTAS calls
++ * as documented by PAPR+ 2.7 13.5.3.3, Table 175:
++ *
++ * empty: connector slot empty (e.g. empty hotpluggable PCI slot)
++ * present: connector slot populated and device available to OS
++ * unusable: device not currently available to OS
++ * exchange: (currently unused)
++ * recover: (currently unused)
++ */
++typedef enum {
++    SPAPR_DR_ENTITY_SENSE_EMPTY     = 0,
++    SPAPR_DR_ENTITY_SENSE_PRESENT   = 1,
++    SPAPR_DR_ENTITY_SENSE_UNUSABLE  = 2,
++    SPAPR_DR_ENTITY_SENSE_EXCHANGE  = 3,
++    SPAPR_DR_ENTITY_SENSE_RECOVER   = 4,
++} sPAPRDREntitySense;
++
++typedef enum {
++    SPAPR_DR_CC_RESPONSE_NEXT_SIB       = 1, /* currently unused */
++    SPAPR_DR_CC_RESPONSE_NEXT_CHILD     = 2,
++    SPAPR_DR_CC_RESPONSE_NEXT_PROPERTY  = 3,
++    SPAPR_DR_CC_RESPONSE_PREV_PARENT    = 4,
++    SPAPR_DR_CC_RESPONSE_SUCCESS        = 0,
++    SPAPR_DR_CC_RESPONSE_ERROR          = -1,
++    SPAPR_DR_CC_RESPONSE_CONTINUE       = -2,
++} sPAPRDRCCResponse;
++
++typedef struct sPAPRDRCCState {
++    void *fdt;
++    int fdt_start_offset;
++    int fdt_offset;
++    int fdt_depth;
++    bool configured;
++} sPAPRDRCCState;
++
++typedef void (spapr_drc_detach_cb)(DeviceState *d, void *opaque);
++
++typedef struct sPAPRDRConnector {
++    /*< private >*/
++    DeviceState parent;
++
++    sPAPRDRConnectorType type;
++    uint32_t id;
++    Object *owner;
++    const char *name;
++
++    /* sensor/indicator states */
++    uint32_t isolation_state;
++    uint32_t allocation_state;
++    uint32_t indicator_state;
++
++    /* configure-connector state */
++    sPAPRDRCCState ccs;
++
++    bool awaiting_release;
++
++    /* device pointer, via link property */
++    DeviceState *dev;
++    spapr_drc_detach_cb *detach_cb;
++    void *detach_cb_opaque;
++} sPAPRDRConnector;
++
++typedef struct sPAPRDRConnectorClass {
++    /*< private >*/
++    DeviceClass parent;
++
++    /*< public >*/
++
++    /* accessors for guest-visible (generally via RTAS) DR state */
++    int (*set_isolation_state)(sPAPRDRConnector *drc,
++                               sPAPRDRIsolationState state);
++    int (*set_indicator_state)(sPAPRDRConnector *drc,
++                               sPAPRDRIndicatorState state);
++    int (*set_allocation_state)(sPAPRDRConnector *drc,
++                                sPAPRDRAllocationState state);
++    uint32_t (*get_index)(sPAPRDRConnector *drc);
++    uint32_t (*get_type)(sPAPRDRConnector *drc);
++    const char *(*get_name)(sPAPRDRConnector *drc);
++
++    sPAPRDREntitySense (*entity_sense)(sPAPRDRConnector *drc);
++    sPAPRDRCCResponse (*configure_connector)(sPAPRDRConnector *drc,
++                                             char **prop_name,
++                                             const struct fdt_property **prop,
++                                             int *prop_len);
++
++    /* QEMU interfaces for managing hotplug operations */
++    void (*attach)(sPAPRDRConnector *drc, DeviceState *d, void *fdt,
++                   int fdt_start_offset, bool coldplug, Error **errp);
++    void (*detach)(sPAPRDRConnector *drc, DeviceState *d,
++                   spapr_drc_detach_cb *detach_cb,
++                   void *detach_cb_opaque, Error **errp);
++    bool (*release_pending)(sPAPRDRConnector *drc);
++} sPAPRDRConnectorClass;
++
++sPAPRDRConnector *spapr_dr_connector_new(Object *owner,
++                                         sPAPRDRConnectorType type,
++                                         uint32_t id);
++sPAPRDRConnector *spapr_dr_connector_by_index(uint32_t index);
++sPAPRDRConnector *spapr_dr_connector_by_id(sPAPRDRConnectorType type,
++                                           uint32_t id);
++
++#endif /* __HW_SPAPR_DRC_H__ */
+-- 
+1.9.3
+
+
+From 79d32d23d589baec305697e7d47970235ee323c9 Mon Sep 17 00:00:00 2001
+From: Nathan Fontenot <nfont@linux.vnet.ibm.com>
+Date: Sun, 12 Oct 2014 12:14:07 -0500
+Subject: [PATCH 03/28] spapr_rtas: add get/set-power-level RTAS interfaces
+
+These interfaces manage the power domains that guest devices are
+assigned to and are used to power on/off devices. Currently we
+only utilize 1 power domain, the 'live-insertion' domain, which
+automates power management of plugged/unplugged devices, essentially
+making these calls no-ops, but the RTAS interfaces are still required
+by guest hotplug code and PAPR+.
+
+See docs/specs/ppc-spapr-hotplug.txt for a complete description of
+these interfaces.
+
+Signed-off-by: Nathan Fontenot <nfont@linux.vnet.ibm.com>
+Signed-off-by: Michael Roth <mdroth@linux.vnet.ibm.com>
+Reviewed-by: David Gibson <david@gibson.dropbear.id.au>
+---
+ hw/ppc/spapr_rtas.c | 54 +++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 54 insertions(+)
+
+diff --git a/hw/ppc/spapr_rtas.c b/hw/ppc/spapr_rtas.c
+index 9ba1ba6..b183825 100644
+--- a/hw/ppc/spapr_rtas.c
++++ b/hw/ppc/spapr_rtas.c
+@@ -277,6 +277,56 @@ static void rtas_ibm_set_system_parameter(PowerPCCPU *cpu,
+     rtas_st(rets, 0, ret);
+ }
+ 
++static void rtas_set_power_level(PowerPCCPU *cpu, sPAPREnvironment *spapr,
++                                 uint32_t token, uint32_t nargs,
++                                 target_ulong args, uint32_t nret,
++                                 target_ulong rets)
++{
++    int32_t power_domain;
++
++    if (nargs != 2 || nret != 2) {
++        rtas_st(rets, 0, RTAS_OUT_PARAM_ERROR);
++        return;
++    }
++
++    /* we currently only use a single, "live insert" powerdomain for
++     * hotplugged/dlpar'd resources, so the power is always live/full (100)
++     */
++    power_domain = rtas_ld(args, 0);
++    if (power_domain != -1) {
++        rtas_st(rets, 0, RTAS_OUT_NOT_SUPPORTED);
++        return;
++    }
++
++    rtas_st(rets, 0, RTAS_OUT_SUCCESS);
++    rtas_st(rets, 1, 100);
++}
++
++static void rtas_get_power_level(PowerPCCPU *cpu, sPAPREnvironment *spapr,
++                                  uint32_t token, uint32_t nargs,
++                                  target_ulong args, uint32_t nret,
++                                  target_ulong rets)
++{
++    int32_t power_domain;
++
++    if (nargs != 1 || nret != 2) {
++        rtas_st(rets, 0, RTAS_OUT_PARAM_ERROR);
++        return;
++    }
++
++    /* we currently only use a single, "live insert" powerdomain for
++     * hotplugged/dlpar'd resources, so the power is always live/full (100)
++     */
++    power_domain = rtas_ld(args, 0);
++    if (power_domain != -1) {
++        rtas_st(rets, 0, RTAS_OUT_NOT_SUPPORTED);
++        return;
++    }
++
++    rtas_st(rets, 0, RTAS_OUT_SUCCESS);
++    rtas_st(rets, 1, 100);
++}
++
+ static struct rtas_call {
+     const char *name;
+     spapr_rtas_fn fn;
+@@ -404,6 +454,10 @@ static void core_rtas_register_types(void)
+     spapr_rtas_register(RTAS_IBM_SET_SYSTEM_PARAMETER,
+                         "ibm,set-system-parameter",
+                         rtas_ibm_set_system_parameter);
++    spapr_rtas_register(RTAS_SET_POWER_LEVEL, "set-power-level",
++                        rtas_set_power_level);
++    spapr_rtas_register(RTAS_GET_POWER_LEVEL, "get-power-level",
++                        rtas_get_power_level);
+ }
+ 
+ type_init(core_rtas_register_types)
+-- 
+1.9.3
+
+
+From ebb04d214b4d8a45faf0c59f519e85ab79788432 Mon Sep 17 00:00:00 2001
+From: Mike Day <ncmike@ncultra.org>
+Date: Mon, 18 Nov 2013 16:02:03 -0600
+Subject: [PATCH 04/28] spapr_rtas: add set-indicator RTAS interface
+
+This interface allows a guest to control various platform/device
+sensors. Initially, we only implement support necessary to control
+sensors that are required for hotplug: DR connector indicators/LEDs,
+resource allocation state, and resource isolation state.
+
+See docs/specs/ppc-spapr-hotplug.txt for a complete description of
+this interface.
+
+Signed-off-by: Mike Day <ncmike@ncultra.org>
+Signed-off-by: Michael Roth <mdroth@linux.vnet.ibm.com>
+Reviewed-by: David Gibson <david@gibson.dropbear.id.au>
+---
+ hw/ppc/spapr_rtas.c    | 84 ++++++++++++++++++++++++++++++++++++++++++++++++++
+ include/hw/ppc/spapr.h | 11 +++++++
+ 2 files changed, 95 insertions(+)
+
+diff --git a/hw/ppc/spapr_rtas.c b/hw/ppc/spapr_rtas.c
+index b183825..5a93704 100644
+--- a/hw/ppc/spapr_rtas.c
++++ b/hw/ppc/spapr_rtas.c
+@@ -35,6 +35,18 @@
+ #include "qapi-event.h"
+ 
+ #include <libfdt.h>
++#include "hw/ppc/spapr_drc.h"
++
++/* #define DEBUG_SPAPR */
++
++#ifdef DEBUG_SPAPR
++#define DPRINTF(fmt, ...) \
++    do { fprintf(stderr, fmt, ## __VA_ARGS__); } while (0)
++#else
++#define DPRINTF(fmt, ...) \
++    do { } while (0)
++#endif
++
+ 
+ static void rtas_display_character(PowerPCCPU *cpu, sPAPREnvironment *spapr,
+                                    uint32_t token, uint32_t nargs,
+@@ -327,6 +339,76 @@ static void rtas_get_power_level(PowerPCCPU *cpu, sPAPREnvironment *spapr,
+     rtas_st(rets, 1, 100);
+ }
+ 
++static bool sensor_type_is_dr(uint32_t sensor_type)
++{
++    switch (sensor_type) {
++    case RTAS_SENSOR_TYPE_ISOLATION_STATE:
++    case RTAS_SENSOR_TYPE_DR:
++    case RTAS_SENSOR_TYPE_ALLOCATION_STATE:
++        return true;
++    }
++
++    return false;
++}
++
++static void rtas_set_indicator(PowerPCCPU *cpu, sPAPREnvironment *spapr,
++                               uint32_t token, uint32_t nargs,
++                               target_ulong args, uint32_t nret,
++                               target_ulong rets)
++{
++    uint32_t sensor_type;
++    uint32_t sensor_index;
++    uint32_t sensor_state;
++    sPAPRDRConnector *drc;
++    sPAPRDRConnectorClass *drck;
++
++    if (nargs != 3 || nret != 1) {
++        rtas_st(rets, 0, RTAS_OUT_PARAM_ERROR);
++        return;
++    }
++
++    sensor_type = rtas_ld(args, 0);
++    sensor_index = rtas_ld(args, 1);
++    sensor_state = rtas_ld(args, 2);
++
++    if (!sensor_type_is_dr(sensor_type)) {
++        goto out_unimplemented;
++    }
++
++    /* if this is a DR sensor we can assume sensor_index == drc_index */
++    drc = spapr_dr_connector_by_index(sensor_index);
++    if (!drc) {
++        DPRINTF("rtas_set_indicator: invalid sensor/DRC index: %xh\n",
++                sensor_index);
++        rtas_st(rets, 0, RTAS_OUT_PARAM_ERROR);
++        return;
++    }
++    drck = SPAPR_DR_CONNECTOR_GET_CLASS(drc);
++
++    switch (sensor_type) {
++    case RTAS_SENSOR_TYPE_ISOLATION_STATE:
++        drck->set_isolation_state(drc, sensor_state);
++        break;
++    case RTAS_SENSOR_TYPE_DR:
++        drck->set_indicator_state(drc, sensor_state);
++        break;
++    case RTAS_SENSOR_TYPE_ALLOCATION_STATE:
++        drck->set_allocation_state(drc, sensor_state);
++        break;
++    default:
++        goto out_unimplemented;
++    }
++
++    rtas_st(rets, 0, RTAS_OUT_SUCCESS);
++    return;
++
++out_unimplemented:
++    /* currently only DR-related sensors are implemented */
++    DPRINTF("rtas_set_indicator: sensor/indicator not implemented: %d\n",
++            sensor_type);
++    rtas_st(rets, 0, RTAS_OUT_NOT_SUPPORTED);
++}
++
+ static struct rtas_call {
+     const char *name;
+     spapr_rtas_fn fn;
+@@ -458,6 +540,8 @@ static void core_rtas_register_types(void)
+                         rtas_set_power_level);
+     spapr_rtas_register(RTAS_GET_POWER_LEVEL, "get-power-level",
+                         rtas_get_power_level);
++    spapr_rtas_register(RTAS_SET_INDICATOR, "set-indicator",
++                        rtas_set_indicator);
+ }
+ 
+ type_init(core_rtas_register_types)
+diff --git a/include/hw/ppc/spapr.h b/include/hw/ppc/spapr.h
+index 832ad6b..5b9319e 100644
+--- a/include/hw/ppc/spapr.h
++++ b/include/hw/ppc/spapr.h
+@@ -389,6 +389,17 @@ int spapr_allocate_irq_block(int num, bool lsi, bool msi);
+ #define RTAS_SYSPARM_DIAGNOSTICS_RUN_MODE        42
+ #define RTAS_SYSPARM_UUID                        48
+ 
++/* RTAS indicator/sensor types
++ *
++ * as defined by PAPR+ 2.7 7.3.5.4, Table 41
++ *
++ * NOTE: currently only DR-related sensors are implemented here
++ */
++#define RTAS_SENSOR_TYPE_ISOLATION_STATE        9001
++#define RTAS_SENSOR_TYPE_DR                     9002
++#define RTAS_SENSOR_TYPE_ALLOCATION_STATE       9003
++#define RTAS_SENSOR_TYPE_ENTITY_SENSE RTAS_SENSOR_TYPE_ALLOCATION_STATE
++
+ /* Possible values for the platform-processor-diagnostics-run-mode parameter
+  * of the RTAS ibm,get-system-parameter call.
+  */
+-- 
+1.9.3
+
+
+From 39344d710ed7d336f52ec0f5d5060caefcbb4ffc Mon Sep 17 00:00:00 2001
+From: Mike Day <ncmike@ncultra.org>
+Date: Sun, 12 Oct 2014 12:17:01 -0500
+Subject: [PATCH 05/28] spapr_rtas: add get-sensor-state RTAS interface
+
+This interface allows a guest to read various platform/device sensors.
+initially, we only implement support necessary to support hotplug:
+reading of the dr-entity-sense sensor, which communicates the state of
+a hotplugged resource/device to the guest (EMPTY/PRESENT/UNUSABLE).
+
+See docs/specs/ppc-spapr-hotplug.txt for a complete description of
+this interface.
+
+Signed-off-by: Mike Day <ncmike@ncultra.org>
+Signed-off-by: Michael Roth <mdroth@linux.vnet.ibm.com>
+Reviewed-by: David Gibson <david@gibson.dropbear.id.au>
+---
+ hw/ppc/spapr_rtas.c | 43 +++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 43 insertions(+)
+
+diff --git a/hw/ppc/spapr_rtas.c b/hw/ppc/spapr_rtas.c
+index 5a93704..8ed9acf 100644
+--- a/hw/ppc/spapr_rtas.c
++++ b/hw/ppc/spapr_rtas.c
+@@ -409,6 +409,47 @@ out_unimplemented:
+     rtas_st(rets, 0, RTAS_OUT_NOT_SUPPORTED);
+ }
+ 
++static void rtas_get_sensor_state(PowerPCCPU *cpu, sPAPREnvironment *spapr,
++                                  uint32_t token, uint32_t nargs,
++                                  target_ulong args, uint32_t nret,
++                                  target_ulong rets)
++{
++    uint32_t sensor_type;
++    uint32_t sensor_index;
++    sPAPRDRConnector *drc;
++    sPAPRDRConnectorClass *drck;
++    uint32_t entity_sense;
++
++    if (nargs != 2 || nret != 2) {
++        rtas_st(rets, 0, RTAS_OUT_PARAM_ERROR);
++        return;
++    }
++
++    sensor_type = rtas_ld(args, 0);
++    sensor_index = rtas_ld(args, 1);
++
++    if (sensor_type != RTAS_SENSOR_TYPE_ENTITY_SENSE) {
++        /* currently only DR-related sensors are implemented */
++        DPRINTF("rtas_get_sensor_state: sensor/indicator not implemented: %d\n",
++                sensor_type);
++        rtas_st(rets, 0, RTAS_OUT_NOT_SUPPORTED);
++        return;
++    }
++
++    drc = spapr_dr_connector_by_index(sensor_index);
++    if (!drc) {
++        DPRINTF("rtas_get_sensor_state: invalid sensor/DRC index: %xh\n",
++                sensor_index);
++        rtas_st(rets, 0, RTAS_OUT_PARAM_ERROR);
++        return;
++    }
++    drck = SPAPR_DR_CONNECTOR_GET_CLASS(drc);
++    entity_sense = drck->entity_sense(drc);
++
++    rtas_st(rets, 0, RTAS_OUT_SUCCESS);
++    rtas_st(rets, 1, entity_sense);
++}
++
+ static struct rtas_call {
+     const char *name;
+     spapr_rtas_fn fn;
+@@ -542,6 +583,8 @@ static void core_rtas_register_types(void)
+                         rtas_get_power_level);
+     spapr_rtas_register(RTAS_SET_INDICATOR, "set-indicator",
+                         rtas_set_indicator);
++    spapr_rtas_register(RTAS_GET_SENSOR_STATE, "get-sensor-state",
++                        rtas_get_sensor_state);
+ }
+ 
+ type_init(core_rtas_register_types)
+-- 
+1.9.3
+
+
+From 6071b627f77d4f9c9337642adf6496acbe3a48a6 Mon Sep 17 00:00:00 2001
+From: Michael Roth <mdroth@linux.vnet.ibm.com>
+Date: Thu, 11 Dec 2014 17:08:15 -0600
+Subject: [PATCH 06/28] spapr: add rtas_st_buffer_direct() helper
+
+This is similar to the existing rtas_st_buffer(), but for cases
+where the guest is not expecting a length-encoded byte array.
+Namely, for calls where a "work area" buffer is used to pass
+around arbitrary fields/data.
+
+Signed-off-by: Michael Roth <mdroth@linux.vnet.ibm.com>
+Reviewed-by: David Gibson <david@gibson.dropbear.id.au>
+---
+ include/hw/ppc/spapr.h | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
+
+diff --git a/include/hw/ppc/spapr.h b/include/hw/ppc/spapr.h
+index 5b9319e..3c0b9de 100644
+--- a/include/hw/ppc/spapr.h
++++ b/include/hw/ppc/spapr.h
+@@ -423,6 +423,13 @@ static inline void rtas_st(target_ulong phys, int n, uint32_t val)
+     stl_be_phys(&address_space_memory, ppc64_phys_to_real(phys + 4*n), val);
+ }
+ 
++static inline void rtas_st_buffer_direct(target_ulong phys,
++                                         target_ulong phys_len,
++                                         uint8_t *buffer, uint16_t buffer_len)
++{
++    cpu_physical_memory_write(ppc64_phys_to_real(phys), buffer,
++                              MIN(buffer_len, phys_len));
++}
+ 
+ static inline void rtas_st_buffer(target_ulong phys, target_ulong phys_len,
+                                   uint8_t *buffer, uint16_t buffer_len)
+@@ -432,8 +439,7 @@ static inline void rtas_st_buffer(target_ulong phys, target_ulong phys_len,
+     }
+     stw_be_phys(&address_space_memory,
+                 ppc64_phys_to_real(phys), buffer_len);
+-    cpu_physical_memory_write(ppc64_phys_to_real(phys + 2),
+-                              buffer, MIN(buffer_len, phys_len - 2));
++    rtas_st_buffer_direct(phys + 2, phys_len - 2, buffer, buffer_len);
+ }
+ 
+ typedef void (*spapr_rtas_fn)(PowerPCCPU *cpu, sPAPREnvironment *spapr,
+-- 
+1.9.3
+
+
+From e5566d5a7e6cc4e8fd58be8ead7957837481bbaf Mon Sep 17 00:00:00 2001
+From: Michael Roth <mdroth@linux.vnet.ibm.com>
+Date: Sun, 12 Oct 2014 12:18:59 -0500
+Subject: [PATCH 07/28] spapr_rtas: add ibm,configure-connector RTAS interface
+
+This interface is used to fetch an OF device-tree nodes that describes a
+newly-attached device to guest. It is called multiple times to walk the
+device-tree node and fetch individual properties into a 'workarea'/buffer
+provided by the guest.
+
+The device-tree is generated by QEMU and passed to an sPAPRDRConnector during
+the initial hotplug operation, and the state of these RTAS calls is tracked by
+the sPAPRDRConnector. When the last of these properties is successfully
+fetched, we report as special return value to the guest and transition
+the device to a 'configured' state on the QEMU/DRC side.
+
+See docs/specs/ppc-spapr-hotplug.txt for a complete description of
+this interface.
+
+Signed-off-by: Michael Roth <mdroth@linux.vnet.ibm.com>
+---
+ hw/ppc/spapr_rtas.c | 88 +++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 88 insertions(+)
+
+diff --git a/hw/ppc/spapr_rtas.c b/hw/ppc/spapr_rtas.c
+index 8ed9acf..b5863c9 100644
+--- a/hw/ppc/spapr_rtas.c
++++ b/hw/ppc/spapr_rtas.c
+@@ -450,6 +450,92 @@ static void rtas_get_sensor_state(PowerPCCPU *cpu, sPAPREnvironment *spapr,
+     rtas_st(rets, 1, entity_sense);
+ }
+ 
++/* configure-connector work area offsets, int32_t units for field
++ * indexes, bytes for field offset/len values.
++ *
++ * as documented by PAPR+ v2.7, 13.5.3.5
++ */
++#define CC_IDX_NODE_NAME_OFFSET 2
++#define CC_IDX_PROP_NAME_OFFSET 2
++#define CC_IDX_PROP_LEN 3
++#define CC_IDX_PROP_DATA_OFFSET 4
++#define CC_VAL_DATA_OFFSET ((CC_IDX_PROP_DATA_OFFSET + 1) * 4)
++#define CC_WA_LEN 4096
++
++static void rtas_ibm_configure_connector(PowerPCCPU *cpu,
++                                         sPAPREnvironment *spapr,
++                                         uint32_t token, uint32_t nargs,
++                                         target_ulong args, uint32_t nret,
++                                         target_ulong rets)
++{
++    uint64_t wa_addr;
++    uint64_t wa_offset;
++    uint32_t drc_index;
++    sPAPRDRConnector *drc;
++    sPAPRDRConnectorClass *drck;
++    sPAPRDRCCResponse resp;
++    const struct fdt_property *prop = NULL;
++    char *prop_name = NULL;
++    int prop_len, rc;
++
++    if (nargs != 2 || nret != 1) {
++        rtas_st(rets, 0, RTAS_OUT_PARAM_ERROR);
++        return;
++    }
++
++    wa_addr = ((uint64_t)rtas_ld(args, 1) << 32) | rtas_ld(args, 0);
++
++    drc_index = rtas_ld(wa_addr, 0);
++    drc = spapr_dr_connector_by_index(drc_index);
++    if (!drc) {
++        DPRINTF("rtas_ibm_configure_connector: invalid sensor/DRC index: %xh\n",
++                drc_index);
++        rc = RTAS_OUT_PARAM_ERROR;
++        goto out;
++    }
++    drck = SPAPR_DR_CONNECTOR_GET_CLASS(drc);
++    resp = drck->configure_connector(drc, &prop_name, &prop, &prop_len);
++
++    switch (resp) {
++    case SPAPR_DR_CC_RESPONSE_NEXT_CHILD:
++        /* provide the name of the next OF node */
++        wa_offset = CC_VAL_DATA_OFFSET;
++        rtas_st(wa_addr, CC_IDX_NODE_NAME_OFFSET, wa_offset);
++        rtas_st_buffer_direct(wa_addr + wa_offset, CC_WA_LEN - wa_offset,
++                              (uint8_t *)prop_name, strlen(prop_name) + 1);
++        break;
++    case SPAPR_DR_CC_RESPONSE_NEXT_PROPERTY:
++        /* provide the name of the next OF property */
++        wa_offset = CC_VAL_DATA_OFFSET;
++        rtas_st(wa_addr, CC_IDX_PROP_NAME_OFFSET, wa_offset);
++        rtas_st_buffer_direct(wa_addr + wa_offset, CC_WA_LEN - wa_offset,
++                              (uint8_t *)prop_name, strlen(prop_name) + 1);
++
++        /* provide the length and value of the OF property. data gets placed
++         * immediately after NULL terminator of the OF property's name string
++         */
++        wa_offset += strlen(prop_name) + 1,
++        rtas_st(wa_addr, CC_IDX_PROP_LEN, prop_len);
++        rtas_st(wa_addr, CC_IDX_PROP_DATA_OFFSET, wa_offset);
++        rtas_st_buffer_direct(wa_addr + wa_offset, CC_WA_LEN - wa_offset,
++                              (uint8_t *)((struct fdt_property *)prop)->data,
++                              prop_len);
++        break;
++    case SPAPR_DR_CC_RESPONSE_PREV_PARENT:
++    case SPAPR_DR_CC_RESPONSE_ERROR:
++    case SPAPR_DR_CC_RESPONSE_SUCCESS:
++        break;
++    default:
++        /* drck->configure_connector() should not return anything else */
++        g_assert(false);
++    }
++
++    rc = resp;
++out:
++    g_free(prop_name);
++    rtas_st(rets, 0, rc);
++}
++
+ static struct rtas_call {
+     const char *name;
+     spapr_rtas_fn fn;
+@@ -585,6 +671,8 @@ static void core_rtas_register_types(void)
+                         rtas_set_indicator);
+     spapr_rtas_register(RTAS_GET_SENSOR_STATE, "get-sensor-state",
+                         rtas_get_sensor_state);
++    spapr_rtas_register(RTAS_IBM_CONFIGURE_CONNECTOR, "ibm,configure-connector",
++                        rtas_ibm_configure_connector);
+ }
+ 
+ type_init(core_rtas_register_types)
+-- 
+1.9.3
+
+
+From 783a987e4ceb39d89b8adf23779b6089c1d02bba Mon Sep 17 00:00:00 2001
+From: Nathan Fontenot <nfont@linux.vnet.ibm.com>
+Date: Mon, 18 Nov 2013 14:59:50 -0600
+Subject: [PATCH 08/28] spapr_events: re-use EPOW event infrastructure for
+ hotplug events
+
+This extends the data structures currently used to report EPOW events to
+guests via the check-exception RTAS interfaces to also include event types
+for hotplug/unplug events.
+
+This is currently undocumented and being finalized for inclusion in PAPR
+specification, but we implement this here as an extension for guest
+userspace tools to implement (existing guest kernels simply log these
+events via a sysfs interface that's read by rtas_errd, and current
+versions of rtas_errd/powerpc-utils already support the use of this
+mechanism for initiating hotplug operations).
+
+We also add support for queues of pending RTAS events, since in the
+case of hotplug there's chance for multiple events being in-flight
+at any point in time.
+
+Signed-off-by: Nathan Fontenot <nfont@linux.vnet.ibm.com>
+Signed-off-by: Michael Roth <mdroth@linux.vnet.ibm.com>
+Reviewed-by: David Gibson <david@gibson.dropbear.id.au>
+---
+ hw/ppc/spapr.c         |   2 +-
+ hw/ppc/spapr_events.c  | 287 ++++++++++++++++++++++++++++++++++++++++---------
+ include/hw/ppc/spapr.h |  13 ++-
+ 3 files changed, 250 insertions(+), 52 deletions(-)
+
+diff --git a/hw/ppc/spapr.c b/hw/ppc/spapr.c
+index 4196a70..407c68f 100644
+--- a/hw/ppc/spapr.c
++++ b/hw/ppc/spapr.c
+@@ -1475,7 +1475,7 @@ static void ppc_spapr_init(MachineState *machine)
+     spapr->fdt_skel = spapr_create_fdt_skel(initrd_base, initrd_size,
+                                             kernel_size, kernel_le,
+                                             boot_device, kernel_cmdline,
+-                                            spapr->epow_irq);
++                                            spapr->check_exception_irq);
+     assert(spapr->fdt_skel != NULL);
+ }
+ 
+diff --git a/hw/ppc/spapr_events.c b/hw/ppc/spapr_events.c
+index 1b6157d..205d179 100644
+--- a/hw/ppc/spapr_events.c
++++ b/hw/ppc/spapr_events.c
+@@ -32,6 +32,9 @@
+ 
+ #include "hw/ppc/spapr.h"
+ #include "hw/ppc/spapr_vio.h"
++#include "hw/pci/pci.h"
++#include "hw/pci-host/spapr.h"
++#include "hw/ppc/spapr_drc.h"
+ 
+ #include <libfdt.h>
+ 
+@@ -77,6 +80,7 @@ struct rtas_error_log {
+ #define   RTAS_LOG_TYPE_ECC_UNCORR              0x00000009
+ #define   RTAS_LOG_TYPE_ECC_CORR                0x0000000a
+ #define   RTAS_LOG_TYPE_EPOW                    0x00000040
++#define   RTAS_LOG_TYPE_HOTPLUG                 0x000000e5
+     uint32_t extended_length;
+ } QEMU_PACKED;
+ 
+@@ -166,6 +170,38 @@ struct epow_log_full {
+     struct rtas_event_log_v6_epow epow;
+ } QEMU_PACKED;
+ 
++struct rtas_event_log_v6_hp {
++#define RTAS_LOG_V6_SECTION_ID_HOTPLUG              0x4850 /* HP */
++    struct rtas_event_log_v6_section_header hdr;
++    uint8_t hotplug_type;
++#define RTAS_LOG_V6_HP_TYPE_CPU                          1
++#define RTAS_LOG_V6_HP_TYPE_MEMORY                       2
++#define RTAS_LOG_V6_HP_TYPE_SLOT                         3
++#define RTAS_LOG_V6_HP_TYPE_PHB                          4
++#define RTAS_LOG_V6_HP_TYPE_PCI                          5
++    uint8_t hotplug_action;
++#define RTAS_LOG_V6_HP_ACTION_ADD                        1
++#define RTAS_LOG_V6_HP_ACTION_REMOVE                     2
++    uint8_t hotplug_identifier;
++#define RTAS_LOG_V6_HP_ID_DRC_NAME                       1
++#define RTAS_LOG_V6_HP_ID_DRC_INDEX                      2
++#define RTAS_LOG_V6_HP_ID_DRC_COUNT                      3
++    uint8_t reserved;
++    union {
++        uint32_t index;
++        uint32_t count;
++        char name[1];
++    } drc;
++} QEMU_PACKED;
++
++struct hp_log_full {
++    struct rtas_error_log hdr;
++    struct rtas_event_log_v6 v6hdr;
++    struct rtas_event_log_v6_maina maina;
++    struct rtas_event_log_v6_mainb mainb;
++    struct rtas_event_log_v6_hp hp;
++} QEMU_PACKED;
++
+ #define EVENT_MASK_INTERNAL_ERRORS           0x80000000
+ #define EVENT_MASK_EPOW                      0x40000000
+ #define EVENT_MASK_HOTPLUG                   0x10000000
+@@ -181,67 +217,95 @@ struct epow_log_full {
+         }                                                          \
+     } while (0)
+ 
+-void spapr_events_fdt_skel(void *fdt, uint32_t epow_irq)
++void spapr_events_fdt_skel(void *fdt, uint32_t check_exception_irq)
+ {
+-    uint32_t epow_irq_ranges[] = {cpu_to_be32(epow_irq), cpu_to_be32(1)};
+-    uint32_t epow_interrupts[] = {cpu_to_be32(epow_irq), 0};
++    uint32_t irq_ranges[] = {cpu_to_be32(check_exception_irq), cpu_to_be32(1)};
++    uint32_t interrupts[] = {cpu_to_be32(check_exception_irq), 0};
+ 
+     _FDT((fdt_begin_node(fdt, "event-sources")));
+ 
+     _FDT((fdt_property(fdt, "interrupt-controller", NULL, 0)));
+     _FDT((fdt_property_cell(fdt, "#interrupt-cells", 2)));
+     _FDT((fdt_property(fdt, "interrupt-ranges",
+-                       epow_irq_ranges, sizeof(epow_irq_ranges))));
++                       irq_ranges, sizeof(irq_ranges))));
+ 
+     _FDT((fdt_begin_node(fdt, "epow-events")));
+-    _FDT((fdt_property(fdt, "interrupts",
+-                       epow_interrupts, sizeof(epow_interrupts))));
++    _FDT((fdt_property(fdt, "interrupts", interrupts, sizeof(interrupts))));
+     _FDT((fdt_end_node(fdt)));
+ 
+     _FDT((fdt_end_node(fdt)));
+ }
+ 
+-static struct epow_log_full *pending_epow;
+-static uint32_t next_plid;
++static void rtas_event_log_queue(int log_type, void *data)
++{
++    sPAPREventLogEntry *entry = g_new(sPAPREventLogEntry, 1);
+ 
+-static void spapr_powerdown_req(Notifier *n, void *opaque)
++    g_assert(data);
++    entry->log_type = log_type;
++    entry->data = data;
++    QTAILQ_INSERT_TAIL(&spapr->pending_events, entry, next);
++}
++
++static sPAPREventLogEntry *rtas_event_log_dequeue(uint32_t event_mask)
+ {
+-    sPAPREnvironment *spapr = container_of(n, sPAPREnvironment, epow_notifier);
+-    struct rtas_error_log *hdr;
+-    struct rtas_event_log_v6 *v6hdr;
+-    struct rtas_event_log_v6_maina *maina;
+-    struct rtas_event_log_v6_mainb *mainb;
+-    struct rtas_event_log_v6_epow *epow;
+-    struct tm tm;
+-    int year;
++    sPAPREventLogEntry *entry = NULL;
+ 
+-    if (pending_epow) {
+-        /* For now, we just throw away earlier events if two come
+-         * along before any are consumed.  This is sufficient for our
+-         * powerdown messages, but we'll need more if we do more
+-         * general error/event logging */
+-        g_free(pending_epow);
++    /* we only queue EPOW events atm. */
++    if ((event_mask & EVENT_MASK_EPOW) == 0) {
++        return NULL;
+     }
+-    pending_epow = g_malloc0(sizeof(*pending_epow));
+-    hdr = &pending_epow->hdr;
+-    v6hdr = &pending_epow->v6hdr;
+-    maina = &pending_epow->maina;
+-    mainb = &pending_epow->mainb;
+-    epow = &pending_epow->epow;
+ 
+-    hdr->summary = cpu_to_be32(RTAS_LOG_VERSION_6
+-                               | RTAS_LOG_SEVERITY_EVENT
+-                               | RTAS_LOG_DISPOSITION_NOT_RECOVERED
+-                               | RTAS_LOG_OPTIONAL_PART_PRESENT
+-                               | RTAS_LOG_TYPE_EPOW);
+-    hdr->extended_length = cpu_to_be32(sizeof(*pending_epow)
+-                                       - sizeof(pending_epow->hdr));
++    QTAILQ_FOREACH(entry, &spapr->pending_events, next) {
++        /* EPOW and hotplug events are surfaced in the same manner */
++        if (entry->log_type == RTAS_LOG_TYPE_EPOW ||
++            entry->log_type == RTAS_LOG_TYPE_HOTPLUG) {
++            break;
++        }
++    }
++
++    if (entry) {
++        QTAILQ_REMOVE(&spapr->pending_events, entry, next);
++    }
++
++    return entry;
++}
++
++static bool rtas_event_log_contains(uint32_t event_mask)
++{
++    sPAPREventLogEntry *entry = NULL;
++
++    /* we only queue EPOW events atm. */
++    if ((event_mask & EVENT_MASK_EPOW) == 0) {
++        return false;
++    }
++
++    QTAILQ_FOREACH(entry, &spapr->pending_events, next) {
++        /* EPOW and hotplug events are surfaced in the same manner */
++        if (entry->log_type == RTAS_LOG_TYPE_EPOW ||
++            entry->log_type == RTAS_LOG_TYPE_HOTPLUG) {
++            return true;
++        }
++    }
++
++    return false;
++}
+ 
++static uint32_t next_plid;
++
++static void spapr_init_v6hdr(struct rtas_event_log_v6 *v6hdr)
++{
+     v6hdr->b0 = RTAS_LOG_V6_B0_VALID | RTAS_LOG_V6_B0_NEW_LOG
+         | RTAS_LOG_V6_B0_BIGENDIAN;
+     v6hdr->b2 = RTAS_LOG_V6_B2_POWERPC_FORMAT
+         | RTAS_LOG_V6_B2_LOG_FORMAT_PLATFORM_EVENT;
+     v6hdr->company = cpu_to_be32(RTAS_LOG_V6_COMPANY_IBM);
++}
++
++static void spapr_init_maina(struct rtas_event_log_v6_maina *maina,
++                             int section_count)
++{
++    struct tm tm;
++    int year;
+ 
+     maina->hdr.section_id = cpu_to_be16(RTAS_LOG_V6_SECTION_ID_MAINA);
+     maina->hdr.section_length = cpu_to_be16(sizeof(*maina));
+@@ -256,8 +320,37 @@ static void spapr_powerdown_req(Notifier *n, void *opaque)
+                                        | (to_bcd(tm.tm_min) << 16)
+                                        | (to_bcd(tm.tm_sec) << 8));
+     maina->creator_id = 'H'; /* Hypervisor */
+-    maina->section_count = 3; /* Main-A, Main-B and EPOW */
++    maina->section_count = section_count;
+     maina->plid = next_plid++;
++}
++
++static void spapr_powerdown_req(Notifier *n, void *opaque)
++{
++    sPAPREnvironment *spapr = container_of(n, sPAPREnvironment, epow_notifier);
++    struct rtas_error_log *hdr;
++    struct rtas_event_log_v6 *v6hdr;
++    struct rtas_event_log_v6_maina *maina;
++    struct rtas_event_log_v6_mainb *mainb;
++    struct rtas_event_log_v6_epow *epow;
++    struct epow_log_full *new_epow;
++
++    new_epow = g_malloc0(sizeof(*new_epow));
++    hdr = &new_epow->hdr;
++    v6hdr = &new_epow->v6hdr;
++    maina = &new_epow->maina;
++    mainb = &new_epow->mainb;
++    epow = &new_epow->epow;
++
++    hdr->summary = cpu_to_be32(RTAS_LOG_VERSION_6
++                               | RTAS_LOG_SEVERITY_EVENT
++                               | RTAS_LOG_DISPOSITION_NOT_RECOVERED
++                               | RTAS_LOG_OPTIONAL_PART_PRESENT
++                               | RTAS_LOG_TYPE_EPOW);
++    hdr->extended_length = cpu_to_be32(sizeof(*new_epow)
++                                       - sizeof(new_epow->hdr));
++
++    spapr_init_v6hdr(v6hdr);
++    spapr_init_maina(maina, 3 /* Main-A, Main-B and EPOW */);
+ 
+     mainb->hdr.section_id = cpu_to_be16(RTAS_LOG_V6_SECTION_ID_MAINB);
+     mainb->hdr.section_length = cpu_to_be16(sizeof(*mainb));
+@@ -274,7 +367,80 @@ static void spapr_powerdown_req(Notifier *n, void *opaque)
+     epow->event_modifier = RTAS_LOG_V6_EPOW_MODIFIER_NORMAL;
+     epow->extended_modifier = RTAS_LOG_V6_EPOW_XMODIFIER_PARTITION_SPECIFIC;
+ 
+-    qemu_irq_pulse(xics_get_qirq(spapr->icp, spapr->epow_irq));
++    rtas_event_log_queue(RTAS_LOG_TYPE_EPOW, new_epow);
++
++    qemu_irq_pulse(xics_get_qirq(spapr->icp, spapr->check_exception_irq));
++}
++
++static void spapr_hotplug_req_event(sPAPRDRConnector *drc, uint8_t hp_action)
++{
++    struct hp_log_full *new_hp;
++    struct rtas_error_log *hdr;
++    struct rtas_event_log_v6 *v6hdr;
++    struct rtas_event_log_v6_maina *maina;
++    struct rtas_event_log_v6_mainb *mainb;
++    struct rtas_event_log_v6_hp *hp;
++    sPAPRDRConnectorClass *drck = SPAPR_DR_CONNECTOR_GET_CLASS(drc);
++    sPAPRDRConnectorType drc_type = drck->get_type(drc);
++
++    new_hp = g_malloc0(sizeof(struct hp_log_full));
++    hdr = &new_hp->hdr;
++    v6hdr = &new_hp->v6hdr;
++    maina = &new_hp->maina;
++    mainb = &new_hp->mainb;
++    hp = &new_hp->hp;
++
++    hdr->summary = cpu_to_be32(RTAS_LOG_VERSION_6
++                               | RTAS_LOG_SEVERITY_EVENT
++                               | RTAS_LOG_DISPOSITION_NOT_RECOVERED
++                               | RTAS_LOG_OPTIONAL_PART_PRESENT
++                               | RTAS_LOG_INITIATOR_HOTPLUG
++                               | RTAS_LOG_TYPE_HOTPLUG);
++    hdr->extended_length = cpu_to_be32(sizeof(*new_hp)
++                                       - sizeof(new_hp->hdr));
++
++    spapr_init_v6hdr(v6hdr);
++    spapr_init_maina(maina, 3 /* Main-A, Main-B, HP */);
++
++    mainb->hdr.section_id = cpu_to_be16(RTAS_LOG_V6_SECTION_ID_MAINB);
++    mainb->hdr.section_length = cpu_to_be16(sizeof(*mainb));
++    mainb->subsystem_id = 0x80; /* External environment */
++    mainb->event_severity = 0x00; /* Informational / non-error */
++    mainb->event_subtype = 0x00; /* Normal shutdown */
++
++    hp->hdr.section_id = cpu_to_be16(RTAS_LOG_V6_SECTION_ID_HOTPLUG);
++    hp->hdr.section_length = cpu_to_be16(sizeof(*hp));
++    hp->hdr.section_version = 1; /* includes extended modifier */
++    hp->hotplug_action = hp_action;
++
++
++    switch (drc_type) {
++    case SPAPR_DR_CONNECTOR_TYPE_PCI:
++        hp->drc.index = cpu_to_be32(drck->get_index(drc));
++        hp->hotplug_identifier = RTAS_LOG_V6_HP_ID_DRC_INDEX;
++        hp->hotplug_type = RTAS_LOG_V6_HP_TYPE_PCI;
++        break;
++    default:
++        /* we shouldn't be signaling hotplug events for resources
++         * that don't support them
++         */
++        g_assert(false);
++        return;
++    }
++
++    rtas_event_log_queue(RTAS_LOG_TYPE_HOTPLUG, new_hp);
++
++    qemu_irq_pulse(xics_get_qirq(spapr->icp, spapr->check_exception_irq));
++}
++
++void spapr_hotplug_req_add_event(sPAPRDRConnector *drc)
++{
++    spapr_hotplug_req_event(drc, RTAS_LOG_V6_HP_ACTION_ADD);
++}
++
++void spapr_hotplug_req_remove_event(sPAPRDRConnector *drc)
++{
++    spapr_hotplug_req_event(drc, RTAS_LOG_V6_HP_ACTION_REMOVE);
+ }
+ 
+ static void check_exception(PowerPCCPU *cpu, sPAPREnvironment *spapr,
+@@ -282,8 +448,10 @@ static void check_exception(PowerPCCPU *cpu, sPAPREnvironment *spapr,
+                             target_ulong args,
+                             uint32_t nret, target_ulong rets)
+ {
+-    uint32_t mask, buf, len;
++    uint32_t mask, buf, len, event_len;
+     uint64_t xinfo;
++    sPAPREventLogEntry *event;
++    struct rtas_error_log *hdr;
+ 
+     if ((nargs < 6) || (nargs > 7) || nret != 1) {
+         rtas_st(rets, 0, RTAS_OUT_PARAM_ERROR);
+@@ -298,23 +466,42 @@ static void check_exception(PowerPCCPU *cpu, sPAPREnvironment *spapr,
+         xinfo |= (uint64_t)rtas_ld(args, 6) << 32;
+     }
+ 
+-    if ((mask & EVENT_MASK_EPOW) && pending_epow) {
+-        if (sizeof(*pending_epow) < len) {
+-            len = sizeof(*pending_epow);
+-        }
++    event = rtas_event_log_dequeue(mask);
++    if (!event) {
++        goto out_no_events;
++    }
+ 
+-        cpu_physical_memory_write(buf, pending_epow, len);
+-        g_free(pending_epow);
+-        pending_epow = NULL;
+-        rtas_st(rets, 0, RTAS_OUT_SUCCESS);
+-    } else {
+-        rtas_st(rets, 0, RTAS_OUT_NO_ERRORS_FOUND);
++    hdr = event->data;
++    event_len = be32_to_cpu(hdr->extended_length) + sizeof(*hdr);
++
++    if (event_len < len) {
++        len = event_len;
++    }
++
++    cpu_physical_memory_write(buf, event->data, len);
++    rtas_st(rets, 0, RTAS_OUT_SUCCESS);
++    g_free(event->data);
++    g_free(event);
++
++    /* according to PAPR+, the IRQ must be left asserted, or re-asserted, if
++     * there are still pending events to be fetched via check-exception. We
++     * do the latter here, since our code relies on edge-triggered
++     * interrupts.
++     */
++    if (rtas_event_log_contains(mask)) {
++        qemu_irq_pulse(xics_get_qirq(spapr->icp, spapr->check_exception_irq));
+     }
++
++    return;
++
++out_no_events:
++    rtas_st(rets, 0, RTAS_OUT_NO_ERRORS_FOUND);
+ }
+ 
+ void spapr_events_init(sPAPREnvironment *spapr)
+ {
+-    spapr->epow_irq = xics_alloc(spapr->icp, 0, 0, false);
++    QTAILQ_INIT(&spapr->pending_events);
++    spapr->check_exception_irq = xics_alloc(spapr->icp, 0, 0, false);
+     spapr->epow_notifier.notify = spapr_powerdown_req;
+     qemu_register_powerdown_notifier(&spapr->epow_notifier);
+     spapr_rtas_register(RTAS_CHECK_EXCEPTION, "check-exception",
+diff --git a/include/hw/ppc/spapr.h b/include/hw/ppc/spapr.h
+index 3c0b9de..fc9b8be 100644
+--- a/include/hw/ppc/spapr.h
++++ b/include/hw/ppc/spapr.h
+@@ -3,10 +3,12 @@
+ 
+ #include "sysemu/dma.h"
+ #include "hw/ppc/xics.h"
++#include "hw/ppc/spapr_drc.h"
+ 
+ struct VIOsPAPRBus;
+ struct sPAPRPHBState;
+ struct sPAPRNVRAM;
++typedef struct sPAPREventLogEntry sPAPREventLogEntry;
+ 
+ #define HPTE64_V_HPTE_DIRTY     0x0000000000000040ULL
+ 
+@@ -29,8 +31,9 @@ typedef struct sPAPREnvironment {
+     struct PPCTimebase tb;
+     bool has_graphics;
+ 
+-    uint32_t epow_irq;
++    uint32_t check_exception_irq;
+     Notifier epow_notifier;
++    QTAILQ_HEAD(, sPAPREventLogEntry) pending_events;
+ 
+     /* Migration state */
+     int htab_save_index;
+@@ -482,6 +485,12 @@ struct sPAPRTCETable {
+     QLIST_ENTRY(sPAPRTCETable) list;
+ };
+ 
++struct sPAPREventLogEntry {
++    int log_type;
++    void *data;
++    QTAILQ_ENTRY(sPAPREventLogEntry) next;
++};
++
+ void spapr_events_init(sPAPREnvironment *spapr);
+ void spapr_events_fdt_skel(void *fdt, uint32_t epow_irq);
+ int spapr_h_cas_compose_response(target_ulong addr, target_ulong size);
+@@ -496,5 +505,7 @@ int spapr_dma_dt(void *fdt, int node_off, const char *propname,
+                  uint32_t liobn, uint64_t window, uint32_t size);
+ int spapr_tcet_dma_dt(void *fdt, int node_off, const char *propname,
+                       sPAPRTCETable *tcet);
++void spapr_hotplug_req_add_event(sPAPRDRConnector *drc);
++void spapr_hotplug_req_remove_event(sPAPRDRConnector *drc);
+ 
+ #endif /* !defined (__HW_SPAPR_H__) */
+-- 
+1.9.3
+
+
+From cebfc8eef12649fe8249f430cced01924513cee5 Mon Sep 17 00:00:00 2001
+From: Tyrel Datwyler <tyreld@linux.vnet.ibm.com>
+Date: Mon, 18 Nov 2013 15:05:17 -0600
+Subject: [PATCH 09/28] spapr_events: event-scan RTAS interface
+
+We don't actually rely on this interface to surface hotplug events, and
+instead rely on the similar-but-interrupt-driven check-exception RTAS
+interface used for EPOW events. However, the existence of this interface
+is needed to ensure guest kernels initialize the event-reporting
+interfaces which will in turn be used by userspace tools to handle these
+events, so we implement this interface here.
+
+Since events surfaced by this call are mutually exclusive to those
+surfaced via check-exception, we also update the RTAS event queue code
+to accept a boolean to mark/filter for events accordingly.
+
+Events of this sort are not currently generated by QEMU, but the interface
+has been tested by surfacing hotplug events via event-scan in place
+of check-exception.
+
+Signed-off-by: Tyrel Datwyler <tyreld@linux.vnet.ibm.com>
+Signed-off-by: Michael Roth <mdroth@linux.vnet.ibm.com>
+Reviewed-by: David Gibson <david@gibson.dropbear.id.au>
+---
+ hw/ppc/spapr.c         |  1 +
+ hw/ppc/spapr_events.c  | 64 ++++++++++++++++++++++++++++++++++++++++++++------
+ include/hw/ppc/spapr.h |  3 +++
+ 3 files changed, 61 insertions(+), 7 deletions(-)
+
+diff --git a/hw/ppc/spapr.c b/hw/ppc/spapr.c
+index 407c68f..0af970c 100644
+--- a/hw/ppc/spapr.c
++++ b/hw/ppc/spapr.c
+@@ -500,6 +500,7 @@ static void *spapr_create_fdt_skel(hwaddr initrd_base,
+         refpoints, sizeof(refpoints))));
+ 
+     _FDT((fdt_property_cell(fdt, "rtas-error-log-max", RTAS_ERROR_LOG_MAX)));
++    _FDT((fdt_property_cell(fdt, "rtas-event-scan-rate", RTAS_EVENT_SCAN_RATE)));
+ 
+     _FDT((fdt_end_node(fdt)));
+ 
+diff --git a/hw/ppc/spapr_events.c b/hw/ppc/spapr_events.c
+index 205d179..9417178 100644
+--- a/hw/ppc/spapr_events.c
++++ b/hw/ppc/spapr_events.c
+@@ -236,17 +236,18 @@ void spapr_events_fdt_skel(void *fdt, uint32_t check_exception_irq)
+     _FDT((fdt_end_node(fdt)));
+ }
+ 
+-static void rtas_event_log_queue(int log_type, void *data)
++static void rtas_event_log_queue(int log_type, void *data, bool exception)
+ {
+     sPAPREventLogEntry *entry = g_new(sPAPREventLogEntry, 1);
+ 
+     g_assert(data);
+     entry->log_type = log_type;
++    entry->exception = exception;
+     entry->data = data;
+     QTAILQ_INSERT_TAIL(&spapr->pending_events, entry, next);
+ }
+ 
+-static sPAPREventLogEntry *rtas_event_log_dequeue(uint32_t event_mask)
++static sPAPREventLogEntry *rtas_event_log_dequeue(uint32_t event_mask, bool exception)
+ {
+     sPAPREventLogEntry *entry = NULL;
+ 
+@@ -256,6 +257,10 @@ static sPAPREventLogEntry *rtas_event_log_dequeue(uint32_t event_mask)
+     }
+ 
+     QTAILQ_FOREACH(entry, &spapr->pending_events, next) {
++        if (entry->exception != exception) {
++            continue;
++        }
++
+         /* EPOW and hotplug events are surfaced in the same manner */
+         if (entry->log_type == RTAS_LOG_TYPE_EPOW ||
+             entry->log_type == RTAS_LOG_TYPE_HOTPLUG) {
+@@ -270,7 +275,7 @@ static sPAPREventLogEntry *rtas_event_log_dequeue(uint32_t event_mask)
+     return entry;
+ }
+ 
+-static bool rtas_event_log_contains(uint32_t event_mask)
++static bool rtas_event_log_contains(uint32_t event_mask, bool exception)
+ {
+     sPAPREventLogEntry *entry = NULL;
+ 
+@@ -280,6 +285,10 @@ static bool rtas_event_log_contains(uint32_t event_mask)
+     }
+ 
+     QTAILQ_FOREACH(entry, &spapr->pending_events, next) {
++        if (entry->exception != exception) {
++            continue;
++        }
++
+         /* EPOW and hotplug events are surfaced in the same manner */
+         if (entry->log_type == RTAS_LOG_TYPE_EPOW ||
+             entry->log_type == RTAS_LOG_TYPE_HOTPLUG) {
+@@ -367,7 +376,7 @@ static void spapr_powerdown_req(Notifier *n, void *opaque)
+     epow->event_modifier = RTAS_LOG_V6_EPOW_MODIFIER_NORMAL;
+     epow->extended_modifier = RTAS_LOG_V6_EPOW_XMODIFIER_PARTITION_SPECIFIC;
+ 
+-    rtas_event_log_queue(RTAS_LOG_TYPE_EPOW, new_epow);
++    rtas_event_log_queue(RTAS_LOG_TYPE_EPOW, new_epow, true);
+ 
+     qemu_irq_pulse(xics_get_qirq(spapr->icp, spapr->check_exception_irq));
+ }
+@@ -428,7 +437,7 @@ static void spapr_hotplug_req_event(sPAPRDRConnector *drc, uint8_t hp_action)
+         return;
+     }
+ 
+-    rtas_event_log_queue(RTAS_LOG_TYPE_HOTPLUG, new_hp);
++    rtas_event_log_queue(RTAS_LOG_TYPE_HOTPLUG, new_hp, true);
+ 
+     qemu_irq_pulse(xics_get_qirq(spapr->icp, spapr->check_exception_irq));
+ }
+@@ -466,7 +475,7 @@ static void check_exception(PowerPCCPU *cpu, sPAPREnvironment *spapr,
+         xinfo |= (uint64_t)rtas_ld(args, 6) << 32;
+     }
+ 
+-    event = rtas_event_log_dequeue(mask);
++    event = rtas_event_log_dequeue(mask, true);
+     if (!event) {
+         goto out_no_events;
+     }
+@@ -488,7 +497,7 @@ static void check_exception(PowerPCCPU *cpu, sPAPREnvironment *spapr,
+      * do the latter here, since our code relies on edge-triggered
+      * interrupts.
+      */
+-    if (rtas_event_log_contains(mask)) {
++    if (rtas_event_log_contains(mask, true)) {
+         qemu_irq_pulse(xics_get_qirq(spapr->icp, spapr->check_exception_irq));
+     }
+ 
+@@ -498,6 +507,46 @@ out_no_events:
+     rtas_st(rets, 0, RTAS_OUT_NO_ERRORS_FOUND);
+ }
+ 
++static void event_scan(PowerPCCPU *cpu, sPAPREnvironment *spapr,
++                       uint32_t token, uint32_t nargs,
++                       target_ulong args,
++                       uint32_t nret, target_ulong rets)
++{
++    uint32_t mask, buf, len, event_len;
++    sPAPREventLogEntry *event;
++    struct rtas_error_log *hdr;
++
++    if (nargs != 4 || nret != 1) {
++        rtas_st(rets, 0, RTAS_OUT_PARAM_ERROR);
++        return;
++    }
++
++    mask = rtas_ld(args, 0);
++    buf = rtas_ld(args, 2);
++    len = rtas_ld(args, 3);
++
++    event = rtas_event_log_dequeue(mask, false);
++    if (!event) {
++        goto out_no_events;
++    }
++
++    hdr = event->data;
++    event_len = be32_to_cpu(hdr->extended_length) + sizeof(*hdr);
++
++    if (event_len < len) {
++        len = event_len;
++    }
++
++    cpu_physical_memory_write(buf, event->data, len);
++    rtas_st(rets, 0, RTAS_OUT_SUCCESS);
++    g_free(event->data);
++    g_free(event);
++    return;
++
++out_no_events:
++    rtas_st(rets, 0, RTAS_OUT_NO_ERRORS_FOUND);
++}
++
+ void spapr_events_init(sPAPREnvironment *spapr)
+ {
+     QTAILQ_INIT(&spapr->pending_events);
+@@ -506,4 +555,5 @@ void spapr_events_init(sPAPREnvironment *spapr)
+     qemu_register_powerdown_notifier(&spapr->epow_notifier);
+     spapr_rtas_register(RTAS_CHECK_EXCEPTION, "check-exception",
+                         check_exception);
++    spapr_rtas_register(RTAS_EVENT_SCAN, "event-scan", event_scan);
+ }
+diff --git a/include/hw/ppc/spapr.h b/include/hw/ppc/spapr.h
+index fc9b8be..cd116ab 100644
+--- a/include/hw/ppc/spapr.h
++++ b/include/hw/ppc/spapr.h
+@@ -465,6 +465,8 @@ int spapr_rtas_device_tree_setup(void *fdt, hwaddr rtas_addr,
+ 
+ #define RTAS_ERROR_LOG_MAX      2048
+ 
++#define RTAS_EVENT_SCAN_RATE    1
++
+ typedef struct sPAPRTCETable sPAPRTCETable;
+ 
+ #define TYPE_SPAPR_TCE_TABLE "spapr-tce-table"
+@@ -487,6 +489,7 @@ struct sPAPRTCETable {
+ 
+ struct sPAPREventLogEntry {
+     int log_type;
++    bool exception;
+     void *data;
+     QTAILQ_ENTRY(sPAPREventLogEntry) next;
+ };
+-- 
+1.9.3
+
+
+From 5be62931d899bdafb1131c6701ee0be045a3c4d8 Mon Sep 17 00:00:00 2001
+From: Michael Roth <mdroth@linux.vnet.ibm.com>
+Date: Thu, 4 Dec 2014 10:16:53 -0600
+Subject: [PATCH 10/28] spapr_drc: add spapr_drc_populate_dt()
+
+This function handles generation of ibm,drc-* array device tree
+properties to describe DRC topology to guests. This will by used
+by the guest to direct RTAS calls to manage any dynamic resources
+we associate with a particular DR Connector as part of
+hotplug/unplug.
+
+Since general management of boot-time device trees are handled
+outside of sPAPRDRConnector, we insert these values blindly given
+an FDT and offset. A mask of sPAPRDRConnector types is given to
+instruct us on what types of connectors entries should be generated
+for, since descriptions for different connectors may live in
+different parts of the device tree.
+
+Based on code originally written by Nathan Fontenot.
+
+Signed-off-by: Nathan Fontenot <nfont@linux.vnet.ibm.com>
+Signed-off-by: Michael Roth <mdroth@linux.vnet.ibm.com>
+Reviewed-by: David Gibson <david@gibson.dropbear.id.au>
+---
+ hw/ppc/spapr_drc.c         | 165 +++++++++++++++++++++++++++++++++++++++++++++
+ include/hw/ppc/spapr_drc.h |   2 +
+ 2 files changed, 167 insertions(+)
+
+diff --git a/hw/ppc/spapr_drc.c b/hw/ppc/spapr_drc.c
+index bf22e1d..2a3195c 100644
+--- a/hw/ppc/spapr_drc.c
++++ b/hw/ppc/spapr_drc.c
+@@ -583,3 +583,168 @@ sPAPRDRConnector *spapr_dr_connector_by_id(sPAPRDRConnectorType type,
+             (get_type_shift(type) << DRC_INDEX_TYPE_SHIFT) |
+             (id & DRC_INDEX_ID_MASK));
+ }
++
++/* generate a string the describes the DRC to encode into the
++ * device tree.
++ *
++ * as documented by PAPR+ v2.7, 13.5.2.6 and C.6.1
++ */
++static char *spapr_drc_get_type_str(sPAPRDRConnectorType type)
++{
++    char *type_str = NULL;
++
++    switch (type) {
++    case SPAPR_DR_CONNECTOR_TYPE_CPU:
++        type_str = g_strdup_printf("CPU");
++        break;
++    case SPAPR_DR_CONNECTOR_TYPE_PHB:
++        type_str = g_strdup_printf("PHB");
++        break;
++    case SPAPR_DR_CONNECTOR_TYPE_VIO:
++        type_str = g_strdup_printf("SLOT");
++        break;
++    case SPAPR_DR_CONNECTOR_TYPE_PCI:
++        type_str = g_strdup_printf("28");
++        break;
++    case SPAPR_DR_CONNECTOR_TYPE_LMB:
++        type_str = g_strdup_printf("MEM");
++        break;
++    default:
++        g_assert(false);
++    }
++
++    return type_str;
++}
++
++/**
++ * spapr_drc_populate_dt
++ *
++ * @fdt: libfdt device tree
++ * @path: path in the DT to generate properties
++ * @owner: parent Object/DeviceState for which to generate DRC
++ *         descriptions for
++ * @drc_type_mask: mask of sPAPRDRConnectorType values corresponding
++ *   to the types of DRCs to generate entries for
++ *
++ * generate OF properties to describe DRC topology/indices to guests
++ *
++ * as documented in PAPR+ v2.1, 13.5.2
++ */
++int spapr_drc_populate_dt(void *fdt, int fdt_offset, Object *owner,
++                          uint32_t drc_type_mask)
++{
++    Object *root_container;
++    ObjectProperty *prop;
++    uint32_t drc_count = 0;
++    GArray *drc_indexes, *drc_power_domains;
++    GString *drc_names, *drc_types;
++    int ret;
++
++    /* the first entry of each properties is a 32-bit integer encoding
++     * the number of elements in the array. we won't know this until
++     * we complete the iteration through all the matching DRCs, but
++     * reserve the space now and set the offsets accordingly so we
++     * can fill them in later.
++     */
++    drc_indexes = g_array_new(false, true, sizeof(uint32_t));
++    drc_indexes = g_array_set_size(drc_indexes, 1);
++    drc_power_domains = g_array_new(false, true, sizeof(uint32_t));
++    drc_power_domains = g_array_set_size(drc_power_domains, 1);
++    drc_names = g_string_set_size(g_string_new(NULL), sizeof(uint32_t));
++    drc_types = g_string_set_size(g_string_new(NULL), sizeof(uint32_t));
++
++    /* aliases for all DRConnector objects will be rooted in QOM
++     * composition tree at DRC_CONTAINER_PATH
++     */
++    root_container = container_get(object_get_root(), DRC_CONTAINER_PATH);
++
++    QTAILQ_FOREACH(prop, &root_container->properties, node) {
++        Object *obj;
++        sPAPRDRConnector *drc;
++        sPAPRDRConnectorClass *drck;
++        char *drc_type;
++        uint32_t drc_index, drc_power_domain;
++
++        if (!strstart(prop->type, "link<", NULL)) {
++            continue;
++        }
++
++        obj = object_property_get_link(root_container, prop->name, NULL);
++        drc = SPAPR_DR_CONNECTOR(obj);
++        drck = SPAPR_DR_CONNECTOR_GET_CLASS(drc);
++
++        if (owner && (drc->owner != owner)) {
++            continue;
++        }
++
++        if ((drc->type & drc_type_mask) == 0) {
++            continue;
++        }
++
++        drc_count++;
++
++        /* ibm,drc-indexes */
++        drc_index = cpu_to_be32(drck->get_index(drc));
++        g_array_append_val(drc_indexes, drc_index);
++
++        /* ibm,drc-power-domains */
++        drc_power_domain = cpu_to_be32(-1);
++        g_array_append_val(drc_power_domains, drc_power_domain);
++
++        /* ibm,drc-names */
++        drc_names = g_string_append(drc_names, drck->get_name(drc));
++        drc_names = g_string_insert_len(drc_names, -1, "\0", 1);
++
++        /* ibm,drc-types */
++        drc_type = spapr_drc_get_type_str(drc->type);
++        drc_types = g_string_append(drc_types, drc_type);
++        drc_types = g_string_insert_len(drc_types, -1, "\0", 1);
++        g_free(drc_type);
++    }
++
++    /* now write the drc count into the space we reserved at the
++     * beginning of the arrays previously
++     */
++    *(uint32_t *)drc_indexes->data = cpu_to_be32(drc_count);
++    *(uint32_t *)drc_power_domains->data = cpu_to_be32(drc_count);
++    *(uint32_t *)drc_names->str = cpu_to_be32(drc_count);
++    *(uint32_t *)drc_types->str = cpu_to_be32(drc_count);
++
++    ret = fdt_setprop(fdt, fdt_offset, "ibm,drc-indexes",
++                      drc_indexes->data,
++                      drc_indexes->len * sizeof(uint32_t));
++    if (ret) {
++        fprintf(stderr, "Couldn't create ibm,drc-indexes property\n");
++        goto out;
++    }
++
++    ret = fdt_setprop(fdt, fdt_offset, "ibm,drc-power-domains",
++                      drc_power_domains->data,
++                      drc_power_domains->len * sizeof(uint32_t));
++    if (ret) {
++        fprintf(stderr, "Couldn't finalize ibm,drc-power-domains property\n");
++        goto out;
++    }
++
++    ret = fdt_setprop(fdt, fdt_offset, "ibm,drc-names",
++                      drc_names->str, drc_names->len);
++    if (ret) {
++        fprintf(stderr, "Couldn't finalize ibm,drc-names property\n");
++        goto out;
++    }
++
++    ret = fdt_setprop(fdt, fdt_offset, "ibm,drc-types",
++                      drc_types->str, drc_types->len);
++    if (ret) {
++        fprintf(stderr, "Couldn't finalize ibm,drc-types property\n");
++        goto out;
++    }
++
++out:
++    g_array_free(drc_indexes, true);
++    g_array_free(drc_power_domains, true);
++    g_string_free(drc_names, true);
++    g_string_free(drc_types, true);
++
++    return ret;
++}
+diff --git a/include/hw/ppc/spapr_drc.h b/include/hw/ppc/spapr_drc.h
+index ece8e09..5895534 100644
+--- a/include/hw/ppc/spapr_drc.h
++++ b/include/hw/ppc/spapr_drc.h
+@@ -201,5 +201,7 @@ sPAPRDRConnector *spapr_dr_connector_new(Object *owner,
+ sPAPRDRConnector *spapr_dr_connector_by_index(uint32_t index);
+ sPAPRDRConnector *spapr_dr_connector_by_id(sPAPRDRConnectorType type,
+                                            uint32_t id);
++int spapr_drc_populate_dt(void *fdt, int fdt_offset, Object *owner,
++                          uint32_t drc_type_mask);
+ 
+ #endif /* __HW_SPAPR_DRC_H__ */
+-- 
+1.9.3
+
+
+From 8baa828d2a0eed8c9f9a47190aa6973e6f4685ce Mon Sep 17 00:00:00 2001
+From: Michael Roth <mdroth@linux.vnet.ibm.com>
+Date: Tue, 3 Mar 2015 23:38:58 -0600
+Subject: [PATCH 11/28] *spapr_drc: avoid strdup() on literal drc type strings
+
+Signed-off-by: Michael Roth <mdroth@linux.vnet.ibm.com>
+---
+ hw/ppc/spapr_drc.c | 27 +++++++++------------------
+ 1 file changed, 9 insertions(+), 18 deletions(-)
+
+diff --git a/hw/ppc/spapr_drc.c b/hw/ppc/spapr_drc.c
+index 2a3195c..d6587eb 100644
+--- a/hw/ppc/spapr_drc.c
++++ b/hw/ppc/spapr_drc.c
+@@ -589,31 +589,24 @@ sPAPRDRConnector *spapr_dr_connector_by_id(sPAPRDRConnectorType type,
+  *
+  * as documented by PAPR+ v2.7, 13.5.2.6 and C.6.1
+  */
+-static char *spapr_drc_get_type_str(sPAPRDRConnectorType type)
++static const char *spapr_drc_get_type_str(sPAPRDRConnectorType type)
+ {
+-    char *type_str = NULL;
+-
+     switch (type) {
+     case SPAPR_DR_CONNECTOR_TYPE_CPU:
+-        type_str = g_strdup_printf("CPU");
+-        break;
++        return "CPU";
+     case SPAPR_DR_CONNECTOR_TYPE_PHB:
+-        type_str = g_strdup_printf("PHB");
+-        break;
++        return "PHB";
+     case SPAPR_DR_CONNECTOR_TYPE_VIO:
+-        type_str = g_strdup_printf("SLOT");
+-        break;
++        return "SLOT";
+     case SPAPR_DR_CONNECTOR_TYPE_PCI:
+-        type_str = g_strdup_printf("28");
+-        break;
++        return "28";
+     case SPAPR_DR_CONNECTOR_TYPE_LMB:
+-        type_str = g_strdup_printf("MEM");
+-        break;
++        return "MEM";
+     default:
+         g_assert(false);
+     }
+ 
+-    return type_str;
++    return NULL;
+ }
+ 
+ /**
+@@ -662,7 +655,6 @@ int spapr_drc_populate_dt(void *fdt, int fdt_offset, Object *owner,
+         Object *obj;
+         sPAPRDRConnector *drc;
+         sPAPRDRConnectorClass *drck;
+-        char *drc_type;
+         uint32_t drc_index, drc_power_domain;
+ 
+         if (!strstart(prop->type, "link<", NULL)) {
+@@ -696,10 +688,9 @@ int spapr_drc_populate_dt(void *fdt, int fdt_offset, Object *owner,
+         drc_names = g_string_insert_len(drc_names, -1, "\0", 1);
+ 
+         /* ibm,drc-types */
+-        drc_type = spapr_drc_get_type_str(drc->type);
+-        drc_types = g_string_append(drc_types, drc_type);
++        drc_types = g_string_append(drc_types,
++                                    spapr_drc_get_type_str(drc->type));
+         drc_types = g_string_insert_len(drc_types, -1, "\0", 1);
+-        g_free(drc_type);
+     }
+ 
+     /* now write the drc count into the space we reserved at the
+-- 
+1.9.3
+
+
+From e2f2d69321452ed71186a19cbfcd75629bcb9bdf Mon Sep 17 00:00:00 2001
+From: Michael Roth <mdroth@linux.vnet.ibm.com>
+Date: Tue, 25 Nov 2014 23:26:41 -0600
+Subject: [PATCH 12/28] spapr_pci: add dynamic-reconfiguration option for
+ spapr-pci-host-bridge
+
+This option enables/disables PCI hotplug for a particular PHB.
+
+Also add machine compatibility code to disable it by default for machine
+types prior to pseries-2.3.
+
+Signed-off-by: Michael Roth <mdroth@linux.vnet.ibm.com>
+Reviewed-by: David Gibson <david@gibson.dropbear.id.au>
+---
+ hw/ppc/spapr_pci.c          | 2 ++
+ include/hw/pci-host/spapr.h | 1 +
+ 2 files changed, 3 insertions(+)
+
+diff --git a/hw/ppc/spapr_pci.c b/hw/ppc/spapr_pci.c
+index 7c18e68..cb185b8 100644
+--- a/hw/ppc/spapr_pci.c
++++ b/hw/ppc/spapr_pci.c
+@@ -674,6 +674,8 @@ static Property spapr_phb_properties[] = {
+     DEFINE_PROP_UINT64("io_win_addr", sPAPRPHBState, io_win_addr, -1),
+     DEFINE_PROP_UINT64("io_win_size", sPAPRPHBState, io_win_size,
+                        SPAPR_PCI_IO_WIN_SIZE),
++    DEFINE_PROP_BOOL("dynamic-reconfiguration", sPAPRPHBState, dr_enabled,
++                     true),
+     DEFINE_PROP_END_OF_LIST(),
+ };
+ 
+diff --git a/include/hw/pci-host/spapr.h b/include/hw/pci-host/spapr.h
+index 4ea2a0d..ba0f3cc 100644
+--- a/include/hw/pci-host/spapr.h
++++ b/include/hw/pci-host/spapr.h
+@@ -67,6 +67,7 @@ struct sPAPRPHBState {
+     int32_t index;
+     uint64_t buid;
+     char *dtbusname;
++    bool dr_enabled;
+ 
+     MemoryRegion memspace, iospace;
+     hwaddr mem_win_addr, mem_win_size, io_win_addr, io_win_size;
+-- 
+1.9.3
+
+
+From 6ea32e3e6ba10083c671dfa427e9a379a547a8c8 Mon Sep 17 00:00:00 2001
+From: Michael Roth <mdroth@linux.vnet.ibm.com>
+Date: Tue, 25 Nov 2014 23:46:51 -0600
+Subject: [PATCH 13/28] spapr_pci: create DRConnectors for each PCI slot during
+ PHB realize
+
+These will be used to support hotplug/unplug of PCI devices to the PCI
+bus associated with a particular PHB.
+
+We also set up device-tree properties in each PHBs initial FDT to
+describe the DRCs associated with them. This advertises to guests that
+each PHB is DR-capable device with physical hotpluggable slots, each
+managed by the corresponding DRC. This is necessary for allowing
+hotplugging of devices to it later via bus rescan or guest rpaphp
+hotplug module.
+
+Signed-off-by: Michael Roth <mdroth@linux.vnet.ibm.com>
+Reviewed-by: David Gibson <david@gibson.dropbear.id.au>
+---
+ hw/ppc/spapr_pci.c | 19 ++++++++++++++++++-
+ 1 file changed, 18 insertions(+), 1 deletion(-)
+
+diff --git a/hw/ppc/spapr_pci.c b/hw/ppc/spapr_pci.c
+index cb185b8..6bc8b29 100644
+--- a/hw/ppc/spapr_pci.c
++++ b/hw/ppc/spapr_pci.c
+@@ -47,6 +47,8 @@
+ #define RTAS_TYPE_MSI           1
+ #define RTAS_TYPE_MSIX          2
+ 
++#include "hw/ppc/spapr_drc.h"
++
+ static sPAPRPHBState *find_phb(sPAPREnvironment *spapr, uint64_t buid)
+ {
+     sPAPRPHBState *sphb;
+@@ -618,6 +620,15 @@ static void spapr_phb_realize(DeviceState *dev, Error **errp)
+         sphb->lsi_table[i].irq = irq;
+     }
+ 
++    /* allocate connectors for child PCI devices */
++    if (sphb->dr_enabled) {
++        for (i = 0; i < PCI_SLOT_MAX; i++) {
++            spapr_dr_connector_new(OBJECT(phb),
++                                   SPAPR_DR_CONNECTOR_TYPE_PCI,
++                                   (sphb->index << 16) | (i << 3));
++        }
++    }
++
+     if (!info->finish_realize) {
+         error_setg(errp, "finish_realize not defined");
+         return;
+@@ -857,7 +868,7 @@ int spapr_populate_pci_dt(sPAPRPHBState *phb,
+                           uint32_t xics_phandle,
+                           void *fdt)
+ {
+-    int bus_off, i, j;
++    int bus_off, i, j, ret;
+     char nodename[256];
+     uint32_t bus_range[] = { cpu_to_be32(0), cpu_to_be32(0xff) };
+     struct {
+@@ -936,6 +947,12 @@ int spapr_populate_pci_dt(sPAPRPHBState *phb,
+     object_child_foreach(OBJECT(phb), spapr_phb_children_dt,
+                          &((sPAPRTCEDT){ .fdt = fdt, .node_off = bus_off }));
+ 
++    ret = spapr_drc_populate_dt(fdt, bus_off, OBJECT(phb),
++                                SPAPR_DR_CONNECTOR_TYPE_PCI);
++    if (ret) {
++        return ret;
++    }
++
+     return 0;
+ }
+ 
+-- 
+1.9.3
+
+
+From 493b371a11035dc212c7053ed36e3c089d9ce3d7 Mon Sep 17 00:00:00 2001
+From: Michael Roth <mdroth@linux.vnet.ibm.com>
+Date: Tue, 19 Nov 2013 10:42:01 -0600
+Subject: [PATCH 14/28] pci: allow 0 address for PCI IO/MEM regions
+
+Some kernels program a 0 address for io regions. PCI 3.0 spec
+section 6.2.5.1 doesn't seem to disallow this.
+
+Signed-off-by: Michael Roth <mdroth@linux.vnet.ibm.com>
+---
+ hw/pci/pci.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
+
+diff --git a/hw/pci/pci.c b/hw/pci/pci.c
+index 42995e6..0c1974e 100644
+--- a/hw/pci/pci.c
++++ b/hw/pci/pci.c
+@@ -1035,7 +1035,7 @@ static pcibus_t pci_bar_address(PCIDevice *d,
+         /* Check if 32 bit BAR wraps around explicitly.
+          * TODO: make priorities correct and remove this work around.
+          */
+-        if (last_addr <= new_addr || new_addr == 0 || last_addr >= UINT32_MAX) {
++        if (last_addr <= new_addr || last_addr >= UINT32_MAX) {
+             return PCI_BAR_UNMAPPED;
+         }
+         return new_addr;
+@@ -1059,8 +1059,7 @@ static pcibus_t pci_bar_address(PCIDevice *d,
+     /* XXX: as we cannot support really dynamic
+        mappings, we handle specific values as invalid
+        mappings. */
+-    if (last_addr <= new_addr || new_addr == 0 ||
+-        last_addr == PCI_BAR_UNMAPPED) {
++    if (last_addr <= new_addr || last_addr == PCI_BAR_UNMAPPED) {
+         return PCI_BAR_UNMAPPED;
+     }
+ 
+-- 
+1.9.3
+
+
+From 8957d4e234d78dc420942b0cec0e8e6112aea56d Mon Sep 17 00:00:00 2001
+From: Michael Roth <mdroth@linux.vnet.ibm.com>
+Date: Mon, 7 Oct 2013 12:56:41 -0500
+Subject: [PATCH 15/28] pci: make pci_bar useable outside pci.c
+
+We need to work with PCI BARs to generate OF properties
+during PCI hotplug for sPAPR guests.
+
+Signed-off-by: Michael Roth <mdroth@linux.vnet.ibm.com>
+Reviewed-by: David Gibson <david@gibson.dropbear.id.au>
+Cc: mst@redhat.com
+---
+ hw/pci/pci.c         | 2 +-
+ include/hw/pci/pci.h | 1 +
+ 2 files changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/hw/pci/pci.c b/hw/pci/pci.c
+index 0c1974e..c968e3c 100644
+--- a/hw/pci/pci.c
++++ b/hw/pci/pci.c
+@@ -122,7 +122,7 @@ static uint16_t pci_default_sub_device_id = PCI_SUBDEVICE_ID_QEMU;
+ 
+ static QLIST_HEAD(, PCIHostState) pci_host_bridges;
+ 
+-static int pci_bar(PCIDevice *d, int reg)
++int pci_bar(PCIDevice *d, int reg)
+ {
+     uint8_t type;
+ 
+diff --git a/include/hw/pci/pci.h b/include/hw/pci/pci.h
+index c352c7b..5800961 100644
+--- a/include/hw/pci/pci.h
++++ b/include/hw/pci/pci.h
+@@ -329,6 +329,7 @@ void pci_device_save(PCIDevice *s, QEMUFile *f);
+ int pci_device_load(PCIDevice *s, QEMUFile *f);
+ MemoryRegion *pci_address_space(PCIDevice *dev);
+ MemoryRegion *pci_address_space_io(PCIDevice *dev);
++int pci_bar(PCIDevice *d, int reg);
+ 
+ typedef void (*pci_set_irq_fn)(void *opaque, int irq_num, int level);
+ typedef int (*pci_map_irq_fn)(PCIDevice *pci_dev, int irq_num);
+-- 
+1.9.3
+
+
+From a3739014cc1caedc7f79acae39b530fc1e7d457b Mon Sep 17 00:00:00 2001
+From: Michael Roth <mdroth@linux.vnet.ibm.com>
+Date: Sun, 10 Aug 2014 11:48:14 -0500
+Subject: [PATCH 16/28] spapr_pci: enable basic hotplug operations
+
+This enables hotplug of PCI devices to a PHB. Upon hotplug we
+generate the OF-nodes required by PAPR specification and
+IEEE 1275-1994 "PCI Bus Binding to Open Firmware" for the
+device.
+
+We associate the corresponding FDT for these nodes with the DRC
+corresponding to the slot, which will be fetched via
+ibm,configure-connector RTAS calls by the guest as described by PAPR
+specification.
+
+Signed-off-by: Michael Roth <mdroth@linux.vnet.ibm.com>
+Reviewed-by: David Gibson <david@gibson.dropbear.id.au>
+---
+ hw/ppc/spapr_pci.c | 393 ++++++++++++++++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 373 insertions(+), 20 deletions(-)
+
+diff --git a/hw/ppc/spapr_pci.c b/hw/ppc/spapr_pci.c
+index 6bc8b29..16e0570 100644
+--- a/hw/ppc/spapr_pci.c
++++ b/hw/ppc/spapr_pci.c
+@@ -33,8 +33,11 @@
+ #include <libfdt.h>
+ #include "trace.h"
+ #include "qemu/error-report.h"
++#include "qapi/qmp/qerror.h"
+ 
+ #include "hw/pci/pci_bus.h"
++#include "hw/ppc/spapr_drc.h"
++#include "sysemu/device_tree.h"
+ 
+ /* Copied from the kernel arch/powerpc/platforms/pseries/msi.c */
+ #define RTAS_QUERY_FN           0
+@@ -47,7 +50,13 @@
+ #define RTAS_TYPE_MSI           1
+ #define RTAS_TYPE_MSIX          2
+ 
+-#include "hw/ppc/spapr_drc.h"
++#define _FDT(exp) \
++    do { \
++        int ret = (exp);                                           \
++        if (ret < 0) {                                             \
++            return ret;                                            \
++        }                                                          \
++    } while (0)
+ 
+ static sPAPRPHBState *find_phb(sPAPREnvironment *spapr, uint64_t buid)
+ {
+@@ -477,6 +486,361 @@ static AddressSpace *spapr_pci_dma_iommu(PCIBus *bus, void *opaque, int devfn)
+     return &phb->iommu_as;
+ }
+ 
++/* Macros to operate with address in OF binding to PCI */
++#define b_x(x, p, l)    (((x) & ((1<<(l))-1)) << (p))
++#define b_n(x)          b_x((x), 31, 1) /* 0 if relocatable */
++#define b_p(x)          b_x((x), 30, 1) /* 1 if prefetchable */
++#define b_t(x)          b_x((x), 29, 1) /* 1 if the address is aliased */
++#define b_ss(x)         b_x((x), 24, 2) /* the space code */
++#define b_bbbbbbbb(x)   b_x((x), 16, 8) /* bus number */
++#define b_ddddd(x)      b_x((x), 11, 5) /* device number */
++#define b_fff(x)        b_x((x), 8, 3)  /* function number */
++#define b_rrrrrrrr(x)   b_x((x), 0, 8)  /* register number */
++
++/* for 'reg'/'assigned-addresses' OF properties */
++#define RESOURCE_CELLS_SIZE 2
++#define RESOURCE_CELLS_ADDRESS 3
++
++typedef struct ResourceFields {
++    uint32_t phys_hi;
++    uint32_t phys_mid;
++    uint32_t phys_lo;
++    uint32_t size_hi;
++    uint32_t size_lo;
++} __attribute__ ((packed)) ResourceFields;
++
++typedef struct ResourceProps {
++    ResourceFields reg[8];
++    ResourceFields assigned[7];
++    uint32_t reg_len;
++    uint32_t assigned_len;
++} ResourceProps;
++
++/* fill in the 'reg'/'assigned-resources' OF properties for
++ * a PCI device. 'reg' describes resource requirements for a
++ * device's IO/MEM regions, 'assigned-addresses' describes the
++ * actual resource assignments.
++ *
++ * the properties are arrays of ('phys-addr', 'size') pairs describing
++ * the addressable regions of the PCI device, where 'phys-addr' is a
++ * RESOURCE_CELLS_ADDRESS-tuple of 32-bit integers corresponding to
++ * (phys.hi, phys.mid, phys.lo), and 'size' is a
++ * RESOURCE_CELLS_SIZE-tuple corresponding to (size.hi, size.lo).
++ *
++ * phys.hi = 0xYYXXXXZZ, where:
++ *   0xYY = npt000ss
++ *          |||   |
++ *          |||   +-- space code: 1 if IO region, 2 if MEM region
++ *          ||+------ for non-relocatable IO: 1 if aliased
++ *          ||        for relocatable IO: 1 if below 64KB
++ *          ||        for MEM: 1 if below 1MB
++ *          |+------- 1 if region is prefetchable
++ *          +-------- 1 if region is non-relocatable
++ *   0xXXXX = bbbbbbbb dddddfff, encoding bus, slot, and function
++ *            bits respectively
++ *   0xZZ = rrrrrrrr, the register number of the BAR corresponding
++ *          to the region
++ *
++ * phys.mid and phys.lo correspond respectively to the hi/lo portions
++ * of the actual address of the region.
++ *
++ * how the phys-addr/size values are used differ slightly between
++ * 'reg' and 'assigned-addresses' properties. namely, 'reg' has
++ * an additional description for the config space region of the
++ * device, and in the case of QEMU has n=0 and phys.mid=phys.lo=0
++ * to describe the region as relocatable, with an address-mapping
++ * that corresponds directly to the PHB's address space for the
++ * resource. 'assigned-addresses' always has n=1 set with an absolute
++ * address assigned for the resource. in general, 'assigned-addresses'
++ * won't be populated, since addresses for PCI devices are generally
++ * unmapped initially and left to the guest to assign.
++ *
++ * note also that addresses defined in these properties are, at least
++ * for PAPR guests, relative to the PHBs IO/MEM windows, and
++ * correspond directly to the addresses in the BARs.
++ *
++ * in accordance with PCI Bus Binding to Open Firmware,
++ * IEEE Std 1275-1994, section 4.1.1, as implemented by PAPR+ v2.7,
++ * Appendix C.
++ */
++static void populate_resource_props(PCIDevice *d, ResourceProps *rp)
++{
++    int bus_num = pci_bus_num(PCI_BUS(qdev_get_parent_bus(DEVICE(d))));
++    uint32_t dev_id = (b_bbbbbbbb(bus_num) |
++                       b_ddddd(PCI_SLOT(d->devfn)) |
++                       b_fff(PCI_FUNC(d->devfn)));
++    ResourceFields *reg, *assigned;
++    int i, reg_idx = 0, assigned_idx = 0;
++
++    /* config space region */
++    reg = &rp->reg[reg_idx++];
++    reg->phys_hi = cpu_to_be32(dev_id);
++    reg->phys_mid = 0;
++    reg->phys_lo = 0;
++    reg->size_hi = 0;
++    reg->size_lo = 0;
++
++    for (i = 0; i < PCI_NUM_REGIONS; i++) {
++        if (!d->io_regions[i].size) {
++            continue;
++        }
++
++        reg = &rp->reg[reg_idx++];
++
++        reg->phys_hi = cpu_to_be32(dev_id | b_rrrrrrrr(pci_bar(d, i)));
++        if (d->io_regions[i].type & PCI_BASE_ADDRESS_SPACE_IO) {
++            reg->phys_hi |= cpu_to_be32(b_ss(1));
++        } else {
++            reg->phys_hi |= cpu_to_be32(b_ss(2));
++        }
++        reg->phys_mid = 0;
++        reg->phys_lo = 0;
++        reg->size_hi = cpu_to_be32(d->io_regions[i].size >> 32);
++        reg->size_lo = cpu_to_be32(d->io_regions[i].size);
++
++        if (d->io_regions[i].addr == PCI_BAR_UNMAPPED) {
++            continue;
++        }
++
++        assigned = &rp->assigned[assigned_idx++];
++        assigned->phys_hi = cpu_to_be32(reg->phys_hi | b_n(1));
++        assigned->phys_mid = cpu_to_be32(d->io_regions[i].addr >> 32);
++        assigned->phys_lo = cpu_to_be32(d->io_regions[i].addr);
++        assigned->size_hi = reg->size_hi;
++        assigned->size_lo = reg->size_lo;
++    }
++
++    rp->reg_len = reg_idx * sizeof(ResourceFields);
++    rp->assigned_len = assigned_idx * sizeof(ResourceFields);
++}
++
++static int spapr_populate_pci_child_dt(PCIDevice *dev, void *fdt, int offset,
++                                       int phb_index, int drc_index,
++                                       const char *drc_name)
++{
++    ResourceProps rp;
++    bool is_bridge = false;
++    int pci_status;
++
++    if (pci_default_read_config(dev, PCI_HEADER_TYPE, 1) ==
++        PCI_HEADER_TYPE_BRIDGE) {
++        is_bridge = true;
++    }
++
++    /* in accordance with PAPR+ v2.7 13.6.3, Table 181 */
++    _FDT(fdt_setprop_cell(fdt, offset, "vendor-id",
++                          pci_default_read_config(dev, PCI_VENDOR_ID, 2)));
++    _FDT(fdt_setprop_cell(fdt, offset, "device-id",
++                          pci_default_read_config(dev, PCI_DEVICE_ID, 2)));
++    _FDT(fdt_setprop_cell(fdt, offset, "revision-id",
++                          pci_default_read_config(dev, PCI_REVISION_ID, 1)));
++    _FDT(fdt_setprop_cell(fdt, offset, "class-code",
++                          pci_default_read_config(dev, PCI_CLASS_DEVICE, 2)
++                            << 8));
++    if (pci_default_read_config(dev, PCI_INTERRUPT_PIN, 1)) {
++        _FDT(fdt_setprop_cell(fdt, offset, "interrupts",
++                 pci_default_read_config(dev, PCI_INTERRUPT_PIN, 1)));
++    }
++
++    if (!is_bridge) {
++        _FDT(fdt_setprop_cell(fdt, offset, "min-grant",
++            pci_default_read_config(dev, PCI_MIN_GNT, 1)));
++        _FDT(fdt_setprop_cell(fdt, offset, "max-latency",
++            pci_default_read_config(dev, PCI_MAX_LAT, 1)));
++    }
++
++    if (pci_default_read_config(dev, PCI_SUBSYSTEM_ID, 2)) {
++        _FDT(fdt_setprop_cell(fdt, offset, "subsystem-id",
++                 pci_default_read_config(dev, PCI_SUBSYSTEM_ID, 2)));
++    }
++
++    if (pci_default_read_config(dev, PCI_SUBSYSTEM_VENDOR_ID, 2)) {
++        _FDT(fdt_setprop_cell(fdt, offset, "subsystem-vendor-id",
++                 pci_default_read_config(dev, PCI_SUBSYSTEM_VENDOR_ID, 2)));
++    }
++
++    _FDT(fdt_setprop_cell(fdt, offset, "cache-line-size",
++        pci_default_read_config(dev, PCI_CACHE_LINE_SIZE, 1)));
++
++    /* the following fdt cells are masked off the pci status register */
++    pci_status = pci_default_read_config(dev, PCI_STATUS, 2);
++    _FDT(fdt_setprop_cell(fdt, offset, "devsel-speed",
++                          PCI_STATUS_DEVSEL_MASK & pci_status));
++
++    if (pci_status & PCI_STATUS_FAST_BACK) {
++        _FDT(fdt_setprop(fdt, offset, "fast-back-to-back", NULL, 0));
++    }
++    if (pci_status & PCI_STATUS_66MHZ) {
++        _FDT(fdt_setprop(fdt, offset, "66mhz-capable", NULL, 0));
++    }
++    if (pci_status & PCI_STATUS_UDF) {
++        _FDT(fdt_setprop(fdt, offset, "udf-supported", NULL, 0));
++    }
++
++    /* NOTE: this is normally generated by firmware via path/unit name,
++     * but in our case we must set it manually since it does not get
++     * processed by OF beforehand
++     */
++    _FDT(fdt_setprop_string(fdt, offset, "name", "pci"));
++    _FDT(fdt_setprop(fdt, offset, "ibm,loc-code", drc_name, strlen(drc_name)));
++    _FDT(fdt_setprop_cell(fdt, offset, "ibm,my-drc-index", drc_index));
++
++    _FDT(fdt_setprop_cell(fdt, offset, "#address-cells",
++                          RESOURCE_CELLS_ADDRESS));
++    _FDT(fdt_setprop_cell(fdt, offset, "#size-cells",
++                          RESOURCE_CELLS_SIZE));
++    _FDT(fdt_setprop_cell(fdt, offset, "ibm,req#msi-x",
++                          RESOURCE_CELLS_SIZE));
++
++    populate_resource_props(dev, &rp);
++    _FDT(fdt_setprop(fdt, offset, "reg", (uint8_t *)rp.reg, rp.reg_len));
++    _FDT(fdt_setprop(fdt, offset, "assigned-addresses",
++                     (uint8_t *)rp.assigned, rp.assigned_len));
++
++    return 0;
++}
++
++/* create OF node for pci device and required OF DT properties */
++static void *spapr_create_pci_child_dt(sPAPRPHBState *phb, PCIDevice *dev,
++                                       int drc_index, const char *drc_name,
++                                       int *dt_offset)
++{
++    void *fdt;
++    int offset, ret, fdt_size;
++    int slot = PCI_SLOT(dev->devfn);
++    char nodename[512];
++
++    fdt = create_device_tree(&fdt_size);
++    sprintf(nodename, "pci@%d", slot);
++    offset = fdt_add_subnode(fdt, 0, nodename);
++    ret = spapr_populate_pci_child_dt(dev, fdt, offset, phb->index, drc_index,
++                                      drc_name);
++    g_assert(!ret);
++
++    *dt_offset = offset;
++    return fdt;
++}
++
++static void spapr_phb_add_pci_device(sPAPRDRConnector *drc,
++                                     sPAPRPHBState *phb,
++                                     PCIDevice *pdev,
++                                     Error **errp)
++{
++    sPAPRDRConnectorClass *drck = SPAPR_DR_CONNECTOR_GET_CLASS(drc);
++    DeviceState *dev = DEVICE(pdev);
++    int drc_index = drck->get_index(drc);
++    const char *drc_name = drck->get_name(drc);
++    void *fdt = NULL;
++    int fdt_start_offset = 0;
++
++    /* boot-time devices get their device tree node created by SLOF, but for
++     * hotplugged devices we need QEMU to generate it so the guest can fetch
++     * it via RTAS
++     */
++    if (dev->hotplugged) {
++        fdt = spapr_create_pci_child_dt(phb, pdev, drc_index, drc_name,
++                                        &fdt_start_offset);
++    }
++
++    drck->attach(drc, DEVICE(pdev),
++                 fdt, fdt_start_offset, !dev->hotplugged, errp);
++    if (*errp) {
++        g_free(fdt);
++    }
++}
++
++static void spapr_phb_remove_pci_device_cb(DeviceState *dev, void *opaque)
++{
++    /* some version guests do not wait for completion of a device
++     * cleanup (generally done asynchronously by the kernel) before
++     * signaling to QEMU that the device is safe, but instead sleep
++     * for some 'safe' period of time. unfortunately on a busy host
++     * this sleep isn't guaranteed to be long enough, resulting in
++     * bad things like IRQ lines being left asserted during final
++     * device removal. to deal with this we call reset just prior
++     * to finalizing the device, which will put the device back into
++     * an 'idle' state, as the device cleanup code expects.
++     */
++    pci_device_reset(PCI_DEVICE(dev));
++    object_unparent(OBJECT(dev));
++}
++
++static void spapr_phb_remove_pci_device(sPAPRDRConnector *drc,
++                                        sPAPRPHBState *phb,
++                                        PCIDevice *pdev,
++                                        Error **errp)
++{
++    sPAPRDRConnectorClass *drck = SPAPR_DR_CONNECTOR_GET_CLASS(drc);
++
++    drck->detach(drc, DEVICE(pdev), spapr_phb_remove_pci_device_cb, phb, errp);
++}
++
++static void spapr_phb_hot_plug_child(HotplugHandler *plug_handler,
++                                     DeviceState *plugged_dev, Error **errp)
++{
++    sPAPRPHBState *phb = SPAPR_PCI_HOST_BRIDGE(DEVICE(plug_handler));
++    PCIDevice *pdev = PCI_DEVICE(plugged_dev);
++    sPAPRDRConnector *drc = spapr_dr_connector_by_id(
++        SPAPR_DR_CONNECTOR_TYPE_PCI,
++        (phb->index << 16) |
++        (pci_bus_num(PCI_BUS(qdev_get_parent_bus(plugged_dev))) << 8) |
++        pdev->devfn);
++    Error *local_err = NULL;
++
++    /* if DR is disabled we don't need to do anything in the case of
++     * hotplug or coldplug callbacks
++     */
++    if (!phb->dr_enabled) {
++        /* if this is a hotplug operation initiated by the user
++         * we need to let them know it's not enabled
++         */
++        if (plugged_dev->hotplugged) {
++            error_set(errp, QERR_BUS_NO_HOTPLUG,
++                      object_get_typename(OBJECT(phb)));
++        }
++        return;
++    }
++
++    g_assert(drc);
++
++    spapr_phb_add_pci_device(drc, phb, pdev, &local_err);
++    if (local_err) {
++        error_propagate(errp, local_err);
++        return;
++    }
++}
++
++static void spapr_phb_hot_unplug_child(HotplugHandler *plug_handler,
++                                       DeviceState *plugged_dev, Error **errp)
++{
++    sPAPRPHBState *phb = SPAPR_PCI_HOST_BRIDGE(DEVICE(plug_handler));
++    PCIDevice *pdev = PCI_DEVICE(plugged_dev);
++    sPAPRDRConnectorClass *drck;
++    sPAPRDRConnector *drc = spapr_dr_connector_by_id(
++        SPAPR_DR_CONNECTOR_TYPE_PCI,
++        (phb->index << 16) |
++        (pci_bus_num(PCI_BUS(qdev_get_parent_bus(plugged_dev))) << 8) |
++        pdev->devfn);
++    Error *local_err = NULL;
++
++    if (!phb->dr_enabled) {
++        error_set(errp, QERR_BUS_NO_HOTPLUG,
++                  object_get_typename(OBJECT(phb)));
++        return;
++    }
++
++    g_assert(drc);
++
++    drck = SPAPR_DR_CONNECTOR_GET_CLASS(drc);
++    if (!drck->release_pending(drc)) {
++        spapr_phb_remove_pci_device(drc, phb, pdev, &local_err);
++        if (local_err) {
++            error_propagate(errp, local_err);
++            return;
++        }
++    }
++}
++
+ static void spapr_phb_realize(DeviceState *dev, Error **errp)
+ {
+     SysBusDevice *s = SYS_BUS_DEVICE(dev);
+@@ -564,6 +928,7 @@ static void spapr_phb_realize(DeviceState *dev, Error **errp)
+                            &sphb->memspace, &sphb->iospace,
+                            PCI_DEVFN(0, 0), PCI_NUM_PINS, TYPE_PCI_BUS);
+     phb->bus = bus;
++    qbus_set_hotplug_handler(BUS(phb->bus), DEVICE(sphb), NULL);
+ 
+     /*
+      * Initialize PHB address space.
+@@ -800,6 +1165,7 @@ static void spapr_phb_class_init(ObjectClass *klass, void *data)
+     PCIHostBridgeClass *hc = PCI_HOST_BRIDGE_CLASS(klass);
+     DeviceClass *dc = DEVICE_CLASS(klass);
+     sPAPRPHBClass *spc = SPAPR_PCI_HOST_BRIDGE_CLASS(klass);
++    HotplugHandlerClass *hp = HOTPLUG_HANDLER_CLASS(klass);
+ 
+     hc->root_bus_path = spapr_phb_root_bus_path;
+     dc->realize = spapr_phb_realize;
+@@ -809,6 +1175,8 @@ static void spapr_phb_class_init(ObjectClass *klass, void *data)
+     set_bit(DEVICE_CATEGORY_BRIDGE, dc->categories);
+     dc->cannot_instantiate_with_device_add_yet = false;
+     spc->finish_realize = spapr_phb_finish_realize;
++    hp->plug = spapr_phb_hot_plug_child;
++    hp->unplug = spapr_phb_hot_unplug_child;
+ }
+ 
+ static const TypeInfo spapr_phb_info = {
+@@ -817,6 +1185,10 @@ static const TypeInfo spapr_phb_info = {
+     .instance_size = sizeof(sPAPRPHBState),
+     .class_init    = spapr_phb_class_init,
+     .class_size    = sizeof(sPAPRPHBClass),
++    .interfaces    = (InterfaceInfo[]) {
++        { TYPE_HOTPLUG_HANDLER },
++        { }
++    }
+ };
+ 
+ PCIHostState *spapr_create_phb(sPAPREnvironment *spapr, int index)
+@@ -830,17 +1202,6 @@ PCIHostState *spapr_create_phb(sPAPREnvironment *spapr, int index)
+     return PCI_HOST_BRIDGE(dev);
+ }
+ 
+-/* Macros to operate with address in OF binding to PCI */
+-#define b_x(x, p, l)    (((x) & ((1<<(l))-1)) << (p))
+-#define b_n(x)          b_x((x), 31, 1) /* 0 if relocatable */
+-#define b_p(x)          b_x((x), 30, 1) /* 1 if prefetchable */
+-#define b_t(x)          b_x((x), 29, 1) /* 1 if the address is aliased */
+-#define b_ss(x)         b_x((x), 24, 2) /* the space code */
+-#define b_bbbbbbbb(x)   b_x((x), 16, 8) /* bus number */
+-#define b_ddddd(x)      b_x((x), 11, 5) /* device number */
+-#define b_fff(x)        b_x((x), 8, 3)  /* function number */
+-#define b_rrrrrrrr(x)   b_x((x), 0, 8)  /* register number */
+-
+ typedef struct sPAPRTCEDT {
+     void *fdt;
+     int node_off;
+@@ -900,14 +1261,6 @@ int spapr_populate_pci_dt(sPAPRPHBState *phb,
+         return bus_off;
+     }
+ 
+-#define _FDT(exp) \
+-    do { \
+-        int ret = (exp);                                           \
+-        if (ret < 0) {                                             \
+-            return ret;                                            \
+-        }                                                          \
+-    } while (0)
+-
+     /* Write PHB properties */
+     _FDT(fdt_setprop_string(fdt, bus_off, "device_type", "pci"));
+     _FDT(fdt_setprop_string(fdt, bus_off, "compatible", "IBM,Logical_PHB"));
+-- 
+1.9.3
+
+
+From 68204d8e410890c9bb1f29f59c43e90e3f43aaad Mon Sep 17 00:00:00 2001
+From: Michael Roth <mdroth@linux.vnet.ibm.com>
+Date: Tue, 3 Mar 2015 23:28:23 -0600
+Subject: [PATCH 17/28] *spapr_pci: use QEMU_PACKED
+
+Signed-off-by: Michael Roth <mdroth@linux.vnet.ibm.com>
+---
+ hw/ppc/spapr_pci.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/hw/ppc/spapr_pci.c b/hw/ppc/spapr_pci.c
+index 16e0570..eaa2d9f 100644
+--- a/hw/ppc/spapr_pci.c
++++ b/hw/ppc/spapr_pci.c
+@@ -507,7 +507,7 @@ typedef struct ResourceFields {
+     uint32_t phys_lo;
+     uint32_t size_hi;
+     uint32_t size_lo;
+-} __attribute__ ((packed)) ResourceFields;
++} QEMU_PACKED ResourceFields;
+ 
+ typedef struct ResourceProps {
+     ResourceFields reg[8];
+-- 
+1.9.3
+
+
+From fcf8973225c3bef4b05098995436e4d8e78f0e91 Mon Sep 17 00:00:00 2001
+From: Tyrel Datwyler <tyreld@linux.vnet.ibm.com>
+Date: Tue, 19 Nov 2013 11:49:30 -0600
+Subject: [PATCH 18/28] spapr_pci: emit hotplug add/remove events during
+ hotplug
+
+This uses extension of existing EPOW interrupt/event mechanism
+to notify userspace tools like librtas/drmgr to handle
+in-guest configuration/cleanup operations in response to
+device_add/device_del.
+
+Userspace tools that don't implement this extension will need
+to be run manually in response/advance of device_add/device_del,
+respectively.
+
+Signed-off-by: Tyrel Datwyler <tyreld@linux.vnet.ibm.com>
+Signed-off-by: Michael Roth <mdroth@linux.vnet.ibm.com>
+Reviewed-by: David Gibson <david@gibson.dropbear.id.au>
+---
+ hw/ppc/spapr_pci.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/hw/ppc/spapr_pci.c b/hw/ppc/spapr_pci.c
+index eaa2d9f..81dadb7 100644
+--- a/hw/ppc/spapr_pci.c
++++ b/hw/ppc/spapr_pci.c
+@@ -808,6 +808,9 @@ static void spapr_phb_hot_plug_child(HotplugHandler *plug_handler,
+         error_propagate(errp, local_err);
+         return;
+     }
++    if (plugged_dev->hotplugged) {
++        spapr_hotplug_req_add_event(drc);
++    }
+ }
+ 
+ static void spapr_phb_hot_unplug_child(HotplugHandler *plug_handler,
+@@ -838,6 +841,7 @@ static void spapr_phb_hot_unplug_child(HotplugHandler *plug_handler,
+             error_propagate(errp, local_err);
+             return;
+         }
++        spapr_hotplug_req_remove_event(drc);
+     }
+ }
+ 
+-- 
+1.9.3
+
+
+From eb0010b1f10b6f5339c4c07148a2164b9430197c Mon Sep 17 00:00:00 2001
+From: Michael Roth <mdroth@linux.vnet.ibm.com>
+Date: Fri, 27 Feb 2015 12:27:52 -0600
+Subject: [PATCH 19/28] *spapr_drc: fix transitions for non-PCI resources
+
+---
+ hw/ppc/spapr_drc.c | 41 ++++++++++++++++++++++++++++++++++++-----
+ 1 file changed, 36 insertions(+), 5 deletions(-)
+
+diff --git a/hw/ppc/spapr_drc.c b/hw/ppc/spapr_drc.c
+index d6587eb..0d4d864 100644
+--- a/hw/ppc/spapr_drc.c
++++ b/hw/ppc/spapr_drc.c
+@@ -103,8 +103,19 @@ static int set_indicator_state(sPAPRDRConnector *drc,
+ static int set_allocation_state(sPAPRDRConnector *drc,
+                                 sPAPRDRAllocationState state)
+ {
++    sPAPRDRConnectorClass *drck = SPAPR_DR_CONNECTOR_GET_CLASS(drc);
++
+     DPRINTFN("drc: %x, set_allocation_state: %x", get_index(drc), state);
+-    drc->allocation_state = state;
++
++    if (drc->type != SPAPR_DR_CONNECTOR_TYPE_PCI) {
++        drc->allocation_state = state;
++        if (drc->awaiting_release &&
++            drc->allocation_state == SPAPR_DR_ALLOCATION_STATE_UNUSABLE) {
++            DPRINTFN("finalizing device removal");
++            drck->detach(drc, DEVICE(drc->dev), drc->detach_cb,
++                         drc->detach_cb_opaque, NULL);
++        }
++    }
+     return 0;
+ }
+ 
+@@ -308,7 +319,9 @@ static void attach(sPAPRDRConnector *drc, DeviceState *d, void *fdt,
+         error_setg(errp, "an attached device is still awaiting release");
+         return;
+     }
+-    g_assert(drc->allocation_state == SPAPR_DR_ALLOCATION_STATE_UNUSABLE);
++    if (drc->type == SPAPR_DR_CONNECTOR_TYPE_PCI) {
++        g_assert(drc->allocation_state == SPAPR_DR_ALLOCATION_STATE_USABLE);
++    }
+     g_assert(fdt || coldplug);
+ 
+     /* NOTE: setting initial isolation state to UNISOLATED means we can't
+@@ -318,8 +331,9 @@ static void attach(sPAPRDRConnector *drc, DeviceState *d, void *fdt,
+      * may be accessing the device, we can easily crash the guest, so we
+      * we defer completion of removal in such cases to the reset() hook.
+      */
+-    drc->isolation_state = SPAPR_DR_ISOLATION_STATE_UNISOLATED;
+-    drc->allocation_state = SPAPR_DR_ALLOCATION_STATE_USABLE;
++    if (drc->type == SPAPR_DR_CONNECTOR_TYPE_PCI) {
++        drc->isolation_state = SPAPR_DR_ISOLATION_STATE_UNISOLATED;
++    }
+     drc->indicator_state = SPAPR_DR_INDICATOR_STATE_ACTIVE;
+ 
+     drc->dev = d;
+@@ -349,7 +363,13 @@ static void detach(sPAPRDRConnector *drc, DeviceState *d,
+         return;
+     }
+ 
+-    drc->allocation_state = SPAPR_DR_ALLOCATION_STATE_UNUSABLE;
++    if (drc->type != SPAPR_DR_CONNECTOR_TYPE_PCI &&
++        drc->allocation_state != SPAPR_DR_ALLOCATION_STATE_UNUSABLE) {
++        DPRINTFN("awaiting transition to unusable state before removal");
++        drc->awaiting_release = true;
++        return;
++    }
++
+     drc->indicator_state = SPAPR_DR_INDICATOR_STATE_INACTIVE;
+ 
+     if (drc->detach_cb) {
+@@ -394,6 +414,12 @@ static void reset(DeviceState *d)
+             drck->detach(drc, DEVICE(drc->dev), drc->detach_cb,
+                          drc->detach_cb_opaque, NULL);
+         }
++
++        /* non-PCI devices may be awaiting a transition to UNUSABLE */
++        if (drc->type != SPAPR_DR_CONNECTOR_TYPE_PCI &&
++            drc->awaiting_release) {
++            drck->set_allocation_state(drc, SPAPR_DR_ALLOCATION_STATE_UNUSABLE);
++        }
+     }
+ }
+ 
+@@ -501,6 +527,11 @@ sPAPRDRConnector *spapr_dr_connector_new(Object *owner,
+         g_assert(false);
+     }
+ 
++    /* PCI slot always start in a USABLE state, and stay there */
++    if (drc->type == SPAPR_DR_CONNECTOR_TYPE_PCI) {
++        drc->allocation_state = SPAPR_DR_ALLOCATION_STATE_USABLE;
++    }
++
+     return drc;
+ }
+ 
+-- 
+1.9.3
+
+
+From ba6cd3bd65f13f31e30dae0fbab6a914bcd33eb2 Mon Sep 17 00:00:00 2001
+From: Michael Roth <mdroth@linux.vnet.ibm.com>
+Date: Mon, 2 Mar 2015 15:53:09 -0600
+Subject: [PATCH 20/28] *spapr_drc: make prop_get_fdt() standalone
+
+This drops reliance on configure_connector_common() from
+prop_get_fdt(), and moves configured/fdt_start_offset fields
+out of sPAPRDRCCState and into sPAPRDRConnector. A follow-up
+will make rtas_configure_connector standalone as well, allowing
+us to drop drc->configure_connector()/configure_connector_common(),
+and simply expose the sPAPRDRCCState directly to RTAS.
+
+Signed-off-by: Michael Roth <mdroth@linux.vnet.ibm.com>
+---
+ hw/ppc/spapr_drc.c         | 63 +++++++++++++++++++++++++---------------------
+ include/hw/ppc/spapr_drc.h |  4 +--
+ 2 files changed, 37 insertions(+), 30 deletions(-)
+
+diff --git a/hw/ppc/spapr_drc.c b/hw/ppc/spapr_drc.c
+index 0d4d864..95fcd82 100644
+--- a/hw/ppc/spapr_drc.c
++++ b/hw/ppc/spapr_drc.c
+@@ -77,16 +77,16 @@ static int set_isolation_state(sPAPRDRConnector *drc,
+          * configured state, as suggested by the state diagram from
+          * PAPR+ 2.7, 13.4
+          */
+-        if (drc->awaiting_release && drc->ccs.configured) {
++        if (drc->awaiting_release && drc->configured) {
+             DPRINTFN("finalizing device removal");
+             drck->detach(drc, DEVICE(drc->dev), drc->detach_cb,
+                          drc->detach_cb_opaque, NULL);
+-        } else if (!drc->ccs.configured) {
++        } else if (!drc->configured) {
+             DPRINTFN("deferring device removal on unconfigured device\n");
+         }
+-        drc->ccs.fdt_offset = drc->ccs.fdt_start_offset;
++        drc->ccs.fdt_offset = drc->fdt_start_offset;
+         drc->ccs.fdt_depth = 0;
+-        drc->ccs.configured = false;
++        drc->configured = false;
+     }
+ 
+     return 0;
+@@ -199,7 +199,6 @@ static sPAPRDRCCResponse configure_connector_common(sPAPRDRCCState *ccs,
+             ccs->fdt_depth--;
+             if (ccs->fdt_depth == 0) {
+                 resp = SPAPR_DR_CC_RESPONSE_SUCCESS;
+-                ccs->configured = true;
+             } else {
+                 resp = SPAPR_DR_CC_RESPONSE_PREV_PARENT;
+             }
+@@ -269,45 +268,53 @@ static void prop_get_fdt(Object *obj, Visitor *v, void *opaque,
+                         const char *name, Error **errp)
+ {
+     sPAPRDRConnector *drc = SPAPR_DR_CONNECTOR(obj);
+-    sPAPRDRCCState ccs = { 0 };
+-    sPAPRDRCCResponse resp;
++    int fdt_offset_next, fdt_offset, fdt_depth;
++    void *fdt;
+ 
+-    ccs.fdt = drc->ccs.fdt;
+-    ccs.fdt_offset = ccs.fdt_start_offset = drc->ccs.fdt_start_offset;
++    if (!drc->ccs.fdt) {
++        return;
++    }
++
++    fdt = drc->ccs.fdt;
++    fdt_offset = drc->fdt_start_offset;
++    fdt_depth = 0;
+ 
+     do {
+-        char *name = NULL;
++        const char *name = NULL;
+         const struct fdt_property *prop = NULL;
+-        int prop_len;
+-
+-        resp = configure_connector_common(&ccs, &name, &prop, &prop_len);
++        int prop_len = 0, name_len = 0;
++        uint32_t tag;
+ 
+-        switch (resp) {
+-        case SPAPR_DR_CC_RESPONSE_NEXT_CHILD:
++        tag = fdt_next_tag(fdt, fdt_offset, &fdt_offset_next);
++        switch (tag) {
++        case FDT_BEGIN_NODE:
++            fdt_depth++;
++            name = fdt_get_name(fdt, fdt_offset, &name_len);
+             visit_start_struct(v, NULL, NULL, name, 0, NULL);
+             break;
+-        case SPAPR_DR_CC_RESPONSE_PREV_PARENT:
++        case FDT_END_NODE:
++            /* shouldn't ever see an FDT_END_NODE before FDT_BEGIN_NODE */
++            g_assert(fdt_depth > 0);
+             visit_end_struct(v, NULL);
++            fdt_depth--;
+             break;
+-        case SPAPR_DR_CC_RESPONSE_NEXT_PROPERTY: {
++        case FDT_PROP: {
+             int i;
++            prop = fdt_get_property_by_offset(fdt, fdt_offset, &prop_len);
++            name = fdt_string(fdt, fdt32_to_cpu(prop->nameoff));
+             visit_start_list(v, name, NULL);
+             for (i = 0; i < prop_len; i++) {
+                 visit_type_uint8(v, (uint8_t *)&prop->data[i], NULL, NULL);
++
+             }
+             visit_end_list(v, NULL);
+             break;
+         }
+         default:
+-            resp = SPAPR_DR_CC_RESPONSE_SUCCESS;
+-            break;
++            error_setg(&error_abort, "device FDT in unexpected state: %d", tag);
+         }
+-
+-        g_free(name);
+-    } while (resp != SPAPR_DR_CC_RESPONSE_SUCCESS &&
+-             resp != SPAPR_DR_CC_RESPONSE_ERROR);
+-
+-    g_assert(resp != SPAPR_DR_CC_RESPONSE_ERROR);
++        fdt_offset = fdt_offset_next;
++    } while (fdt_depth != 0);
+ }
+ 
+ static void attach(sPAPRDRConnector *drc, DeviceState *d, void *fdt,
+@@ -338,9 +345,9 @@ static void attach(sPAPRDRConnector *drc, DeviceState *d, void *fdt,
+ 
+     drc->dev = d;
+     drc->ccs.fdt = fdt;
+-    drc->ccs.fdt_offset = drc->ccs.fdt_start_offset = fdt_start_offset;
++    drc->ccs.fdt_offset = drc->fdt_start_offset = fdt_start_offset;
+     drc->ccs.fdt_depth = 0;
+-    drc->ccs.configured = false;
++    drc->configured = false;
+ 
+     object_property_add_link(OBJECT(drc), "device",
+                              object_get_typename(OBJECT(drc->dev)),
+@@ -379,7 +386,7 @@ static void detach(sPAPRDRConnector *drc, DeviceState *d,
+     drc->awaiting_release = false;
+     g_free(drc->ccs.fdt);
+     drc->ccs.fdt = NULL;
+-    drc->ccs.fdt_offset = drc->ccs.fdt_start_offset = drc->ccs.fdt_depth = 0;
++    drc->ccs.fdt_offset = drc->fdt_start_offset = drc->ccs.fdt_depth = 0;
+     object_property_del(OBJECT(drc), "device", NULL);
+     drc->dev = NULL;
+     drc->detach_cb = NULL;
+diff --git a/include/hw/ppc/spapr_drc.h b/include/hw/ppc/spapr_drc.h
+index 5895534..272a258 100644
+--- a/include/hw/ppc/spapr_drc.h
++++ b/include/hw/ppc/spapr_drc.h
+@@ -130,10 +130,8 @@ typedef enum {
+ 
+ typedef struct sPAPRDRCCState {
+     void *fdt;
+-    int fdt_start_offset;
+     int fdt_offset;
+     int fdt_depth;
+-    bool configured;
+ } sPAPRDRCCState;
+ 
+ typedef void (spapr_drc_detach_cb)(DeviceState *d, void *opaque);
+@@ -154,6 +152,8 @@ typedef struct sPAPRDRConnector {
+ 
+     /* configure-connector state */
+     sPAPRDRCCState ccs;
++    int fdt_start_offset;
++    bool configured;
+ 
+     bool awaiting_release;
+ 
+-- 
+1.9.3
+
+
+From 6f2f44cb3f85e3dcface8ec89e11312c48efd7c7 Mon Sep 17 00:00:00 2001
+From: Michael Roth <mdroth@linux.vnet.ibm.com>
+Date: Mon, 2 Mar 2015 21:37:29 -0600
+Subject: [PATCH 21/28] *spapr_drc: add begin/complete_configure_connector()
+
+These interfaces will be used to replace configure_connector()
+in a subsequent patch.
+
+Signed-off-by: Michael Roth <mdroth@linux.vnet.ibm.com>
+---
+ hw/ppc/spapr_drc.c         | 63 ++++++++++++++++++++++++++++++++++++++--------
+ include/hw/ppc/spapr_drc.h | 22 ++++++++++------
+ 2 files changed, 68 insertions(+), 17 deletions(-)
+
+diff --git a/hw/ppc/spapr_drc.c b/hw/ppc/spapr_drc.c
+index 95fcd82..5524196 100644
+--- a/hw/ppc/spapr_drc.c
++++ b/hw/ppc/spapr_drc.c
+@@ -34,6 +34,15 @@
+ #define DRC_INDEX_TYPE_SHIFT 28
+ #define DRC_INDEX_ID_MASK (~(~0 << DRC_INDEX_TYPE_SHIFT))
+ 
++static void reset_configure_connector(sPAPRDRConnector *drc)
++{
++    if (drc->reset_ccs) {
++        drc->reset_ccs(drc->ccs);
++    }
++    drc->ccs = NULL;
++    drc->reset_ccs = NULL;
++}
++
+ static sPAPRDRConnectorTypeShift get_type_shift(sPAPRDRConnectorType type)
+ {
+     uint32_t shift = 0;
+@@ -84,9 +93,8 @@ static int set_isolation_state(sPAPRDRConnector *drc,
+         } else if (!drc->configured) {
+             DPRINTFN("deferring device removal on unconfigured device\n");
+         }
+-        drc->ccs.fdt_offset = drc->fdt_start_offset;
+-        drc->ccs.fdt_depth = 0;
+         drc->configured = false;
++        reset_configure_connector(drc);
+     }
+ 
+     return 0;
+@@ -129,6 +137,37 @@ static const char *get_name(sPAPRDRConnector *drc)
+     return drc->name;
+ }
+ 
++static void *get_configure_connector_state(sPAPRDRConnector *drc)
++{
++    return drc->ccs;
++}
++
++static bool begin_configure_connector(sPAPRDRConnector *drc,
++                                      spapr_drc_init_ccs_cb init_ccs,
++                                      spapr_drc_reset_ccs_cb reset_ccs,
++                                      void *opaque)
++{
++    if (!drc->configured && drc->fdt) {
++        drc->reset_ccs = reset_ccs;
++        drc->ccs = opaque;
++        init_ccs(drc->ccs, drc->fdt, drc->fdt_start_offset);
++        return true;
++    }
++
++    /* we shouldn't be getting called when we've already been configured,
++     * or when an FDT hasn't been associated via attach(),
++     * so make sure the caller doesn't proceed
++     */
++    return false;
++}
++
++static void complete_configure_connector(sPAPRDRConnector *drc)
++{
++    g_assert(!drc->configured);
++    drc->configured = true;
++    reset_configure_connector(drc);
++}
++
+ /*
+  * dr-entity-sense sensor value
+  * returned via get-sensor-state RTAS calls
+@@ -271,11 +310,11 @@ static void prop_get_fdt(Object *obj, Visitor *v, void *opaque,
+     int fdt_offset_next, fdt_offset, fdt_depth;
+     void *fdt;
+ 
+-    if (!drc->ccs.fdt) {
++    if (!drc->fdt) {
+         return;
+     }
+ 
+-    fdt = drc->ccs.fdt;
++    fdt = drc->fdt;
+     fdt_offset = drc->fdt_start_offset;
+     fdt_depth = 0;
+ 
+@@ -344,10 +383,10 @@ static void attach(sPAPRDRConnector *drc, DeviceState *d, void *fdt,
+     drc->indicator_state = SPAPR_DR_INDICATOR_STATE_ACTIVE;
+ 
+     drc->dev = d;
+-    drc->ccs.fdt = fdt;
+-    drc->ccs.fdt_offset = drc->fdt_start_offset = fdt_start_offset;
+-    drc->ccs.fdt_depth = 0;
++    drc->fdt = fdt;
++    drc->fdt_start_offset = fdt_start_offset;
+     drc->configured = false;
++    reset_configure_connector(drc);
+ 
+     object_property_add_link(OBJECT(drc), "device",
+                              object_get_typename(OBJECT(drc->dev)),
+@@ -384,9 +423,10 @@ static void detach(sPAPRDRConnector *drc, DeviceState *d,
+     }
+ 
+     drc->awaiting_release = false;
+-    g_free(drc->ccs.fdt);
+-    drc->ccs.fdt = NULL;
+-    drc->ccs.fdt_offset = drc->fdt_start_offset = drc->ccs.fdt_depth = 0;
++    g_free(drc->fdt);
++    drc->fdt = NULL;
++    drc->fdt_start_offset = 0;
++    reset_configure_connector(drc);
+     object_property_del(OBJECT(drc), "device", NULL);
+     drc->dev = NULL;
+     drc->detach_cb = NULL;
+@@ -578,6 +618,9 @@ static void spapr_dr_connector_class_init(ObjectClass *k, void *data)
+     drck->get_index = get_index;
+     drck->get_type = get_type;
+     drck->get_name = get_name;
++    drck->get_configure_connector_state = get_configure_connector_state;
++    drck->begin_configure_connector = begin_configure_connector;
++    drck->complete_configure_connector = complete_configure_connector;
+     drck->entity_sense = entity_sense;
+     drck->configure_connector = configure_connector;
+     drck->attach = attach;
+diff --git a/include/hw/ppc/spapr_drc.h b/include/hw/ppc/spapr_drc.h
+index 272a258..864a11b 100644
+--- a/include/hw/ppc/spapr_drc.h
++++ b/include/hw/ppc/spapr_drc.h
+@@ -128,13 +128,10 @@ typedef enum {
+     SPAPR_DR_CC_RESPONSE_CONTINUE       = -2,
+ } sPAPRDRCCResponse;
+ 
+-typedef struct sPAPRDRCCState {
+-    void *fdt;
+-    int fdt_offset;
+-    int fdt_depth;
+-} sPAPRDRCCState;
+-
+ typedef void (spapr_drc_detach_cb)(DeviceState *d, void *opaque);
++typedef void (spapr_drc_init_ccs_cb)(void *opaque, void *fdt,
++                                     int fdt_start_offset);
++typedef void (spapr_drc_reset_ccs_cb)(void *opaque);
+ 
+ typedef struct sPAPRDRConnector {
+     /*< private >*/
+@@ -151,7 +148,10 @@ typedef struct sPAPRDRConnector {
+     uint32_t indicator_state;
+ 
+     /* configure-connector state */
+-    sPAPRDRCCState ccs;
++    void *ccs;
++    spapr_drc_reset_ccs_cb *reset_ccs;
++
++    void *fdt;
+     int fdt_start_offset;
+     bool configured;
+ 
+@@ -186,6 +186,14 @@ typedef struct sPAPRDRConnectorClass {
+                                              const struct fdt_property **prop,
+                                              int *prop_len);
+ 
++    /* QEMU interfaces for managing FDT/configure-connector */
++    void *(*get_configure_connector_state)(sPAPRDRConnector *drc);
++    bool (*begin_configure_connector)(sPAPRDRConnector *drc,
++                                      spapr_drc_init_ccs_cb init_ccs,
++                                      spapr_drc_reset_ccs_cb reset_ccs,
++                                      void *opaque);
++    void (*complete_configure_connector)(sPAPRDRConnector *drc);
++
+     /* QEMU interfaces for managing hotplug operations */
+     void (*attach)(sPAPRDRConnector *drc, DeviceState *d, void *fdt,
+                    int fdt_start_offset, bool coldplug, Error **errp);
+-- 
+1.9.3
+
+
+From 8f0738e04fe3efae4cb642559439b2c7ffba66a3 Mon Sep 17 00:00:00 2001
+From: Michael Roth <mdroth@linux.vnet.ibm.com>
+Date: Mon, 2 Mar 2015 21:43:46 -0600
+Subject: [PATCH 22/28] *spapr_rtas: drop usage of drc->configure_connector()
+
+Use the new drck->{begin,complete}_configure_connector() and
+drck->get_configure_connector_state() methods to handle
+the FDT traversal directly.
+
+rtas_configure_connector() state is now completely opaque
+to sPAPRDRConnector
+
+Signed-off-by: Michael Roth <mdroth@linux.vnet.ibm.com>
+---
+ hw/ppc/spapr_rtas.c | 135 ++++++++++++++++++++++++++++++++++++----------------
+ 1 file changed, 95 insertions(+), 40 deletions(-)
+
+diff --git a/hw/ppc/spapr_rtas.c b/hw/ppc/spapr_rtas.c
+index b5863c9..d78be21 100644
+--- a/hw/ppc/spapr_rtas.c
++++ b/hw/ppc/spapr_rtas.c
+@@ -462,6 +462,25 @@ static void rtas_get_sensor_state(PowerPCCPU *cpu, sPAPREnvironment *spapr,
+ #define CC_VAL_DATA_OFFSET ((CC_IDX_PROP_DATA_OFFSET + 1) * 4)
+ #define CC_WA_LEN 4096
+ 
++typedef struct sPAPRDRCCState {
++    void *fdt;
++    int fdt_offset;
++    int fdt_depth;
++} sPAPRDRCCState;
++
++static void init_ccs(void *opaque, void *fdt, int fdt_start_offset)
++{
++    sPAPRDRCCState *ccs = opaque;
++    ccs->fdt_offset = fdt_start_offset;
++    ccs->fdt = fdt;
++    ccs->fdt_depth = 0;
++}
++
++static void reset_ccs(void *opaque)
++{
++    g_free(opaque);
++}
++
+ static void rtas_ibm_configure_connector(PowerPCCPU *cpu,
+                                          sPAPREnvironment *spapr,
+                                          uint32_t token, uint32_t nargs,
+@@ -473,10 +492,9 @@ static void rtas_ibm_configure_connector(PowerPCCPU *cpu,
+     uint32_t drc_index;
+     sPAPRDRConnector *drc;
+     sPAPRDRConnectorClass *drck;
+-    sPAPRDRCCResponse resp;
+-    const struct fdt_property *prop = NULL;
+-    char *prop_name = NULL;
+-    int prop_len, rc;
++    sPAPRDRCCState *ccs;
++    sPAPRDRCCResponse resp = SPAPR_DR_CC_RESPONSE_CONTINUE;
++    int rc;
+ 
+     if (nargs != 2 || nret != 1) {
+         rtas_st(rets, 0, RTAS_OUT_PARAM_ERROR);
+@@ -488,51 +506,88 @@ static void rtas_ibm_configure_connector(PowerPCCPU *cpu,
+     drc_index = rtas_ld(wa_addr, 0);
+     drc = spapr_dr_connector_by_index(drc_index);
+     if (!drc) {
+-        DPRINTF("rtas_ibm_configure_connector: invalid sensor/DRC index: %xh\n",
++        DPRINTF("rtas_ibm_configure_connector: invalid DRC index: %xh\n",
+                 drc_index);
+         rc = RTAS_OUT_PARAM_ERROR;
+         goto out;
+     }
++
+     drck = SPAPR_DR_CONNECTOR_GET_CLASS(drc);
+-    resp = drck->configure_connector(drc, &prop_name, &prop, &prop_len);
+-
+-    switch (resp) {
+-    case SPAPR_DR_CC_RESPONSE_NEXT_CHILD:
+-        /* provide the name of the next OF node */
+-        wa_offset = CC_VAL_DATA_OFFSET;
+-        rtas_st(wa_addr, CC_IDX_NODE_NAME_OFFSET, wa_offset);
+-        rtas_st_buffer_direct(wa_addr + wa_offset, CC_WA_LEN - wa_offset,
+-                              (uint8_t *)prop_name, strlen(prop_name) + 1);
+-        break;
+-    case SPAPR_DR_CC_RESPONSE_NEXT_PROPERTY:
+-        /* provide the name of the next OF property */
+-        wa_offset = CC_VAL_DATA_OFFSET;
+-        rtas_st(wa_addr, CC_IDX_PROP_NAME_OFFSET, wa_offset);
+-        rtas_st_buffer_direct(wa_addr + wa_offset, CC_WA_LEN - wa_offset,
+-                              (uint8_t *)prop_name, strlen(prop_name) + 1);
+-
+-        /* provide the length and value of the OF property. data gets placed
+-         * immediately after NULL terminator of the OF property's name string
+-         */
+-        wa_offset += strlen(prop_name) + 1,
+-        rtas_st(wa_addr, CC_IDX_PROP_LEN, prop_len);
+-        rtas_st(wa_addr, CC_IDX_PROP_DATA_OFFSET, wa_offset);
+-        rtas_st_buffer_direct(wa_addr + wa_offset, CC_WA_LEN - wa_offset,
+-                              (uint8_t *)((struct fdt_property *)prop)->data,
+-                              prop_len);
+-        break;
+-    case SPAPR_DR_CC_RESPONSE_PREV_PARENT:
+-    case SPAPR_DR_CC_RESPONSE_ERROR:
+-    case SPAPR_DR_CC_RESPONSE_SUCCESS:
+-        break;
+-    default:
+-        /* drck->configure_connector() should not return anything else */
+-        g_assert(false);
++    ccs = drck->get_configure_connector_state(drc);
++    if (!ccs) {
++        ccs = g_new0(sPAPRDRCCState, 1);
++        if (!drck->begin_configure_connector(drc, init_ccs, reset_ccs, ccs)) {
++            DPRINTF("rtas_ibm_configure_connector: DRC index: %xh "
++                    "unavailable for configuration\n",
++                    drc_index);
++            rc = RTAS_OUT_PARAM_ERROR;
++            goto out;
++        }
+     }
+ 
++    do {
++        uint32_t tag;
++        const char *name;
++        const struct fdt_property *prop;
++        int fdt_offset_next, prop_len;
++
++        tag = fdt_next_tag(ccs->fdt, ccs->fdt_offset, &fdt_offset_next);
++
++        switch (tag) {
++        case FDT_BEGIN_NODE:
++            ccs->fdt_depth++;
++            name = fdt_get_name(ccs->fdt, ccs->fdt_offset, NULL);
++
++            /* provide the name of the next OF node */
++            wa_offset = CC_VAL_DATA_OFFSET;
++            rtas_st(wa_addr, CC_IDX_NODE_NAME_OFFSET, wa_offset);
++            rtas_st_buffer_direct(wa_addr + wa_offset, CC_WA_LEN - wa_offset,
++                                  (uint8_t *)name, strlen(name) + 1);
++            resp = SPAPR_DR_CC_RESPONSE_NEXT_CHILD;
++            break;
++        case FDT_END_NODE:
++            ccs->fdt_depth--;
++            if (ccs->fdt_depth == 0) {
++                drck->complete_configure_connector(drc);
++                resp = SPAPR_DR_CC_RESPONSE_SUCCESS;
++            } else {
++                resp = SPAPR_DR_CC_RESPONSE_PREV_PARENT;
++            }
++            break;
++        case FDT_PROP:
++            prop = fdt_get_property_by_offset(ccs->fdt, ccs->fdt_offset,
++                                              &prop_len);
++            name = fdt_string(ccs->fdt, fdt32_to_cpu(prop->nameoff));
++
++            /* provide the name of the next OF property */
++            wa_offset = CC_VAL_DATA_OFFSET;
++            rtas_st(wa_addr, CC_IDX_PROP_NAME_OFFSET, wa_offset);
++            rtas_st_buffer_direct(wa_addr + wa_offset, CC_WA_LEN - wa_offset,
++                                  (uint8_t *)name, strlen(name) + 1);
++
++            /* provide the length and value of the OF property. data gets
++             * placed immediately after NULL terminator of the OF property's
++             * name string
++             */
++            wa_offset += strlen(name) + 1,
++            rtas_st(wa_addr, CC_IDX_PROP_LEN, prop_len);
++            rtas_st(wa_addr, CC_IDX_PROP_DATA_OFFSET, wa_offset);
++            rtas_st_buffer_direct(wa_addr + wa_offset, CC_WA_LEN - wa_offset,
++                                  (uint8_t *)((struct fdt_property *)prop)->data,
++                                  prop_len);
++            resp = SPAPR_DR_CC_RESPONSE_NEXT_PROPERTY;
++            break;
++        case FDT_END:
++            resp = SPAPR_DR_CC_RESPONSE_ERROR;
++        default:
++            /* keep seeking for an actionable tag */
++            break;
++        }
++        ccs->fdt_offset = fdt_offset_next;
++    } while (resp == SPAPR_DR_CC_RESPONSE_CONTINUE);
++
+     rc = resp;
+ out:
+-    g_free(prop_name);
+     rtas_st(rets, 0, rc);
+ }
+ 
+-- 
+1.9.3
+
+
+From 8d697302e2fd3cb2ead140855403ff78e842bec5 Mon Sep 17 00:00:00 2001
+From: Michael Roth <mdroth@linux.vnet.ibm.com>
+Date: Mon, 2 Mar 2015 21:49:58 -0600
+Subject: [PATCH 23/28] *spapr_drc: drop drc->configure_connector()
+
+Signed-off-by: Michael Roth <mdroth@linux.vnet.ibm.com>
+---
+ hw/ppc/spapr_drc.c         | 64 ----------------------------------------------
+ include/hw/ppc/spapr_drc.h |  4 ---
+ 2 files changed, 68 deletions(-)
+
+diff --git a/hw/ppc/spapr_drc.c b/hw/ppc/spapr_drc.c
+index 5524196..543b483 100644
+--- a/hw/ppc/spapr_drc.c
++++ b/hw/ppc/spapr_drc.c
+@@ -206,69 +206,6 @@ static sPAPRDREntitySense entity_sense(sPAPRDRConnector *drc)
+     return SPAPR_DR_ENTITY_SENSE_UNUSABLE;
+ }
+ 
+-static sPAPRDRCCResponse configure_connector_common(sPAPRDRCCState *ccs,
+-                            char **name, const struct fdt_property **prop,
+-                            int *prop_len)
+-{
+-    sPAPRDRCCResponse resp = SPAPR_DR_CC_RESPONSE_CONTINUE;
+-    int fdt_offset_next;
+-
+-    *name = NULL;
+-    *prop = NULL;
+-    *prop_len = 0;
+-
+-    if (!ccs->fdt) {
+-        return SPAPR_DR_CC_RESPONSE_ERROR;
+-    }
+-
+-    while (resp == SPAPR_DR_CC_RESPONSE_CONTINUE) {
+-        const char *name_cur;
+-        uint32_t tag;
+-        int name_cur_len;
+-
+-        tag = fdt_next_tag(ccs->fdt, ccs->fdt_offset, &fdt_offset_next);
+-        switch (tag) {
+-        case FDT_BEGIN_NODE:
+-            ccs->fdt_depth++;
+-            name_cur = fdt_get_name(ccs->fdt, ccs->fdt_offset, &name_cur_len);
+-            *name = g_strndup(name_cur, name_cur_len);
+-            resp = SPAPR_DR_CC_RESPONSE_NEXT_CHILD;
+-            break;
+-        case FDT_END_NODE:
+-            ccs->fdt_depth--;
+-            if (ccs->fdt_depth == 0) {
+-                resp = SPAPR_DR_CC_RESPONSE_SUCCESS;
+-            } else {
+-                resp = SPAPR_DR_CC_RESPONSE_PREV_PARENT;
+-            }
+-            break;
+-        case FDT_PROP:
+-            *prop = fdt_get_property_by_offset(ccs->fdt, ccs->fdt_offset,
+-                                               prop_len);
+-            name_cur = fdt_string(ccs->fdt, fdt32_to_cpu((*prop)->nameoff));
+-            *name = g_strdup(name_cur);
+-            resp = SPAPR_DR_CC_RESPONSE_NEXT_PROPERTY;
+-            break;
+-        case FDT_END:
+-            resp = SPAPR_DR_CC_RESPONSE_ERROR;
+-            break;
+-        default:
+-            ccs->fdt_offset = fdt_offset_next;
+-        }
+-    }
+-
+-    ccs->fdt_offset = fdt_offset_next;
+-    return resp;
+-}
+-
+-static sPAPRDRCCResponse configure_connector(sPAPRDRConnector *drc,
+-                                             char **name,
+-                                             const struct fdt_property **prop,
+-                                             int *prop_len)
+-{
+-    return configure_connector_common(&drc->ccs, name, prop, prop_len);
+-}
+-
+ static void prop_get_index(Object *obj, Visitor *v, void *opaque,
+                                   const char *name, Error **errp)
+ {
+@@ -622,7 +559,6 @@ static void spapr_dr_connector_class_init(ObjectClass *k, void *data)
+     drck->begin_configure_connector = begin_configure_connector;
+     drck->complete_configure_connector = complete_configure_connector;
+     drck->entity_sense = entity_sense;
+-    drck->configure_connector = configure_connector;
+     drck->attach = attach;
+     drck->detach = detach;
+     drck->release_pending = release_pending;
+diff --git a/include/hw/ppc/spapr_drc.h b/include/hw/ppc/spapr_drc.h
+index 864a11b..39ccd9a 100644
+--- a/include/hw/ppc/spapr_drc.h
++++ b/include/hw/ppc/spapr_drc.h
+@@ -181,10 +181,6 @@ typedef struct sPAPRDRConnectorClass {
+     const char *(*get_name)(sPAPRDRConnector *drc);
+ 
+     sPAPRDREntitySense (*entity_sense)(sPAPRDRConnector *drc);
+-    sPAPRDRCCResponse (*configure_connector)(sPAPRDRConnector *drc,
+-                                             char **prop_name,
+-                                             const struct fdt_property **prop,
+-                                             int *prop_len);
+ 
+     /* QEMU interfaces for managing FDT/configure-connector */
+     void *(*get_configure_connector_state)(sPAPRDRConnector *drc);
+-- 
+1.9.3
+
+
+From 7b2f207b1107d9d08fdb30def97f0cb63fcf4d38 Mon Sep 17 00:00:00 2001
+From: Michael Roth <mdroth@linux.vnet.ibm.com>
+Date: Tue, 3 Mar 2015 10:23:15 -0500
+Subject: [PATCH 24/28] *spapr_pci: enable multifunction hotplug
+
+Previously we only allocated one DRC per PCI slot, but assigned
+the DRC indexes in multiples of 8 to allow for individual functions
+to eventually be managed by the DRC code, so to enable multifunction
+hotplug we simply switch to allocating one DRC per PCI function.
+
+We do need a small fix-up in the FDT generation code to encode the
+function in the FDT node name to avoid naming collisions with other
+functions.
+
+Signed-off-by: Michael Roth <mdroth@linux.vnet.ibm.com>
+---
+ hw/ppc/spapr_pci.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
+
+diff --git a/hw/ppc/spapr_pci.c b/hw/ppc/spapr_pci.c
+index 81dadb7..8d394f5 100644
+--- a/hw/ppc/spapr_pci.c
++++ b/hw/ppc/spapr_pci.c
+@@ -708,10 +708,15 @@ static void *spapr_create_pci_child_dt(sPAPRPHBState *phb, PCIDevice *dev,
+     void *fdt;
+     int offset, ret, fdt_size;
+     int slot = PCI_SLOT(dev->devfn);
++    int func = PCI_FUNC(dev->devfn);
+     char nodename[512];
+ 
+     fdt = create_device_tree(&fdt_size);
+-    sprintf(nodename, "pci@%d", slot);
++    if (func != 0) {
++        sprintf(nodename, "pci@%d,%d", slot, func);
++    } else {
++        sprintf(nodename, "pci@%d", slot);
++    }
+     offset = fdt_add_subnode(fdt, 0, nodename);
+     ret = spapr_populate_pci_child_dt(dev, fdt, offset, phb->index, drc_index,
+                                       drc_name);
+@@ -991,10 +996,10 @@ static void spapr_phb_realize(DeviceState *dev, Error **errp)
+ 
+     /* allocate connectors for child PCI devices */
+     if (sphb->dr_enabled) {
+-        for (i = 0; i < PCI_SLOT_MAX; i++) {
++        for (i = 0; i < PCI_SLOT_MAX * 8; i++) {
+             spapr_dr_connector_new(OBJECT(phb),
+                                    SPAPR_DR_CONNECTOR_TYPE_PCI,
+-                                   (sphb->index << 16) | (i << 3));
++                                   (sphb->index << 16) | i);
+         }
+     }
+ 
+-- 
+1.9.3
+
+
+From 8b0247b90861a48a76b63d91839784fda270c22f Mon Sep 17 00:00:00 2001
+From: Michael Roth <mdroth@linux.vnet.ibm.com>
+Date: Tue, 3 Mar 2015 23:56:58 -0600
+Subject: [PATCH 25/28] *spapr_rtas: fix potential use-after-free
+
+Signed-off-by: Michael Roth <mdroth@linux.vnet.ibm.com>
+---
+ hw/ppc/spapr_rtas.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/hw/ppc/spapr_rtas.c b/hw/ppc/spapr_rtas.c
+index d78be21..e8db39e 100644
+--- a/hw/ppc/spapr_rtas.c
++++ b/hw/ppc/spapr_rtas.c
+@@ -549,6 +549,8 @@ static void rtas_ibm_configure_connector(PowerPCCPU *cpu,
+             ccs->fdt_depth--;
+             if (ccs->fdt_depth == 0) {
+                 drck->complete_configure_connector(drc);
++                /* ccs should be free at this point */
++                ccs = NULL;
+                 resp = SPAPR_DR_CC_RESPONSE_SUCCESS;
+             } else {
+                 resp = SPAPR_DR_CC_RESPONSE_PREV_PARENT;
+@@ -583,7 +585,9 @@ static void rtas_ibm_configure_connector(PowerPCCPU *cpu,
+             /* keep seeking for an actionable tag */
+             break;
+         }
+-        ccs->fdt_offset = fdt_offset_next;
++        if (ccs) {
++            ccs->fdt_offset = fdt_offset_next;
++        }
+     } while (resp == SPAPR_DR_CC_RESPONSE_CONTINUE);
+ 
+     rc = resp;
+-- 
+1.9.3
+
+
+From b5e538431a8477511e928b92810384993692ff86 Mon Sep 17 00:00:00 2001
+From: Michael Roth <mdroth@linux.vnet.ibm.com>
+Date: Wed, 4 Mar 2015 10:59:04 -0600
+Subject: [PATCH 26/28] *spapr_drc: fix debug statement on deferred removal
+
+Signed-off-by: Michael Roth <mdroth@linux.vnet.ibm.com>
+---
+ hw/ppc/spapr_drc.c | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
+
+diff --git a/hw/ppc/spapr_drc.c b/hw/ppc/spapr_drc.c
+index 543b483..902df92 100644
+--- a/hw/ppc/spapr_drc.c
++++ b/hw/ppc/spapr_drc.c
+@@ -86,12 +86,14 @@ static int set_isolation_state(sPAPRDRConnector *drc,
+          * configured state, as suggested by the state diagram from
+          * PAPR+ 2.7, 13.4
+          */
+-        if (drc->awaiting_release && drc->configured) {
+-            DPRINTFN("finalizing device removal");
+-            drck->detach(drc, DEVICE(drc->dev), drc->detach_cb,
+-                         drc->detach_cb_opaque, NULL);
+-        } else if (!drc->configured) {
+-            DPRINTFN("deferring device removal on unconfigured device\n");
++        if (drc->awaiting_release) {
++            if (drc->configured) {
++                DPRINTFN("finalizing device removal");
++                drck->detach(drc, DEVICE(drc->dev), drc->detach_cb,
++                             drc->detach_cb_opaque, NULL);
++            } else (!drc->configured) {
++                DPRINTFN("deferring device removal on unconfigured device\n");
++            }
+         }
+         drc->configured = false;
+         reset_configure_connector(drc);
+-- 
+1.9.3
+
+
+From 0776d162cc455acf2e6c0aca958fbba4099a90ff Mon Sep 17 00:00:00 2001
+From: Michael Roth <mdroth@linux.vnet.ibm.com>
+Date: Wed, 4 Mar 2015 11:10:12 -0600
+Subject: [PATCH 27/28] *spapr_drc: fix debug fix
+
+---
+ hw/ppc/spapr_drc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/hw/ppc/spapr_drc.c b/hw/ppc/spapr_drc.c
+index 902df92..0aec711 100644
+--- a/hw/ppc/spapr_drc.c
++++ b/hw/ppc/spapr_drc.c
+@@ -91,7 +91,7 @@ static int set_isolation_state(sPAPRDRConnector *drc,
+                 DPRINTFN("finalizing device removal");
+                 drck->detach(drc, DEVICE(drc->dev), drc->detach_cb,
+                              drc->detach_cb_opaque, NULL);
+-            } else (!drc->configured) {
++            } else {
+                 DPRINTFN("deferring device removal on unconfigured device\n");
+             }
+         }
+-- 
+1.9.3
+
+
+From 683923dccc72b476be82cef7ec7d1b3eda246b8d Mon Sep 17 00:00:00 2001
+From: Peter Crosthwaite <peter.crosthwaite@xilinx.com>
+Date: Tue, 19 Aug 2014 23:55:52 -0700
+Subject: [PATCH 28/28] qom: Add automatic arrayification to
+ object_property_add()
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+If "[*]" is given as the last part of a QOM property name, treat that
+as an array property. The added property is given the first available
+name, replacing the * with a decimal number counting from 0.
+
+First add with name "foo[*]" will be "foo[0]". Second "foo[1]" and so
+on.
+
+Callers may inspect the ObjectProperty * return value to see what
+number the added property was given.
+
+Signed-off-by: Peter Crosthwaite <peter.crosthwaite@xilinx.com>
+Signed-off-by: Andreas Färber <afaerber@suse.de>
+(cherry picked from commit 339659041f87a76f8b71ad3d12cadfc5f89b4bb3)
+Signed-off-by: Michael Roth <mdroth@linux.vnet.ibm.com>
+---
+ qom/object.c | 21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
+
+diff --git a/qom/object.c b/qom/object.c
+index 0e8267b..98220f2 100644
+--- a/qom/object.c
++++ b/qom/object.c
+@@ -738,6 +738,27 @@ object_property_add(Object *obj, const char *name, const char *type,
+                     void *opaque, Error **errp)
+ {
+     ObjectProperty *prop;
++    size_t name_len = strlen(name);
++
++    if (name_len >= 3 && !memcmp(name + name_len - 3, "[*]", 4)) {
++        int i;
++        ObjectProperty *ret;
++        char *name_no_array = g_strdup(name);
++
++        name_no_array[name_len - 3] = '\0';
++        for (i = 0; ; ++i) {
++            char *full_name = g_strdup_printf("%s[%d]", name_no_array, i);
++
++            ret = object_property_add(obj, full_name, type, get, set,
++                                      release, opaque, NULL);
++            g_free(full_name);
++            if (ret) {
++                break;
++            }
++        }
++        g_free(name_no_array);
++        return ret;
++    }
+ 
+     QTAILQ_FOREACH(prop, &obj->properties, node) {
+         if (strcmp(prop->name, name) == 0) {
+-- 
+1.9.3
+

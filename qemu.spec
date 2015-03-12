@@ -152,7 +152,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 2.1.3
-Release: 3%{?dist}
+Release: 3.1%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -209,6 +209,7 @@ Patch0009: 0009-block-raw-posix-use-seek_hole-ahead-of-fiemap.patch
 Patch0010: 0010-usb-host-fix-usb_host_speed_compat-tyops.patch
 # Fix  qemu-img error (bz #1200043)
 Patch0011: 0011-block-Fix-max-nb_sectors-in-bdrv_make_zero.patch
+Patch0012: hotplug.patch
 
 BuildRequires: SDL2-devel
 BuildRequires: zlib-devel
@@ -752,6 +753,7 @@ CAC emulation development files.
 %patch0010 -p1
 # Fix qemu-img error (bz #1200043)
 %patch0011 -p1
+%patch0012 -p1
 
 
 %build
