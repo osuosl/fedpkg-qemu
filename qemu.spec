@@ -152,7 +152,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 2.1.3
-Release: 3%{?dist}
+Release: 4%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -207,8 +207,14 @@ Patch0008: 0008-block-raw-posix-Fix-disk-corruption-in-try_fiemap.patch
 Patch0009: 0009-block-raw-posix-use-seek_hole-ahead-of-fiemap.patch
 # Fix USB host assignment (bz #1187749)
 Patch0010: 0010-usb-host-fix-usb_host_speed_compat-tyops.patch
-# Fix  qemu-img error (bz #1200043)
-Patch0011: 0011-block-Fix-max-nb_sectors-in-bdrv_make_zero.patch
+# Qemu: PRDT overflow from guest to host (bz #1204919, bz #1205322)
+Patch0011: 0011-ide-Correct-handling-of-malformed-short-PRDTs.patch
+# CVE-2014-8106: cirrus: insufficient blit region checks (bz #1170612,
+# bz #1169454)
+Patch0012: 0012-cirrus-fix-blit-region-check.patch
+Patch0013: 0013-cirrus-don-t-overflow-CirrusVGAState-cirrus_bltbuf.patch
+# Fix .vdi disk corruption (bz #1199400)
+Patch0014: 0014-block-vdi-Add-locking-for-parallel-requests.patch
 
 BuildRequires: SDL2-devel
 BuildRequires: zlib-devel
@@ -750,8 +756,14 @@ CAC emulation development files.
 %patch0009 -p1
 # Fix USB host assignment (bz #1187749)
 %patch0010 -p1
-# Fix qemu-img error (bz #1200043)
+# Qemu: PRDT overflow from guest to host (bz #1204919, bz #1205322)
 %patch0011 -p1
+# CVE-2014-8106: cirrus: insufficient blit region checks (bz #1170612,
+# bz #1169454)
+%patch0012 -p1
+%patch0013 -p1
+# Fix .vdi disk corruption (bz #1199400)
+%patch0014 -p1
 
 
 %build
@@ -864,11 +876,11 @@ if [ -x "$b" ]; then "$b" -help; fi
 
 %define _udevdir /lib/udev/rules.d
 
-install -D -p -m 0744 %{SOURCE4} $RPM_BUILD_ROOT/lib/systemd/system/ksm.service
+install -D -p -m 0644 %{SOURCE4} $RPM_BUILD_ROOT/lib/systemd/system/ksm.service
 install -D -p -m 0644 %{SOURCE5} $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/ksm
 install -D -p -m 0755 ksmctl $RPM_BUILD_ROOT/lib/systemd/ksmctl
 
-install -D -p -m 0744 %{SOURCE7} $RPM_BUILD_ROOT/lib/systemd/system/ksmtuned.service
+install -D -p -m 0644 %{SOURCE7} $RPM_BUILD_ROOT/lib/systemd/system/ksmtuned.service
 install -D -p -m 0755 %{SOURCE8} $RPM_BUILD_ROOT%{_sbindir}/ksmtuned
 install -D -p -m 0644 %{SOURCE9} $RPM_BUILD_ROOT%{_sysconfdir}/ksmtuned.conf
 
@@ -1532,6 +1544,13 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Fri Mar 27 2015 Cole Robinson <crobinso@redhat.com> - 2:2.1.3-4
+- Qemu: PRDT overflow from guest to host (bz #1204919, bz #1205322)
+- CVE-2014-8106: cirrus: insufficient blit region checks (bz #1170612, bz
+  #1169454)
+- Fix .vdi disk corruption (bz #1199400)
+- Don't install ksm services as executable (bz #1192720)
+
 * Tue Mar 10 2015 Haïkel Guémar <hguemar@fedoraproject.org> - 2:2.1.3-3
 - Backport upstream patch fixing some qemu-img conversion errors (RHBZ#1200043)
 
