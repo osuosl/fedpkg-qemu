@@ -152,7 +152,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 2.1.3
-Release: 4%{?dist}
+Release: 5%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -215,6 +215,10 @@ Patch0012: 0012-cirrus-fix-blit-region-check.patch
 Patch0013: 0013-cirrus-don-t-overflow-CirrusVGAState-cirrus_bltbuf.patch
 # Fix .vdi disk corruption (bz #1199400)
 Patch0014: 0014-block-vdi-Add-locking-for-parallel-requests.patch
+# CVE-2015-1779 vnc: insufficient resource limiting in VNC websockets
+# decoder (bz #1205051, bz #1199572)
+Patch0015: 0015-CVE-2015-1779-incrementally-decode-websocket-frames.patch
+Patch0016: 0016-CVE-2015-1779-limit-size-of-HTTP-headers-from-websoc.patch
 
 BuildRequires: SDL2-devel
 BuildRequires: zlib-devel
@@ -764,6 +768,10 @@ CAC emulation development files.
 %patch0013 -p1
 # Fix .vdi disk corruption (bz #1199400)
 %patch0014 -p1
+# CVE-2015-1779 vnc: insufficient resource limiting in VNC websockets
+# decoder (bz #1205051, bz #1199572)
+%patch0015 -p1
+%patch0016 -p1
 
 
 %build
@@ -1544,6 +1552,10 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Thu Apr 02 2015 Cole Robinson <crobinso@redhat.com> - 2:2.1.3-5
+- CVE-2015-1779 vnc: insufficient resource limiting in VNC websockets decoder
+  (bz #1205051, bz #1199572)
+
 * Fri Mar 27 2015 Cole Robinson <crobinso@redhat.com> - 2:2.1.3-4
 - Qemu: PRDT overflow from guest to host (bz #1204919, bz #1205322)
 - CVE-2014-8106: cirrus: insufficient blit region checks (bz #1170612, bz
