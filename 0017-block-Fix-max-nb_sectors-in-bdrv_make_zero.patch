@@ -1,0 +1,34 @@
+From 619943278aa5b1f500d6f4b486b4581ed1f6143f Mon Sep 17 00:00:00 2001
+From: Fam Zheng <famz@redhat.com>
+Date: Mon, 10 Nov 2014 15:07:44 +0800
+Subject: [PATCH] block: Fix max nb_sectors in bdrv_make_zero
+
+In bdrv_rw_co we report -EINVAL for nb_sectors > INT_MAX /
+BDRV_SECTOR_SIZE, so a caller shouldn't exceed it.
+
+Signed-off-by: Fam Zheng <famz@redhat.com>
+Reviewed-by: Markus Armbruster <armbru@redhat.com>
+Message-id: 1415603264-21497-1-git-send-email-famz@redhat.com
+Signed-off-by: Stefan Hajnoczi <stefanha@redhat.com>
+---
+ block.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/block.c b/block.c
+index ed87b7e..8dc841c 100644
+--- a/block.c
++++ b/block.c
+@@ -2834,8 +2834,8 @@ int bdrv_make_zero(BlockDriverState *bs, BdrvRequestFlags flags)
+         if (nb_sectors <= 0) {
+             return 0;
+         }
+-        if (nb_sectors > INT_MAX) {
+-            nb_sectors = INT_MAX;
++        if (nb_sectors > INT_MAX / BDRV_SECTOR_SIZE) {
++            nb_sectors = INT_MAX / BDRV_SECTOR_SIZE;
+         }
+         ret = bdrv_get_block_status(bs, sector_num, nb_sectors, &n);
+         if (ret < 0) {
+-- 
+2.3.5
+

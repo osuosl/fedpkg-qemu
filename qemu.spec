@@ -152,7 +152,7 @@
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
 Version: 2.1.3
-Release: 5%{?dist}
+Release: 6%{?dist}
 Epoch: 2
 License: GPLv2+ and LGPLv2+ and BSD
 Group: Development/Tools
@@ -219,6 +219,8 @@ Patch0014: 0014-block-vdi-Add-locking-for-parallel-requests.patch
 # decoder (bz #1205051, bz #1199572)
 Patch0015: 0015-CVE-2015-1779-incrementally-decode-websocket-frames.patch
 Patch0016: 0016-CVE-2015-1779-limit-size-of-HTTP-headers-from-websoc.patch
+# Fix  qemu-img error (bz #1200043)
+Patch0017: 0017-block-Fix-max-nb_sectors-in-bdrv_make_zero.patch
 
 BuildRequires: SDL2-devel
 BuildRequires: zlib-devel
@@ -772,6 +774,8 @@ CAC emulation development files.
 # decoder (bz #1205051, bz #1199572)
 %patch0015 -p1
 %patch0016 -p1
+# Fix  qemu-img error (bz #1200043)
+%patch0017 -p1
 
 
 %build
@@ -1552,6 +1556,9 @@ getent passwd qemu >/dev/null || \
 %endif
 
 %changelog
+* Tue Apr 14 2015 Haïkel Guémar <hguemar@fedoraproject.org> - 2:2.1.3-6
+- Reintroduce upstream patch fixing some qemu-img conversion errors (RHBZ#1200043)
+
 * Thu Apr 02 2015 Cole Robinson <crobinso@redhat.com> - 2:2.1.3-5
 - CVE-2015-1779 vnc: insufficient resource limiting in VNC websockets decoder
   (bz #1205051, bz #1199572)
