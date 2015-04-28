@@ -1,7 +1,6 @@
-From 5c8a5868a03d062a25a0345dc8c97358fd7ad6f9 Mon Sep 17 00:00:00 2001
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Date: Thu, 11 Sep 2014 18:34:29 +0300
-Subject: [PATCH 06/11] virtio-pci: fix migration for pci bus master
+Subject: [PATCH] virtio-pci: fix migration for pci bus master
 
 Current support for bus master (clearing OK bit)
 together with the need to support guests which do not
@@ -115,6 +114,3 @@ index ba675fe..ec582fe 100644
  }
  
  static Property virtio_pci_properties[] = {
--- 
-2.1.0
-

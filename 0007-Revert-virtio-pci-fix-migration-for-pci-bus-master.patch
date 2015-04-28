@@ -1,7 +1,6 @@
-From ff681d852d37fe9f1ac64076fc18ecc1b9b698da Mon Sep 17 00:00:00 2001
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Date: Mon, 29 Sep 2014 11:27:32 +0300
-Subject: [PATCH 07/11] Revert "virtio-pci: fix migration for pci bus master"
+Subject: [PATCH] Revert "virtio-pci: fix migration for pci bus master"
 
 This reverts commit 4d43d3f3c8147ade184df9a1e9e82826edd39e19.
 
@@ -96,6 +95,3 @@ index ec582fe..ba675fe 100644
  }
  
  static Property virtio_pci_properties[] = {
--- 
-2.1.0
-

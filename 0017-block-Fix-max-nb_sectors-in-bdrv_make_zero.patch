@@ -1,7 +1,7 @@
-From a7cb55181edfc1e328027916e54d873c7eb85421 Mon Sep 17 00:00:00 2001
+From 619943278aa5b1f500d6f4b486b4581ed1f6143f Mon Sep 17 00:00:00 2001
 From: Fam Zheng <famz@redhat.com>
 Date: Mon, 10 Nov 2014 15:07:44 +0800
-Subject: [PATCH 11/11] block: Fix max nb_sectors in bdrv_make_zero
+Subject: [PATCH] block: Fix max nb_sectors in bdrv_make_zero
 
 In bdrv_rw_co we report -EINVAL for nb_sectors > INT_MAX /
 BDRV_SECTOR_SIZE, so a caller shouldn't exceed it.
@@ -30,5 +30,5 @@ index ed87b7e..8dc841c 100644
          ret = bdrv_get_block_status(bs, sector_num, nb_sectors, &n);
          if (ret < 0) {
 -- 
-2.1.0
+2.3.5
 
